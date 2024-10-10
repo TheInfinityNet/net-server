@@ -1,0 +1,279 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="uncategorized" xml:space="preserve">
+    <value>Chưa phân loại</value>
+  </data>
+  <data name="not_have_permission" xml:space="preserve">
+    <value>Bạn không có quyền thực hiện hành động này</value>
+  </data>
+  <data name="msg_test" xml:space="preserve">
+    <value>Xin chào {0}, đây là một tin nhắn kiểm tra</value>
+  </data>
+  <data name="file_upload_failed" xml:space="preserve">
+    <value>Tải tệp lên thất bại</value>
+  </data>
+  <data name="delete_file_failed" xml:space="preserve">
+    <value>Xóa tệp thất bại</value>
+  </data>
+  <data name="delete_folder_failed" xml:space="preserve">
+    <value>Xóa thư mục thất bại</value>
+  </data>
+  <data name="refresh_token_success" xml:space="preserve">
+    <value>Làm mới token thành công</value>
+  </data>
+  <data name="verify_email_success" xml:space="preserve">
+    <value>Email đã được xác minh, vui lòng đăng nhập</value>
+  </data>
+  <data name="null_email" xml:space="preserve">
+    <value>Email không được để trống</value>
+  </data>
+  <data name="blank_email" xml:space="preserve">
+    <value>Email là bắt buộc</value>
+  </data>
+  <data name="null_password" xml:space="preserve">
+    <value>Mật khẩu không được để trống</value>
+  </data>
+  <data name="blank_password" xml:space="preserve">
+    <value>Mật khẩu là bắt buộc</value>
+  </data>
+  <data name="size_password" xml:space="preserve">
+    <value>Mật khẩu phải có ít nhất 6 ký tự và không quá 20 ký tự</value>
+  </data>
+  <data name="null_firstName" xml:space="preserve">
+    <value>Họ không được để trống</value>
+  </data>
+  <data name="blank_firstName" xml:space="preserve">
+    <value>Họ là bắt buộc</value>
+  </data>
+  <data name="size_firstName" xml:space="preserve">
+    <value>Họ phải có ít nhất 2 ký tự và không quá 50 ký tự</value>
+  </data>
+  <data name="null_lastName" xml:space="preserve">
+    <value>Tên không được để trống</value>
+  </data>
+  <data name="blank_lastName" xml:space="preserve">
+    <value>Tên là bắt buộc</value>
+  </data>
+  <data name="size_lastName" xml:space="preserve">
+    <value>Tên phải có ít nhất 2 ký tự và không quá 50 ký tự</value>
+  </data>
+  <data name="null_token" xml:space="preserve">
+    <value>Token không được để trống</value>
+  </data>
+  <data name="blank_token" xml:space="preserve">
+    <value>Token là bắt buộc</value>
+  </data>
+  <data name="null_verification_type" xml:space="preserve">
+    <value>Loại xác minh không được để trống</value>
+  </data>
+  <data name="sign_up_success" xml:space="preserve">
+    <value>Đăng ký thành công, vui lòng xác minh email của bạn</value>
+  </data>
+  <data name="send_forgot_password_email_success" xml:space="preserve">
+    <value>Email quên mật khẩu đã được gửi, vui lòng kiểm tra hộp thư</value>
+  </data>
+  <data name="verify_forgot_password_code_success" xml:space="preserve">
+    <value>Email đã được xác minh, vui lòng đăng nhập</value>
+  </data>
+  <data name="reset_password_success" xml:space="preserve">
+    <value>Đặt lại mật khẩu thành công</value>
+  </data>
+  <data name="send_verification_email_success" xml:space="preserve">
+    <value>Email xác minh đã được gửi, vui lòng kiểm tra hộp thư</value>
+  </data>
+  <data name="validation_error" xml:space="preserve">
+    <value>Lỗi xác thực</value>
+  </data>
+  <data name="invalid_email" xml:space="preserve">
+    <value>Địa chỉ email không hợp lệ</value>
+  </data>
+  <data name="weak_password" xml:space="preserve">
+    <value>Mật khẩu quá yếu</value>
+  </data>
+  <data name="password_mis_match" xml:space="preserve">
+    <value>Mật khẩu không khớp</value>
+  </data>
+  <data name="terms_not_accepted" xml:space="preserve">
+    <value>Bạn phải chấp nhận các điều khoản và điều kiện</value>
+  </data>
+  <data name="wrong_password" xml:space="preserve">
+    <value>Mật khẩu không chính xác</value>
+  </data>
+  <data name="expired_password" xml:space="preserve">
+    <value>Mật khẩu đã hết hạn</value>
+  </data>
+  <data name="two_factor_required" xml:space="preserve">
+    <value>Yêu cầu xác thực hai yếu tố</value>
+  </data>
+  <data name="token_missing" xml:space="preserve">
+    <value>Thiếu token</value>
+  </data>
+  <data name="token_invalid" xml:space="preserve">
+    <value>Token không hợp lệ</value>
+  </data>
+  <data name="token_expired" xml:space="preserve">
+    <value>Token làm mới đã hết hạn</value>
+  </data>
+  <data name="invalid_token" xml:space="preserve">
+    <value>Token làm mới không hợp lệ</value>
+  </data>
+  <data name="token_revoked" xml:space="preserve">
+    <value>Token làm mới đã bị thu hồi</value>
+  </data>
+  <data name="token_blacklisted" xml:space="preserve">
+    <value>Token làm mới đã bị liệt vào danh sách đen</value>
+  </data>
+  <data name="invalid_signature" xml:space="preserve">
+    <value>Chữ ký token không hợp lệ</value>
+  </data>
+  <data name="code_invalid" xml:space="preserve">
+    <value>Mã xác minh không hợp lệ</value>
+  </data>
+  <data name="user_disabled" xml:space="preserve">
+    <value>Tài khoản bị vô hiệu hóa</value>
+  </data>
+  <data name="user_not_activated" xml:space="preserve">
+    <value>Tài khoản chưa được kích hoạt</value>
+  </data>
+  <data name="user_not_found" xml:space="preserve">
+    <value>Không tìm thấy người dùng</value>
+  </data>
+  <data name="email_already_in_use" xml:space="preserve">
+    <value>Email đã được sử dụng</value>
+  </data>
+  <data name="user_already_verified" xml:space="preserve">
+    <value>Người dùng đã được xác minh</value>
+  </data>
+  <data name="cannot_send_email" xml:space="preserve">
+    <value>Không thể gửi email</value>
+  </data>
+  <data name="username_already_in_use" xml:space="preserve">
+    <value>Tên người dùng đã được sử dụng</value>
+  </data>
+  <data name="too_many_requests" xml:space="preserve">
+    <value>Quá nhiều yêu cầu</value>
+  </data>
+  <data name="rate_limit_exceeded" xml:space="preserve">
+    <value>Vượt quá giới hạn yêu cầu</value>
+  </data>
+  <data name="test_msg" xml:space="preserve">
+    <value>Xin chào {0}</value>
+  </data>
+</root>

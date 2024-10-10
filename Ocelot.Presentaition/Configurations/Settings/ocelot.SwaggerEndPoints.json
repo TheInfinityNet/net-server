@@ -1,0 +1,24 @@
+{
+  "SwaggerEndPoints": [
+    {
+      "Key": "identity",
+      "Config": [
+        {
+          "Name": "Identity Service",
+          "Version": "v1",
+          "Url": "https://localhost:8282/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "profile",
+      "Config": [
+        {
+          "Name": "Profile Service",
+          "Version": "v1",
+          "Url": "https://localhost:8283/swagger/v1/swagger.json"
+        }
+      ]
+    }
+  ]
+}

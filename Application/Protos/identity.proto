@@ -1,0 +1,15 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
+
+message IntrospectRequest {
+  string token = 1;
+}
+
+message IntrospectResponse {
+  bool valid = 1;
+}
+
+service IdentityService {
+  rpc introspect(IntrospectRequest) returns (IntrospectResponse) {}
+}

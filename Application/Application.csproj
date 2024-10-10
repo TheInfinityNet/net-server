@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<AssemblyName>InfinityNetServer.BuildingBlocks.Application</AssemblyName>
+		<RootNamespace>InfinityNetServer.BuildingBlocks.Application</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Folder Include="Attributes\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Bogus" Version="35.6.1" />
+		<PackageReference Include="Google.Protobuf" Version="3.28.2" />
+		<PackageReference Include="Grpc.AspNetCore" Version="2.66.0" />
+		<PackageReference Include="Grpc.Tools" Version="2.66.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="MassTransit" Version="8.2.5" />
+		<PackageReference Include="MassTransit.RabbitMQ" Version="8.2.5" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.8" />
+		<PackageReference Include="StackExchange.Redis" Version="2.8.16" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Protobuf Include="Protos\**\*.proto" GrpcServices="Both" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Protos\identity.proto" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<ProjectReference Include="..\Domain\Domain.csproj" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <EmbeddedResource Update="Resources\SharedResource.en-US.resx">
+	    <SubType>Designer</SubType>
+	  </EmbeddedResource>
+	</ItemGroup>
+
+</Project>

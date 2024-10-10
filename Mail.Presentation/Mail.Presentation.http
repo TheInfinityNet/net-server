@@ -1,0 +1,6 @@
+@Mail.Presentation_HostAddress = http://localhost:5175
+
+GET {{Mail.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
