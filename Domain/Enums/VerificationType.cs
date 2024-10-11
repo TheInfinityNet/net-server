@@ -2,8 +2,12 @@
 {
     public enum VerificationType
     {
-        Active,
+        VerifyByCode,
 
-        Forgot
+        VerifyByToken,
+
+        ResetByCode,
+
+        ResetByToken
     }
 }

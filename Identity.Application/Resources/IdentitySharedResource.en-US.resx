@@ -142,46 +142,31 @@
     <value>Email verified, please sign in</value>
   </data>
   <data name="null_email" xml:space="preserve">
-    <value>Email cannot be null</value>
-  </data>
-  <data name="blank_email" xml:space="preserve">
     <value>Email is required</value>
   </data>
   <data name="null_password" xml:space="preserve">
-    <value>Password cannot be null</value>
-  </data>
-  <data name="blank_password" xml:space="preserve">
     <value>Password is required</value>
   </data>
   <data name="size_password" xml:space="preserve">
     <value>Password must be at least 6 characters long and 20 characters at most</value>
   </data>
-  <data name="null_firstName" xml:space="preserve">
-    <value>First name cannot be null</value>
-  </data>
-  <data name="blank_firstName" xml:space="preserve">
+  <data name="null_firstname" xml:space="preserve">
     <value>First name is required</value>
   </data>
-  <data name="size_firstName" xml:space="preserve">
+  <data name="size_firstname" xml:space="preserve">
     <value>First name must be at least 2 characters long and 50 characters at most</value>
   </data>
-  <data name="null_lastName" xml:space="preserve">
-    <value>Last name cannot be null</value>
-  </data>
-  <data name="blank_lastName" xml:space="preserve">
+  <data name="null_lastname" xml:space="preserve">
     <value>Last name is required</value>
   </data>
-  <data name="size_lastName" xml:space="preserve">
+  <data name="size_lastname" xml:space="preserve">
     <value>Last name must be at least 2 characters long and 50 characters at most</value>
   </data>
   <data name="null_token" xml:space="preserve">
-    <value>Token cannot be null</value>
-  </data>
-  <data name="blank_token" xml:space="preserve">
-    <value>Token is required</value>
+    <value>Token cannot is required</value>
   </data>
   <data name="null_verification_type" xml:space="preserve">
-    <value>Verification type cannot be null</value>
+    <value>Verification type is required</value>
   </data>
   <data name="sign_up_success" xml:space="preserve">
     <value>User registered successfully, please verify your email</value>
@@ -275,5 +260,17 @@
   </data>
   <data name="test_msg" xml:space="preserve">
     <value>Hello {0}</value>
+  </data>
+  <data name="invalid_mobile_number" xml:space="preserve">
+    <value>Phone invalid</value>
+  </data>
+  <data name="null_mobile_number" xml:space="preserve">
+    <value>Phone require</value>
+  </data>
+  <data name="null_code" xml:space="preserve">
+    <value>Code is required</value>
+  </data>
+  <data name="size_code" xml:space="preserve">
+	<value>Code must be 6 characters</value>
   </data>
 </root>

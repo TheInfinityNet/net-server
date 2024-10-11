@@ -5,14 +5,10 @@
 		<AssemblyName>InfinityNetServer.BuildingBlocks.Domain</AssemblyName>
 		<RootNamespace>InfinityNetServer.BuildingBlocks.Domain</RootNamespace>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<Folder Include="Enums\" />
-	</ItemGroup>
 	
 	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8"/>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8" />
 	</ItemGroup>
 
 </Project>

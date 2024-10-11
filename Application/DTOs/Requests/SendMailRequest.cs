@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using InfinityNetServer.BuildingBlocks.Application.DTOs;
 
-namespace InfinityNetServer.BuildingBlocks.Application.Dtos
+namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Requests
 {
     public sealed record SendMailRequest
     (

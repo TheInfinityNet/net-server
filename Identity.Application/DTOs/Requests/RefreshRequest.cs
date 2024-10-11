@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace InfinityNetServer.Services.Identity.Application.DTOs
+namespace InfinityNetServer.Services.Identity.Application.DTOs.Requests
 {
     public sealed record RefreshRequest
     {

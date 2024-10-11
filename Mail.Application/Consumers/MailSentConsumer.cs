@@ -3,11 +3,11 @@ using Microsoft.Extensions.Localization;
 using System.Globalization;
 using InfinityNetServer.BuildingBlocks.Application.Attributes;
 using InfinityNetServer.BuildingBlocks.Application.Consumers;
-using InfinityNetServer.BuildingBlocks.Application.Dtos;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System.Threading;
 using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
 
 namespace InfinityNetServer.Services.Mail.Application.Consumers
 {

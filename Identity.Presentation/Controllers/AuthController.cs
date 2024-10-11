@@ -1,6 +1,4 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Dtos;
-using InfinityNetServer.Services.Identity.Application;
-using InfinityNetServer.Services.Identity.Application.DTOs;
+﻿using InfinityNetServer.Services.Identity.Application;
 using InfinityNetServer.Services.Identity.Application.Exceptions;
 using InfinityNetServer.Services.Identity.Application.Interfaces;
 using InfinityNetServer.Services.Identity.Domain.Entities;
@@ -14,9 +12,15 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
+using InfinityNetServer.Services.Identity.Application.DTOs.Responses;
+using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 {
+    [Tags("Auth APIs")]
     [ApiController]
     [Route("auth")]
     public class AuthenticationController : ControllerBase
@@ -45,33 +49,20 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             _publishEndpoint = publishEndpoint;
         }
 
-        [HttpPost("sign-in")]
-        public IActionResult SignIn([FromBody] SignInRequest request)
+        [EndpointDescription("Sign up a new user")]
+        [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
+        [HttpPost("sign-up")]
+        public IActionResult SignUp([FromBody] SignUpRequest request)
         {
-            if (request.Email == "admin@gmail.com" && request.Password == "admin123")
-            {
-                AccountProvider user = new AccountProvider
-                {
-                    Email = request.Email,
-                    Account = new Account
-                    {
-                        Id = Guid.Parse("d55564f8-e09c-4d50-91c4-7d9d98b2f2d2")
-                    }
-                };
-
-                var accessToken = _authService.GenerateToken(user.Account, false);
-                var refreshToken = _authService.GenerateToken(user.Account, true);
-
-                return Ok(new
-                {
-                    accessToken,
-                    refreshToken
-                });
-            }
-            throw new IdentityException(IdentityErrorCode.USER_NOT_FOUND, StatusCodes.Status400BadRequest);
+            return Ok(new CommonMessageResponse
+            (
+                _localizer["sign_up_success"].ToString()
+            ));
         }
 
-        [HttpPost("send-verification-mail")]
+        [EndpointDescription("Send verification email")]
+        [ProducesResponseType(typeof(SendMailResponse), StatusCodes.Status200OK)]
+        [HttpPost("send-mail")]
         public async Task<IActionResult> SendMail([FromBody] SendMailRequest request)
         {
             _logger.LogInformation(CultureInfo.CurrentCulture.ToString());
@@ -83,12 +74,102 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
                 Content = request
             });
 
-            return Ok(new
-            {
-                message = _localizer["send_verification_email_success"].ToString()
-            });
+            return Ok(new SendMailResponse
+            (
+                _localizer["send_verification_email_success"].ToString(),
+                60
+            ));
         }
 
+        [EndpointDescription("Verify email by code")]
+        [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
+        [HttpPost("verify")]
+        public IActionResult Verify([FromBody] VerifyEmailByCodeRequest request)
+        {
+
+            return Ok(new CommonMessageResponse
+            (
+                _localizer["verify_email_success"].ToString()
+            ));
+        }
+
+        [EndpointDescription("Verify email by token")]
+        [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
+        [HttpGet("verify")]
+        public IActionResult Verify([FromQuery] string token)
+        {
+
+            return Ok(new CommonMessageResponse
+            (
+                _localizer["verify_email_success"].ToString()
+            ));
+        }
+
+        [EndpointDescription("Reset password by code")]
+        [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
+        [HttpPost("reset-by-code")]
+        public IActionResult Reset([FromBody] ResetByCodeRequest request)
+        {
+            return Ok(new CommonMessageResponse
+            (
+                _localizer["reset_password_success"].ToString()
+            ));
+        }
+
+        [EndpointDescription("Reset password by token")]
+        [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
+        [HttpPost("reset-by-token")]
+        public IActionResult Reset([FromQuery] string token, [FromBody] ResetByTokenRequest request)
+        {
+            return Ok(new CommonMessageResponse
+            (
+                _localizer["reset_password_success"].ToString()
+            ));
+        }
+
+        [EndpointDescription("Sign in a user")]
+        [ProducesResponseType(typeof(SignInResponse), StatusCodes.Status200OK)]
+        [HttpPost("sign-in")]
+        public IActionResult SignIn([FromBody] SignInRequest request)
+        {
+            if (request.Email == "test@gmail.com" && request.Password == "test123")
+            {
+                AccountProvider user = new AccountProvider
+                {
+                    Email = request.Email,
+                    Account = new Account
+                    {
+                        Id = Guid.Parse("d55564f8-e09c-4d50-91c4-7d9d98b2f2d2")
+                    }
+                };
+
+                var AccessToken = _authService.GenerateToken(user.Account, false);
+                var RefreshToken = _authService.GenerateToken(user.Account, true);
+
+                return Ok(new SignInResponse
+                (
+                   new TokensResponse
+                    (
+                        AccessToken,
+                        RefreshToken
+                    ),
+                   new UserProfileResponse
+                    (
+                        user.Account.Id,
+                        user.Email,
+                        "John",
+                        "Doe",
+                        "1234567890",
+                        new DateTime(1990, 1, 1),
+                        Gender.Male
+                    )
+                ));
+            }
+            throw new IdentityException(IdentityErrorCode.USER_NOT_FOUND, StatusCodes.Status400BadRequest);
+        }
+
+        [EndpointDescription("Refresh the access token")]
+        [ProducesResponseType(typeof(RefreshResponse), StatusCodes.Status200OK)]
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] RefreshRequest request)
         {
@@ -97,11 +178,11 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
                 string bearerToken = Request.Headers["Authorization"].ToString()["Bearer ".Length..];
                 var newAccessToken = await _authService.Refresh(request.RefreshToken!, bearerToken);
 
-                return Ok(new
-                {
-                    message = _localizer["refresh_token_success"].ToString(),
-                    accessToken = newAccessToken
-                });
+                return Ok(new RefreshResponse
+                (
+                    _localizer["refresh_token_success"].ToString(),
+                    newAccessToken
+                ));
             }
             throw new IdentityException(IdentityErrorCode.TOKEN_MISSING, StatusCodes.Status422UnprocessableEntity);
         }
