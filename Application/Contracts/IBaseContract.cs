@@ -10,6 +10,6 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts
 
         string AcceptLanguage { get; }
 
-        T content { get; }
+        T Content { get; }
     }
 }

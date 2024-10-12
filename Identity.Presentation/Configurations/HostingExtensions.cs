@@ -22,6 +22,10 @@ using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Jwt;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Metric;
 using System;
 using Microsoft.Extensions.Hosting;
+using InfinityNetServer.BuildingBlocks.Infrastructure.Exceptions;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.CORS;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.HealthCheck;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Grpc;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Configurations;
 
@@ -54,7 +58,13 @@ internal static class HostingExtensions
 
         builder.Services.AddLocalization(builder.Configuration);
 
+        builder.Services.AddHealthChecks(builder.Configuration);
+
+        builder.Services.AddCors(builder.Configuration);
+
         builder.Services.AddControllers();
+
+        //builder.Services.AddGrpcPreConfigured();
 
         builder.Services.AddEndpointsApiExplorer();
 
@@ -75,10 +85,12 @@ internal static class HostingExtensions
 
         builder.Services.AddMetrics(builder.Configuration);
 
+        //builder.Services.AddApplicationExceptionHandlers();
+
         builder.Services.AddGlobalExceptionHandler();
 
         builder.Services.AddTransient<HttpIdentityExceptionHandler>();
-        
+
         builder.Services.AddValidationHanlder(builder.Configuration, identityLocalizer);
 
         builder.AddCustomSerilog();
@@ -96,6 +108,8 @@ internal static class HostingExtensions
 
         app.UseLocalization();
 
+        app.UseHealthChecks();
+
         app.UseGlobalExceptionHandler();
 
         app.UseMiddleware<HttpIdentityExceptionHandler>();
@@ -108,7 +122,7 @@ internal static class HostingExtensions
 
         app.UseRouting();
 
-        app.UseCors();
+        app.UseCommonCors();
 
         app.UseMetrics(configuration);
 

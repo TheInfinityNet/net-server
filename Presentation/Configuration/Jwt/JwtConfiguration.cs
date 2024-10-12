@@ -32,10 +32,10 @@ public static class JwtConfiguration
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["Jwt:Issuer"],
-                    ValidAudiences = configuration["Jwt:Audiences"]!
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudiences = jwtOptions.Audiences
                     .ToString().Split(",").Select(a => a.Trim()).ToArray(),
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:AccessKey"]!)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.AccessKey)),
                 };
                 // Tắt ánh xạ các claim inbound
                 options.MapInboundClaims = false;

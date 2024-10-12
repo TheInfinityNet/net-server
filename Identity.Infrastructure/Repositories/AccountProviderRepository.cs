@@ -1,4 +1,5 @@
 ﻿using InfinityNetServer.Services.Identity.Domain.Entities;
+using InfinityNetServer.Services.Identity.Domain.Repositories;
 using InfinityNetServer.Services.Identity.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Identity.Infrastructure.Repositories
 {
-    public class AccountProviderRepository
+    public class AccountProviderRepository : IAccountProviderRepository
     {
         private readonly IdentityDbContext _context;
 

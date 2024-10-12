@@ -2,6 +2,8 @@
 
 option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
 
+import "google/protobuf/empty.proto";
+
 message IntrospectRequest {
   string token = 1;
 }
@@ -10,6 +12,14 @@ message IntrospectResponse {
   bool valid = 1;
 }
 
+message GetAccountIdsResponse {
+  repeated string accountIds = 1;
+}
+
 service IdentityService {
+
   rpc introspect(IntrospectRequest) returns (IntrospectResponse) {}
+
+  rpc getAccountIds (google.protobuf.Empty) returns (GetAccountIdsResponse) {}
+
 }

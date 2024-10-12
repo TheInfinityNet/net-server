@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+	  <TargetFramework>net8.0</TargetFramework>
+	  <AssemblyName>InfinityNetServer.Services.Profile.Presentation</AssemblyName>
+	  <RootNamespace>InfinityNetServer.Services.Profile.Presentation</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Presentation\Presentation.csproj" />
+    <ProjectReference Include="..\Profile.Infrastructure\Profile.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Microsoft.Extensions.Configuration;
-using InfinityNetServer.Services.Mail.Application.Consumers;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Localization;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Metric;
+using InfinityNetServer.Services.Mail.Application.Consumers;
 
 namespace InfinityNetServer.Services.Mail.Presentation.Configurations;
 

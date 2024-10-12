@@ -11,7 +11,7 @@ using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
 
 namespace InfinityNetServer.Services.Mail.Application.Consumers
 {
-    [QueueName("mail-sent-queue")]
+    [QueueName("mail-sent")]
     public class MailSentConsumer : BaseConsumer<IBaseContract<SendMailRequest>>
     {
 
@@ -36,7 +36,7 @@ namespace InfinityNetServer.Services.Mail.Application.Consumers
             _logger.LogInformation(Thread.CurrentThread.CurrentCulture.Name);
             var message = context.Message;
             _logger.LogInformation(_localizer["Hello"].ToString());
-            _logger.LogInformation($"Processing SendMailMessage: {message.content.Email} at {message.content.Type}");
+            _logger.LogInformation($"Processing SendMailMessage: {message.Content.Email} at {message.Content.Type}");
             await Task.CompletedTask;
         }
 

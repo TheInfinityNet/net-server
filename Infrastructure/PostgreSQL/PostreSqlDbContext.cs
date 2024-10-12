@@ -52,14 +52,25 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
 
                 if (entry.State == EntityState.Added)
                 {
-                    entry.Entity.CreatedBy = authenticationName;
+                    if (entry.Entity.CreatedBy == string.Empty)
+                    {
+                        entry.Entity.CreatedBy = authenticationName;
+                    }
+
+                    if (entry.Entity.UpdatedBy == string.Empty)
+                    {
+                        entry.Entity.UpdatedBy = authenticationName;
+                    }
+
                     entry.Entity.CreatedAt = DateTime.Now;
-                    entry.Entity.UpdatedBy = authenticationName;
                     entry.Entity.UpdatedAt = DateTime.Now;
                 }
                 else if (entry.State == EntityState.Modified)
                 {
-                    entry.Entity.UpdatedBy = authenticationName;
+                    if (entry.Entity.UpdatedBy == string.Empty)
+                    {
+                        entry.Entity.UpdatedBy = authenticationName;
+                    }
                     entry.Entity.UpdatedAt = DateTime.Now;
                     // Để tránh thay đổi CreatedBy và CreatedAt khi cập nhật
                     entry.Property(x => x.CreatedBy).IsModified = false;

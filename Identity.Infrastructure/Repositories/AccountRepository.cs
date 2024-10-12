@@ -5,10 +5,11 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using InfinityNetServer.Services.Identity.Domain.Repositories;
 
 namespace InfinityNetServer.Services.Identity.Infrastructure.Repositories
 {
-    public class AccountRepository
+    public class AccountRepository : IAccountRepository
     {
         private readonly IdentityDbContext _context;
 
@@ -25,11 +26,16 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Repositories
         }
 
         // Lấy tất cả Account Id
-        public async Task<List<Guid>> GetAllAccountIdsAsync()
+        public async Task<List<string>> GetAllAccountIdsAsync()
         {
             return await _context.Set<Account>()
-                .Select(a => a.Id)  // Chỉ chọn Id
+                .Select(a => a.AccountId.ToString())  // Chỉ chọn Id
                 .ToListAsync();
+        }
+
+        public async Task<List<Account>> GetAllAccountsAsync()
+        {
+            return await _context.Set<Account>().ToListAsync();
         }
 
         // Thêm một Account
@@ -44,7 +50,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Repositories
         public async Task UpdateAccountAsync(Account account)
         {
             // Kiểm tra xem account có tồn tại trong DbContext không
-            var existingAccount = await _context.Set<Account>().FindAsync(account.Id);
+            var existingAccount = await _context.Set<Account>().FindAsync(account.AccountId);
             if (existingAccount != null)
             {
                 // Cập nhật thông tin
@@ -53,7 +59,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Repositories
             }
             else
             {
-                throw new KeyNotFoundException($"Account with Id {account.Id} not found.");
+                throw new KeyNotFoundException($"Account with Id {account.AccountId} not found.");
             }
         }
 

@@ -1,6 +1,5 @@
 ﻿using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
-using InfinityNetServer.BuildingBlocks.Application.DTOs;
 
 namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Requests
 {
@@ -15,5 +14,5 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Requests
         [Required(ErrorMessage = "null_verification_type")]
         VerificationType Type
 
-    ) : IIntegrationEvent;
+    );
 }

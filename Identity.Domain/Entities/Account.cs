@@ -12,18 +12,26 @@ namespace InfinityNetServer.Services.Identity.Domain.Entities
 
         [Key]
         [Column("id")]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid AccountId { get; set; } = Guid.NewGuid();
+
+        [Required]
+        [EmailAddress]
+        [MaxLength(255)]
+        [Column("email")]
+        public string Email { get; set; }
+
+        [MaxLength(255)]
+        [Column("password")]
+        public string Password { get; set; }
 
         [Required]
         [Column("default_user_profile")]
         public Guid DefaultUserProfile { get; set; }
 
         // Navigation Properties
-        [Column("account_providers")]
-        public ICollection<AccountProvider> AccountProviders { get; set; }
+        public virtual ICollection<AccountProvider> AccountProviders { get; set; }
 
-        [Column("verifications")]
-        public ICollection<Verification> Verifications { get; set; }
+        public virtual ICollection<Verification> Verifications { get; set; }
 
     }
 

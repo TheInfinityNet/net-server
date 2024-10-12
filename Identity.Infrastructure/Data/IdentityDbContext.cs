@@ -3,9 +3,6 @@ using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL;
 using InfinityNetServer.Services.Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Identity.Infrastructure.Data
 {

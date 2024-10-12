@@ -77,7 +77,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, user.AccountId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Iss, _configuration["Jwt:Issuer"]!),
                 new Claim(JwtRegisteredClaimNames.Aud, "webapp.com")
@@ -109,10 +109,10 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
 
             Account user = new Account
             {
-                Id = Guid.Parse("d55564f8-e09c-4d50-91c4-7d9d98b2f2d2")
+                AccountId = Guid.Parse("d55564f8-e09c-4d50-91c4-7d9d98b2f2d2")
             };
 
-            if (!user.Id.Equals(Guid.Parse("d55564f8-e09c-4d50-91c4-7d9d98b2f2d2")))
+            if (!user.AccountId.Equals(Guid.Parse("d55564f8-e09c-4d50-91c4-7d9d98b2f2d2")))
                 throw new IdentityException(IdentityErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
 
             /*try

@@ -8,19 +8,25 @@ using System.Linq;
 using System.Threading.Tasks;
 using System;
 using Bogus;
-using InfinityNetServer.Services.Identity.Infrastructure.Repositories;
 using InfinityNetServer.Services.Identity.Domain.Entities;
 using InfinityNetServer.Services.Identity.Application;
+using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Commands;
+using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
+using InfinityNetServer.BuildingBlocks.Application.Interfaces;
+using MassTransit;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
+using InfinityNetServer.Services.Identity.Domain.Repositories;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    public class WeatherForecastController : BaseApiController
     {
         private readonly IStringLocalizer<IdentitySharedResource> _localizer;
 
-        private readonly AccountRepository _accountRepository;
+        private readonly IAccountRepository _accountRepository;
 
         private static readonly string[] Summaries = [
             "Freezing",
@@ -37,13 +43,18 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
+        private readonly IPublishEndpoint _publishEndpoint;
+
         public WeatherForecastController(
+            IAuthenticatedUserService authenticatedUserService,
             ILogger<WeatherForecastController> logger,
             IStringLocalizer<IdentitySharedResource> Localizer,
-            AccountRepository accountRepository)
+            IPublishEndpoint publishEndpoint,
+            IAccountRepository accountRepository) : base(authenticatedUserService)
         {
             _logger = logger;
             _localizer = Localizer;
+            _publishEndpoint = publishEndpoint;
             _accountRepository = accountRepository;
         }
 
@@ -68,7 +79,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             var faker = new Faker<Account>()
                 .RuleFor(a => a.DefaultUserProfile, f => Guid.NewGuid());
             Account account = faker.Generate(1).First();
-            account.Id = Guid.Parse("086101dd-b01b-474b-b710-82f90e044234");
+            account.AccountId = Guid.Parse("086101dd-b01b-474b-b710-82f90e044234");
             await _accountRepository.UpdateAccountAsync(account);
 
             _logger.LogInformation(CultureInfo.CurrentCulture.ToString());
@@ -81,5 +92,36 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             })
             .ToArray();
         }
+
+        [HttpGet("seed-data")]
+        public async Task<IActionResult> SeedData()
+        {
+            var accounts = await _accountRepository.GetAllAccountsAsync();
+
+            foreach (var account in accounts)
+            {
+                var command = new ProfileCreatedCommand(
+                    account.AccountId.ToString(),
+                    account.Email,
+                    "John",
+                    "Doe",
+                    "Smith",
+                    new Faker().Phone.PhoneNumber(),
+                    new DateTime(1990, 1, 12),
+                    Gender.Male
+                    );
+
+                await _publishEndpoint.Publish<IBaseContract<ProfileCreatedCommand>>(new
+                {
+                    RoutingKey = "app.info",
+                    SendAt = DateTime.UtcNow,
+                    AcceptLanguage = CultureInfo.CurrentCulture.ToString(),
+                    Content = command
+                });
+            }
+
+            return Ok(new { Message = "Seeded data successfully!" });
+        }
+
     }
 }

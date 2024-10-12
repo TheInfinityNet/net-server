@@ -1,6 +1,8 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Protos;
+﻿using Google.Protobuf.WellKnownTypes;
+using InfinityNetServer.BuildingBlocks.Application.Protos;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
@@ -35,6 +37,23 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             {
                 _logger.LogError(message: ex.Message);
                 return false;
+            }
+        }
+
+        public async Task<List<string>> GetAccountIds()
+        {
+            try
+            {
+                _logger.LogInformation("Starting get account ids");
+
+                // Call the gRPC server to introspect the token
+                var response = await _client.getAccountIdsAsync(new Empty());
+                return new List<string>(response.AccountIds);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(message: ex.Message);
+                return [];
             }
         }
 

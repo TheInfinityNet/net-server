@@ -15,10 +15,6 @@ namespace InfinityNetServer.Services.Identity.Domain.Entities
         public Guid VerificationId { get; set; } = Guid.NewGuid();
 
         [Required]
-        [Column("account_id")]
-        public Guid AccountId { get; set; }
-
-        [Required]
         [MaxLength(255)]
         [Column("token")]
         public string Token { get; set; }

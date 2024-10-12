@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 
-public abstract class BaseApiController : Controller
+public abstract class BaseApiController : ControllerBase
 {
 
     private readonly IAuthenticatedUserService _authenticatedUserService;

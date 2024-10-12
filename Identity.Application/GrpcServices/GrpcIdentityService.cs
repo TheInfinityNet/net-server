@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using InfinityNetServer.Services.Identity.Application.Interfaces;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
 using System.Threading.Tasks;
+using Google.Protobuf.WellKnownTypes;
+using InfinityNetServer.Services.Identity.Domain.Repositories;
 
 namespace InfinityNetServer.Services.Identity.Application.GrpcServices
 {
@@ -13,10 +15,13 @@ namespace InfinityNetServer.Services.Identity.Application.GrpcServices
 
         private readonly IAuthService _authService;
 
-        public GrpcIdentityService(ILogger<GrpcIdentityService> logger, IAuthService authService) : base()
+        private readonly IAccountRepository accountRepository;
+
+        public GrpcIdentityService(ILogger<GrpcIdentityService> logger, IAuthService authService, IAccountRepository accountRepository)
         {
             _logger = logger;
             _authService = authService;
+            this.accountRepository = accountRepository;
         }
 
         public override async Task<IntrospectResponse> introspect(IntrospectRequest request, ServerCallContext context)
@@ -25,12 +30,21 @@ namespace InfinityNetServer.Services.Identity.Application.GrpcServices
             _logger.LogInformation("Received introspect request for token: {Token}", request.Token);
 
             // Validate the token using _authService
-            var result = await _authService.Introspect(request.Token);
-
-            return new IntrospectResponse
+            var response = new IntrospectResponse
             {
-                Valid = result,
+                Valid = await _authService.Introspect(request.Token),
             };
+
+            return await Task.FromResult(response);
+        }
+
+        public override async Task<GetAccountIdsResponse> getAccountIds(Empty request, ServerCallContext context)
+        {
+            _logger.LogInformation("Received getAccountIds request");
+            var response = new GetAccountIdsResponse();
+            response.AccountIds.AddRange(await accountRepository.GetAllAccountIdsAsync());
+
+            return await Task.FromResult(response);
         }
 
     }

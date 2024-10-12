@@ -17,13 +17,15 @@ using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
 using InfinityNetServer.Services.Identity.Application.DTOs.Responses;
 using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
+using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
+using InfinityNetServer.BuildingBlocks.Application.Interfaces;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 {
     [Tags("Auth APIs")]
     [ApiController]
     [Route("auth")]
-    public class AuthenticationController : ControllerBase
+    public class AuthenticationController : BaseApiController
     {
         private readonly IStringLocalizer<IdentitySharedResource> _localizer;
 
@@ -36,11 +38,12 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
         private readonly IPublishEndpoint _publishEndpoint;
 
         public AuthenticationController(
+            IAuthenticatedUserService authenticatedUserService,
             ILogger<AuthenticationController> logger,
             IStringLocalizer<IdentitySharedResource> Localizer,
             IConfiguration configuration,
             IAuthService authService,
-            IPublishEndpoint publishEndpoint)
+            IPublishEndpoint publishEndpoint) : base(authenticatedUserService)
         {
             _logger = logger;
             _localizer = Localizer;
@@ -134,17 +137,13 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
         {
             if (request.Email == "test@gmail.com" && request.Password == "test123")
             {
-                AccountProvider user = new AccountProvider
+                Account account = new Account
                 {
-                    Email = request.Email,
-                    Account = new Account
-                    {
-                        Id = Guid.Parse("d55564f8-e09c-4d50-91c4-7d9d98b2f2d2")
-                    }
+                    Email = request.Email
                 };
 
-                var AccessToken = _authService.GenerateToken(user.Account, false);
-                var RefreshToken = _authService.GenerateToken(user.Account, true);
+                var AccessToken = _authService.GenerateToken(account, false);
+                var RefreshToken = _authService.GenerateToken(account, true);
 
                 return Ok(new SignInResponse
                 (
@@ -155,8 +154,8 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
                     ),
                    new UserProfileResponse
                     (
-                        user.Account.Id,
-                        user.Email,
+                        account.AccountId,
+                        account.Email,
                         "John",
                         "Doe",
                         "1234567890",

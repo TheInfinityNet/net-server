@@ -8,7 +8,7 @@ using System.Globalization;
 
 namespace InfinityNetServer.BuildingBlocks.Presentation.Configuration.Localization
 {
-    public static class LocalizationConfiguration
+    public static class GatewayCorsConfiguration
     {
 
         public static void AddLocalization(this IServiceCollection services, IConfiguration configuration)

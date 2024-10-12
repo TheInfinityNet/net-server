@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>net8.0</TargetFramework>
+	  <AssemblyName>InfinityNetServer.Services.Profile.Application</AssemblyName>
+	  <RootNamespace>InfinityNetServer.Services.Profile.Application</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Profile.Domain\Profile.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Enums;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace InfinityNetServer.Services.Identity.Application.DTOs.Requests
@@ -33,7 +34,7 @@ namespace InfinityNetServer.Services.Identity.Application.DTOs.Requests
 
         DateTime Birthdate,
 
-        string Gender,
+        Gender Gender,
 
         bool AcceptTerms
 

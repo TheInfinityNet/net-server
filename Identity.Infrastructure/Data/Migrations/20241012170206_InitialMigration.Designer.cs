@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20241009164020_InitialMigration")]
+    [Migration("20241012170206_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -27,7 +27,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.Account", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("AccountId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
@@ -46,6 +46,17 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("default_user_profile");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("Password")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("password");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
@@ -56,7 +67,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("updated_by");
 
-                    b.HasKey("Id");
+                    b.HasKey("AccountId");
 
                     b.ToTable("accounts");
                 });
@@ -68,10 +79,6 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("account_id");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
@@ -81,17 +88,6 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("created_by");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("email");
-
-                    b.Property<string>("Password")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("password");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer")
@@ -114,11 +110,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
 
                     b.HasIndex("account_id");
 
-                    b.ToTable("account_providers", t =>
-                        {
-                            t.Property("account_id")
-                                .HasColumnName("account_id1");
-                        });
+                    b.ToTable("account_providers");
                 });
 
             modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.Verification", b =>
@@ -127,10 +119,6 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("verification_id");
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("account_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone")
@@ -178,11 +166,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
 
                     b.HasIndex("account_id");
 
-                    b.ToTable("verifications", t =>
-                        {
-                            t.Property("account_id")
-                                .HasColumnName("account_id1");
-                        });
+                    b.ToTable("verifications");
                 });
 
             modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.AccountProvider", b =>
