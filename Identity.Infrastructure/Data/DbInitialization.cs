@@ -1,15 +1,12 @@
 ﻿using Bogus;
-using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.Services.Identity.Domain.Entities;
 using InfinityNetServer.Services.Identity.Domain.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using MassTransit;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Commands;
-using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Identity.Domain.Repositories;
+using InfinityNetServer.Services.Identity.Application.Helpers;
 
 namespace InfinityNetServer.Services.Identity.Infrastructure.Data;
 
@@ -56,7 +53,7 @@ public static class DbInitialization
         var faker = new Faker<Account>()
             .RuleFor(a => a.DefaultUserProfile, f => Guid.NewGuid())
             .RuleFor(ap => ap.Email, f => f.Internet.Email())
-            .RuleFor(ap => ap.Password, f => f.Internet.Password());
+            .RuleFor(ap => ap.Password, f => PasswordHelper.HashPassword("123456"));
 
         return faker.Generate(count);
     }

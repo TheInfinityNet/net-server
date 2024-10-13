@@ -52,12 +52,12 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
 
                 if (entry.State == EntityState.Added)
                 {
-                    if (entry.Entity.CreatedBy == string.Empty)
+                    if (entry.Entity.CreatedBy == null)
                     {
                         entry.Entity.CreatedBy = authenticationName;
                     }
 
-                    if (entry.Entity.UpdatedBy == string.Empty)
+                    if (entry.Entity.UpdatedBy == null)
                     {
                         entry.Entity.UpdatedBy = authenticationName;
                     }
@@ -67,7 +67,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
                 }
                 else if (entry.State == EntityState.Modified)
                 {
-                    if (entry.Entity.UpdatedBy == string.Empty)
+                    if (entry.Entity.UpdatedBy == null)
                     {
                         entry.Entity.UpdatedBy = authenticationName;
                     }

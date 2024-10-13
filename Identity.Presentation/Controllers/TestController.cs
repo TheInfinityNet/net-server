@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,57 +9,43 @@ using System;
 using Bogus;
 using InfinityNetServer.Services.Identity.Domain.Entities;
 using InfinityNetServer.Services.Identity.Application;
-using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Commands;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.BuildingBlocks.Application.Interfaces;
-using MassTransit;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Identity.Domain.Repositories;
+using InfinityNetServer.BuildingBlocks.Application.Bus;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class WeatherForecastController : BaseApiController
+    [Route("test")]
+    public class TestController : BaseApiController
     {
         private readonly IStringLocalizer<IdentitySharedResource> _localizer;
 
         private readonly IAccountRepository _accountRepository;
 
-        private static readonly string[] Summaries = [
-            "Freezing",
-            "Bracing",
-            "Chilly",
-            "Cool",
-            "Mild",
-            "Warm",
-            "Balmy",
-            "Hot",
-            "Sweltering",
-            "Scorching"
-        ];
+        private readonly ILogger<TestController> _logger;
 
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly IMessageBus _messageBus;
 
-        private readonly IPublishEndpoint _publishEndpoint;
-
-        public WeatherForecastController(
+        public TestController(
             IAuthenticatedUserService authenticatedUserService,
-            ILogger<WeatherForecastController> logger,
+            ILogger<TestController> logger,
             IStringLocalizer<IdentitySharedResource> Localizer,
-            IPublishEndpoint publishEndpoint,
+            IMessageBus messageBus,
             IAccountRepository accountRepository) : base(authenticatedUserService)
         {
             _logger = logger;
             _localizer = Localizer;
-            _publishEndpoint = publishEndpoint;
+            _messageBus = messageBus;
             _accountRepository = accountRepository;
         }
 
         [Authorize]
-        [HttpGet(Name = "GetWeatherForecast")]
-        public async Task<IEnumerable<WeatherForecast>> Get()
+        [HttpGet]
+        public async Task<IActionResult> Test()
         {
             var user = User;
             if (user == null)
@@ -83,40 +68,31 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             await _accountRepository.UpdateAccountAsync(account);
 
             _logger.LogInformation(CultureInfo.CurrentCulture.ToString());
-            _logger.LogInformation(_localizer["msg_test", "Ben"]);
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+            return Ok(new { Message = _localizer["msg_test", "Ben"].ToString() });
         }
 
         [HttpGet("seed-data")]
         public async Task<IActionResult> SeedData()
         {
             var accounts = await _accountRepository.GetAllAccountsAsync();
-
+            var faker = new Faker();
             foreach (var account in accounts)
             {
-                var command = new ProfileCreatedCommand(
+                var payload = new ProfileCreatedPayload (
                     account.AccountId.ToString(),
+                    account.DefaultUserProfile.ToString(),
                     account.Email,
-                    "John",
-                    "Doe",
-                    "Smith",
+                    faker.Name.FirstName(),
+                    string.Empty,
+                    faker.Name.LastName(),
                     new Faker().Phone.PhoneNumber(),
                     new DateTime(1990, 1, 12),
-                    Gender.Male
+                    faker.PickRandom<Gender>()
                     );
 
-                await _publishEndpoint.Publish<IBaseContract<ProfileCreatedCommand>>(new
+                await _messageBus.Publish(new BaseCommand<ProfileCreatedPayload>
                 {
-                    RoutingKey = "app.info",
-                    SendAt = DateTime.UtcNow,
-                    AcceptLanguage = CultureInfo.CurrentCulture.ToString(),
-                    Content = command
+                    Payload = payload
                 });
             }
 

@@ -24,6 +24,19 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data
 
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UserProfile>()
+                .HasOne(p => p.Profile)
+                .WithOne(b => b.UserProfile)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PageProfile>()
+                .HasOne(p => p.Profile)
+                .WithOne(b => b.PageProfile)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
     }
 
 }

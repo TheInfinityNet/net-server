@@ -79,12 +79,6 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("page_name");
 
-                    b.Property<Guid?>("profile_id")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("profile_id")
-                        .IsUnique();
-
                     b.ToTable("page_profiles");
                 });
 
@@ -128,8 +122,8 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
 
                     b.Property<string>("MobileNumber")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("mobile_number");
 
                     b.Property<string>("Username")
@@ -138,43 +132,27 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("username");
 
-                    b.Property<Guid?>("profile_id")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("profile_id")
-                        .IsUnique();
-
                     b.ToTable("user_profiles");
                 });
 
             modelBuilder.Entity("InfinityNetServer.Services.Profile.Domain.Entities.PageProfile", b =>
                 {
-                    b.HasOne("InfinityNetServer.Services.Profile.Domain.Entities.Profile", null)
-                        .WithOne()
+                    b.HasOne("InfinityNetServer.Services.Profile.Domain.Entities.Profile", "Profile")
+                        .WithOne("PageProfile")
                         .HasForeignKey("InfinityNetServer.Services.Profile.Domain.Entities.PageProfile", "ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("InfinityNetServer.Services.Profile.Domain.Entities.Profile", "Profile")
-                        .WithOne("PageProfile")
-                        .HasForeignKey("InfinityNetServer.Services.Profile.Domain.Entities.PageProfile", "profile_id")
-                        .HasConstraintName("FK_page_profiles_profiles_profile_id1");
 
                     b.Navigation("Profile");
                 });
 
             modelBuilder.Entity("InfinityNetServer.Services.Profile.Domain.Entities.UserProfile", b =>
                 {
-                    b.HasOne("InfinityNetServer.Services.Profile.Domain.Entities.Profile", null)
-                        .WithOne()
+                    b.HasOne("InfinityNetServer.Services.Profile.Domain.Entities.Profile", "Profile")
+                        .WithOne("UserProfile")
                         .HasForeignKey("InfinityNetServer.Services.Profile.Domain.Entities.UserProfile", "ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("InfinityNetServer.Services.Profile.Domain.Entities.Profile", "Profile")
-                        .WithOne("UserProfile")
-                        .HasForeignKey("InfinityNetServer.Services.Profile.Domain.Entities.UserProfile", "profile_id")
-                        .HasConstraintName("FK_user_profiles_profiles_profile_id1");
 
                     b.Navigation("Profile");
                 });

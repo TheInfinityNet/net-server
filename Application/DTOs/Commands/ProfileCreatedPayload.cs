@@ -3,9 +3,11 @@ using System;
 
 namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Commands
 {
-    public sealed record ProfileCreatedCommand (
+    public sealed record ProfileCreatedPayload (
 
         string AccountId,
+
+        string ProfileId,
 
         string Username,
 
@@ -21,5 +23,5 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Commands
 
         Gender Gender
 
-    ) : IIntegrationEvent;
+    );
 }

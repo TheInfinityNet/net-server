@@ -1,5 +1,7 @@
 ﻿syntax = "proto3";
 
+package InfinityNetServer.BuildingBlocks.Application.Protos;
+
 option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
 
 import "google/protobuf/empty.proto";

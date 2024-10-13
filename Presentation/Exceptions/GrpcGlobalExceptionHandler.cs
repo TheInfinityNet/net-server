@@ -9,9 +9,9 @@ namespace InfinityNetServer.BuildingBlocks.Presentation.Exceptions;
 
 public class GrpcGlobalExceptionHandler : Interceptor
 {
-    private readonly ILogger _logger;
+    private readonly ILogger<GrpcGlobalExceptionHandler> _logger;
 
-    public GrpcGlobalExceptionHandler(ILogger logger)
+    public GrpcGlobalExceptionHandler(ILogger<GrpcGlobalExceptionHandler> logger)
     {
         _logger = logger;
     }

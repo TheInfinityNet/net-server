@@ -12,6 +12,8 @@ namespace InfinityNetServer.Services.Profile.Domain.Repositories
 
         Task<List<Guid>> GetAllUserProfileIdsAsync();
 
+        Task<UserProfile> GetUserProfileByIdAsync(Guid id);
+
         Task<UserProfile> CreateUserProfileAsync(UserProfile userProfile);
 
         Task UpdateUserProfileAsync(UserProfile userProfile);

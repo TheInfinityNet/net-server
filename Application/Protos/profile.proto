@@ -1,0 +1,39 @@
+﻿syntax = "proto3";
+
+package InfinityNetServer.BuildingBlocks.Application.Protos;
+
+option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
+
+import "google/protobuf/timestamp.proto";
+
+import "Protos/base.proto";
+
+message GetProfileRequest {
+
+	string profileId = 1;
+
+}
+
+message UserProfileResponse {
+
+	string username = 1;
+
+	string firstName = 2;
+
+	string middleName = 3;
+
+	string lastName = 4;
+
+	string mobileNumber = 5;
+
+	google.protobuf.Timestamp birthdate = 6;
+
+	Gender gender = 7;
+
+}
+
+service ProfileService {
+
+  rpc getUserProfile(GetProfileRequest) returns (UserProfileResponse) {}
+
+}

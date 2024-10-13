@@ -1,5 +1,7 @@
 ﻿using Google.Protobuf.WellKnownTypes;
+using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -45,15 +47,14 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 _logger.LogInformation("Starting get account ids");
-
-                // Call the gRPC server to introspect the token
                 var response = await _client.getAccountIdsAsync(new Empty());
+                // Call the gRPC server to introspect the token
                 return new List<string>(response.AccountIds);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                _logger.LogError(message: ex.Message);
-                return [];
+                _logger.LogError(e.Message);
+                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
             }
         }
 

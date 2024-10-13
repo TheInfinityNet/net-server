@@ -141,4 +141,7 @@
   <data name="redis_error" xml:space="preserve">
     <value>Cannot connect to redis {0}</value>
   </data>
+  <data name="seed_data_error" xml:space="preserve">
+    <value>Error when seeding data</value>
+  </data>
 </root>

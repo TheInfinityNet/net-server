@@ -6,7 +6,6 @@ using InfinityNetServer.BuildingBlocks.Application.Consumers;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System.Threading;
-using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Commands;
 using InfinityNetServer.Services.Profile.Domain.Entities;
 using System;
@@ -15,7 +14,7 @@ using InfinityNetServer.Services.Profile.Domain.Repositories;
 namespace InfinityNetServer.Services.Profile.Application.Consumers
 {
     [QueueName("profile-created")]
-    public class ProfileCreatedConsumer : BaseConsumer<IBaseContract<ProfileCreatedCommand>>
+    public class ProfileCreatedConsumer : BaseConsumer<BaseCommand<ProfileCreatedPayload>>
     {
 
         private readonly ILogger<ProfileCreatedConsumer> _logger;
@@ -34,7 +33,7 @@ namespace InfinityNetServer.Services.Profile.Application.Consumers
             _userProfileRepository = userProfileRepository;
         }
 
-        public override async Task ConsumeMessage(ConsumeContext<IBaseContract<ProfileCreatedCommand>> context)
+        public override async Task ConsumeMessage(ConsumeContext<BaseCommand<ProfileCreatedPayload>> context)
         {
             _logger.LogInformation(context.Message.AcceptLanguage);
             Thread.CurrentThread.CurrentCulture = new CultureInfo(context.Message.AcceptLanguage);
@@ -44,10 +43,11 @@ namespace InfinityNetServer.Services.Profile.Application.Consumers
             var message = context.Message;
             _logger.LogInformation(_localizer["Hello"].ToString());
 
-            ProfileCreatedCommand payload = message.Content;
+            ProfileCreatedPayload payload = message.Payload;
 
             UserProfile userProfile = new UserProfile
             {
+                ProfileId = Guid.Parse(payload.ProfileId),
                 AccountId = Guid.Parse(payload.AccountId),
                 CreatedBy = payload.AccountId,
                 UpdatedBy = payload.AccountId,

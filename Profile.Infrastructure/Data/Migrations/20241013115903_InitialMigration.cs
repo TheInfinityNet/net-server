@@ -45,11 +45,6 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         principalTable: "profiles",
                         principalColumn: "profile_id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_page_profiles_profiles_profile_id1",
-                        column: x => x.profile_id,
-                        principalTable: "profiles",
-                        principalColumn: "profile_id");
                 });
 
             migrationBuilder.CreateTable(
@@ -59,7 +54,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                     profile_id = table.Column<Guid>(type: "uuid", nullable: false),
                     account_id = table.Column<Guid>(type: "uuid", nullable: false),
                     username = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    mobile_number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    mobile_number = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     first_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     middle_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     last_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
@@ -76,24 +71,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         principalTable: "profiles",
                         principalColumn: "profile_id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_user_profiles_profiles_profile_id1",
-                        column: x => x.profile_id,
-                        principalTable: "profiles",
-                        principalColumn: "profile_id");
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_page_profiles_profile_id",
-                table: "page_profiles",
-                column: "profile_id",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_user_profiles_profile_id",
-                table: "user_profiles",
-                column: "profile_id",
-                unique: true);
         }
 
         /// <inheritdoc />

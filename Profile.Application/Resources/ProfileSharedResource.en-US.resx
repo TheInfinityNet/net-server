@@ -120,4 +120,31 @@
   <data name="Hello" xml:space="preserve">
     <value>Hello {0}</value>
   </data>
+  <data name="null_first_name" xml:space="preserve">
+    <value>First name is required</value>
+  </data>
+  <data name="size_first_name" xml:space="preserve">
+    <value>First name must be at least 2 characters long and 50 characters at most</value>
+  </data>
+  <data name="null_last_name" xml:space="preserve">
+    <value>Last name is required</value>
+  </data>
+  <data name="size_last_name" xml:space="preserve">
+    <value>Last name must be at least 2 characters long and 50 characters at most</value>
+  </data>
+  <data name="null_username" xml:space="preserve">
+    <value>Username is required</value>
+  </data>
+  <data name="size_username" xml:space="preserve">
+    <value>Username must be at least 2 characters long and 50 characters at most</value>
+  </data>
+  <data name="invalid_mobile_number" xml:space="preserve">
+    <value>Phone invalid</value>
+  </data>
+  <data name="null_mobile_number" xml:space="preserve">
+    <value>Phone require</value>
+  </data>
+  <data name="profile_updated_success" xml:space="preserve">
+    <value>Update success for user: {0}</value>
+  </data>
 </root>

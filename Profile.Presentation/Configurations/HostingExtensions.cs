@@ -25,6 +25,8 @@ using InfinityNetServer.BuildingBlocks.Presentation.Configuration.CORS;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.HealthCheck;
 using InfinityNetServer.Services.Profile.Application.Consumers;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Grpc;
+using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
+using InfinityNetServer.Services.Profile.Presentation.Mappers;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Configurations;
 
@@ -43,25 +45,25 @@ internal static class HostingExtensions
 
         builder.Services.AddBaseRedisService(builder.Configuration);
 
-        builder.Services.AddProfileService(builder.Configuration);
+        builder.Services.AddServices(builder.Configuration);
+
+        builder.Services.AddMapper(typeof(ProfileMapper));
 
         builder.Services.AddDbContext();
 
         builder.Services.AddRepositories();
 
-        //builder.Services.AddGrpc();
+        builder.Services.AddGrpc();
 
         builder.Services.AddLocalization(builder.Configuration);
 
         builder.Services.AddMessageBus(builder.Configuration, typeof(ProfileCreatedConsumer));
 
-        builder.Services.AddHealthChecks(builder.Configuration);
+        //builder.Services.AddHealthChecks(builder.Configuration);
 
         builder.Services.AddCors(builder.Configuration);
 
         builder.Services.AddControllers();
-
-        builder.Services.AddGrpcPreConfigured();
 
         builder.Services.AddGrpcClients(builder.Configuration);
 
@@ -86,6 +88,8 @@ internal static class HostingExtensions
 
         builder.Services.AddGlobalExceptionHandler();
 
+        builder.Services.AddGrpcPreConfigured();
+
         builder.Services.AddTransient<HttpProfileExceptionHandler>();
 
         builder.Services.AddValidationHanlder(builder.Configuration, identityLocalizer);
@@ -105,7 +109,7 @@ internal static class HostingExtensions
 
         app.UseLocalization();
 
-        app.UseHealthChecks();
+        //app.UseHealthChecks();
 
         app.UseGlobalExceptionHandler();
 

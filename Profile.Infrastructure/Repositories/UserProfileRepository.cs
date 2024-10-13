@@ -33,6 +33,11 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<UserProfile> GetUserProfileByIdAsync(Guid id)
+        {
+            return await _context.Set<UserProfile>().FindAsync(id);
+        }
+
         // Thêm một Account
         public async Task<UserProfile> CreateUserProfileAsync(UserProfile userProfile)
         {

@@ -24,6 +24,21 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data
 
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<AccountProvider>()
+                .HasOne(p => p.Account)
+                .WithMany(b => b.AccountProviders)
+                .HasForeignKey(p => p.AccountId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Verification>()
+                .HasOne(p => p.Account)
+                .WithMany(b => b.Verifications)
+                .HasForeignKey(p => p.AccountId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
     }
 
 }

@@ -1,0 +1,15 @@
+﻿syntax = "proto3";
+
+package InfinityNetServer.BuildingBlocks.Application.Protos;
+
+option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
+
+enum Gender {
+
+	Male = 0;
+
+    Female = 1;
+
+    Other = 2;
+
+}

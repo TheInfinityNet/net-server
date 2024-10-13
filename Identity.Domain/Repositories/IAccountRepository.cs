@@ -1,4 +1,5 @@
 ﻿using InfinityNetServer.Services.Identity.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,6 +13,10 @@ namespace InfinityNetServer.Services.Identity.Domain.Repositories
         Task<List<string>> GetAllAccountIdsAsync();
 
         Task<List<Account>> GetAllAccountsAsync();
+
+        Task<Account> GetAccountByIdAsync(Guid id);
+
+        Task<Account> GetAccountByEmailAsync(string email);
 
         Task<Account> CreateAccountAsync(Account account);
 

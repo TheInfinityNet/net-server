@@ -1,6 +1,5 @@
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.MVC;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Serilog;
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Grpc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using MMLib.SwaggerForOcelot.DependencyInjection;
@@ -34,8 +33,6 @@ internal static class HostingExtensions
                 o.Folder = "Configurations/Settings";
             }
         );
-
-        builder.Services.AddGrpcPreConfigured();
 
         builder.Services.AddGrpcClients(builder.Configuration);
 

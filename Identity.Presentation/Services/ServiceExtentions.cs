@@ -4,12 +4,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Services
 {
-    public static class AuthExtentions
+    public static class ServiceExtentions
     {
 
-        public static void AddAuthService(this IServiceCollection services, IConfiguration configuration)
+        public static void AddServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IAccountService, AccountService>();
         }
 
     }

@@ -13,19 +13,16 @@ public record BaseErrorCode
     }
 
     // Static instances to represent each error code
-    public static readonly BaseErrorCode VALIDATION_ERROR = new("auth/validation-error", "validation_error");
+    public static readonly BaseErrorCode VALIDATION_ERROR = new("common/validation-error", "validation_error");
+    public static readonly BaseErrorCode SEED_DATA_ERROR = new("common/seed-data-error", "seed_data_error");
 
     // Token Errors
     public static readonly BaseErrorCode TOKEN_MISSING = new("common/token-missing", "token_missing");
     public static readonly BaseErrorCode TOKEN_INVALID = new("common/token-invalid", "token_invalid");
-    public static readonly BaseErrorCode TOKEN_EXPIRED = new("auth/token-expired", "token_expired");
-    public static readonly BaseErrorCode INVALID_TOKEN = new("auth/invalid-token", "invalid_token");
-    public static readonly BaseErrorCode TOKEN_REVOKED = new("auth/token-revoked", "token_revoked");
-    public static readonly BaseErrorCode TOKEN_BLACKLISTED = new("auth/token-blacklisted", "token_blacklisted");
-    public static readonly BaseErrorCode INVALID_SIGNATURE = new("auth/invalid-signature", "invalid_signature");
+    public static readonly BaseErrorCode INVALID_SIGNATURE = new("common/invalid-signature", "invalid_signature");
 
     // Rate Limiting Errors
-    public static readonly BaseErrorCode TOO_MANY_REQUESTS = new("auth/too-many-requests", "too_many_requests");
-    public static readonly BaseErrorCode RATE_LIMIT_EXCEEDED = new("auth/rate-limit-exceeded", "rate_limit_exceeded");
+    public static readonly BaseErrorCode TOO_MANY_REQUESTS = new("common/too-many-requests", "too_many_requests");
+    public static readonly BaseErrorCode RATE_LIMIT_EXCEEDED = new("common/rate-limit-exceeded", "rate_limit_exceeded");
 
 }

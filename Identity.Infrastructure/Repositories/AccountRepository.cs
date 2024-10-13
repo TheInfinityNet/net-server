@@ -38,6 +38,16 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Repositories
             return await _context.Set<Account>().ToListAsync();
         }
 
+        public async Task<Account> GetAccountByIdAsync(Guid id)
+        {
+            return await _context.Set<Account>().FindAsync(id);
+        }
+
+        public async Task<Account> GetAccountByEmailAsync(string email)
+        {
+            return await _context.Set<Account>().FirstOrDefaultAsync(a => a.Email == email);
+        }
+
         // Thêm một Account
         public async Task<Account> CreateAccountAsync(Account account)
         {

@@ -18,7 +18,7 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         public string Username { get; set; }
 
         [Required]
-        [MaxLength(20)]
+        [MaxLength(50)]
         [Column("mobile_number")]
         public string MobileNumber { get; set; }
 
@@ -45,6 +45,9 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
 
         [Column("bio", TypeName = "text")]
         public string Bio { get; set; } = string.Empty;
+
+        [ForeignKey("ProfileId")]
+        public virtual Profile Profile { get; set; }
 
     }
 }

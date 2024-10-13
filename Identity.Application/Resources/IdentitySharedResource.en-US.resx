@@ -150,16 +150,16 @@
   <data name="size_password" xml:space="preserve">
     <value>Password must be at least 6 characters long and 20 characters at most</value>
   </data>
-  <data name="null_firstname" xml:space="preserve">
+  <data name="null_first_name" xml:space="preserve">
     <value>First name is required</value>
   </data>
-  <data name="size_firstname" xml:space="preserve">
+  <data name="size_first_name" xml:space="preserve">
     <value>First name must be at least 2 characters long and 50 characters at most</value>
   </data>
-  <data name="null_lastname" xml:space="preserve">
+  <data name="null_last_name" xml:space="preserve">
     <value>Last name is required</value>
   </data>
-  <data name="size_lastname" xml:space="preserve">
+  <data name="size_last_name" xml:space="preserve">
     <value>Last name must be at least 2 characters long and 50 characters at most</value>
   </data>
   <data name="null_token" xml:space="preserve">

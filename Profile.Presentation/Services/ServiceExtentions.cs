@@ -4,12 +4,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Services
 {
-    public static class ProfileExtentions
+    public static class ServiceExtentions
     {
 
-        public static void AddProfileService(this IServiceCollection services, IConfiguration configuration)
+        public static void AddServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<IProfileService, ProfileService>();
+            services.AddScoped<IUserProfileService, UserProfileService>();
         }
 
     }

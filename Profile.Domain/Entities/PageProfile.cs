@@ -20,6 +20,9 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         [Column("page_description", TypeName = "text")]
         public string PageDescription { get; set; }
 
+        [ForeignKey("ProfileId")]
+        public virtual Profile Profile { get; set; }
+
     }
 
 }

@@ -6,13 +6,13 @@ using InfinityNetServer.BuildingBlocks.Application.Consumers;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System.Threading;
-using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Commands;
 
 namespace InfinityNetServer.Services.Mail.Application.Consumers
 {
     [QueueName("mail-sent")]
-    public class MailSentConsumer : BaseConsumer<IBaseContract<SendMailRequest>>
+    public class MailSentConsumer : BaseConsumer<BaseCommand<SendMailRequest>>
     {
 
         private readonly ILogger<MailSentConsumer> _logger;
@@ -27,7 +27,7 @@ namespace InfinityNetServer.Services.Mail.Application.Consumers
             _localizer = localizer;
         }
 
-        public override async Task ConsumeMessage(ConsumeContext<IBaseContract<SendMailRequest>> context)
+        public override async Task ConsumeMessage(ConsumeContext<BaseCommand<SendMailRequest>> context)
         {
             _logger.LogInformation(context.Message.AcceptLanguage);
             Thread.CurrentThread.CurrentCulture = new CultureInfo(context.Message.AcceptLanguage);
@@ -36,7 +36,7 @@ namespace InfinityNetServer.Services.Mail.Application.Consumers
             _logger.LogInformation(Thread.CurrentThread.CurrentCulture.Name);
             var message = context.Message;
             _logger.LogInformation(_localizer["Hello"].ToString());
-            _logger.LogInformation($"Processing SendMailMessage: {message.Content.Email} at {message.Content.Type}");
+            _logger.LogInformation($"Processing SendMailMessage: {message.Payload.Email} at {message.Payload.Type}");
             await Task.CompletedTask;
         }
 

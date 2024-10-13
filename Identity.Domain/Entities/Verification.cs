@@ -30,9 +30,12 @@ namespace InfinityNetServer.Services.Identity.Domain.Entities
         [Column("expires_at")]
         public DateTime ExpiresAt { get; set; }
 
+        [Column("account_id")]
+        public Guid AccountId { get; set; }
+
         // Navigation Property
-        [ForeignKey("account_id")]
-        public Account Account { get; set; }
+        [ForeignKey("AccountId")]
+        public virtual Account Account { get; set; }
 
     }
 

@@ -12,6 +12,10 @@ using System;
 using InfinityNetServer.Services.Identity.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using InfinityNetServer.Services.Identity.Application.Exceptions;
+using InfinityNetServer.Services.Identity.Application.Helpers;
+using System.Security.Principal;
+using Humanizer.Configuration;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Jwt;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Services
 {
@@ -32,16 +36,20 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
 
         private readonly IBaseRedisService<string, string> _baseRedisService;
 
+        private readonly IAccountService _accountService;
+
         private readonly ILogger<AuthService> _logger;
 
         private readonly IConfiguration _configuration;
 
         public AuthService(
             IBaseRedisService<string, string> baseRedisService,
+            IAccountService accountService,
             IConfiguration configuration,
             ILogger<AuthService> logger)
         {
             _baseRedisService = baseRedisService;
+            _accountService = accountService;
             _configuration = configuration;
             _logger = logger;
 
@@ -49,6 +57,18 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             REFRESH_SIGNER_KEY = _configuration["Jwt:RefreshKey"]!;
             VALID_DURATION = long.Parse(_configuration["Jwt:ValidDuration"]!);
             REFRESHABLE_DURATION = long.Parse(_configuration["Jwt:RefreshDuration"]!);
+        }
+
+        public async Task<Account> SignIn(string email, string password)
+        {
+            var account = await _accountService.GetAccountByEmail(email);
+
+            if (!PasswordHelper.VerifyPassword(account.Password, password))
+            {
+                throw new IdentityException(IdentityErrorCode.WRONG_PASSWORD, StatusCodes.Status401Unauthorized);
+            }
+
+            return account;
         }
 
         public async Task<bool> Introspect(string token)
@@ -90,10 +110,10 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
                 SigningCredentials = credentials
             };
 
-            if (!isRefresh)
+            /*if (!isRefresh)
             {
                 tokenDescriptor.Subject.AddClaim(new Claim("scope", "ADMIN"));
-            }
+            }*/
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -107,22 +127,17 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             string id = signedJWT.Subject ??
                 throw new IdentityException(IdentityErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
 
-            Account user = new Account
-            {
-                AccountId = Guid.Parse("d55564f8-e09c-4d50-91c4-7d9d98b2f2d2")
-            };
+            Account account = new Account();
 
-            if (!user.AccountId.Equals(Guid.Parse("d55564f8-e09c-4d50-91c4-7d9d98b2f2d2")))
-                throw new IdentityException(IdentityErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
-
-            /*try
+            try
             {
-                user = userService.FindByEmail(email); 
+                account = await _accountService.GetAccountById(id);
             }
-            catch (AuthenticationException)
+            catch (Exception)
             {
-                throw new AppException(AppErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
-            }*/
+                _logger.LogError("Account not found");
+                throw new IdentityException(IdentityErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
+            }
 
             var jwtHandler = new JwtSecurityTokenHandler();
 
@@ -143,7 +158,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
                 await _baseRedisService.SetWithExpirationAsync(jwtID, "revoked", timeToLive);
             }
 
-            return GenerateToken(user, false);
+            return GenerateToken(account, false);
         }
 
         private async Task<JwtSecurityToken> VerifyToken(string token, bool isRefresh)
@@ -186,10 +201,22 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
                     else throw new IdentityException(IdentityErrorCode.TOKEN_BLACKLISTED, StatusCodes.Status401Unauthorized);
                 }
 
+                /*var subject = ((JwtSecurityToken)jwtToken).Subject ??
+                                throw new IdentityException(IdentityErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
+                try
+                {
+                    await _accountService.GetAccountById(subject);
+                }
+                catch (Exception)
+                {
+                    throw new IdentityException(IdentityErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
+                }*/
+
                 return (JwtSecurityToken)jwtToken;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e.Message);
                 throw new IdentityException(IdentityErrorCode.INVALID_SIGNATURE, StatusCodes.Status401Unauthorized);
             }
 
@@ -198,14 +225,15 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
         private void ValidateRefreshTokenSignature(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtOptions = _configuration.GetSection("Jwt").Get<JwtOptions>();
             var validationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = _configuration["Jwt:Issuer"],
-                ValidAudiences = _configuration["Jwt:Audiences"]!.ToString().Split(",").Select(a => a.Trim()).ToArray(),
+                ValidIssuer = jwtOptions.Issuer,
+                ValidAudiences = jwtOptions.Audiences,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(REFRESH_SIGNER_KEY)),
                 ClockSkew = TimeSpan.Zero,
             };

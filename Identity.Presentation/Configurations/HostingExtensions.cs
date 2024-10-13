@@ -26,6 +26,7 @@ using InfinityNetServer.BuildingBlocks.Infrastructure.Exceptions;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.CORS;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.HealthCheck;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Grpc;
+using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Configurations;
 
@@ -44,7 +45,9 @@ internal static class HostingExtensions
 
         builder.Services.AddBaseRedisService(builder.Configuration);
 
-        builder.Services.AddAuthService(builder.Configuration);
+        builder.Services.AddServices(builder.Configuration);
+
+        builder.Services.AddMapper();
 
         builder.Services.AddDbContext();
 
@@ -58,13 +61,13 @@ internal static class HostingExtensions
 
         builder.Services.AddLocalization(builder.Configuration);
 
-        builder.Services.AddHealthChecks(builder.Configuration);
+        //builder.Services.AddHealthChecks(builder.Configuration);
 
         builder.Services.AddCors(builder.Configuration);
 
         builder.Services.AddControllers();
 
-        //builder.Services.AddGrpcPreConfigured();
+        builder.Services.AddGrpcClients(builder.Configuration);
 
         builder.Services.AddEndpointsApiExplorer();
 
@@ -89,6 +92,8 @@ internal static class HostingExtensions
 
         builder.Services.AddGlobalExceptionHandler();
 
+        builder.Services.AddGrpcPreConfigured();
+
         builder.Services.AddTransient<HttpIdentityExceptionHandler>();
 
         builder.Services.AddValidationHanlder(builder.Configuration, identityLocalizer);
@@ -108,7 +113,7 @@ internal static class HostingExtensions
 
         app.UseLocalization();
 
-        app.UseHealthChecks();
+        //app.UseHealthChecks();
 
         app.UseGlobalExceptionHandler();
 

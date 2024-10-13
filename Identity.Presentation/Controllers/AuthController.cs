@@ -1,9 +1,6 @@
 ﻿using InfinityNetServer.Services.Identity.Application;
 using InfinityNetServer.Services.Identity.Application.Exceptions;
 using InfinityNetServer.Services.Identity.Application.Interfaces;
-using InfinityNetServer.Services.Identity.Domain.Entities;
-using InfinityNetServer.BuildingBlocks.Application.Contracts;
-using MassTransit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -12,44 +9,50 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
 using InfinityNetServer.Services.Identity.Application.DTOs.Responses;
 using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.BuildingBlocks.Application.Interfaces;
+using InfinityNetServer.BuildingBlocks.Application.Bus;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Commands;
+using InfinityNetServer.Services.Identity.Application.GrpcClients;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 {
     [Tags("Auth APIs")]
     [ApiController]
     [Route("auth")]
-    public class AuthenticationController : BaseApiController
+    public class AuthController : BaseApiController
     {
         private readonly IStringLocalizer<IdentitySharedResource> _localizer;
 
-        private readonly ILogger<AuthenticationController> _logger;
+        private readonly ILogger<AuthController> _logger;
 
         private readonly IConfiguration _configuration;
 
         private readonly IAuthService _authService;
 
-        private readonly IPublishEndpoint _publishEndpoint;
+        private readonly ProfileClient _profileClient;
 
-        public AuthenticationController(
+        private readonly IMessageBus _messageBus;
+
+        public AuthController(
             IAuthenticatedUserService authenticatedUserService,
-            ILogger<AuthenticationController> logger,
+            ILogger<AuthController> logger,
             IStringLocalizer<IdentitySharedResource> Localizer,
             IConfiguration configuration,
             IAuthService authService,
-            IPublishEndpoint publishEndpoint) : base(authenticatedUserService)
+            ProfileClient profileClient,
+            IMessageBus messageBus) : base(authenticatedUserService)
         {
             _logger = logger;
             _localizer = Localizer;
             _configuration = configuration;
             _authService = authService;
-            _publishEndpoint = publishEndpoint;
+            _profileClient = profileClient;
+            _messageBus = messageBus;
         }
 
         [EndpointDescription("Sign up a new user")]
@@ -69,12 +72,12 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
         public async Task<IActionResult> SendMail([FromBody] SendMailRequest request)
         {
             _logger.LogInformation(CultureInfo.CurrentCulture.ToString());
-            await _publishEndpoint.Publish<IBaseContract<SendMailRequest>>(new
+            await _messageBus.Publish(new BaseCommand<SendMailRequest>
             {
                 RoutingKey = "app.info",
-                SendAt = DateTime.UtcNow,
+                SentAt = DateTime.UtcNow,
                 AcceptLanguage = CultureInfo.CurrentCulture.ToString(),
-                Content = request
+                Payload = request
             });
 
             return Ok(new SendMailResponse
@@ -108,63 +111,28 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             ));
         }
 
-        [EndpointDescription("Reset password by code")]
-        [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
-        [HttpPost("reset-by-code")]
-        public IActionResult Reset([FromBody] ResetByCodeRequest request)
-        {
-            return Ok(new CommonMessageResponse
-            (
-                _localizer["reset_password_success"].ToString()
-            ));
-        }
-
-        [EndpointDescription("Reset password by token")]
-        [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
-        [HttpPost("reset-by-token")]
-        public IActionResult Reset([FromQuery] string token, [FromBody] ResetByTokenRequest request)
-        {
-            return Ok(new CommonMessageResponse
-            (
-                _localizer["reset_password_success"].ToString()
-            ));
-        }
-
         [EndpointDescription("Sign in a user")]
         [ProducesResponseType(typeof(SignInResponse), StatusCodes.Status200OK)]
         [HttpPost("sign-in")]
-        public IActionResult SignIn([FromBody] SignInRequest request)
+        public async Task<IActionResult> SignIn([FromBody] SignInRequest request)
         {
-            if (request.Email == "test@gmail.com" && request.Password == "test123")
-            {
-                Account account = new Account
-                {
-                    Email = request.Email
-                };
+            var account = await _authService.SignIn(request.Email, request.Password);
+            var AccessToken = _authService.GenerateToken(account, false);
+            var RefreshToken = _authService.GenerateToken(account, true);
 
-                var AccessToken = _authService.GenerateToken(account, false);
-                var RefreshToken = _authService.GenerateToken(account, true);
+            var userProfile = await _profileClient.GetUserProfile(account.DefaultUserProfile.ToString());
+            userProfile.AccountId = account.AccountId;
+            userProfile.Email = account.Email;
 
-                return Ok(new SignInResponse
+            return Ok(new SignInResponse
+            (
+                new TokensResponse
                 (
-                   new TokensResponse
-                    (
-                        AccessToken,
-                        RefreshToken
-                    ),
-                   new UserProfileResponse
-                    (
-                        account.AccountId,
-                        account.Email,
-                        "John",
-                        "Doe",
-                        "1234567890",
-                        new DateTime(1990, 1, 1),
-                        Gender.Male
-                    )
-                ));
-            }
-            throw new IdentityException(IdentityErrorCode.USER_NOT_FOUND, StatusCodes.Status400BadRequest);
+                    AccessToken,
+                    RefreshToken
+                ),
+                userProfile
+            ));
         }
 
         [EndpointDescription("Refresh the access token")]

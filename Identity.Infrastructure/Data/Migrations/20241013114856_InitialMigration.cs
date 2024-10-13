@@ -35,7 +35,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     type = table.Column<int>(type: "integer", nullable: false),
-                    account_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    account_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     updated_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
@@ -48,7 +48,8 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         name: "FK_account_providers_accounts_account_id",
                         column: x => x.account_id,
                         principalTable: "accounts",
-                        principalColumn: "id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -60,7 +61,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                     otp_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
                     status = table.Column<int>(type: "integer", nullable: false),
                     expires_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    account_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    account_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     updated_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
@@ -73,7 +74,8 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         name: "FK_verifications_accounts_account_id",
                         column: x => x.account_id,
                         principalTable: "accounts",
-                        principalColumn: "id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(

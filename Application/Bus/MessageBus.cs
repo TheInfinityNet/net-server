@@ -1,6 +1,5 @@
 ﻿using MassTransit;
 using System.Threading.Tasks;
-using InfinityNetServer.BuildingBlocks.Application.DTOs;
 
 namespace InfinityNetServer.BuildingBlocks.Application.Bus;
 

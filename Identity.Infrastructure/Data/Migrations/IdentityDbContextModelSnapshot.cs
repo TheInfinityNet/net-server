@@ -76,6 +76,10 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
@@ -100,12 +104,9 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("updated_by");
 
-                    b.Property<Guid?>("account_id")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("account_id");
+                    b.HasIndex("AccountId");
 
                     b.ToTable("account_providers");
                 });
@@ -116,6 +117,10 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("verification_id");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone")
@@ -156,12 +161,9 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("updated_by");
 
-                    b.Property<Guid?>("account_id")
-                        .HasColumnType("uuid");
-
                     b.HasKey("VerificationId");
 
-                    b.HasIndex("account_id");
+                    b.HasIndex("AccountId");
 
                     b.ToTable("verifications");
                 });
@@ -170,7 +172,9 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                 {
                     b.HasOne("InfinityNetServer.Services.Identity.Domain.Entities.Account", "Account")
                         .WithMany("AccountProviders")
-                        .HasForeignKey("account_id");
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Account");
                 });
@@ -179,7 +183,9 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                 {
                     b.HasOne("InfinityNetServer.Services.Identity.Domain.Entities.Account", "Account")
                         .WithMany("Verifications")
-                        .HasForeignKey("account_id");
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Account");
                 });

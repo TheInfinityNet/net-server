@@ -17,6 +17,10 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         [MaxLength(255)]
         public string ProfilePicture { get; set; } = string.Empty;
 
+        public virtual UserProfile UserProfile { get; set; }
+
+        public virtual PageProfile PageProfile { get; set; }
+
     }
 
 }

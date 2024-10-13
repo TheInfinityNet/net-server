@@ -33,8 +33,7 @@ public static class JwtConfiguration
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtOptions.Issuer,
-                    ValidAudiences = jwtOptions.Audiences
-                    .ToString().Split(",").Select(a => a.Trim()).ToArray(),
+                    ValidAudiences = jwtOptions.Audiences,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.AccessKey)),
                 };
                 // Tắt ánh xạ các claim inbound
