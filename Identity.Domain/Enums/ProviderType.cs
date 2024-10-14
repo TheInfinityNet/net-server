@@ -1,4 +1,6 @@
-﻿namespace InfinityNetServer.Services.Identity.Domain.Enums
+﻿using System.ComponentModel;
+
+namespace InfinityNetServer.Services.Identity.Domain.Enums
 {
     public enum ProviderType
     {

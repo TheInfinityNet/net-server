@@ -27,7 +27,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Repositories
         public async Task<List<Guid>> GetAllPageProfileIdsAsync()
         {
             return await _context.Set<PageProfile>()
-                .Select(a => a.ProfileId)  // Chỉ chọn Id
+                .Select(a => a.Id)  // Chỉ chọn Id
                 .ToListAsync();
         }
 
@@ -40,7 +40,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Repositories
 
         public async Task UpdatePageProfileAsync(PageProfile pageProfile)
         {
-            var existingAccount = await _context.Set<PageProfile>().FindAsync(pageProfile.ProfileId);
+            var existingAccount = await _context.Set<PageProfile>().FindAsync(pageProfile.Id);
             if (existingAccount != null)
             {
                 _context.Entry(existingAccount).CurrentValues.SetValues(pageProfile);
@@ -48,7 +48,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Repositories
             }
             else
             {
-                throw new KeyNotFoundException($"Account with Id {pageProfile.ProfileId} not found.");
+                throw new KeyNotFoundException($"Account with Id {pageProfile.Id} not found.");
             }
         }
 

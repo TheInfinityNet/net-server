@@ -67,7 +67,8 @@ services:
       - "5432:5432"
     volumes:
       - infinity-net-postgres-data:/var/lib/postgresql/data
-      - ./docker/postgres/postgres-init-db:/docker-entrypoint-initdb.d
+      - ./D:wq
+      ocker/postgres/postgres-init-db:/docker-entrypoint-initdb.d
     networks:
       - infinity-net-network
     restart: unless-stopped

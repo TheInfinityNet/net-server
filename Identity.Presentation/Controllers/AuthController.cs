@@ -60,6 +60,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
         [HttpPost("sign-up")]
         public IActionResult SignUp([FromBody] SignUpRequest request)
         {
+            _logger.LogInformation(request.Gender.ToString());
             return Ok(new CommonMessageResponse
             (
                 _localizer["sign_up_success"].ToString()
@@ -121,7 +122,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             var RefreshToken = _authService.GenerateToken(account, true);
 
             var userProfile = await _profileClient.GetUserProfile(account.DefaultUserProfile.ToString());
-            userProfile.AccountId = account.AccountId;
+            userProfile.AccountId = account.Id;
             userProfile.Email = account.Email;
 
             return Ok(new SignInResponse

@@ -19,10 +19,13 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                     email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     password = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     default_user_profile = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    created_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    updated_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    updated_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    deleted_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -36,10 +39,13 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     type = table.Column<int>(type: "integer", nullable: false),
                     account_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    created_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    updated_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    updated_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    deleted_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -56,20 +62,23 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                 name: "verifications",
                 columns: table => new
                 {
-                    verification_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     token = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     otp_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
                     status = table.Column<int>(type: "integer", nullable: false),
                     expires_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     account_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    created_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    updated_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    updated_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    deleted_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_verifications", x => x.verification_id);
+                    table.PrimaryKey("PK_verifications", x => x.id);
                     table.ForeignKey(
                         name: "FK_verifications_accounts_account_id",
                         column: x => x.account_id,

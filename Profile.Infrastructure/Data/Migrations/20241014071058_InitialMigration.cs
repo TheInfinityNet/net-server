@@ -15,35 +15,38 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 name: "profiles",
                 columns: table => new
                 {
-                    profile_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    profile_picture = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
-                    created_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    picture = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    created_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    updated_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    updated_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    deleted_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_profiles", x => x.profile_id);
+                    table.PrimaryKey("PK_profiles", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "page_profiles",
                 columns: table => new
                 {
-                    profile_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     owner_id = table.Column<Guid>(type: "uuid", nullable: false),
                     page_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     page_description = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_page_profiles", x => x.profile_id);
+                    table.PrimaryKey("PK_page_profiles", x => x.id);
                     table.ForeignKey(
-                        name: "FK_page_profiles_profiles_profile_id",
-                        column: x => x.profile_id,
+                        name: "FK_page_profiles_profiles_id",
+                        column: x => x.id,
                         principalTable: "profiles",
-                        principalColumn: "profile_id",
+                        principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -51,7 +54,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 name: "user_profiles",
                 columns: table => new
                 {
-                    profile_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     account_id = table.Column<Guid>(type: "uuid", nullable: false),
                     username = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     mobile_number = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
@@ -64,12 +67,12 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_user_profiles", x => x.profile_id);
+                    table.PrimaryKey("PK_user_profiles", x => x.id);
                     table.ForeignKey(
-                        name: "FK_user_profiles_profiles_profile_id",
-                        column: x => x.profile_id,
+                        name: "FK_user_profiles_profiles_id",
+                        column: x => x.id,
                         principalTable: "profiles",
-                        principalColumn: "profile_id",
+                        principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
         }

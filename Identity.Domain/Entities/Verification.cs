@@ -11,8 +11,8 @@ namespace InfinityNetServer.Services.Identity.Domain.Entities
     {
 
         [Key]
-        [Column("verification_id")]
-        public Guid VerificationId { get; set; } = Guid.NewGuid();
+        [Column("id")]
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
         [MaxLength(255)]

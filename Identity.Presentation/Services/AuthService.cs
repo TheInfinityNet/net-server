@@ -97,7 +97,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.AccountId.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Iss, _configuration["Jwt:Issuer"]!),
                 new Claim(JwtRegisteredClaimNames.Aud, "webapp.com")

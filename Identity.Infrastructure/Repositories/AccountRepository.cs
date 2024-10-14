@@ -29,7 +29,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Repositories
         public async Task<List<string>> GetAllAccountIdsAsync()
         {
             return await _context.Set<Account>()
-                .Select(a => a.AccountId.ToString())  // Chỉ chọn Id
+                .Select(a => a.Id.ToString())  // Chỉ chọn Id
                 .ToListAsync();
         }
 
@@ -60,7 +60,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Repositories
         public async Task UpdateAccountAsync(Account account)
         {
             // Kiểm tra xem account có tồn tại trong DbContext không
-            var existingAccount = await _context.Set<Account>().FindAsync(account.AccountId);
+            var existingAccount = await _context.Set<Account>().FindAsync(account.Id);
             if (existingAccount != null)
             {
                 // Cập nhật thông tin
@@ -69,7 +69,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Repositories
             }
             else
             {
-                throw new KeyNotFoundException($"Account with Id {account.AccountId} not found.");
+                throw new KeyNotFoundException($"Account with Id {account.Id} not found.");
             }
         }
 

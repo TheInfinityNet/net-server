@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>net8.0</TargetFramework>
+	  <AssemblyName>InfinityNetServer.Services.Relationship.Application</AssemblyName>
+	  <RootNamespace>InfinityNetServer.Services.Relationship.Application</RootNamespace>
+  </PropertyGroup>
+
+</Project>

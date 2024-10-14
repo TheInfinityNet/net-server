@@ -10,12 +10,12 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
     {
 
         [Key]
-        [Column("profile_id")]
-        public Guid ProfileId { get; set; } = Guid.NewGuid();
+        [Column("id")]
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-        [Column("profile_picture")]
+        [Column("picture")]
         [MaxLength(255)]
-        public string ProfilePicture { get; set; } = string.Empty;
+        public string Picture { get; set; } = string.Empty;
 
         public virtual UserProfile UserProfile { get; set; }
 

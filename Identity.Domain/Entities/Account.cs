@@ -12,7 +12,7 @@ namespace InfinityNetServer.Services.Identity.Domain.Entities
 
         [Key]
         [Column("id")]
-        public Guid AccountId { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
         [EmailAddress]

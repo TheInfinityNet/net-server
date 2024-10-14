@@ -47,7 +47,7 @@ namespace InfinityNetServer.Services.Profile.Application.Consumers
 
             UserProfile userProfile = new UserProfile
             {
-                ProfileId = Guid.Parse(payload.ProfileId),
+                Id = Guid.Parse(payload.ProfileId),
                 AccountId = Guid.Parse(payload.AccountId),
                 CreatedBy = payload.AccountId,
                 UpdatedBy = payload.AccountId,

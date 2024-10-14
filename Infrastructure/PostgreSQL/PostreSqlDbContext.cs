@@ -67,14 +67,32 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
                 }
                 else if (entry.State == EntityState.Modified)
                 {
-                    if (entry.Entity.UpdatedBy == null)
+                    if (entry.Entity.IsDeleted)
                     {
-                        entry.Entity.UpdatedBy = authenticationName;
+                        if (entry.Entity.DeletedBy == null)
+                        {
+                            entry.Entity.DeletedBy = authenticationName;
+                        }
+                        entry.Entity.DeletedAt = DateTime.Now;
+                        // Để tránh thay đổi CreatedBy và CreatedAt khi cập nhật
+                        entry.Property(x => x.CreatedBy).IsModified = false;
+                        entry.Property(x => x.CreatedAt).IsModified = false;
+                        entry.Property(x => x.UpdatedBy).IsModified = false;
+                        entry.Property(x => x.UpdatedAt).IsModified = false;
                     }
-                    entry.Entity.UpdatedAt = DateTime.Now;
-                    // Để tránh thay đổi CreatedBy và CreatedAt khi cập nhật
-                    entry.Property(x => x.CreatedBy).IsModified = false;
-                    entry.Property(x => x.CreatedAt).IsModified = false;
+                    else
+                    {
+                        if (entry.Entity.UpdatedBy == null)
+                        {
+                            entry.Entity.UpdatedBy = authenticationName;
+                        }
+                        entry.Entity.UpdatedAt = DateTime.Now;
+                        // Để tránh thay đổi CreatedBy và CreatedAt khi cập nhật
+                        entry.Property(x => x.CreatedBy).IsModified = false;
+                        entry.Property(x => x.CreatedAt).IsModified = false;
+                        entry.Property(x => x.DeletedBy).IsModified = false;
+                        entry.Property(x => x.DeletedAt).IsModified = false;
+                    }
                 }
             }
         }

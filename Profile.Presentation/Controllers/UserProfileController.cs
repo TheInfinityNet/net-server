@@ -47,7 +47,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         [EndpointDescription("Update user profile")]
         [HttpPut]
         [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileRequest request)
+        public IActionResult UpdateProfile([FromBody] UpdateUserProfileRequest request)
         {
             // TODO: Call the service to update the user profile
             // await _profileService.UpdateProfile(request);

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20241013114856_InitialMigration")]
+    [Migration("20241014070607_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -27,7 +27,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.Account", b =>
                 {
-                    b.Property<Guid>("AccountId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
@@ -37,7 +37,6 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("created_by");
@@ -46,11 +45,24 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("default_user_profile");
 
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("deleted_by");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
 
                     b.Property<string>("Password")
                         .HasMaxLength(255)
@@ -62,12 +74,11 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("updated_by");
 
-                    b.HasKey("AccountId");
+                    b.HasKey("Id");
 
                     b.ToTable("accounts");
                 });
@@ -88,10 +99,22 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("created_by");
+
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer")
@@ -102,7 +125,6 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("updated_by");
@@ -116,10 +138,10 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.Verification", b =>
                 {
-                    b.Property<Guid>("VerificationId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasColumnName("verification_id");
+                        .HasColumnName("id");
 
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uuid")
@@ -130,14 +152,26 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("created_by");
 
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("deleted_by");
+
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("expires_at");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
 
                     b.Property<string>("OtpCode")
                         .HasMaxLength(10)
@@ -159,12 +193,11 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("updated_by");
 
-                    b.HasKey("VerificationId");
+                    b.HasKey("Id");
 
                     b.HasIndex("AccountId");
 

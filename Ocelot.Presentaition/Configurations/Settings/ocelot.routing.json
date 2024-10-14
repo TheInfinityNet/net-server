@@ -9,7 +9,7 @@
           "Port": 8282
         }
       ],
-      "UpstreamPathTemplate": "/infinity-net/identity/{everything}",
+      "UpstreamPathTemplate": "/identity/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
       /*"AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
@@ -41,7 +41,7 @@
           "Port": 8283
         }
       ],
-      "UpstreamPathTemplate": "/infinity-net/profile/{everything}",
+      "UpstreamPathTemplate": "/profile/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
       /*"AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",

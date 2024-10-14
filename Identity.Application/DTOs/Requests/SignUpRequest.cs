@@ -34,6 +34,7 @@ namespace InfinityNetServer.Services.Identity.Application.DTOs.Requests
 
         DateTime Birthdate,
 
+        [EnumDataType(typeof(Gender))]
         Gender Gender,
 
         bool AcceptTerms

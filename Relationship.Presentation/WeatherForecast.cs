@@ -1,6 +1,6 @@
 using System;
 
-namespace InfinityNetServer.Services.Profile.Presentation
+namespace Relationship.Presentation
 {
     public class WeatherForecast
     {
@@ -10,6 +10,6 @@ namespace InfinityNetServer.Services.Profile.Presentation
 
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 
-        public string Summary { get; set; }
+        public string? Summary { get; set; }
     }
 }

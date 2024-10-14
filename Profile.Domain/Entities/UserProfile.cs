@@ -46,7 +46,7 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         [Column("bio", TypeName = "text")]
         public string Bio { get; set; } = string.Empty;
 
-        [ForeignKey("ProfileId")]
+        [ForeignKey("Id")]
         public virtual Profile Profile { get; set; }
 
     }

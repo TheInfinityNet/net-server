@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ProfileDbContext))]
-    [Migration("20241013115903_InitialMigration")]
+    [Migration("20241014071058_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -27,37 +27,48 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("InfinityNetServer.Services.Profile.Domain.Entities.Profile", b =>
                 {
-                    b.Property<Guid>("ProfileId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasColumnName("profile_id");
+                        .HasColumnName("id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("created_by");
 
-                    b.Property<string>("ProfilePicture")
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("DeletedBy")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
-                        .HasColumnName("profile_picture");
+                        .HasColumnName("deleted_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Picture")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("picture");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("updated_by");
 
-                    b.HasKey("ProfileId");
+                    b.HasKey("Id");
 
                     b.ToTable("profiles");
 
@@ -142,7 +153,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 {
                     b.HasOne("InfinityNetServer.Services.Profile.Domain.Entities.Profile", "Profile")
                         .WithOne("PageProfile")
-                        .HasForeignKey("InfinityNetServer.Services.Profile.Domain.Entities.PageProfile", "ProfileId")
+                        .HasForeignKey("InfinityNetServer.Services.Profile.Domain.Entities.PageProfile", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -153,7 +164,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 {
                     b.HasOne("InfinityNetServer.Services.Profile.Domain.Entities.Profile", "Profile")
                         .WithOne("UserProfile")
-                        .HasForeignKey("InfinityNetServer.Services.Profile.Domain.Entities.UserProfile", "ProfileId")
+                        .HasForeignKey("InfinityNetServer.Services.Profile.Domain.Entities.UserProfile", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

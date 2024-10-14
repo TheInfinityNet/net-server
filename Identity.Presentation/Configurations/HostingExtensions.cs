@@ -27,6 +27,7 @@ using InfinityNetServer.BuildingBlocks.Presentation.Configuration.CORS;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.HealthCheck;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Grpc;
 using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
+using Newtonsoft.Json.Converters;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Configurations;
 
@@ -65,7 +66,11 @@ internal static class HostingExtensions
 
         builder.Services.AddCors(builder.Configuration);
 
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddJsonOptions(options =>
+        {
+            // Use string representation for enums
+            options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        });
 
         builder.Services.AddGrpcClients(builder.Configuration);
 

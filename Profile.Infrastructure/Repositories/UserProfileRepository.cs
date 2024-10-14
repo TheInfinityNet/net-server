@@ -29,7 +29,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Repositories
         public async Task<List<Guid>> GetAllUserProfileIdsAsync()
         {
             return await _context.Set<UserProfile>()
-                .Select(a => a.ProfileId)  // Chỉ chọn Id
+                .Select(a => a.Id)  // Chỉ chọn Id
                 .ToListAsync();
         }
 
@@ -50,7 +50,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Repositories
         public async Task UpdateUserProfileAsync(UserProfile userProfile)
         {
             // Kiểm tra xem account có tồn tại trong DbContext không
-            var existingAccount = await _context.Set<PageProfile>().FindAsync(userProfile.ProfileId);
+            var existingAccount = await _context.Set<PageProfile>().FindAsync(userProfile.Id);
             if (existingAccount != null)
             {
                 // Cập nhật thông tin
@@ -59,7 +59,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Repositories
             }
             else
             {
-                throw new KeyNotFoundException($"Account with Id {userProfile.ProfileId} not found.");
+                throw new KeyNotFoundException($"Account with Id {userProfile.Id} not found.");
             }
         }
 

@@ -40,7 +40,7 @@ public static class DbInitialization
     {
         var accountIds = await identityClient.GetAccountIds();
         var faker = new Faker<PageProfile>()
-            .RuleFor(a => a.ProfilePicture, f => f.Image.PicsumUrl())
+            .RuleFor(a => a.Picture, f => f.Image.PicsumUrl())
             .RuleFor(ap => ap.PageName, f => f.Company.CompanyName())
             .RuleFor(ap => ap.OwnerId, f => Guid.Parse(f.PickRandom(accountIds)))
             .RuleFor(ap => ap.CreatedBy, f => f.PickRandom(accountIds))
