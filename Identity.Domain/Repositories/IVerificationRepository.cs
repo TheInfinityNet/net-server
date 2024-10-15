@@ -1,15 +1,13 @@
-﻿using InfinityNetServer.Services.Identity.Domain.Entities;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Repositories;
+using InfinityNetServer.Services.Identity.Domain.Entities;
+using System;
 
 namespace InfinityNetServer.Services.Identity.Domain.Repositories
 {
-    public interface IVerificationRepository
+    public interface IVerificationRepository : ISqlRepository<Verification, Guid>
     {
 
-        Task CreateVerificationsAsync(IEnumerable<Verification> verifications);
 
-        Task<List<Verification>> GetAllVerificationsAsync();
 
     }
 }

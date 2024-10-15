@@ -1,4 +1,4 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Interfaces;
+﻿using InfinityNetServer.BuildingBlocks.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InfinityNetServer.BuildingBlocks.Presentation.Controllers;

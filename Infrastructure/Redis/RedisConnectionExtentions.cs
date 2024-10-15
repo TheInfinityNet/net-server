@@ -1,5 +1,4 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Interfaces;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 

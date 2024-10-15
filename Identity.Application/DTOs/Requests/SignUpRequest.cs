@@ -4,40 +4,40 @@ using System.ComponentModel.DataAnnotations;
 
 namespace InfinityNetServer.Services.Identity.Application.DTOs.Requests
 {
-    public sealed record SignUpRequest(
+    public sealed record SignUpRequest {
 
         [Required(ErrorMessage = "null_first_name")]
         [StringLength(100, MinimumLength = 1, ErrorMessage = "size_first_name")]
-        string FirstName,
+        public string FirstName { get; set;}
 
-        string MiddleName,
+        public string MiddleName { get; set; }
 
         [Required(ErrorMessage = "null_last_name")]
         [StringLength(100, MinimumLength = 1, ErrorMessage = "size_last_name")]
-        string LastName,
+        public string LastName { get; set; }
 
         [Required(ErrorMessage = "null_email")]
         [EmailAddress(ErrorMessage = "invalid_email")]
-        string Email,
+        public string Email { get; set; }
 
         [Required(ErrorMessage = "null_password")]
         [StringLength(20, MinimumLength = 6, ErrorMessage = "size_password")]
-        string Password,
+        public string Password { get; set; }
 
         [Required(ErrorMessage = "null_password")]
         [StringLength(20, MinimumLength = 6, ErrorMessage = "size_password")]
-        string PasswordConfirmation,
+        public string PasswordConfirmation { get; set; }
 
         [Required(ErrorMessage = "null_mobile_number")]
         [Phone(ErrorMessage = "invalid_mobile_number")]
-        string MobileNumber,
+        public string MobileNumber { get; set; }
 
-        DateTime Birthdate,
+        public DateTime Birthdate { get; set; }
 
         [EnumDataType(typeof(Gender))]
-        Gender Gender,
+        public Gender Gender { get; set; }
 
-        bool AcceptTerms
+        public bool AcceptTerms { get; set; }
 
-    );
+    }
 }

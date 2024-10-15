@@ -1,20 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using InfinityNetServer.BuildingBlocks.Domain.Repositories;
 using InfinityNetServer.Services.Profile.Domain.Entities;
 
 namespace InfinityNetServer.Services.Profile.Domain.Repositories
 {
-    public interface IPageProfileRepository
+    public interface IPageProfileRepository : ISqlRepository<PageProfile, Guid>
     {
 
-        Task CreatePageProfilesAsync(IEnumerable<PageProfile> pageProfiles);
 
-        Task<List<Guid>> GetAllPageProfileIdsAsync();
-
-        Task<PageProfile> CreatePageProfileAsync(PageProfile pageProfile);
-
-        Task UpdatePageProfileAsync(PageProfile pageProfile);
 
     }
 }

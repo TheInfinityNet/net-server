@@ -1,22 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using InfinityNetServer.BuildingBlocks.Domain.Repositories;
 using InfinityNetServer.Services.Profile.Domain.Entities;
 
 namespace InfinityNetServer.Services.Profile.Domain.Repositories
 {
-    public interface IUserProfileRepository
+    public interface IUserProfileRepository : ISqlRepository<UserProfile, Guid>
     {
 
-        Task CreateUserProfilesAsync(IEnumerable<UserProfile> userProfiles);
 
-        Task<List<Guid>> GetAllUserProfileIdsAsync();
-
-        Task<UserProfile> GetUserProfileByIdAsync(Guid id);
-
-        Task<UserProfile> CreateUserProfileAsync(UserProfile userProfile);
-
-        Task UpdateUserProfileAsync(UserProfile userProfile);
 
     }
 }

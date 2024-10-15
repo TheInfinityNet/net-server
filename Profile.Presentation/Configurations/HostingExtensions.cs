@@ -5,8 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
-using InfinityNetServer.BuildingBlocks.Presentation.Services.AuthenticatedUser;
-using InfinityNetServer.BuildingBlocks.Presentation.Services.BaseRedis;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.ValidationHandler;
 using InfinityNetServer.BuildingBlocks.Application;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Swagger;
@@ -27,6 +25,7 @@ using InfinityNetServer.Services.Profile.Application.Consumers;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Grpc;
 using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
 using InfinityNetServer.Services.Profile.Presentation.Mappers;
+using InfinityNetServer.BuildingBlocks.Presentation.Services;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Configurations;
 
@@ -41,13 +40,11 @@ internal static class HostingExtensions
 
         builder.Services.AddHttpContextAccessor();
 
-        builder.Services.AddAuthenticatedUserService();
+        builder.Services.AddCommonService();
 
-        builder.Services.AddBaseRedisService(builder.Configuration);
+        builder.Services.AddServices();
 
-        builder.Services.AddServices(builder.Configuration);
-
-        builder.Services.AddMapper(typeof(ProfileMapper));
+        builder.Services.AddMappers(typeof(ProfileMapper));
 
         builder.Services.AddDbContext();
 
@@ -61,7 +58,7 @@ internal static class HostingExtensions
 
         //builder.Services.AddHealthChecks(builder.Configuration);
 
-        builder.Services.AddCors(builder.Configuration);
+        builder.Services.AddDefaultCors(builder.Configuration);
 
         builder.Services.AddControllers();
 
@@ -94,7 +91,7 @@ internal static class HostingExtensions
 
         builder.Services.AddValidationHanlder(builder.Configuration, identityLocalizer);
 
-        builder.AddCustomSerilog();
+        builder.AddCommonSerilog();
 
         return builder.Build();
     }
@@ -123,7 +120,7 @@ internal static class HostingExtensions
 
         app.UseRouting();
 
-        app.UseCommonCors();
+        app.UseDefaultCors();
 
         app.UseMetrics(configuration);
 

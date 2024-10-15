@@ -1,23 +1,23 @@
-﻿using Swashbuckle.AspNetCore.Annotations;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace InfinityNetServer.Services.Identity.Application.DTOs.Requests
 {
-    public sealed record ResetByCodeRequest(
+    public sealed record ResetByCodeRequest 
+    {
 
         [Required(ErrorMessage = "null_password")]
         [StringLength(20, MinimumLength = 6, ErrorMessage = "size_password")]
-        string NewPassword,
+        public string NewPassword { get; set; }
 
         [Required(ErrorMessage = "null_password")]
         [StringLength(20, MinimumLength = 6, ErrorMessage = "size_password")]
-        string ConfirmPassword,
+        public string ConfirmPassword { get; set; }
 
         [Required(ErrorMessage = "null_code")]
         [StringLength(6, MinimumLength = 6, ErrorMessage = "size_code")]
-        string Code,
+        public string Code { get; set; }
 
-        bool AcceptTerms
+        public bool AcceptTerms { get; set; }
 
-    );
+    }
 }

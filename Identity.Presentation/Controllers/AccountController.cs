@@ -8,8 +8,8 @@ using Microsoft.Extensions.Logging;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
 using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
-using InfinityNetServer.BuildingBlocks.Application.Interfaces;
 using InfinityNetServer.BuildingBlocks.Application.Bus;
+using InfinityNetServer.BuildingBlocks.Application.Services;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 {

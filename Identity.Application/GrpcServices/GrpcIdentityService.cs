@@ -5,6 +5,7 @@ using InfinityNetServer.BuildingBlocks.Application.Protos;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using InfinityNetServer.Services.Identity.Domain.Repositories;
+using System.Linq;
 
 namespace InfinityNetServer.Services.Identity.Application.GrpcServices
 {
@@ -42,7 +43,8 @@ namespace InfinityNetServer.Services.Identity.Application.GrpcServices
         {
             _logger.LogInformation("Received getAccountIds request");
             var response = new GetAccountIdsResponse();
-            response.AccountIds.AddRange(await accountRepository.GetAllAccountIdsAsync());
+            var accounts = await accountRepository.GetAllAsync();
+            response.AccountIds.AddRange(accounts.Select(account => account.Id.ToString()).ToList());
 
             return await Task.FromResult(response);
         }

@@ -51,20 +51,9 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("deleted_by");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("email");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
-
-                    b.Property<string>("Password")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("password");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
@@ -131,6 +120,8 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                     b.HasIndex("AccountId");
 
                     b.ToTable("account_providers");
+
+                    b.UseTptMappingStrategy();
                 });
 
             modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.Verification", b =>
@@ -143,6 +134,11 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uuid")
                         .HasColumnName("account_id");
+
+                    b.Property<string>("Code")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("code");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone")
@@ -170,15 +166,6 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<string>("OtpCode")
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
-                        .HasColumnName("otp_code");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("status");
-
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -199,6 +186,46 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                     b.HasIndex("AccountId");
 
                     b.ToTable("verifications");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.FacebookProvider", b =>
+                {
+                    b.HasBaseType("InfinityNetServer.Services.Identity.Domain.Entities.AccountProvider");
+
+                    b.Property<Guid>("FacebookId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("facebook_id");
+
+                    b.ToTable("facebook_providers");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.GoogleProvider", b =>
+                {
+                    b.HasBaseType("InfinityNetServer.Services.Identity.Domain.Entities.AccountProvider");
+
+                    b.Property<Guid>("GoogleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("google_id");
+
+                    b.ToTable("google_providers");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.LocalProvider", b =>
+                {
+                    b.HasBaseType("InfinityNetServer.Services.Identity.Domain.Entities.AccountProvider");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("PasswordHash")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("password_hash");
+
+                    b.ToTable("local_providers");
                 });
 
             modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.AccountProvider", b =>
@@ -223,11 +250,53 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.FacebookProvider", b =>
+                {
+                    b.HasOne("InfinityNetServer.Services.Identity.Domain.Entities.AccountProvider", "AccountProvider")
+                        .WithOne("FacebookProvider")
+                        .HasForeignKey("InfinityNetServer.Services.Identity.Domain.Entities.FacebookProvider", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AccountProvider");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.GoogleProvider", b =>
+                {
+                    b.HasOne("InfinityNetServer.Services.Identity.Domain.Entities.AccountProvider", "AccountProvider")
+                        .WithOne("GoogleProvider")
+                        .HasForeignKey("InfinityNetServer.Services.Identity.Domain.Entities.GoogleProvider", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AccountProvider");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.LocalProvider", b =>
+                {
+                    b.HasOne("InfinityNetServer.Services.Identity.Domain.Entities.AccountProvider", "AccountProvider")
+                        .WithOne("LocalProvider")
+                        .HasForeignKey("InfinityNetServer.Services.Identity.Domain.Entities.LocalProvider", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AccountProvider");
+                });
+
             modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.Account", b =>
                 {
                     b.Navigation("AccountProviders");
 
                     b.Navigation("Verifications");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.AccountProvider", b =>
+                {
+                    b.Navigation("FacebookProvider");
+
+                    b.Navigation("GoogleProvider");
+
+                    b.Navigation("LocalProvider");
                 });
 #pragma warning restore 612, 618
         }

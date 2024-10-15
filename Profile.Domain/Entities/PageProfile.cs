@@ -12,13 +12,13 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         [Column("owner_id")]
         public Guid OwnerId { get; set; }
 
-        [Column("page_name")]
+        [Column("name")]
         [MaxLength(100)]
         [Required]
-        public string PageName { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
 
-        [Column("page_description", TypeName = "text")]
-        public string PageDescription { get; set; }
+        [Column("description", TypeName = "text")]
+        public string Description { get; set; }
 
         [ForeignKey("Id")]
         public virtual Profile Profile { get; set; }

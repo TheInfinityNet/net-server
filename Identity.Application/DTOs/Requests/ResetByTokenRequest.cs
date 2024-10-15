@@ -2,17 +2,18 @@
 
 namespace InfinityNetServer.Services.Identity.Application.DTOs.Requests
 {
-    public sealed record ResetByTokenRequest(
+    public sealed record ResetByTokenRequest 
+    {
 
         [Required(ErrorMessage = "null_password")]
         [StringLength(20, MinimumLength = 6, ErrorMessage = "size_password")]
-        string NewPassword,
+        public string NewPassword { get; set; }
 
         [Required(ErrorMessage = "null_password")]
         [StringLength(20, MinimumLength = 6, ErrorMessage = "size_password")]
-        string ConfirmPassword,
+        public string ConfirmPassword { get; set; }
 
-        bool AcceptTerms
+        public bool AcceptTerms { get; set; }
 
-    );
+    }
 }

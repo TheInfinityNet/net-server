@@ -6,9 +6,7 @@ namespace InfinityNetServer.Services.Identity.Application.Interfaces
     public interface IAccountService
     {
 
-        Task<Account> GetAccountById(string id);
-
-        Task<Account> GetAccountByEmail(string email);
+        Task<Account> GetById(string id);
 
     }
 }

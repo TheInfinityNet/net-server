@@ -6,4 +6,9 @@
 	  <RootNamespace>InfinityNetServer.Services.Relationship.Infrastructure</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\Relationship.Application\Relationship.Application.csproj" />
+  </ItemGroup>
+
 </Project>

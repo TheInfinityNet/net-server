@@ -52,13 +52,15 @@ namespace InfinityNetServer.Services.Identity.Presentation.Exceptions
                 case IdentityException Ex:
                     errorCode = Ex.ErrorCode.Code;
                     message = _localizer[Ex.ErrorCode.Message].ToString();
+                    errors = GetDetailedErrors(Ex.ErrorCode)!;
 
                     _logger.LogError("App Exception: {Exception}", Ex);
                     context.Response.StatusCode = Ex.HttpStatus;
                     return context.Response.WriteAsJsonAsync(new
                     {
                         errorCode,
-                        message
+                        message,
+                        errors
                     });
 
                 default:
@@ -71,6 +73,72 @@ namespace InfinityNetServer.Services.Identity.Presentation.Exceptions
             {
                 message
             });
+        }
+
+        private Dictionary<string, string>? GetDetailedErrors(IdentityErrorCode errorCode)
+        {
+            if (errorCode == IdentityErrorCode.VALIDATION_ERROR)
+                return new Dictionary<string, string>
+                {
+                    { "email", _localizer[errorCode.Message] },
+                    { "password", _localizer[errorCode.Message] }
+                };
+
+            else if (errorCode == IdentityErrorCode.EXPIRED_PASSWORD)
+                return new Dictionary<string, string>
+                {
+                    { "password", _localizer[errorCode.Message] }
+                };
+
+            else if (errorCode == IdentityErrorCode.TOKEN_INVALID)
+                return new Dictionary<string, string>
+                {
+                    { "token", _localizer[errorCode.Message] }
+                };
+
+            else if (errorCode == IdentityErrorCode.WRONG_PASSWORD)
+                return new Dictionary<string, string>
+                {
+                    { "password", _localizer[errorCode.Message] }
+                };
+
+            else if (errorCode == IdentityErrorCode.PASSWORD_MISMATCH)
+                return new Dictionary<string, string>
+                {
+                    { "password", _localizer[errorCode.Message] }
+                };
+
+            else if (errorCode == IdentityErrorCode.EMAIL_ALREADY_IN_USE)
+                return new Dictionary<string, string>
+                {
+                    { "email", _localizer[errorCode.Message] }
+                };
+
+            else if (errorCode == IdentityErrorCode.WEAK_PASSWORD)
+                return new Dictionary<string, string>
+                {
+                    { "password", _localizer[errorCode.Message] }
+                };
+
+            else if (errorCode == IdentityErrorCode.INVALID_EMAIL)
+                return new Dictionary<string, string>
+                {
+                    { "email", _localizer[errorCode.Message] }
+                };
+
+            else if (errorCode == IdentityErrorCode.TERMS_NOT_ACCEPTED)
+                return new Dictionary<string, string>
+                {
+                    { "termsAccepted", _localizer[errorCode.Message] }
+                };
+
+            else if (errorCode == IdentityErrorCode.CODE_INVALID)
+                return new Dictionary<string, string>
+                {
+                    { "code", _localizer[errorCode.Message] }
+                };
+
+            return null;
         }
 
     }

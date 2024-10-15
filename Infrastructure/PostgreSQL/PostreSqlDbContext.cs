@@ -1,4 +1,4 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Interfaces;
+﻿using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.BuildingBlocks.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

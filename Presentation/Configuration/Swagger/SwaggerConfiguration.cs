@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
 
 namespace InfinityNetServer.BuildingBlocks.Presentation.Configuration.Swagger;
@@ -92,6 +93,11 @@ public static class SwaggerConfiguration
         // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
         app.UseSwaggerUI(c =>
         {
+            c.ConfigObject = new ConfigObject
+            {
+                ShowCommonExtensions = true
+            };
+            c.SupportedSubmitMethods(new[] { SubmitMethod.Patch });
             c.SwaggerEndpoint("/swagger/" + options.Value.Version + "/swagger.json", options.Value.ApiDocs);
             //redirect root url to swagger ui
             //c.RoutePrefix = "";

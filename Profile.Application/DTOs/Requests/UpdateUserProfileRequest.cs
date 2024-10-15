@@ -5,32 +5,32 @@ using System.ComponentModel.DataAnnotations;
 namespace InfinityNetServer.Services.Profile.Application.DTOs.Requests
 {
     public sealed record UpdateUserProfileRequest
-    (
+    {
 
         [Required(ErrorMessage = "null_username")]
         [StringLength(100, MinimumLength = 1, ErrorMessage = "size_username")]
-        string Username,
+        public string Username { get; set; }
 
         [Required(ErrorMessage = "null_mobile_number")]
         [Phone(ErrorMessage = "invalid_mobile_number")]
-        string MobileNumber,
+        public string MobileNumber { get; set; }
 
         [Required(ErrorMessage = "null_first_name")]
         [StringLength(100, MinimumLength = 1, ErrorMessage = "size_first_name")]
-        string FirstName,
+        public string FirstName { get; set; }
 
-        string MiddleName,
+        public string MiddleName { get; set; }
 
         [Required(ErrorMessage = "null_last_name")]
         [StringLength(100, MinimumLength = 1, ErrorMessage = "size_last_name")]
-        string LastName,
+        public string LastName { get; set; }
 
-        DateTime Birthdate,
+        public DateTime Birthdate { get; set;}
 
-        Gender Gender,
+        public Gender Gender { get; set; }
 
-        string Bio
-        
-    );
+        public string Bio { get; set;}
+
+    }
 
 }

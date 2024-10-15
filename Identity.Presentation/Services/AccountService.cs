@@ -1,4 +1,5 @@
-﻿using InfinityNetServer.Services.Identity.Application;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Repositories;
+using InfinityNetServer.Services.Identity.Application;
 using InfinityNetServer.Services.Identity.Application.Exceptions;
 using InfinityNetServer.Services.Identity.Application.Interfaces;
 using InfinityNetServer.Services.Identity.Domain.Entities;
@@ -30,20 +31,9 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             _localizer = localizer;
         }
 
-        public async Task<Account> GetAccountByEmail(string email)
+        public async Task<Account> GetById(string id)
         {
-            var account = await _accountRepository.GetAccountByEmailAsync(email);
-            if (account == null)
-            {
-                _logger.LogError(_localizer["account_not_found"].Value);
-                throw new IdentityException(IdentityErrorCode.USER_NOT_FOUND, StatusCodes.Status404NotFound);
-            }
-            return account;
-        }
-
-        public async Task<Account> GetAccountById(string id)
-        {
-            var account = await _accountRepository.GetAccountByIdAsync(Guid.Parse(id));
+            var account = await _accountRepository.GetByIdAsync(Guid.Parse(id));
             if (account == null)
             {
                 _logger.LogError(_localizer["account_not_found"].Value);

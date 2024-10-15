@@ -21,7 +21,7 @@ internal static class HostingExtensions
 
         builder.Services.AddMessageBus(builder.Configuration, typeof(MailSentConsumer));
 
-        builder.AddCustomSerilog();
+        builder.AddCommonSerilog();
 
         builder.Services.AddMetrics(builder.Configuration);
 

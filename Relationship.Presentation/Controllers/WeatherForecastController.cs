@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Relationship.Presentation.Controllers
+namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
 {
     [ApiController]
     [Route("[controller]")]

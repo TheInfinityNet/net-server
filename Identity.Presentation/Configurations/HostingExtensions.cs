@@ -9,8 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using InfinityNetServer.Services.Identity.Presentation.Exceptions;
 using InfinityNetServer.Services.Identity.Application;
-using InfinityNetServer.BuildingBlocks.Presentation.Services.AuthenticatedUser;
-using InfinityNetServer.BuildingBlocks.Presentation.Services.BaseRedis;
 using InfinityNetServer.Services.Identity.Presentation.Services;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.ValidationHandler;
 using InfinityNetServer.BuildingBlocks.Application;
@@ -28,6 +26,8 @@ using InfinityNetServer.BuildingBlocks.Presentation.Configuration.HealthCheck;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Grpc;
 using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
 using Newtonsoft.Json.Converters;
+using InfinityNetServer.Services.Identity.Presentation.Validations;
+using InfinityNetServer.BuildingBlocks.Presentation.Services;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Configurations;
 
@@ -42,13 +42,11 @@ internal static class HostingExtensions
 
         builder.Services.AddHttpContextAccessor();
 
-        builder.Services.AddAuthenticatedUserService();
+        builder.Services.AddCommonService();
 
-        builder.Services.AddBaseRedisService(builder.Configuration);
+        builder.Services.AddServices();
 
-        builder.Services.AddServices(builder.Configuration);
-
-        builder.Services.AddMapper();
+        builder.Services.AddMappers();
 
         builder.Services.AddDbContext();
 
@@ -64,13 +62,16 @@ internal static class HostingExtensions
 
         //builder.Services.AddHealthChecks(builder.Configuration);
 
-        builder.Services.AddCors(builder.Configuration);
+        builder.Services.AddDefaultCors(builder.Configuration);
 
-        builder.Services.AddControllers().AddJsonOptions(options =>
-        {
-            // Use string representation for enums
-            options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
-        });
+        builder.Services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                // Use string representation for enums
+                options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+            });
+
+        builder.Services.AddFluentValidation(builder.Configuration);
 
         builder.Services.AddGrpcClients(builder.Configuration);
 
@@ -103,7 +104,7 @@ internal static class HostingExtensions
 
         builder.Services.AddValidationHanlder(builder.Configuration, identityLocalizer);
 
-        builder.AddCustomSerilog();
+        builder.AddCommonSerilog();
 
         return builder.Build();
     }
@@ -132,7 +133,7 @@ internal static class HostingExtensions
 
         app.UseRouting();
 
-        app.UseCommonCors();
+        app.UseDefaultCors();
 
         app.UseMetrics(configuration);
 

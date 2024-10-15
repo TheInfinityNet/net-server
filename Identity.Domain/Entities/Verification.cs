@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using InfinityNetServer.Services.Identity.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Domain.Entities;
 using System;
 
@@ -20,11 +19,8 @@ namespace InfinityNetServer.Services.Identity.Domain.Entities
         public string Token { get; set; }
 
         [MaxLength(10)]
-        [Column("otp_code")]
-        public string OtpCode { get; set; }
-
-        [Column("status")]
-        public VerificationStatus Status { get; set; } = VerificationStatus.Pending;
+        [Column("code")]
+        public string Code { get; set; }
 
         [Required]
         [Column("expires_at")]

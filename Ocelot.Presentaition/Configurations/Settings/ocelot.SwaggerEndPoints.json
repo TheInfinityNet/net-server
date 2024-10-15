@@ -19,6 +19,26 @@
           "Url": "https://localhost:8283/swagger/v1/swagger.json"
         }
       ]
+    },
+    {
+      "Key": "relationship",
+      "Config": [
+        {
+          "Name": "Relationship Service",
+          "Version": "v1",
+          "Url": "https://localhost:8285/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "post",
+      "Config": [
+        {
+          "Name": "Post Service",
+          "Version": "v1",
+          "Url": "https://localhost:8286/swagger/v1/swagger.json"
+        }
+      ]
     }
   ]
 }

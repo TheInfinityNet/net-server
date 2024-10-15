@@ -60,7 +60,7 @@ namespace InfinityNetServer.Services.Profile.Application.Consumers
                 Gender = payload.Gender
             };
 
-            await _userProfileRepository.CreateUserProfileAsync(userProfile);
+            await _userProfileRepository.CreateAsync(userProfile);
 
             _logger.LogInformation("Profile created !!!");
 

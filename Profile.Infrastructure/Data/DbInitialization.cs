@@ -28,11 +28,11 @@ public static class DbInitialization
         var pageRepository = serviceScope.ServiceProvider.GetService<IPageProfileRepository>();
         var identityClient = serviceScope.ServiceProvider.GetService<IdentityClient>();
 
-        var existingPageProfileCount = await pageRepository.GetAllPageProfileIdsAsync();
+        var existingPageProfileCount = await pageRepository.GetAllAsync();
         if (existingPageProfileCount.Count == 0)
         {
             var profiles = await GeneratePageProfiles(numberOfProfiles, identityClient);
-            await pageRepository.CreatePageProfilesAsync(profiles);
+            await pageRepository.CreateAsync(profiles);
         }
     }
 
@@ -41,11 +41,12 @@ public static class DbInitialization
         var accountIds = await identityClient.GetAccountIds();
         var faker = new Faker<PageProfile>()
             .RuleFor(a => a.Picture, f => f.Image.PicsumUrl())
-            .RuleFor(ap => ap.PageName, f => f.Company.CompanyName())
+            .RuleFor(a => a.CoverPicture, f => f.Image.PicsumUrl())
+            .RuleFor(ap => ap.Name, f => f.Company.CompanyName())
             .RuleFor(ap => ap.OwnerId, f => Guid.Parse(f.PickRandom(accountIds)))
             .RuleFor(ap => ap.CreatedBy, f => f.PickRandom(accountIds))
             .RuleFor(ap => ap.UpdatedBy, f => f.PickRandom(accountIds))
-            .RuleFor(ap => ap.PageDescription, f => f.Lorem.Sentence());
+            .RuleFor(ap => ap.Description, f => f.Lorem.Sentence());
 
         return faker.Generate(count);
     }

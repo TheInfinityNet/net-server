@@ -29,6 +29,11 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("CoverPicture")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("cover_picture");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
@@ -76,19 +81,19 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 {
                     b.HasBaseType("InfinityNetServer.Services.Profile.Domain.Entities.Profile");
 
-                    b.Property<Guid>("OwnerId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("owner_id");
-
-                    b.Property<string>("PageDescription")
+                    b.Property<string>("Description")
                         .HasColumnType("text")
-                        .HasColumnName("page_description");
+                        .HasColumnName("description");
 
-                    b.Property<string>("PageName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
-                        .HasColumnName("page_name");
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_id");
 
                     b.ToTable("page_profiles");
                 });

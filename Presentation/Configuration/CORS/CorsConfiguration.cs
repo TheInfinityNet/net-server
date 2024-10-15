@@ -9,7 +9,7 @@ namespace InfinityNetServer.BuildingBlocks.Presentation.Configuration.CORS
 
         private static string DEFAULT_CORS_POLICY = "DefaultCorsPolicy";
 
-        public static void AddCors(this IServiceCollection services, IConfiguration configuration)
+        public static void AddDefaultCors(this IServiceCollection services, IConfiguration configuration)
         {
             var corsOptions = configuration.GetSection("Cors").Get<CorsOptions>();
             services.AddCors(options =>
@@ -24,7 +24,7 @@ namespace InfinityNetServer.BuildingBlocks.Presentation.Configuration.CORS
             });
         }
 
-        public static void UseCommonCors(this IApplicationBuilder app)
+        public static void UseDefaultCors(this IApplicationBuilder app)
         {
             app.UseCors(DEFAULT_CORS_POLICY);
         }

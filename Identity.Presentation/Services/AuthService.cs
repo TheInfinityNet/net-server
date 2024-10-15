@@ -1,5 +1,4 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Interfaces;
-using InfinityNetServer.Services.Identity.Application.Interfaces;
+﻿using InfinityNetServer.Services.Identity.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -13,9 +12,8 @@ using InfinityNetServer.Services.Identity.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using InfinityNetServer.Services.Identity.Application.Exceptions;
 using InfinityNetServer.Services.Identity.Application.Helpers;
-using System.Security.Principal;
-using Humanizer.Configuration;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Jwt;
+using InfinityNetServer.BuildingBlocks.Application.Services;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Services
 {
@@ -38,6 +36,8 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
 
         private readonly IAccountService _accountService;
 
+        private readonly ILocalProviderService _localProviderService;
+
         private readonly ILogger<AuthService> _logger;
 
         private readonly IConfiguration _configuration;
@@ -45,11 +45,13 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
         public AuthService(
             IBaseRedisService<string, string> baseRedisService,
             IAccountService accountService,
+            ILocalProviderService localProviderService,
             IConfiguration configuration,
             ILogger<AuthService> logger)
         {
             _baseRedisService = baseRedisService;
             _accountService = accountService;
+            _localProviderService = localProviderService;
             _configuration = configuration;
             _logger = logger;
 
@@ -59,16 +61,16 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             REFRESHABLE_DURATION = long.Parse(_configuration["Jwt:RefreshDuration"]!);
         }
 
-        public async Task<Account> SignIn(string email, string password)
+        public async Task<LocalProvider> SignIn(string email, string password)
         {
-            var account = await _accountService.GetAccountByEmail(email);
+            var localProvider = await _localProviderService.GetByEmail(email);
 
-            if (!PasswordHelper.VerifyPassword(account.Password, password))
+            if (!PasswordHelper.VerifyPassword(localProvider.PasswordHash, password))
             {
                 throw new IdentityException(IdentityErrorCode.WRONG_PASSWORD, StatusCodes.Status401Unauthorized);
             }
 
-            return account;
+            return localProvider;
         }
 
         public async Task<bool> Introspect(string token)
@@ -131,7 +133,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
 
             try
             {
-                account = await _accountService.GetAccountById(id);
+                account = await _accountService.GetById(id);
             }
             catch (Exception)
             {
@@ -201,16 +203,16 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
                     else throw new IdentityException(IdentityErrorCode.TOKEN_BLACKLISTED, StatusCodes.Status401Unauthorized);
                 }
 
-                /*var subject = ((JwtSecurityToken)jwtToken).Subject ??
+                var subject = ((JwtSecurityToken)jwtToken).Subject ??
                                 throw new IdentityException(IdentityErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
                 try
                 {
-                    await _accountService.GetAccountById(subject);
+                    await _accountService.GetById(subject);
                 }
                 catch (Exception)
                 {
                     throw new IdentityException(IdentityErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
-                }*/
+                }
 
                 return (JwtSecurityToken)jwtToken;
             }

@@ -15,16 +15,6 @@ namespace InfinityNetServer.Services.Identity.Domain.Entities
         public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
-        [EmailAddress]
-        [MaxLength(255)]
-        [Column("email")]
-        public string Email { get; set; }
-
-        [MaxLength(255)]
-        [Column("password")]
-        public string Password { get; set; }
-
-        [Required]
         [Column("default_user_profile")]
         public Guid DefaultUserProfile { get; set; }
 

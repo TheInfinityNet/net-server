@@ -27,7 +27,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
 
         public Task<UserProfile> GetUserProfileById(string id)
         {
-            return _userProfileRepository.GetUserProfileByIdAsync(Guid.Parse(id));
+            return _userProfileRepository.GetByIdAsync(Guid.Parse(id));
         }
 
     }

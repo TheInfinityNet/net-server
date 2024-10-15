@@ -11,10 +11,10 @@ using InfinityNetServer.Services.Identity.Domain.Entities;
 using InfinityNetServer.Services.Identity.Application;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Commands;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
-using InfinityNetServer.BuildingBlocks.Application.Interfaces;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Identity.Domain.Repositories;
 using InfinityNetServer.BuildingBlocks.Application.Bus;
+using InfinityNetServer.BuildingBlocks.Application.Services;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 {
@@ -65,7 +65,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
                 .RuleFor(a => a.DefaultUserProfile, f => Guid.NewGuid());
             Account account = faker.Generate(1).First();
             account.Id = Guid.Parse("086101dd-b01b-474b-b710-82f90e044234");
-            await _accountRepository.UpdateAccountAsync(account);
+            await _accountRepository.UpdateAsync(account);
 
             _logger.LogInformation(CultureInfo.CurrentCulture.ToString());
             return Ok(new { Message = _localizer["msg_test", "Ben"].ToString() });
@@ -74,14 +74,14 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
         [HttpGet("seed-data")]
         public async Task<IActionResult> SeedData()
         {
-            var accounts = await _accountRepository.GetAllAccountsAsync();
+            var accounts = await _accountRepository.GetAllAsync();
             var faker = new Faker();
             foreach (var account in accounts)
             {
                 var payload = new ProfileCreatedPayload (
                     account.Id.ToString(),
                     account.DefaultUserProfile.ToString(),
-                    account.Email,
+                    faker.Name.FullName(),
                     faker.Name.FirstName(),
                     string.Empty,
                     faker.Name.LastName(),

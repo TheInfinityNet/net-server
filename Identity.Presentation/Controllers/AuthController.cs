@@ -14,10 +14,10 @@ using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
 using InfinityNetServer.Services.Identity.Application.DTOs.Responses;
 using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
-using InfinityNetServer.BuildingBlocks.Application.Interfaces;
 using InfinityNetServer.BuildingBlocks.Application.Bus;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Commands;
 using InfinityNetServer.Services.Identity.Application.GrpcClients;
+using InfinityNetServer.BuildingBlocks.Application.Services;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 {
@@ -34,6 +34,8 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 
         private readonly IAuthService _authService;
 
+        private readonly IAccountService _accountService;
+
         private readonly ProfileClient _profileClient;
 
         private readonly IMessageBus _messageBus;
@@ -44,6 +46,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             IStringLocalizer<IdentitySharedResource> Localizer,
             IConfiguration configuration,
             IAuthService authService,
+            IAccountService accountService,
             ProfileClient profileClient,
             IMessageBus messageBus) : base(authenticatedUserService)
         {
@@ -51,6 +54,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             _localizer = Localizer;
             _configuration = configuration;
             _authService = authService;
+            _accountService = accountService;
             _profileClient = profileClient;
             _messageBus = messageBus;
         }
@@ -115,15 +119,17 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
         [EndpointDescription("Sign in a user")]
         [ProducesResponseType(typeof(SignInResponse), StatusCodes.Status200OK)]
         [HttpPost("sign-in")]
-        public async Task<IActionResult> SignIn([FromBody] SignInRequest request)
+        public async Task<IActionResult> SignIn(SignInRequest request)
         {
-            var account = await _authService.SignIn(request.Email, request.Password);
+            var localProvider = await _authService.SignIn(request.Email, request.Password);
+            var account = await _accountService.GetById(localProvider.AccountId.ToString());
+            _logger.LogInformation(localProvider.AccountId.ToString());
             var AccessToken = _authService.GenerateToken(account, false);
             var RefreshToken = _authService.GenerateToken(account, true);
 
             var userProfile = await _profileClient.GetUserProfile(account.DefaultUserProfile.ToString());
             userProfile.AccountId = account.Id;
-            userProfile.Email = account.Email;
+            userProfile.Email = localProvider.Email;
 
             return Ok(new SignInResponse
             (

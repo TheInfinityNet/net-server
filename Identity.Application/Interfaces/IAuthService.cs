@@ -6,7 +6,7 @@ namespace InfinityNetServer.Services.Identity.Application.Interfaces
     public interface IAuthService
     {
 
-        Task<Account> SignIn(string email, string password);
+        Task<LocalProvider> SignIn(string email, string password);
 
         Task<bool> Introspect(string token);
 

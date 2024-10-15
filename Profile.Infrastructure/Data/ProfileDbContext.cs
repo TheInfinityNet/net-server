@@ -1,4 +1,4 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Interfaces;
+﻿using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL;
 using InfinityNetServer.Services.Profile.Domain.Entities;
 using Microsoft.EntityFrameworkCore;

@@ -7,7 +7,6 @@
     </PropertyGroup>
 
 	<ItemGroup>
-		<Folder Include="Bus\" />
 		<Folder Include="Exceptions\" />
 		<Folder Include="RabbitMQ\" />
 		<Folder Include="Redis\" />

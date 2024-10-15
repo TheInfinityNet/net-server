@@ -54,7 +54,7 @@ internal static class HostingExtensions
 
         builder.Services.AddCors();
 
-        builder.AddCustomSerilog();
+        builder.AddCommonSerilog();
 
         builder.Services.AddMetrics(builder.Configuration);
 

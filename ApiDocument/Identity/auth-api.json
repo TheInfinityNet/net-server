@@ -1,4 +1,4 @@
-{
+
   "openapi": "3.0.1",
   "info": {
     "title": "Identity Service REST APIs",
@@ -21,59 +21,10 @@
     }
   ],
   "paths": {
-    "/infinity-net/identity/auth/refresh": {
+    "/identity/accounts/reset-by-code": {
       "post": {
         "tags": [
-          "Auth APIs"
-        ],
-        "description": "Refresh the access token",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshRequest"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshRequest"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/RefreshResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RefreshResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RefreshResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/infinity-net/identity/auth/reset-by-code": {
-      "post": {
-        "tags": [
-          "Auth APIs"
+          "Account APIs"
         ],
         "description": "Reset password by code",
         "requestBody": {
@@ -119,10 +70,10 @@
         }
       }
     },
-    "/infinity-net/identity/auth/reset-by-token": {
+    "/identity/accounts/reset-by-token": {
       "post": {
         "tags": [
-          "Auth APIs"
+          "Account APIs"
         ],
         "description": "Reset password by token",
         "parameters": [
@@ -177,7 +128,56 @@
         }
       }
     },
-    "/infinity-net/identity/auth/send-mail": {
+    "/identity/auth/refresh": {
+      "post": {
+        "tags": [
+          "Auth APIs"
+        ],
+        "description": "Refresh the access token",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/identity/auth/send-mail": {
       "post": {
         "tags": [
           "Auth APIs"
@@ -226,7 +226,7 @@
         }
       }
     },
-    "/infinity-net/identity/auth/sign-in": {
+    "/identity/auth/sign-in": {
       "post": {
         "tags": [
           "Auth APIs"
@@ -275,7 +275,7 @@
         }
       }
     },
-    "/infinity-net/identity/auth/sign-up": {
+    "/identity/auth/sign-up": {
       "post": {
         "tags": [
           "Auth APIs"
@@ -324,7 +324,7 @@
         }
       }
     },
-    "/infinity-net/identity/auth/verify": {
+    "/identity/auth/verify": {
       "post": {
         "tags": [
           "Auth APIs"
@@ -410,41 +410,26 @@
         }
       }
     },
-    "/infinity-net/identity/WeatherForecast": {
+    "/identity/test": {
       "get": {
         "tags": [
-          "WeatherForecast"
+          "Test"
         ],
-        "operationId": "GetWeatherForecast",
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WeatherForecast"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WeatherForecast"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WeatherForecast"
-                  }
-                }
-              }
-            }
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/identity/test/seed-data": {
+      "get": {
+        "tags": [
+          "Test"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -464,12 +449,11 @@
       },
       "Gender": {
         "enum": [
-          0,
-          1,
-          2
+          "Male",
+          "Female",
+          "Other"
         ],
-        "type": "integer",
-        "format": "int32"
+        "type": "string"
       },
       "RefreshRequest": {
         "required": [
@@ -479,10 +463,12 @@
         "properties": {
           "refreshToken": {
             "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "description": "The refresh token required for generating a new access token"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "DTO for refreshing a token"
       },
       "RefreshResponse": {
         "type": "object",
@@ -564,15 +550,21 @@
         "additionalProperties": false
       },
       "SignInRequest": {
+        "required": [
+          "email",
+          "password"
+        ],
         "type": "object",
         "properties": {
           "email": {
+            "minLength": 1,
             "type": "string",
-            "nullable": true
+            "format": "email"
           },
           "password": {
-            "type": "string",
-            "nullable": true
+            "maxLength": 20,
+            "minLength": 6,
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -590,43 +582,56 @@
         "additionalProperties": false
       },
       "SignUpRequest": {
+        "required": [
+          "email",
+          "firstName",
+          "lastName",
+          "mobileNumber",
+          "password",
+          "passwordConfirmation"
+        ],
         "type": "object",
         "properties": {
           "firstName": {
-            "type": "string",
-            "nullable": true
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
           },
           "middleName": {
             "type": "string",
             "nullable": true
           },
           "lastName": {
-            "type": "string",
-            "nullable": true
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
           },
           "email": {
+            "minLength": 1,
             "type": "string",
-            "nullable": true
+            "format": "email"
           },
           "password": {
-            "type": "string",
-            "nullable": true
+            "maxLength": 20,
+            "minLength": 6,
+            "type": "string"
           },
           "passwordConfirmation": {
-            "type": "string",
-            "nullable": true
+            "maxLength": 20,
+            "minLength": 6,
+            "type": "string"
           },
           "mobileNumber": {
+            "minLength": 1,
             "type": "string",
-            "nullable": true
+            "format": "tel"
           },
           "birthdate": {
             "type": "string",
             "format": "date-time"
           },
           "gender": {
-            "type": "string",
-            "nullable": true
+            "$ref": "#/components/schemas/Gender"
           },
           "acceptTerms": {
             "type": "boolean"
@@ -651,7 +656,7 @@
       "UserProfileResponse": {
         "type": "object",
         "properties": {
-          "id": {
+          "accountId": {
             "type": "string",
             "format": "uuid"
           },
@@ -659,7 +664,15 @@
             "type": "string",
             "nullable": true
           },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
           "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "middleName": {
             "type": "string",
             "nullable": true
           },
@@ -671,25 +684,25 @@
             "type": "string",
             "nullable": true
           },
-          "birthDate": {
+          "birthdate": {
             "type": "string",
             "format": "date-time"
           },
           "gender": {
-            "$ref": "#/components/schemas/Gender"
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
       },
       "VerificationType": {
         "enum": [
-          0,
-          1,
-          2,
-          3
+          "VerifyByCode",
+          "VerifyByToken",
+          "ResetByCode",
+          "ResetByToken"
         ],
-        "type": "integer",
-        "format": "int32"
+        "type": "string"
       },
       "VerifyEmailByCodeRequest": {
         "type": "object",
@@ -699,29 +712,6 @@
             "nullable": true
           },
           "code": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "WeatherForecast": {
-        "type": "object",
-        "properties": {
-          "date": {
-            "type": "string",
-            "format": "date"
-          },
-          "temperatureC": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "temperatureF": {
-            "type": "integer",
-            "format": "int32",
-            "readOnly": true
-          },
-          "summary": {
             "type": "string",
             "nullable": true
           }
