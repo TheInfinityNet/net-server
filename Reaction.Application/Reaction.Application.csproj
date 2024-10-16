@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>net8.0</TargetFramework>
+	  <AssemblyName>InfinityNetServer.Services.Reaction.Application</AssemblyName>
+	  <RootNamespace>InfinityNetServer.Services.Reaction.Application</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Reaction.Domain\Reaction.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

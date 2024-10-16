@@ -1,6 +1,0 @@
-@Ocelot.Presentaition_HostAddress = http://localhost:5013
-
-GET {{Ocelot.Presentaition_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>net8.0</TargetFramework>
+	  <AssemblyName>InfinityNetServer.Services.Reaction.Infrastructure</AssemblyName>
+	  <RootNamespace>InfinityNetServer.Services.Reaction.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\Reaction.Application\Reaction.Application.csproj" />
+  </ItemGroup>
+
+</Project>

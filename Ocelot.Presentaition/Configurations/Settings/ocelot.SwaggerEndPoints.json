@@ -10,6 +10,7 @@
         }
       ]
     },
+
     {
       "Key": "profile",
       "Config": [
@@ -20,6 +21,7 @@
         }
       ]
     },
+
     {
       "Key": "relationship",
       "Config": [
@@ -30,6 +32,7 @@
         }
       ]
     },
+
     {
       "Key": "post",
       "Config": [
@@ -37,6 +40,50 @@
           "Name": "Post Service",
           "Version": "v1",
           "Url": "https://localhost:8286/swagger/v1/swagger.json"
+        }
+      ]
+    },
+
+    {
+      "Key": "comment",
+      "Config": [
+        {
+          "Name": "Comment Service",
+          "Version": "v1",
+          "Url": "https://localhost:8287/swagger/v1/swagger.json"
+        }
+      ]
+    },
+
+    {
+      "Key": "reaction",
+      "Config": [
+        {
+          "Name": "Reaction Service",
+          "Version": "v1",
+          "Url": "https://localhost:8288/swagger/v1/swagger.json"
+        }
+      ]
+    },
+
+    {
+      "Key": "tag",
+      "Config": [
+        {
+          "Name": "Tag Service",
+          "Version": "v1",
+          "Url": "https://localhost:8289/swagger/v1/swagger.json"
+        }
+      ]
+    },
+
+    {
+      "Key": "group",
+      "Config": [
+        {
+          "Name": "Group Service",
+          "Version": "v1",
+          "Url": "https://localhost:8290/swagger/v1/swagger.json"
         }
       ]
     }

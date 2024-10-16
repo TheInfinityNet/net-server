@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>net8.0</TargetFramework>
+	  <AssemblyName>InfinityNetServer.Services.Comment.Application</AssemblyName>
+	  <RootNamespace>InfinityNetServer.Services.Comment.Application</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Comment.Domain\Comment.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

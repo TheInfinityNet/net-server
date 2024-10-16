@@ -20,7 +20,7 @@ public static class GrpcExtensions
     {
         services.AddGrpcClient<ProfileService.ProfileServiceClient>(options =>
         {
-            options.Address = new Uri(configuration["GrpcServers:Profile-Service"]);
+            options.Address = new Uri(configuration["GrpcServers:ProfileService"]);
         });
 
         services.AddScoped(typeof(ProfileClient));

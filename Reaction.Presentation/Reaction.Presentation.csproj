@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+	  <TargetFramework>net8.0</TargetFramework>
+	  <AssemblyName>InfinityNetServer.Services.Reaction.Presentation</AssemblyName>
+	  <RootNamespace>InfinityNetServer.Services.Reaction.Presentation</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Presentation\Presentation.csproj" />
+    <ProjectReference Include="..\Reaction.Infrastructure\Reaction.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
