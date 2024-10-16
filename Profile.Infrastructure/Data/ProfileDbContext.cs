@@ -26,7 +26,12 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<UserProfile>()
+            var userProfile = modelBuilder.Entity<UserProfile>();
+            userProfile.HasIndex(p => p.Username).IsUnique();
+
+            userProfile.HasIndex(p => p.MobileNumber).IsUnique();
+            //userProfile.HasIndex(p => new { p.Username, p.MobileNumber }).IsUnique();
+            userProfile
                 .HasOne(p => p.Profile)
                 .WithOne(b => b.UserProfile)
                 .OnDelete(DeleteBehavior.Cascade);

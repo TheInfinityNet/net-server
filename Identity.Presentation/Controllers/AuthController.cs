@@ -127,7 +127,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             var AccessToken = _authService.GenerateToken(account, false);
             var RefreshToken = _authService.GenerateToken(account, true);
 
-            var userProfile = await _profileClient.GetUserProfile(account.DefaultUserProfile.ToString());
+            var userProfile = await _profileClient.GetUserProfile(account.DefaultUserProfileId.ToString());
             userProfile.AccountId = account.Id;
             userProfile.Email = localProvider.Email;
 

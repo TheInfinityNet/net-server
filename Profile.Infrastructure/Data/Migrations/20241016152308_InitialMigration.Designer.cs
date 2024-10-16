@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ProfileDbContext))]
-    [Migration("20241015120019_InitialMigration")]
+    [Migration("20241016152308_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -32,45 +32,43 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("CoverPicture")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("cover_picture");
+                    b.Property<Guid>("CoverPictureId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("cover_picture_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("CreatedBy")
+                    b.Property<Guid>("CreatedBy")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime>("DeletedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<string>("DeletedBy")
+                    b.Property<Guid>("DeletedBy")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("uuid")
                         .HasColumnName("deleted_by");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<string>("Picture")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("picture");
+                    b.Property<Guid>("PictureId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("picture_id");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<string>("UpdatedBy")
+                    b.Property<Guid>("UpdatedBy")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("uuid")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -94,10 +92,6 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
-                    b.Property<Guid>("OwnerId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("owner_id");
-
                     b.ToTable("page_profiles");
                 });
 
@@ -105,16 +99,12 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 {
                     b.HasBaseType("InfinityNetServer.Services.Profile.Domain.Entities.Profile");
 
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("account_id");
-
                     b.Property<string>("Bio")
                         .HasColumnType("text")
                         .HasColumnName("bio");
 
-                    b.Property<DateTime>("Birthdate")
-                        .HasColumnType("timestamp without time zone")
+                    b.Property<DateOnly>("Birthdate")
+                        .HasColumnType("date")
                         .HasColumnName("birthdate");
 
                     b.Property<string>("FirstName")
@@ -150,6 +140,12 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("username");
+
+                    b.HasIndex("MobileNumber")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
+                        .IsUnique();
 
                     b.ToTable("user_profiles");
                 });

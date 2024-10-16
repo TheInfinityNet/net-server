@@ -13,13 +13,11 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         [Column("id")]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        [Column("picture")]
-        [MaxLength(255)]
-        public string Picture { get; set; } = string.Empty;
+        [Column("picture_id")]
+        public Guid PictureId { get; set; } = Guid.Empty;
 
-        [Column("cover_picture")]
-        [MaxLength(255)]
-        public string CoverPicture { get; set; } = string.Empty;
+        [Column("cover_picture_id")]
+        public Guid CoverPictureId { get; set; } = Guid.Empty;
 
         public virtual UserProfile UserProfile { get; set; }
 

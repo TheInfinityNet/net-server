@@ -15,8 +15,8 @@ namespace InfinityNetServer.Services.Identity.Domain.Entities
         public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
-        [Column("default_user_profile")]
-        public Guid DefaultUserProfile { get; set; }
+        [Column("default_user_profile_id")]
+        public Guid DefaultUserProfileId { get; set; }
 
         // Navigation Properties
         public virtual ICollection<AccountProvider> AccountProviders { get; set; }

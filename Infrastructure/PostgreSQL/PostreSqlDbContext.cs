@@ -52,29 +52,21 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
 
                 if (entry.State == EntityState.Added)
                 {
-                    if (entry.Entity.CreatedBy == null)
-                    {
+                    if (entry.Entity.CreatedBy == Guid.Empty) 
                         entry.Entity.CreatedBy = authenticationName;
-                    }
-
-                    if (entry.Entity.UpdatedBy == null)
-                    {
-                        entry.Entity.UpdatedBy = authenticationName;
-                    }
-
                     entry.Entity.CreatedAt = DateTime.Now;
-                    entry.Entity.UpdatedAt = DateTime.Now;
+                    entry.Property(x => x.UpdatedBy).IsModified = false;
+                    entry.Property(x => x.UpdatedAt).IsModified = false;
+                    entry.Property(x => x.DeletedBy).IsModified = false;
+                    entry.Property(x => x.DeletedAt).IsModified = false;
                 }
                 else if (entry.State == EntityState.Modified)
                 {
                     if (entry.Entity.IsDeleted)
                     {
-                        if (entry.Entity.DeletedBy == null)
-                        {
+                        if (entry.Entity.DeletedBy == Guid.Empty)
                             entry.Entity.DeletedBy = authenticationName;
-                        }
                         entry.Entity.DeletedAt = DateTime.Now;
-                        // Để tránh thay đổi CreatedBy và CreatedAt khi cập nhật
                         entry.Property(x => x.CreatedBy).IsModified = false;
                         entry.Property(x => x.CreatedAt).IsModified = false;
                         entry.Property(x => x.UpdatedBy).IsModified = false;
@@ -82,12 +74,9 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
                     }
                     else
                     {
-                        if (entry.Entity.UpdatedBy == null)
-                        {
+                        if (entry.Entity.UpdatedBy == Guid.Empty)
                             entry.Entity.UpdatedBy = authenticationName;
-                        }
                         entry.Entity.UpdatedAt = DateTime.Now;
-                        // Để tránh thay đổi CreatedBy và CreatedAt khi cập nhật
                         entry.Property(x => x.CreatedBy).IsModified = false;
                         entry.Property(x => x.CreatedAt).IsModified = false;
                         entry.Property(x => x.DeletedBy).IsModified = false;

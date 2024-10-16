@@ -1,10 +1,12 @@
-﻿namespace InfinityNetServer.BuildingBlocks.Application.Services;
+﻿using System;
+
+namespace InfinityNetServer.BuildingBlocks.Application.Services;
 
 public interface IAuthenticatedUserService
 {
 
     bool IsAuthenticated();
 
-    string GetAuthenticatedUserId();
+    Guid GetAuthenticatedUserId();
 
 }

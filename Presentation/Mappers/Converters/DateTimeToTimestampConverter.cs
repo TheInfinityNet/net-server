@@ -2,7 +2,7 @@
 using Google.Protobuf.WellKnownTypes;
 using System;
 
-namespace InfinityNetServer.BuildingBlocks.Presentation.Mappers
+namespace InfinityNetServer.BuildingBlocks.Presentation.Mappers.Converters
 {
     public class DateTimeToTimestampConverter : ITypeConverter<DateTime, Timestamp>
     {

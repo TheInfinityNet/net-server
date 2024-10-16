@@ -33,22 +33,22 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("CreatedBy")
+                    b.Property<Guid>("CreatedBy")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
-                    b.Property<Guid>("DefaultUserProfile")
+                    b.Property<Guid>("DefaultUserProfileId")
                         .HasColumnType("uuid")
-                        .HasColumnName("default_user_profile");
+                        .HasColumnName("default_user_profile_id");
 
                     b.Property<DateTime>("DeletedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<string>("DeletedBy")
+                    b.Property<Guid>("DeletedBy")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("uuid")
                         .HasColumnName("deleted_by");
 
                     b.Property<bool>("IsDeleted")
@@ -59,9 +59,9 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<string>("UpdatedBy")
+                    b.Property<Guid>("UpdatedBy")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("uuid")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -84,18 +84,18 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("CreatedBy")
+                    b.Property<Guid>("CreatedBy")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime>("DeletedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<string>("DeletedBy")
+                    b.Property<Guid>("DeletedBy")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("uuid")
                         .HasColumnName("deleted_by");
 
                     b.Property<bool>("IsDeleted")
@@ -110,9 +110,9 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<string>("UpdatedBy")
+                    b.Property<Guid>("UpdatedBy")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("uuid")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -144,18 +144,18 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("CreatedBy")
+                    b.Property<Guid>("CreatedBy")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime>("DeletedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<string>("DeletedBy")
+                    b.Property<Guid>("DeletedBy")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("uuid")
                         .HasColumnName("deleted_by");
 
                     b.Property<DateTime>("ExpiresAt")
@@ -176,9 +176,9 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<string>("UpdatedBy")
+                    b.Property<Guid>("UpdatedBy")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("uuid")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -224,6 +224,9 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("password_hash");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("local_providers");
                 });

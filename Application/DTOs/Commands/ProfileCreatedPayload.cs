@@ -19,7 +19,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Commands
 
         string MobileNumber,
 
-        DateTime Birthdate,
+        DateOnly Birthdate,
 
         Gender Gender
 

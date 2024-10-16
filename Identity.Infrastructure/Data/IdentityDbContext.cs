@@ -32,6 +32,10 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<LocalProvider>()
+                .HasIndex(p => p.Email)
+                .IsUnique();
+
             modelBuilder.Entity<AccountProvider>()
                 .HasOne(p => p.Account)
                 .WithMany(b => b.AccountProviders)

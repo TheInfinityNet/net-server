@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
 namespace InfinityNetServer.Services.Profile.Domain.Entities
@@ -7,10 +6,6 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
     [Table("page_profiles")]
     public class PageProfile : Profile
     {
-
-        [Required]
-        [Column("owner_id")]
-        public Guid OwnerId { get; set; }
 
         [Column("name")]
         [MaxLength(100)]

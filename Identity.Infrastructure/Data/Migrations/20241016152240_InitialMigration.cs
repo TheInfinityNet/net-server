@@ -16,12 +16,12 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    default_user_profile = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    default_user_profile_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    updated_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    updated_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    deleted_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    deleted_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
@@ -37,11 +37,11 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     type = table.Column<int>(type: "integer", nullable: false),
                     account_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    updated_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    updated_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    deleted_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    deleted_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
@@ -65,11 +65,11 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                     code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
                     expires_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     account_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    updated_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    updated_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    deleted_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    deleted_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
@@ -143,6 +143,12 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                 name: "IX_account_providers_account_id",
                 table: "account_providers",
                 column: "account_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_local_providers_email",
+                table: "local_providers",
+                column: "email",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_verifications_account_id",

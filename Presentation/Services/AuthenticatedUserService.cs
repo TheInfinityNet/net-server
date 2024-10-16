@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using InfinityNetServer.BuildingBlocks.Application.Services;
+using System;
+using Microsoft.Extensions.Logging;
 
 namespace InfinityNetServer.BuildingBlocks.Presentation.Services;
 
@@ -9,9 +11,12 @@ public class AuthenticatedUserService : IAuthenticatedUserService
 
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public AuthenticatedUserService(IHttpContextAccessor httpContextAccessor)
+    private readonly ILogger<AuthenticatedUserService> _logger;
+
+    public AuthenticatedUserService(IHttpContextAccessor httpContextAccessor, ILogger<AuthenticatedUserService> logger)
     {
         _httpContextAccessor = httpContextAccessor;
+        _logger = logger;
     }
 
     public bool IsAuthenticated()
@@ -19,14 +24,22 @@ public class AuthenticatedUserService : IAuthenticatedUserService
         return _httpContextAccessor.HttpContext.User.Identity.IsAuthenticated;
     }
 
-    public string GetAuthenticatedUserId()
+    public Guid GetAuthenticatedUserId()
     {
-        var user = _httpContextAccessor.HttpContext?.User;
-        if (user?.Identity != null && user.Identity.IsAuthenticated)
+        try
         {
-            return user.FindFirstValue("sub") ?? null;
+            var user = _httpContextAccessor.HttpContext?.User;
+            if (user?.Identity != null && user.Identity.IsAuthenticated)
+            {
+                return Guid.Parse(user.FindFirstValue("sub"));
+            }
+            return Guid.Empty;
         }
-        return null;
+        catch (Exception)
+        {
+            _logger.LogError("Error getting authenticated user id");
+            return Guid.Empty;
+        }
     }
 
 }

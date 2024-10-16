@@ -2,7 +2,7 @@
 using Google.Protobuf.WellKnownTypes;
 using System;
 
-namespace InfinityNetServer.BuildingBlocks.Presentation.Mappers
+namespace InfinityNetServer.BuildingBlocks.Presentation.Mappers.Converters
 {
     public class TimestampToDateTimeConverter : ITypeConverter<Timestamp, DateTime>
     {
@@ -10,7 +10,7 @@ namespace InfinityNetServer.BuildingBlocks.Presentation.Mappers
         {
             if (source == null)
             {
-                return default(DateTime);
+                return default;
             }
 
             // Chuyển đổi Timestamp sang DateTime và đảm bảo là UTC

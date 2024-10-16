@@ -9,9 +9,6 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
     public class UserProfile : Profile
     {
 
-        [Column("account_id")]
-        public Guid AccountId { get; set; }
-
         [Required]
         [Column("username")]
         [MaxLength(50)]
@@ -37,7 +34,7 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         public string LastName { get; set; }
 
         [Column("birthdate")]
-        public DateTime Birthdate { get; set; }
+        public DateOnly Birthdate { get; set; }
 
         [MaxLength(20)]
         [Column("gender")]

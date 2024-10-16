@@ -10,7 +10,7 @@ import "Protos/base.proto";
 
 message GetProfileRequest {
 
-	string profileId = 1;
+	string id = 1;
 
 }
 

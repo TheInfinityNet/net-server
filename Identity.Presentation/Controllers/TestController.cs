@@ -62,7 +62,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             }
             _logger.LogInformation(User.FindFirst("sub")?.Value);
             var faker = new Faker<Account>()
-                .RuleFor(a => a.DefaultUserProfile, f => Guid.NewGuid());
+                .RuleFor(a => a.DefaultUserProfileId, f => Guid.NewGuid());
             Account account = faker.Generate(1).First();
             account.Id = Guid.Parse("086101dd-b01b-474b-b710-82f90e044234");
             await _accountRepository.UpdateAsync(account);
@@ -80,13 +80,13 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             {
                 var payload = new ProfileCreatedPayload (
                     account.Id.ToString(),
-                    account.DefaultUserProfile.ToString(),
+                    account.DefaultUserProfileId.ToString(),
                     faker.Name.FullName(),
                     faker.Name.FirstName(),
                     string.Empty,
                     faker.Name.LastName(),
                     new Faker().Phone.PhoneNumber(),
-                    new DateTime(1990, 1, 12),
+                    new DateOnly(1990, 1, 12),
                     faker.PickRandom<Gender>()
                     );
 

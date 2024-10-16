@@ -25,8 +25,8 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
 
         public override async Task<UserProfileResponse> getUserProfile(GetProfileRequest request, ServerCallContext context)
         {
-            _logger.LogInformation("GetUserProfile called with ProfileId: {ProfileId}", request.ProfileId);
-            var source = await _userProfileService.GetUserProfileById(request.ProfileId);
+            _logger.LogInformation("GetUserProfile called with ProfileId: {ProfileId}", request.Id);
+            var source = await _userProfileService.GetUserProfileById(request.Id);
             return _mapper.Map<UserProfileResponse>(source);
         }
 

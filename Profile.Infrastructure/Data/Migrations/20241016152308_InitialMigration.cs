@@ -16,13 +16,13 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    picture = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
-                    cover_picture = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
-                    created_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    picture_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    cover_picture_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    updated_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    updated_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    deleted_by = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    deleted_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
@@ -36,7 +36,6 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    owner_id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     description = table.Column<string>(type: "text", nullable: true)
                 },
@@ -56,13 +55,12 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    account_id = table.Column<Guid>(type: "uuid", nullable: false),
                     username = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     mobile_number = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     first_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     middle_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     last_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    birthdate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    birthdate = table.Column<DateOnly>(type: "date", nullable: false),
                     gender = table.Column<int>(type: "integer", maxLength: 20, nullable: false),
                     bio = table.Column<string>(type: "text", nullable: true)
                 },
@@ -76,6 +74,18 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_user_profiles_mobile_number",
+                table: "user_profiles",
+                column: "mobile_number",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_user_profiles_username",
+                table: "user_profiles",
+                column: "username",
+                unique: true);
         }
 
         /// <inheritdoc />

@@ -52,7 +52,7 @@ public static class DbInitialization
     private static List<Account> GenerateAccounts(int count)
     {
         var faker = new Faker<Account>()
-            .RuleFor(a => a.DefaultUserProfile, f => Guid.NewGuid());
+            .RuleFor(a => a.DefaultUserProfileId, f => Guid.NewGuid());
 
         return faker.Generate(count);
     }

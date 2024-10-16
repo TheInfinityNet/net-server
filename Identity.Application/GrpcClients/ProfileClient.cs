@@ -31,7 +31,7 @@ namespace InfinityNetServer.Services.Identity.Application.GrpcClients
                 _logger.LogInformation("Starting get user profile");
                 var response = await _client.getUserProfileAsync(new GetProfileRequest
                 {
-                    ProfileId = id
+                    Id = id
                 });
                 return _mapper.Map<BuildingBlocks.Application.DTOs.Responses.UserProfileResponse>(response);
             }

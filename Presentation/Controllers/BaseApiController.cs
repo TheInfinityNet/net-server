@@ -1,5 +1,6 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 
@@ -13,7 +14,7 @@ public abstract class BaseApiController : ControllerBase
         _authenticatedUserService = authenticatedUserService;
     }
 
-    protected string GetCurrentUserId()
+    protected Guid GetCurrentUserId()
     {
         return _authenticatedUserService.GetAuthenticatedUserId();
     }
