@@ -29,7 +29,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("CoverPictureId")
+                    b.Property<Guid?>("CoverPictureId")
                         .HasColumnType("uuid")
                         .HasColumnName("cover_picture_id");
 
@@ -37,7 +37,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasMaxLength(255)
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
@@ -46,7 +46,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid>("DeletedBy")
+                    b.Property<Guid?>("DeletedBy")
                         .HasMaxLength(255)
                         .HasColumnType("uuid")
                         .HasColumnName("deleted_by");
@@ -55,7 +55,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<Guid>("PictureId")
+                    b.Property<Guid?>("PictureId")
                         .HasColumnType("uuid")
                         .HasColumnName("picture_id");
 
@@ -63,7 +63,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
+                    b.Property<Guid?>("UpdatedBy")
                         .HasMaxLength(255)
                         .HasColumnType("uuid")
                         .HasColumnName("updated_by");
@@ -88,6 +88,10 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_id");
 
                     b.ToTable("page_profiles");
                 });

@@ -1,11 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System;
 
 namespace InfinityNetServer.Services.Profile.Domain.Entities
 {
     [Table("page_profiles")]
     public class PageProfile : Profile
     {
+
+        [Column("owner_id")]
+        public Guid OwnerId { get; set; }
 
         [Column("name")]
         [MaxLength(100)]

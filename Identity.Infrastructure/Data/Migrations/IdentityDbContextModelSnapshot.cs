@@ -33,7 +33,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasMaxLength(255)
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
@@ -46,7 +46,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid>("DeletedBy")
+                    b.Property<Guid?>("DeletedBy")
                         .HasMaxLength(255)
                         .HasColumnType("uuid")
                         .HasColumnName("deleted_by");
@@ -59,7 +59,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
+                    b.Property<Guid?>("UpdatedBy")
                         .HasMaxLength(255)
                         .HasColumnType("uuid")
                         .HasColumnName("updated_by");
@@ -84,7 +84,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasMaxLength(255)
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
@@ -93,7 +93,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid>("DeletedBy")
+                    b.Property<Guid?>("DeletedBy")
                         .HasMaxLength(255)
                         .HasColumnType("uuid")
                         .HasColumnName("deleted_by");
@@ -110,7 +110,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
+                    b.Property<Guid?>("UpdatedBy")
                         .HasMaxLength(255)
                         .HasColumnType("uuid")
                         .HasColumnName("updated_by");
@@ -144,7 +144,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasMaxLength(255)
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
@@ -153,7 +153,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid>("DeletedBy")
+                    b.Property<Guid?>("DeletedBy")
                         .HasMaxLength(255)
                         .HasColumnType("uuid")
                         .HasColumnName("deleted_by");
@@ -176,7 +176,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
+                    b.Property<Guid?>("UpdatedBy")
                         .HasMaxLength(255)
                         .HasColumnType("uuid")
                         .HasColumnName("updated_by");

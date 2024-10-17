@@ -14,10 +14,10 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         public Guid Id { get; set; } = Guid.NewGuid();
 
         [Column("picture_id")]
-        public Guid PictureId { get; set; } = Guid.Empty;
+        public Guid? PictureId { get; set; }
 
         [Column("cover_picture_id")]
-        public Guid CoverPictureId { get; set; } = Guid.Empty;
+        public Guid? CoverPictureId { get; set; }
 
         public virtual UserProfile UserProfile { get; set; }
 

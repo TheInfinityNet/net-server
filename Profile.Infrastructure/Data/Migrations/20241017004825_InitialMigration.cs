@@ -16,13 +16,13 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    picture_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    cover_picture_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: false),
+                    picture_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    cover_picture_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    deleted_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: false),
+                    deleted_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
                     deleted_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
@@ -36,6 +36,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
+                    owner_id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     description = table.Column<string>(type: "text", nullable: true)
                 },

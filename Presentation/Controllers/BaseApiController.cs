@@ -14,7 +14,7 @@ public abstract class BaseApiController : ControllerBase
         _authenticatedUserService = authenticatedUserService;
     }
 
-    protected Guid GetCurrentUserId()
+    protected Guid? GetCurrentUserId()
     {
         return _authenticatedUserService.GetAuthenticatedUserId();
     }

@@ -24,7 +24,7 @@ public class AuthenticatedUserService : IAuthenticatedUserService
         return _httpContextAccessor.HttpContext.User.Identity.IsAuthenticated;
     }
 
-    public Guid GetAuthenticatedUserId()
+    public Guid? GetAuthenticatedUserId()
     {
         try
         {
@@ -33,12 +33,12 @@ public class AuthenticatedUserService : IAuthenticatedUserService
             {
                 return Guid.Parse(user.FindFirstValue("sub"));
             }
-            return Guid.Empty;
+            return null;
         }
         catch (Exception)
         {
             _logger.LogError("Error getting authenticated user id");
-            return Guid.Empty;
+            return null;
         }
     }
 

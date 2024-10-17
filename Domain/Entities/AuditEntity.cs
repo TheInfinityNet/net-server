@@ -8,21 +8,21 @@ namespace InfinityNetServer.BuildingBlocks.Domain.Entities
     {
         [Column("created_by")]
         [MaxLength(255)]
-        public Guid CreatedBy { get; set; } = Guid.Empty;
+        public Guid? CreatedBy { get; set; }
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [Column("updated_by")]
         [MaxLength(255)]
-        public Guid UpdatedBy { get; set; } = Guid.Empty;
+        public Guid? UpdatedBy { get; set; }
 
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         [Column("deleted_by")]
         [MaxLength(255)]
-        public Guid DeletedBy { get; set; } = Guid.Empty;
+        public Guid? DeletedBy { get; set; }
 
         [Column("deleted_at")]
         public DateTime DeletedAt { get; set; } = new DateTime(9999, 12, 31);
