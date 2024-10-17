@@ -1,5 +1,4 @@
-﻿using InfinityNetServer.Services.Identity.Application.Interfaces;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -14,6 +13,7 @@ using InfinityNetServer.Services.Identity.Application.Exceptions;
 using InfinityNetServer.Services.Identity.Application.Helpers;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Jwt;
 using InfinityNetServer.BuildingBlocks.Application.Services;
+using InfinityNetServer.Services.Identity.Application.Services;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Services
 {

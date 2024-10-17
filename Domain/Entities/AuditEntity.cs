@@ -18,14 +18,14 @@ namespace InfinityNetServer.BuildingBlocks.Domain.Entities
         public Guid? UpdatedBy { get; set; }
 
         [Column("updated_at")]
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
 
         [Column("deleted_by")]
         [MaxLength(255)]
         public Guid? DeletedBy { get; set; }
 
         [Column("deleted_at")]
-        public DateTime DeletedAt { get; set; } = new DateTime(9999, 12, 31);
+        public DateTime? DeletedAt { get; set; }
 
         [Column("is_deleted")]
         public bool IsDeleted { get; set; } = false;

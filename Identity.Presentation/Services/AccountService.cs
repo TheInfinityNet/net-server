@@ -1,7 +1,6 @@
-﻿using InfinityNetServer.BuildingBlocks.Domain.Repositories;
-using InfinityNetServer.Services.Identity.Application;
+﻿using InfinityNetServer.Services.Identity.Application;
 using InfinityNetServer.Services.Identity.Application.Exceptions;
-using InfinityNetServer.Services.Identity.Application.Interfaces;
+using InfinityNetServer.Services.Identity.Application.Services;
 using InfinityNetServer.Services.Identity.Domain.Entities;
 using InfinityNetServer.Services.Identity.Domain.Repositories;
 using Microsoft.AspNetCore.Http;

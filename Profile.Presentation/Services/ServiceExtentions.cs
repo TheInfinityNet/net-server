@@ -1,4 +1,4 @@
-﻿using InfinityNetServer.Services.Profile.Application.Interfaces;
+﻿using InfinityNetServer.Services.Profile.Application.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

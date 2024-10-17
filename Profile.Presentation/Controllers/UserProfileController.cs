@@ -1,5 +1,4 @@
 ﻿using InfinityNetServer.Services.Profile.Application;
-using InfinityNetServer.Services.Profile.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +10,7 @@ using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.BuildingBlocks.Application.Bus;
 using System.Threading.Tasks;
 using InfinityNetServer.BuildingBlocks.Application.Services;
+using InfinityNetServer.Services.Profile.Application.Services;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Controllers
 {

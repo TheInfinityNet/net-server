@@ -21,9 +21,9 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                     created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
-                    updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     deleted_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>

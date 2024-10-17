@@ -1,5 +1,5 @@
 ﻿using InfinityNetServer.Services.Profile.Application;
-using InfinityNetServer.Services.Profile.Application.Interfaces;
+using InfinityNetServer.Services.Profile.Application.Services;
 using InfinityNetServer.Services.Profile.Domain.Entities;
 using InfinityNetServer.Services.Profile.Domain.Repositories;
 using Microsoft.Extensions.Localization;

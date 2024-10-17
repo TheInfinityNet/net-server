@@ -30,6 +30,11 @@
 	<ItemGroup>
 		<Protobuf Include="Protos\**\*.proto" GrpcServices="Both" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Protos\comment.proto" />
+	  <None Remove="Protos\post.proto" />
+	</ItemGroup>
 	
 	<ItemGroup>
 		<ProjectReference Include="..\Domain\Domain.csproj" />
@@ -39,6 +44,12 @@
 	  <EmbeddedResource Update="Resources\SharedResource.en-US.resx">
 	    <SubType>Designer</SubType>
 	  </EmbeddedResource>
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <Protobuf Update="Protos\post.proto">
+	    <GrpcServices>Both</GrpcServices>
+	  </Protobuf>
 	</ItemGroup>
 
 </Project>

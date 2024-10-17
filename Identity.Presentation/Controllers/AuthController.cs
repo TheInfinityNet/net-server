@@ -1,6 +1,5 @@
 ﻿using InfinityNetServer.Services.Identity.Application;
 using InfinityNetServer.Services.Identity.Application.Exceptions;
-using InfinityNetServer.Services.Identity.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +17,7 @@ using InfinityNetServer.BuildingBlocks.Application.Bus;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Commands;
 using InfinityNetServer.Services.Identity.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
+using InfinityNetServer.Services.Identity.Application.Services;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 {

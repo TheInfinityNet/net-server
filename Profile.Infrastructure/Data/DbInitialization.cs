@@ -26,7 +26,7 @@ public static class DbInitialization
         using var serviceScope = serviceProvider.CreateScope();
         var dbContext = serviceScope.ServiceProvider.GetService<ProfileDbContext>();
         var pageRepository = serviceScope.ServiceProvider.GetService<IPageProfileRepository>();
-        var identityClient = serviceScope.ServiceProvider.GetService<IdentityClient>();
+        var identityClient = serviceScope.ServiceProvider.GetService<CommonIdentityClient>();
 
         var existingPageProfileCount = await pageRepository.GetAllAsync();
         if (existingPageProfileCount.Count == 0)
@@ -36,13 +36,20 @@ public static class DbInitialization
         }
     }
 
-    private static async Task<List<PageProfile>> GeneratePageProfiles(int count, IdentityClient identityClient)
+    private static async Task<List<PageProfile>> GeneratePageProfiles(int count, CommonIdentityClient identityClient)
     {
         var accountIds = await identityClient.GetAccountIds();
         var faker = new Faker<PageProfile>()
             .RuleFor(ap => ap.Name, f => f.Company.CompanyName())
-            .RuleFor(ap => ap.OwnerId, f => Guid.Parse(f.PickRandom(accountIds)))
-            .RuleFor(ap => ap.CreatedBy, f => Guid.Parse(f.PickRandom(accountIds)))
+            .CustomInstantiator(f =>
+            {
+                var randomAccountId = Guid.Parse(f.PickRandom(accountIds));
+                return new PageProfile
+                {
+                    OwnerId = randomAccountId,
+                    CreatedBy = randomAccountId
+                };
+            })
             .RuleFor(ap => ap.Description, f => f.Lorem.Sentence());
 
         return faker.Generate(count);

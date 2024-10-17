@@ -42,7 +42,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("default_user_profile_id");
 
-                    b.Property<DateTime>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("deleted_at");
 
@@ -55,7 +55,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
 
@@ -89,7 +89,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
-                    b.Property<DateTime>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("deleted_at");
 
@@ -106,7 +106,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("type");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
 
@@ -149,7 +149,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
-                    b.Property<DateTime>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("deleted_at");
 
@@ -172,7 +172,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("token");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
 

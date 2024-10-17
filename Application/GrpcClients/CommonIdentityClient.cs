@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
 {
-    public class IdentityClient
+    public class CommonIdentityClient
     {
 
         private readonly IdentityService.IdentityServiceClient _client;
 
-        private readonly ILogger<IdentityClient> _logger;
+        private readonly ILogger<CommonIdentityClient> _logger;
 
-        public IdentityClient(IdentityService.IdentityServiceClient client, ILogger<IdentityClient> logger)
+        public CommonIdentityClient(IdentityService.IdentityServiceClient client, ILogger<CommonIdentityClient> logger)
         {
             _client = client;
             _logger = logger;

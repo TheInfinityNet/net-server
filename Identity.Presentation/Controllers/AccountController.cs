@@ -1,5 +1,5 @@
 ﻿using InfinityNetServer.Services.Identity.Application;
-using InfinityNetServer.Services.Identity.Application.Interfaces;
+using InfinityNetServer.Services.Identity.Application.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;

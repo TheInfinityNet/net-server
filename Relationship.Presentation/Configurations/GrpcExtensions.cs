@@ -27,7 +27,7 @@ public static class GrpcExtensions
             options.Address = new Uri(configuration["GrpcServers:ProfileService"]);
         });
 
-        services.AddScoped(typeof(IdentityClient));
+        services.AddScoped(typeof(CommonIdentityClient));
 
         //services.AddScoped(typeof(ProfileClient));
     }

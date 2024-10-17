@@ -8,17 +8,12 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data
     public class CommentDbContext : PostreSqlDbContext<CommentDbContext>
     {
 
-
+        DbSet<Domain.Entities.Comment> comments { get; set; }
 
         public CommentDbContext(
             DbContextOptions<CommentDbContext> options,
             IConfiguration configuration,
             IAuthenticatedUserService authenticatedUserService) : base(options, configuration, authenticatedUserService)
-        {
-
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
         }

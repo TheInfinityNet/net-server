@@ -16,7 +16,7 @@ public static class GrpcExtensions
             options.Address = new Uri(configuration["GrpcServers:Identity-Service"]);
         });
 
-        services.AddScoped(typeof(IdentityClient));
+        services.AddScoped(typeof(CommonIdentityClient));
     }
 
 }

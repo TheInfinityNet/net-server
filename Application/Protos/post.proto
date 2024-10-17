@@ -1,0 +1,17 @@
+﻿syntax = "proto3";
+
+package InfinityNetServer.BuildingBlocks.Application.Protos;
+
+option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
+
+import "google/protobuf/empty.proto";
+
+message GetPostIdsResponse {
+  repeated string postIds = 1;
+}
+
+service PostService {
+
+  rpc getPostIds (google.protobuf.Empty) returns (GetPostIdsResponse) {}
+
+}

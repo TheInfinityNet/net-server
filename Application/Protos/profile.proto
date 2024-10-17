@@ -6,6 +6,8 @@ option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
 
 import "google/protobuf/timestamp.proto";
 
+import "google/protobuf/empty.proto";
+
 import "Protos/base.proto";
 
 message GetProfileRequest {
@@ -32,8 +34,14 @@ message UserProfileResponse {
 
 }
 
+message GetProfileIdsResponse {
+  repeated string profileIds = 1;
+}
+
 service ProfileService {
 
   rpc getUserProfile(GetProfileRequest) returns (UserProfileResponse) {}
+
+  rpc getProfileIds(google.protobuf.Empty) returns (GetProfileIdsResponse) {}
 
 }

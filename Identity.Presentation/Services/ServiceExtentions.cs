@@ -1,5 +1,4 @@
-﻿using InfinityNetServer.Services.Identity.Application.Interfaces;
-using Microsoft.Extensions.Configuration;
+﻿using InfinityNetServer.Services.Identity.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Services

@@ -1,11 +1,11 @@
 ﻿using Grpc.Core;
 using Microsoft.Extensions.Logging;
-using InfinityNetServer.Services.Identity.Application.Interfaces;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using InfinityNetServer.Services.Identity.Domain.Repositories;
 using System.Linq;
+using InfinityNetServer.Services.Identity.Application.Services;
 
 namespace InfinityNetServer.Services.Identity.Application.GrpcServices
 {
@@ -16,13 +16,13 @@ namespace InfinityNetServer.Services.Identity.Application.GrpcServices
 
         private readonly IAuthService _authService;
 
-        private readonly IAccountRepository accountRepository;
+        private readonly IAccountRepository _accountRepository;
 
         public GrpcIdentityService(ILogger<GrpcIdentityService> logger, IAuthService authService, IAccountRepository accountRepository)
         {
             _logger = logger;
             _authService = authService;
-            this.accountRepository = accountRepository;
+            this._accountRepository = accountRepository;
         }
 
         public override async Task<IntrospectResponse> introspect(IntrospectRequest request, ServerCallContext context)
@@ -43,7 +43,7 @@ namespace InfinityNetServer.Services.Identity.Application.GrpcServices
         {
             _logger.LogInformation("Received getAccountIds request");
             var response = new GetAccountIdsResponse();
-            var accounts = await accountRepository.GetAllAsync();
+            var accounts = await _accountRepository.GetAllAsync();
             response.AccountIds.AddRange(accounts.Select(account => account.Id.ToString()).ToList());
 
             return await Task.FromResult(response);

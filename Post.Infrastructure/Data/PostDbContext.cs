@@ -8,17 +8,12 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
     public class PostDbContext : PostreSqlDbContext<PostDbContext>
     {
 
-
+        DbSet<Domain.Entities.Post> Posts { get; set; }
 
         public PostDbContext(
             DbContextOptions<PostDbContext> options,
             IConfiguration configuration,
             IAuthenticatedUserService authenticatedUserService) : base(options, configuration, authenticatedUserService)
-        {
-
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
         }

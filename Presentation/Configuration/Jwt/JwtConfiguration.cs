@@ -45,7 +45,7 @@ public static class JwtConfiguration
                         if (isGateway)
                         {
                             string bearerToken = context.Request.Headers["Authorization"].ToString()["Bearer ".Length..];
-                            var identityClient = context.HttpContext.RequestServices.GetRequiredService<IdentityClient>();
+                            var identityClient = context.HttpContext.RequestServices.GetRequiredService<CommonIdentityClient>();
                             if (!await identityClient.Introspect(bearerToken!))
                             {
                                 BaseErrorCode errorCode = BaseErrorCode.TOKEN_INVALID;
