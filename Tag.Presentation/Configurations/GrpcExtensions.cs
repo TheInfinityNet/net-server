@@ -27,9 +27,24 @@ public static class GrpcExtensions
             options.Address = new Uri(configuration["GrpcServers:ProfileService"]);
         });
 
+        services.AddGrpcClient<PostService.PostServiceClient>(options =>
+        {
+            options.Address = new Uri(configuration["GrpcServers:PostService"]);
+        });
+
+        services.AddGrpcClient<CommentService.CommentServiceClient>(options =>
+        {
+            options.Address = new Uri(configuration["GrpcServers:CommentService"]);
+        });
+
         services.AddScoped(typeof(CommonIdentityClient));
 
-        //services.AddScoped(typeof(ProfileClient));
+        services.AddScoped(typeof(CommonProfileClient));
+
+        services.AddScoped(typeof(CommonPostClient));
+
+        services.AddScoped(typeof(CommonCommentClient));
+
     }
 
 }

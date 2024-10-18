@@ -2,6 +2,8 @@
 using InfinityNetServer.BuildingBlocks.Domain.Repositories;
 using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositories;
 using InfinityNetServer.Services.Tag.Infrastructure.Data;
+using InfinityNetServer.Services.Tag.Domain.Repositories;
+using InfinityNetServer.Services.Tag.Infrastructure.Repositories;
 
 namespace InfinityNetServer.Services.Tag.Infrastructure.DependencyInjection;
 
@@ -16,7 +18,8 @@ public static class InfrastructureModule
     public static void AddRepositories(this IServiceCollection services)
     {
         services.AddScoped(typeof(ISqlRepository<,>), typeof(SqlRepository<,>));
-        //services.AddScoped<IPageProfileRepository, PageProfileRepository>();
+        services.AddScoped<IPostTagRepository, PostTagRepository>();
+        services.AddScoped<ICommentTagRepository, CommentTagRepository>();
     }
 
 }
