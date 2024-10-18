@@ -26,10 +26,26 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
         {
             try
             {
-                _logger.LogInformation("Starting get account ids");
+                _logger.LogInformation("Starting get profile ids");
                 var response = await _client.getProfileIdsAsync(new Empty());
                 // Call the gRPC server to introspect the token
-                return new List<string>(response.ProfileIds);
+                return new List<string>(response.Ids);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+            }
+        }
+
+        public async Task<List<string>> GetUserProfileIds()
+        {
+            try
+            {
+                _logger.LogInformation("Starting get user profile ids");
+                var response = await _client.getUserProfileIdsAsync(new Empty());
+                // Call the gRPC server to introspect the token
+                return new List<string>(response.Ids);
             }
             catch (Exception e)
             {

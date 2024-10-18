@@ -19,9 +19,9 @@ namespace InfinityNetServer.Services.Identity.Domain.Entities
         public Guid DefaultUserProfileId { get; set; }
 
         // Navigation Properties
-        public virtual ICollection<AccountProvider> AccountProviders { get; set; }
+        public virtual ICollection<AccountProvider> AccountProviders { get; set; } = new List<AccountProvider>();
 
-        public virtual ICollection<Verification> Verifications { get; set; }
+        public virtual ICollection<Verification> Verifications { get; set; } = new List<Verification>();
 
     }
 

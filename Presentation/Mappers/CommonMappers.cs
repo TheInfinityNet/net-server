@@ -22,5 +22,7 @@ public class CommonMappers : Profile
             {
                 dest.Gender = src.Gender.ToString(); // Chuyển enum sang string
             }); ;
+
+        CreateMap<Application.Protos.AccountWithDefaultProfile, Application.DTOs.Others.AccountWithDefaultProfile>();
     }
 }

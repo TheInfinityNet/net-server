@@ -29,7 +29,7 @@ public static class GrpcExtensions
 
         services.AddScoped(typeof(CommonIdentityClient));
 
-        //services.AddScoped(typeof(ProfileClient));
+        services.AddScoped(typeof(CommonProfileClient));
     }
 
 }

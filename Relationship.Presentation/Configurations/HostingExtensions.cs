@@ -126,7 +126,7 @@ internal static class HostingExtensions
 
         app.UseAuthorization();
 
-        //app.Services.SeedEssentialData(10);
+        app.Services.SeedEssentialData();
 
         app.MapGrpcServices();
 

@@ -18,6 +18,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     picture_id = table.Column<Guid>(type: "uuid", nullable: true),
                     cover_picture_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    type = table.Column<int>(type: "integer", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
@@ -56,6 +57,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
+                    account_id = table.Column<Guid>(type: "uuid", maxLength: 50, nullable: false),
                     username = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     mobile_number = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     first_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),

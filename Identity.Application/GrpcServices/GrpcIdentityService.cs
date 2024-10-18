@@ -44,9 +44,29 @@ namespace InfinityNetServer.Services.Identity.Application.GrpcServices
             _logger.LogInformation("Received getAccountIds request");
             var response = new GetAccountIdsResponse();
             var accounts = await _accountRepository.GetAllAsync();
-            response.AccountIds.AddRange(accounts.Select(account => account.Id.ToString()).ToList());
 
-            return await Task.FromResult(response);
+            // Map accounts to AccountWithDefaultProfile objects
+            response.Ids.AddRange(accounts.Select(a => a.Id.ToString()).ToList());
+
+            return response;
+        }
+
+        public override async Task<GetAccountWithDefaultProfileIdsResponse> getAccountWithDefaultProfileIds(Empty request, ServerCallContext context)
+        {
+            _logger.LogInformation("Received getAccountWithDefaultProfileIds request");
+            var response = new GetAccountWithDefaultProfileIdsResponse();
+            var accounts = await _accountRepository.GetAllAsync();
+
+            // Map accounts to AccountWithDefaultProfile objects
+            response.AccountWithDefaultProfiles.AddRange(
+                accounts.Select(a => new AccountWithDefaultProfile
+                {
+                    Id = a.Id.ToString(),
+                    DefaultUserProfileId = a.DefaultUserProfileId.ToString()
+                }).ToList()
+            );
+
+            return response;
         }
 
     }

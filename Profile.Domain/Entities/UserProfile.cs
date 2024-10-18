@@ -10,6 +10,11 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
     {
 
         [Required]
+        [Column("account_id")]
+        [MaxLength(50)]
+        public Guid AccountId { get; set; }
+
+        [Required]
         [Column("username")]
         [MaxLength(50)]
         public string Username { get; set; }

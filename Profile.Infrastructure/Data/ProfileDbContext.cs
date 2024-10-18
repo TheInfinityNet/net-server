@@ -9,11 +9,11 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data
     public class ProfileDbContext : PostreSqlDbContext<ProfileDbContext>
     {
 
-        public DbSet<Domain.Entities.Profile> profiles { get; set; }
+        public DbSet<Domain.Entities.Profile> Profiles { get; set; }
 
-        public DbSet<UserProfile> userProfiles { get; set; }
+        public DbSet<UserProfile> UserProfiles { get; set; }
 
-        public DbSet<PageProfile> pageProfiles { get; set; }
+        public DbSet<PageProfile> PageProfiles { get; set; }
 
 
         public ProfileDbContext(

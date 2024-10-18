@@ -18,6 +18,7 @@ public static class InfrastructureModule
     public static void AddRepositories(this IServiceCollection services)
     {
         services.AddScoped(typeof(ISqlRepository<,>), typeof(SqlRepository<,>));
+        services.AddScoped<IProfileRepository, ProfileRepository>();
         services.AddScoped<IPageProfileRepository, PageProfileRepository>();
         services.AddScoped<IUserProfileRepository, UserProfileRepository>();
     }

@@ -14,13 +14,24 @@ message IntrospectResponse {
   bool valid = 1;
 }
 
+message AccountWithDefaultProfile {
+	string Id = 1;
+	string defaultUserProfileId = 2;
+}
+
 message GetAccountIdsResponse {
-  repeated string accountIds = 1;
+	repeated string Ids = 1;
+}
+
+message GetAccountWithDefaultProfileIdsResponse {
+  repeated AccountWithDefaultProfile accountWithDefaultProfiles = 1;
 }
 
 service IdentityService {
 
   rpc introspect(IntrospectRequest) returns (IntrospectResponse) {}
+
+  rpc getAccountWithDefaultProfileIds (google.protobuf.Empty) returns (GetAccountWithDefaultProfileIdsResponse) {}
 
   rpc getAccountIds (google.protobuf.Empty) returns (GetAccountIdsResponse) {}
 

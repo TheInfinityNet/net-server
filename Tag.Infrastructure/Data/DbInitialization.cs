@@ -1,13 +1,13 @@
 ﻿using Bogus;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
-using InfinityNetServer.Services.Reaction.Domain.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using InfinityNetServer.Services.Reaction.Domain.Entities;
+using InfinityNetServer.Services.Tag.Domain.Repositories;
+using InfinityNetServer.Services.Tag.Domain.Entities;
 
-namespace InfinityNetServer.Services.Reaction.Infrastructure.Data;
+namespace InfinityNetServer.Services.Tag.Infrastructure.Data;
 
 public static class DbInitialization
 {
@@ -16,7 +16,7 @@ public static class DbInitialization
     {
         using var serviceScope = serviceProvider.CreateScope();
 
-        var dbContext = serviceScope.ServiceProvider.GetService<ReactionDbContext>();
+        var dbContext = serviceScope.ServiceProvider.GetService<TagDbContext>();
 
         dbContext.Database.EnsureDeleted();
     }
@@ -24,94 +24,103 @@ public static class DbInitialization
     public static async void SeedEssentialData(this IServiceProvider serviceProvider)
     {
         using var serviceScope = serviceProvider.CreateScope();
-        var dbContext = serviceScope.ServiceProvider.GetService<ReactionDbContext>();
-        var postReactionRepository = serviceScope.ServiceProvider.GetService<IPostReactionRepository>();
-        var commentReactionRepository = serviceScope.ServiceProvider.GetService<ICommentReactionRepository>();
+        var dbContext = serviceScope.ServiceProvider.GetService<TagDbContext>();
+        var postTagRepository = serviceScope.ServiceProvider.GetService<IPostTagRepository>();
+        var commentTagRepository = serviceScope.ServiceProvider.GetService<ICommentTagRepository>();
         var identityClient = serviceScope.ServiceProvider.GetService<CommonIdentityClient>();
+        var profileClient = serviceScope.ServiceProvider.GetService<CommonProfileClient>();
         var postClient = serviceScope.ServiceProvider.GetService<CommonPostClient>();
         var commentClient = serviceScope.ServiceProvider.GetService<CommonCommentClient>();
 
-        var existingReactionCount = await postReactionRepository.GetAllAsync();
-        if (existingReactionCount.Count == 0)
+        var existingTagCount = await postTagRepository.GetAllAsync();
+        if (existingTagCount.Count == 0)
         {
-            var postReactions = await GeneratePostReactions(identityClient, postClient);
-            await postReactionRepository.CreateAsync(postReactions);
+            var postTags = await GeneratePostTags(identityClient, profileClient, postClient);
+            await postTagRepository.CreateAsync(postTags);
 
-            var commentReactions = await GenerateCommentReactions(identityClient, commentClient);
-            await commentReactionRepository.CreateAsync(commentReactions);
+            var commentTags = await GenerateCommentTags(identityClient, profileClient, commentClient);
+            await commentTagRepository.CreateAsync(commentTags);
         }
     }
 
-    private static async Task<List<PostReaction>> GeneratePostReactions(
+    private static async Task<List<PostTag>> GeneratePostTags(
         CommonIdentityClient identityClient,
+        CommonProfileClient profileClient,
         CommonPostClient postClient)
     {
         var accountIds = await identityClient.GetAccountIds();
+        var userProfileIds = await profileClient.GetUserProfileIds();
         var postIds = await postClient.GetPostIds();
 
-        var usedPairs = new HashSet<(string accountId, string postId)>();
-        var reactions = new List<PostReaction>();
+        var usedPairs = new HashSet<(string profileId, string postId)>();
+        var tags = new List<PostTag>();
         var faker = new Faker();
 
         // Duyệt qua tất cả accountId và postId để tạo reaction nếu chưa có
-        foreach (var accountId in accountIds)
+        foreach (var profileId in userProfileIds)
         {
             foreach (var postId in postIds)
             {
                 // Kiểm tra xem cặp này đã được sử dụng chưa
-                if (!usedPairs.Contains((accountId, postId)))
+                if (!usedPairs.Contains((profileId, postId)))
                 {
                     // Nếu chưa, thêm vào HashSet và tạo mới PostReaction
-                    usedPairs.Add((accountId, postId));
+                    usedPairs.Add((profileId, postId));
 
-                    var reaction = new PostReaction
+                    var tag = new PostTag
                     {
-                        CreatedBy = Guid.Parse(accountId),
-                        PostId = Guid.Parse(postId)
+                        CreatedBy = Guid.Parse(faker.PickRandom(accountIds)),
+                        PostId = Guid.Parse(postId),
+                        TaggedProfileId = Guid.Parse(profileId)
+
                     };
 
-                    reactions.Add(reaction);
+                    tags.Add(tag);
                 }
             }
         }
 
-        return reactions;
+        return tags;
     }
 
-    private static async Task<List<CommentReaction>> GenerateCommentReactions(
+    private static async Task<List<CommentTag>> GenerateCommentTags(
         CommonIdentityClient identityClient,
+        CommonProfileClient profileClient,
         CommonCommentClient commentClient)
     {
         var accountIds = await identityClient.GetAccountIds();
+        var userProfileIds = await profileClient.GetUserProfileIds();
         var commentIds = await commentClient.GetCommentIds();
 
-        var usedPairs = new HashSet<(string accountId, string postId)>();
-        var reactions = new List<CommentReaction>();
+        var usedPairs = new HashSet<(string profileId, string commentId)>();
+        var tags = new List<CommentTag>();
         var faker = new Faker();
 
         // Duyệt qua tất cả accountId và postId để tạo reaction nếu chưa có
-        foreach (var accountId in accountIds)
+        foreach (var profileId in userProfileIds)
         {
             foreach (var commentId in commentIds)
             {
                 // Kiểm tra xem cặp này đã được sử dụng chưa
-                if (!usedPairs.Contains((accountId, commentId)))
+                if (!usedPairs.Contains((profileId, commentId)))
                 {
                     // Nếu chưa, thêm vào HashSet và tạo mới PostReaction
-                    usedPairs.Add((accountId, commentId));
+                    usedPairs.Add((profileId, commentId));
 
-                    var reaction = new CommentReaction
+                    var tag = new CommentTag
                     {
-                        CreatedBy = Guid.Parse(accountId),
-                        CommentId = Guid.Parse(commentId)
+                        CreatedBy = Guid.Parse(faker.PickRandom(accountIds)),
+                        CommentId = Guid.Parse(commentId),
+                        TaggedProfileId = Guid.Parse(profileId)
+
                     };
 
-                    reactions.Add(reaction);
+                    tags.Add(tag);
                 }
             }
         }
 
-        return reactions;
+        return tags;
     }
 
 }

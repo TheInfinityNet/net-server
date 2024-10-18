@@ -10,7 +10,7 @@ namespace InfinityNetServer.Services.Tag.Domain.Entities
     {
         [Key]
         [Column("id")]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [Column("comment_id")]
         public Guid CommentId { get; set; } // Links to Comment service

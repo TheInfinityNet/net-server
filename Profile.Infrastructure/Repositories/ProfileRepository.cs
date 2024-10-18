@@ -2,6 +2,11 @@
 using InfinityNetServer.Services.Profile.Infrastructure.Data;
 using InfinityNetServer.Services.Profile.Domain.Repositories;
 using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositories;
+using InfinityNetServer.Services.Profile.Domain.Enums;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace InfinityNetServer.Services.Profile.Infrastructure.Repositories
 {
@@ -11,7 +16,10 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Repositories
         public ProfileRepository(ProfileDbContext context) : base(context)
         { }
 
-        
+        public async Task<List<Domain.Entities.Profile>> GetByType(ProfileType type)
+        {
+            return await ((ProfileDbContext)_context).Profiles.Where(p => p.Type == type).ToListAsync();
+        }
 
     }
 }

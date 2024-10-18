@@ -21,10 +21,11 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
 
         private readonly IMapper _mapper;
 
-        public GrpcProfileService(ILogger<GrpcProfileService> logger, IUserProfileService userProfileService, IMapper mapper)
+        public GrpcProfileService(ILogger<GrpcProfileService> logger, IUserProfileService userProfileService, IProfileRepository profileRepository, IMapper mapper)
         {
             _logger = logger;
             _userProfileService = userProfileService;
+            _profileRepository = profileRepository;
             _mapper = mapper;
         }
 
@@ -37,10 +38,20 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
 
         public override async Task<GetProfileIdsResponse> getProfileIds(Empty request, ServerCallContext context)
         {
-            _logger.LogInformation("Received getAccountIds request");
+            _logger.LogInformation("Received get profile ids request");
             var response = new GetProfileIdsResponse();
-            var posts = await _profileRepository.GetAllAsync();
-            response.ProfileIds.AddRange(posts.Select(p => p.Id.ToString()).ToList());
+            var profiles = await _profileRepository.GetAllAsync();
+            response.Ids.AddRange(profiles.Select(p => p.Id.ToString()).ToList());
+
+            return await Task.FromResult(response);
+        }
+
+        public override async Task<GetUserProfileIdsResponse> getUserProfileIds(Empty request, ServerCallContext context)
+        {
+            _logger.LogInformation("Received get user profile ids request");
+            var response = new GetUserProfileIdsResponse();
+            var userProfiles = await _profileRepository.GetByType(Domain.Enums.ProfileType.User);
+            response.Ids.AddRange(userProfiles.Select(p => p.Id.ToString()).ToList());
 
             return await Task.FromResult(response);
         }

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ProfileDbContext))]
-    [Migration("20241017021233_InitialMigration")]
+    [Migration("20241018145005_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -62,6 +62,10 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("picture_id");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
@@ -102,6 +106,11 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
             modelBuilder.Entity("InfinityNetServer.Services.Profile.Domain.Entities.UserProfile", b =>
                 {
                     b.HasBaseType("InfinityNetServer.Services.Profile.Domain.Entities.Profile");
+
+                    b.Property<Guid>("AccountId")
+                        .HasMaxLength(50)
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
 
                     b.Property<string>("Bio")
                         .HasColumnType("text")
