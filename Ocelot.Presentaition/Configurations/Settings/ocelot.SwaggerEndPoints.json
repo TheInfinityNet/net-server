@@ -6,7 +6,7 @@
         {
           "Name": "Identity Service",
           "Version": "v1",
-          "Url": "https://localhost:8282/swagger/v1/swagger.json"
+          "Url": "http://localhost:60001/swagger/v1/swagger.json"
         }
       ]
     },
@@ -17,7 +17,7 @@
         {
           "Name": "Profile Service",
           "Version": "v1",
-          "Url": "https://localhost:8283/swagger/v1/swagger.json"
+          "Url": "http://localhost:60002/swagger/v1/swagger.json"
         }
       ]
     },
@@ -28,51 +28,7 @@
         {
           "Name": "Relationship Service",
           "Version": "v1",
-          "Url": "https://localhost:8285/swagger/v1/swagger.json"
-        }
-      ]
-    },
-
-    {
-      "Key": "post",
-      "Config": [
-        {
-          "Name": "Post Service",
-          "Version": "v1",
-          "Url": "https://localhost:8286/swagger/v1/swagger.json"
-        }
-      ]
-    },
-
-    {
-      "Key": "comment",
-      "Config": [
-        {
-          "Name": "Comment Service",
-          "Version": "v1",
-          "Url": "https://localhost:8287/swagger/v1/swagger.json"
-        }
-      ]
-    },
-
-    {
-      "Key": "reaction",
-      "Config": [
-        {
-          "Name": "Reaction Service",
-          "Version": "v1",
-          "Url": "https://localhost:8288/swagger/v1/swagger.json"
-        }
-      ]
-    },
-
-    {
-      "Key": "tag",
-      "Config": [
-        {
-          "Name": "Tag Service",
-          "Version": "v1",
-          "Url": "https://localhost:8289/swagger/v1/swagger.json"
+          "Url": "http://localhost:60003/swagger/v1/swagger.json"
         }
       ]
     },
@@ -83,7 +39,51 @@
         {
           "Name": "Group Service",
           "Version": "v1",
-          "Url": "https://localhost:8290/swagger/v1/swagger.json"
+          "Url": "http://localhost:60004/swagger/v1/swagger.json"
+        }
+      ]
+    },
+
+    {
+      "Key": "post",
+      "Config": [
+        {
+          "Name": "Post Service",
+          "Version": "v1",
+          "Url": "https://localhost:60005/swagger/v1/swagger.json"
+        }
+      ]
+    },
+
+    {
+      "Key": "comment",
+      "Config": [
+        {
+          "Name": "Comment Service",
+          "Version": "v1",
+          "Url": "https://localhost:60006/swagger/v1/swagger.json"
+        }
+      ]
+    },
+
+    {
+      "Key": "reaction",
+      "Config": [
+        {
+          "Name": "Reaction Service",
+          "Version": "v1",
+          "Url": "http://localhost:60007/swagger/v1/swagger.json"
+        }
+      ]
+    },
+
+    {
+      "Key": "tag",
+      "Config": [
+        {
+          "Name": "Tag Service",
+          "Version": "v1",
+          "Url": "http://localhost:60008/swagger/v1/swagger.json"
         }
       ]
     }

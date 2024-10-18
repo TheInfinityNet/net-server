@@ -2,11 +2,11 @@
   "Routes": [
     {
       "DownstreamPathTemplate": "/identity/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8282
+          "Port": 60001
         }
       ],
       "UpstreamPathTemplate": "/identity/{everything}",
@@ -35,11 +35,11 @@
 
     {
       "DownstreamPathTemplate": "/profile/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8283
+          "Port": 60002
         }
       ],
       "UpstreamPathTemplate": "/profile/{everything}",
@@ -64,11 +64,11 @@
 
     {
       "DownstreamPathTemplate": "/relationship/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8285
+          "Port": 60003
         }
       ],
       "UpstreamPathTemplate": "/relationship/{everything}",
@@ -92,12 +92,41 @@
     },
 
     {
-      "DownstreamPathTemplate": "/post/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/group/{everything}",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8286
+          "Port": 60004
+        }
+      ],
+      "UpstreamPathTemplate": "/group/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+      /*"AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }*/
+      "RateLimitOptions": {
+        "EnableRateLimiting": true,
+        "Period": "10s",
+        "PeriodTimespan": 60,
+        "Limit": 5
+      },
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 2,
+        "DurationOfBreak": 5000,
+        "TimeoutValue": 2000
+      },
+      "SwaggerKey": "group"
+    },
+
+    {
+      "DownstreamPathTemplate": "/post/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 60005
         }
       ],
       "UpstreamPathTemplate": "/post/{everything}",
@@ -122,11 +151,11 @@
 
     {
       "DownstreamPathTemplate": "/comment/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8287
+          "Port": 60006
         }
       ],
       "UpstreamPathTemplate": "/comment/{everything}",
@@ -151,11 +180,11 @@
 
     {
       "DownstreamPathTemplate": "/reaction/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8288
+          "Port": 60007
         }
       ],
       "UpstreamPathTemplate": "/reaction/{everything}",
@@ -180,11 +209,11 @@
 
     {
       "DownstreamPathTemplate": "/tag/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8289
+          "Port": 60008
         }
       ],
       "UpstreamPathTemplate": "/tag/{everything}",
@@ -205,35 +234,6 @@
         "TimeoutValue": 2000
       },
       "SwaggerKey": "tag"
-    },
-
-    {
-      "DownstreamPathTemplate": "/group/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 8290
-        }
-      ],
-      "UpstreamPathTemplate": "/group/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      /*"AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      }*/
-      "RateLimitOptions": {
-        "EnableRateLimiting": true,
-        "Period": "10s",
-        "PeriodTimespan": 60,
-        "Limit": 5
-      },
-      "QoSOptions": {
-        "ExceptionsAllowedBeforeBreaking": 2,
-        "DurationOfBreak": 5000,
-        "TimeoutValue": 2000
-      },
-      "SwaggerKey": "group"
     }
   ]
 }
