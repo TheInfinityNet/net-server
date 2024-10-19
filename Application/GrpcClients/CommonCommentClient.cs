@@ -1,22 +1,22 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
-using InfinityNetServer.BuildingBlocks.Application.Protos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static InfinityNetServer.BuildingBlocks.Application.Protos.CommentService;
 
 namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
 {
     public class CommonCommentClient
     {
 
-        private readonly CommentService.CommentServiceClient _client;
+        private readonly CommentServiceClient _client;
 
         private readonly ILogger<CommonCommentClient> _logger;
 
-        public CommonCommentClient(CommentService.CommentServiceClient client, ILogger<CommonCommentClient> logger)
+        public CommonCommentClient(CommentServiceClient client, ILogger<CommonCommentClient> logger)
         {
             _client = client;
             _logger = logger;
@@ -29,7 +29,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
                 _logger.LogInformation("Starting get account ids");
                 var response = await _client.getCommentIdsAsync(new Empty());
                 // Call the gRPC server to introspect the token
-                return new List<string>(response.CommentIds);
+                return new List<string>(response.Ids);
             }
             catch (Exception e)
             {

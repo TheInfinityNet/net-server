@@ -56,5 +56,15 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
             return await Task.FromResult(response);
         }
 
+        public override async Task<GetPageProfileIdsResponse> getPageProfileIds(Empty request, ServerCallContext context)
+        {
+            _logger.LogInformation("Received get page profile ids request");
+            var response = new GetPageProfileIdsResponse();
+            var pageProfiles = await _profileRepository.GetByType(Domain.Enums.ProfileType.Page);
+            response.Ids.AddRange(pageProfiles.Select(p => p.Id.ToString()).ToList());
+
+            return await Task.FromResult(response);
+        }
+
     }
 }

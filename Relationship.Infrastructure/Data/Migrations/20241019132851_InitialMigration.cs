@@ -38,7 +38,7 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     type = table.Column<int>(type: "integer", nullable: false),
-                    profile_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_profile_id = table.Column<Guid>(type: "uuid", nullable: false),
                     relate_profile_id = table.Column<Guid>(type: "uuid", nullable: false),
                     friendship_id = table.Column<Guid>(type: "uuid", nullable: true),
                     created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
@@ -56,7 +56,8 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
                         name: "FK_interactions_friendships_friendship_id",
                         column: x => x.friendship_id,
                         principalTable: "friendships",
-                        principalColumn: "id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -72,9 +73,9 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_interactions_profile_id_relate_profile_id",
+                name: "IX_interactions_user_profile_id_relate_profile_id",
                 table: "interactions",
-                columns: new[] { "profile_id", "relate_profile_id" },
+                columns: new[] { "user_profile_id", "relate_profile_id" },
                 unique: true);
         }
 

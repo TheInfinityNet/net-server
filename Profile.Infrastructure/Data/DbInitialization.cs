@@ -64,7 +64,7 @@ public static class DbInitialization
 
     private static async Task<List<UserProfile>> GenerateUserProfiles(CommonIdentityClient identityClient)
     {
-        var accountWithProfileIds = await identityClient.GetAccountWithDefaultProfileIds();
+        var accountWithProfileIds = await identityClient.GetAccountsWithDefaultProfiles();
         List<UserProfile> userProfiles = new List<UserProfile>();
         Faker faker = new Faker();
 
@@ -82,15 +82,30 @@ public static class DbInitialization
                 FirstName = faker.Name.FirstName(),
                 MiddleName = faker.Name.FirstName(),
                 LastName = faker.Name.LastName(),
-                Birthdate = new DateOnly(2000, 1, 1),
+                Birthdate = GenerateRandomBirthDate(),
                 Gender = faker.PickRandom<Gender>(),
-                Bio = faker.Lorem.Sentence(100)
+                Bio = faker.Lorem.Sentence(50)
             };
             userProfiles.Add(userProfile);
 
         }
 
         return userProfiles;
+    }
+
+    private static DateOnly GenerateRandomBirthDate()
+    {
+        // Calculate the latest allowed birthdate for someone who is 18 years old
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var latestBirthDate = today.AddYears(-18); // Subtract 18 years from today
+
+        // Create a Faker for DateOnly, with a date range ensuring age > 18
+        var faker = new Faker();
+
+        var randomBirthDate = faker.Date
+            .BetweenDateOnly(latestBirthDate.AddYears(-82), latestBirthDate); // Between 100 years ago and 18 years ago
+
+        return randomBirthDate;
     }
 
 }

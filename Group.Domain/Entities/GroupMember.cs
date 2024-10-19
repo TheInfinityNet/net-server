@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using InfinityNetServer.Services.Group.Domain.Enums;
@@ -22,9 +21,9 @@ namespace InfinityNetServer.Services.Group.Domain.Entities
         [Required]
         public Guid GroupId { get; set; } // Linked to Group service
 
-        [Column("profile_id")]
+        [Column("user_profile_id")]
         [Required]
-        public Guid ProfileId { get; set; } // Linked to Profile service
+        public Guid UserProfileId { get; set; } // Linked to Profile service
 
         // Relationships
         [ForeignKey("GroupId")]

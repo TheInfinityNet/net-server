@@ -17,7 +17,10 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -79,7 +82,24 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ParentId");
+
                     b.ToTable("comments");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Comment.Domain.Entities.Comment", b =>
+                {
+                    b.HasOne("InfinityNetServer.Services.Comment.Domain.Entities.Comment", "ParentComment")
+                        .WithMany("repliesComments")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("ParentComment");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Comment.Domain.Entities.Comment", b =>
+                {
+                    b.Navigation("repliesComments");
                 });
 #pragma warning restore 612, 618
         }

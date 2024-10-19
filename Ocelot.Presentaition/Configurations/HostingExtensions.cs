@@ -14,6 +14,7 @@ using InfinityNetServer.BuildingBlocks.Application;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Jwt;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Localization;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Metric;
+using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
 
 namespace InfinityNetServer.Gateways.OcelotGateway.Presentaition.Configurations;
 
@@ -22,6 +23,8 @@ internal static class HostingExtensions
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
         builder.AddSettings();
+
+        builder.Services.AddMappers();
 
         builder.Services.AddLocalization(builder.Configuration);
 

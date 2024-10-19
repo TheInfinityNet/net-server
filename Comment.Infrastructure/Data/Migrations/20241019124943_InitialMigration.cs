@@ -31,7 +31,17 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_comments", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_comments_comments_parent_id",
+                        column: x => x.parent_id,
+                        principalTable: "comments",
+                        principalColumn: "id");
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_comments_parent_id",
+                table: "comments",
+                column: "parent_id");
         }
 
         /// <inheritdoc />

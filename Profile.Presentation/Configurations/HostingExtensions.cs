@@ -26,6 +26,8 @@ using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Grpc;
 using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
 using InfinityNetServer.Services.Profile.Presentation.Mappers;
 using InfinityNetServer.BuildingBlocks.Presentation.Services;
+using Elastic.CommonSchema;
+using Grpc.AspNetCore.Web;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Configurations;
 
@@ -128,7 +130,7 @@ internal static class HostingExtensions
 
         app.UseAuthorization();
 
-        app.Services.SeedEssentialData(10);
+        app.Services.SeedEssentialData(50);
 
         app.MapGrpcServices();
 

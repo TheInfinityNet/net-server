@@ -23,7 +23,7 @@ namespace InfinityNetServer.Services.Group.Domain.Entities
 
         [Column("owner_id")]
         [Required]
-        public Guid OwnerId { get; set; } // Linked to Account service
+        public Guid OwnerId { get; set; } // Linked to Profile service
 
         // Navigation property for related GroupMembers
         public virtual ICollection<GroupMember> Members { get; set; } = new List<GroupMember>();

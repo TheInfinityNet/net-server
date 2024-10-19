@@ -8,19 +8,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static InfinityNetServer.BuildingBlocks.Application.Protos.IdentityService;
 
 namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
 {
     public class CommonIdentityClient
     {
 
-        private readonly IdentityService.IdentityServiceClient _client;
+        private readonly IdentityServiceClient _client;
 
         private readonly ILogger<CommonIdentityClient> _logger;
 
         private readonly IMapper _mapper;
 
-        public CommonIdentityClient(IdentityService.IdentityServiceClient client, ILogger<CommonIdentityClient> logger, IMapper mapper)
+        public CommonIdentityClient(IdentityServiceClient client, ILogger<CommonIdentityClient> logger, IMapper mapper)
         {
             _client = client;
             _logger = logger;
@@ -47,6 +48,25 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
+        public async Task<string> GetAccountId(string defaultUserProfileId)
+        {
+            try
+            {
+                _logger.LogInformation("Starting get account id");
+                var response = await _client.getAccountIdAsync(new GetAccountIdRequest
+                {
+                    DefaultUserProfileId = defaultUserProfileId
+                });
+                // Call the gRPC server to introspect the token
+                return response.Id;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+            }
+        }
+
         public async Task<List<string>> GetAccountIds()
         {
             try
@@ -63,16 +83,15 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
-
-        public async Task<List<AccountWithDefaultProfile>> GetAccountWithDefaultProfileIds()
+        public async Task<List<DTOs.Others.AccountWithDefaultProfile>> GetAccountsWithDefaultProfiles()
         {
             try
             {
                 _logger.LogInformation("Starting get account with default profile ids");
-                var response = await _client.getAccountWithDefaultProfileIdsAsync(new Empty());
+                var response = await _client.getAccountsWithDefaultProfilesAsync(new Empty());
 
-                var result = response.AccountWithDefaultProfiles
-                    .Select(_ => _mapper.Map<AccountWithDefaultProfile>(_)).ToList();
+                var result = response.AccountsWithDefaultProfiles
+                    .Select(_ => _mapper.Map<DTOs.Others.AccountWithDefaultProfile>(_)).ToList();
 
                 return result;
             }

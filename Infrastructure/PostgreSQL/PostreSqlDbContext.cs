@@ -27,7 +27,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"));
+            optionsBuilder.UseLazyLoadingProxies().UseNpgsql(_configuration.GetConnectionString("DefaultConnection"));
         }
 
         public override int SaveChanges()

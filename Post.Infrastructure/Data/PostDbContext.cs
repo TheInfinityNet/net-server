@@ -18,6 +18,22 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
 
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            var post = modelBuilder.Entity<Domain.Entities.Post>();
+            post
+                .HasOne(p => p.Parent)
+                .WithMany(post => post.SharedPosts)
+                .HasForeignKey(p => p.ParentId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            post
+                .HasOne(p => p.Presentation)
+                .WithMany(post => post.SubPosts)
+                .HasForeignKey(p => p.PresentationId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
     }
 
 }

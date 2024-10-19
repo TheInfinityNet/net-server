@@ -26,7 +26,7 @@ namespace InfinityNetServer.Services.Post.Application.GrpcServices
             _logger.LogInformation("Received getAccountIds request");
             var response = new GetPostIdsResponse();
             var posts = await _postRepository.GetAllAsync();
-            response.PostIds.AddRange(posts.Select(p => p.Id.ToString()).ToList());
+            response.Ids.AddRange(posts.Select(p => p.Id.ToString()).ToList());
 
             return await Task.FromResult(response);
         }

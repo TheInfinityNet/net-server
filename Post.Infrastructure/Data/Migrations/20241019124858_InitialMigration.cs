@@ -18,8 +18,9 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     content = table.Column<string>(type: "text", nullable: true),
                     privacy = table.Column<int>(type: "integer", nullable: false),
-                    parent_id = table.Column<Guid>(type: "uuid", nullable: true),
                     post_type = table.Column<int>(type: "integer", nullable: false),
+                    presentation_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    parent_id = table.Column<Guid>(type: "uuid", nullable: true),
                     owner_id = table.Column<Guid>(type: "uuid", nullable: false),
                     group_id = table.Column<Guid>(type: "uuid", nullable: true),
                     media_id = table.Column<Guid>(type: "uuid", nullable: true),
@@ -34,7 +35,28 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_posts", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_posts_posts_parent_id",
+                        column: x => x.parent_id,
+                        principalTable: "posts",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "FK_posts_posts_presentation_id",
+                        column: x => x.presentation_id,
+                        principalTable: "posts",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_posts_parent_id",
+                table: "posts",
+                column: "parent_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_posts_presentation_id",
+                table: "posts",
+                column: "presentation_id");
         }
 
         /// <inheritdoc />

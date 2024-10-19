@@ -1,22 +1,22 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
-using InfinityNetServer.BuildingBlocks.Application.Protos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static InfinityNetServer.BuildingBlocks.Application.Protos.PostService;
 
 namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
 {
     public class CommonPostClient
     {
 
-        private readonly PostService.PostServiceClient _client;
+        private readonly PostServiceClient _client;
 
         private readonly ILogger<CommonPostClient> _logger;
 
-        public CommonPostClient(PostService.PostServiceClient client, ILogger<CommonPostClient> logger)
+        public CommonPostClient(PostServiceClient client, ILogger<CommonPostClient> logger)
         {
             _client = client;
             _logger = logger;
@@ -29,7 +29,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
                 _logger.LogInformation("Starting get account ids");
                 var response = await _client.getPostIdsAsync(new Empty());
                 // Call the gRPC server to introspect the token
-                return new List<string>(response.PostIds);
+                return new List<string>(response.Ids);
             }
             catch (Exception e)
             {

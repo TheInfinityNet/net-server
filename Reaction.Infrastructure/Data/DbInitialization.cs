@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using InfinityNetServer.Services.Reaction.Domain.Entities;
+using System.Linq;
 
 namespace InfinityNetServer.Services.Reaction.Infrastructure.Data;
 
@@ -53,15 +54,26 @@ public static class DbInitialization
         var reactions = new List<PostReaction>();
         var faker = new Faker();
 
-        // Duyệt qua tất cả accountId và postId để tạo reaction nếu chưa có
-        foreach (var accountId in accountIds)
+        // Ngẫu nhiên chọn số lượng accountIds và postIds
+        var randomAccountCount = faker.Random.Int(1, accountIds.Count);
+        var randomPostCount = faker.Random.Int(1, postIds.Count);
+
+        // Chọn ngẫu nhiên một số accountIds và postIds để thả reaction
+        var selectedAccountIds = faker.PickRandom(accountIds, randomAccountCount).ToList();
+        var selectedPostIds = faker.PickRandom(postIds, randomPostCount).ToList();
+
+        // Duyệt qua các accountIds và postIds đã được chọn ngẫu nhiên
+        foreach (var accountId in selectedAccountIds)
         {
-            foreach (var postId in postIds)
+            // Ngẫu nhiên chọn số lượng post cho mỗi account
+            var randomPostsForAccount = faker.PickRandom(selectedPostIds, faker.Random.Int(1, selectedPostIds.Count()));
+
+            foreach (var postId in randomPostsForAccount)
             {
-                // Kiểm tra xem cặp này đã được sử dụng chưa
+                // Kiểm tra xem cặp (accountId, postId) đã tồn tại chưa
                 if (!usedPairs.Contains((accountId, postId)))
                 {
-                    // Nếu chưa, thêm vào HashSet và tạo mới PostReaction
+                    // Nếu chưa tồn tại, thêm vào HashSet và tạo mới PostReaction
                     usedPairs.Add((accountId, postId));
 
                     var reaction = new PostReaction
@@ -85,19 +97,30 @@ public static class DbInitialization
         var accountIds = await identityClient.GetAccountIds();
         var commentIds = await commentClient.GetCommentIds();
 
-        var usedPairs = new HashSet<(string accountId, string postId)>();
+        var usedPairs = new HashSet<(string accountId, string commentId)>();
         var reactions = new List<CommentReaction>();
         var faker = new Faker();
 
-        // Duyệt qua tất cả accountId và postId để tạo reaction nếu chưa có
-        foreach (var accountId in accountIds)
+        // Ngẫu nhiên chọn số lượng accountIds và commentIds
+        var randomAccountCount = faker.Random.Int(1, accountIds.Count);
+        var randomCommentCount = faker.Random.Int(1, commentIds.Count);
+
+        // Chọn ngẫu nhiên một số accountIds và commentIds để thả reaction
+        var selectedAccountIds = faker.PickRandom(accountIds, randomAccountCount).ToList();
+        var selectedCommentIds = faker.PickRandom(commentIds, randomCommentCount).ToList();
+
+        // Duyệt qua các accountIds và commentIds đã được chọn ngẫu nhiên
+        foreach (var accountId in selectedAccountIds)
         {
-            foreach (var commentId in commentIds)
+            // Ngẫu nhiên chọn số lượng comment cho mỗi account
+            var randomCommentsForAccount = faker.PickRandom(selectedCommentIds, faker.Random.Int(1, selectedCommentIds.Count()));
+
+            foreach (var commentId in randomCommentsForAccount)
             {
-                // Kiểm tra xem cặp này đã được sử dụng chưa
+                // Kiểm tra xem cặp (accountId, commentId) đã tồn tại chưa
                 if (!usedPairs.Contains((accountId, commentId)))
                 {
-                    // Nếu chưa, thêm vào HashSet và tạo mới PostReaction
+                    // Nếu chưa tồn tại, thêm vào HashSet và tạo mới CommentReaction
                     usedPairs.Add((accountId, commentId));
 
                     var reaction = new CommentReaction
@@ -113,5 +136,6 @@ public static class DbInitialization
 
         return reactions;
     }
+
 
 }

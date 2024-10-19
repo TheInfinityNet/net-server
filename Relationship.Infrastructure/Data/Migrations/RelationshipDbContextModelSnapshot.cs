@@ -17,7 +17,10 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -113,10 +116,6 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<Guid>("ProfileId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("profile_id");
-
                     b.Property<Guid>("RelateProfileId")
                         .HasColumnType("uuid")
                         .HasColumnName("relate_profile_id");
@@ -134,12 +133,16 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("updated_by");
 
+                    b.Property<Guid>("UserProfileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_profile_id");
+
                     b.HasKey("Id");
 
                     b.HasIndex("FriendshipId")
                         .IsUnique();
 
-                    b.HasIndex("ProfileId", "RelateProfileId")
+                    b.HasIndex("UserProfileId", "RelateProfileId")
                         .IsUnique();
 
                     b.ToTable("interactions");
@@ -149,7 +152,8 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
                 {
                     b.HasOne("InfinityNetServer.Services.Relationship.Domain.Entities.Friendship", "Friendship")
                         .WithOne("Interaction")
-                        .HasForeignKey("InfinityNetServer.Services.Relationship.Domain.Entities.Interaction", "FriendshipId");
+                        .HasForeignKey("InfinityNetServer.Services.Relationship.Domain.Entities.Interaction", "FriendshipId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Friendship");
                 });

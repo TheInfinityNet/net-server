@@ -39,7 +39,7 @@ namespace InfinityNetServer.Services.Group.Infrastructure.Data.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     role = table.Column<int>(type: "integer", nullable: false),
                     group_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    profile_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_profile_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
@@ -60,9 +60,9 @@ namespace InfinityNetServer.Services.Group.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_groups_members_group_id_profile_id",
+                name: "IX_groups_members_group_id_user_profile_id",
                 table: "groups_members",
-                columns: new[] { "group_id", "profile_id" },
+                columns: new[] { "group_id", "user_profile_id" },
                 unique: true);
         }
 

@@ -39,27 +39,30 @@ public static class DbInitialization
             var Friendships = await GenerateFriendships(identityClient);
             await friendshipRepository.CreateAsync(Friendships);
 
-            var interactions = await GenerateInteractions(identityClient, profileClient, friendshipRepository);
-            await interactionRepository.CreateAsync(interactions);
+            var userInteractions = await GenerateUserInteractions(friendshipRepository);
+            await interactionRepository.CreateAsync(userInteractions);
+
+            var pageInteractions = await GeneratePageInteractions(identityClient, profileClient);
+            await interactionRepository.CreateAsync(pageInteractions);
         }
     }
 
     private static async Task<List<Friendship>> GenerateFriendships(CommonIdentityClient identityClient)
     {
-        var accountWithProfileIds = await identityClient.GetAccountWithDefaultProfileIds();
+        var accountWithProfileIds = await identityClient.GetAccountsWithDefaultProfiles();
 
         var uniqueFriendships = new HashSet<(Guid SenderId, Guid ReceiverId)>();
         var friendships = new List<Friendship>();
 
         var faker = new Faker<Friendship>()
             .RuleFor(f => f.Id, f => Guid.NewGuid())
-            .RuleFor(f => f.Status, f => f.PickRandom<FriendshipStatus>())
             .CustomInstantiator(f =>
             {
                 var randomAccountWithProfileId = f.PickRandom(accountWithProfileIds);
                 return new Friendship
                 {
                     CreatedBy = Guid.Parse(randomAccountWithProfileId.Id),
+                    Status = FriendshipStatus.Accepted,
                     SenderId = Guid.Parse(randomAccountWithProfileId.DefaultUserProfileId)
                 };
             })
@@ -71,7 +74,7 @@ public static class DbInitialization
                 {
                     receiverId = Guid.Parse(f.PickRandom(accountWithProfileIds).DefaultUserProfileId);
                     attempts++;
-                    if (attempts > 10) // Avoid infinite loop if unable to find a unique pair
+                    if (attempts > 10) // Tránh vòng lặp vô tận nếu không tìm thấy cặp duy nhất
                     {
                         break;
                     }
@@ -81,15 +84,15 @@ public static class DbInitialization
 
                 if (receiverId != friendship.SenderId)
                 {
-                    // Ensure uniqueness in both directions
+                    // Đảm bảo tính duy nhất theo cả hai chiềus
                     uniqueFriendships.Add((friendship.SenderId, receiverId));
                 }
 
                 return receiverId;
             });
 
-        // Limit the number of generated friendships to avoid excessive processing
-        var maxFriendships = Math.Min(accountWithProfileIds.Count, 100); // Set 100 as the max or use a different value
+        // Chọn số lượng mối quan hệ tình bạn ngẫu nhiên
+        var maxFriendships = (new Faker()).Random.Int(20, Math.Min(accountWithProfileIds.Count * (accountWithProfileIds.Count - 1) / 2, 100)); // Tối đa 100 mối quan hệ
 
         for (int i = 0; i < maxFriendships; i++)
         {
@@ -102,18 +105,54 @@ public static class DbInitialization
 
         return friendships;
     }
-
-    private static async Task<List<Interaction>> GenerateInteractions(
-    CommonIdentityClient identityClient,
-    CommonProfileClient profileClient,
-    IFriendshipRepository friendshipRepository)
+    private static async Task<List<Interaction>> GenerateUserInteractions(IFriendshipRepository friendshipRepository)
     {
-        var accountWithProfileIds = await identityClient.GetAccountWithDefaultProfileIds();
-        var profileIds = await profileClient.GetProfileIds();
         var friendships = await friendshipRepository.GetAllAsync();
-        var friendshipIds = friendships.Select(f => f.Id.ToString()).ToList();
 
-        var uniqueInteractions = new HashSet<(Guid ProfileId, Guid RelateProfileId)>();
+        // HashSet để lưu trữ các FriendshipId đã chọn
+        var usedFriendships = new HashSet<Guid>();
+        var interactions = new List<Interaction>();
+
+        var faker = new Faker<Interaction>()
+            .CustomInstantiator(f =>
+            {
+                Friendship randomFriendship;
+                do
+                {
+                    // Chọn một Friendship ngẫu nhiên mà chưa được sử dụng
+                    randomFriendship = f.PickRandom(friendships);
+                } while (usedFriendships.Contains(randomFriendship.Id));
+
+                // Thêm FriendshipId vào HashSet để đảm bảo không bị trùng
+                usedFriendships.Add(randomFriendship.Id);
+
+                return new Interaction
+                {
+                    CreatedBy = randomFriendship.CreatedBy,
+                    Type = InteractionType.Follow,
+                    UserProfileId = randomFriendship.SenderId,
+                    RelateProfileId = randomFriendship.ReceiverId
+                };
+            });
+
+        int maxInteractions = (new Faker()).Random.Int(5, 20); // Chọn ngẫu nhiên số lượng interactions
+
+        // Tạo interactions không trùng lặp
+        for (int i = 0; i < maxInteractions; i++)
+        {
+            var interaction = faker.Generate();
+            interactions.Add(interaction); // Thêm interaction vào danh sách
+        }
+
+        return interactions;
+    }
+
+    private static async Task<List<Interaction>> GeneratePageInteractions(CommonIdentityClient identityClient, CommonProfileClient profileClient)
+    {
+        var accountWithProfileIds = await identityClient.GetAccountsWithDefaultProfiles();
+        var pageProfileIds = await profileClient.GetPageProfileIds();
+
+        var uniqueInteractions = new HashSet<(Guid UserProfileId, Guid RelateProfileId)>();
         var interactions = new List<Interaction>();
 
         var faker = new Faker<Interaction>()
@@ -126,46 +165,38 @@ public static class DbInitialization
                 return new Interaction
                 {
                     CreatedBy = randomAccountId,
-                    ProfileId = randomUserProfileId
+                    UserProfileId = randomUserProfileId
                 };
             })
+            .RuleFor(i => i.Type, InteractionType.Follow)
             .RuleFor(i => i.RelateProfileId, (f, interaction) =>
             {
-                Guid relateProfileId;
+                Guid relateUserProfileId;
                 int attempts = 0;
                 const int maxAttempts = 10;
 
                 do
                 {
-                    relateProfileId = Guid.Parse(f.PickRandom(profileIds));
+                    relateUserProfileId = Guid.Parse(f.PickRandom(pageProfileIds));
                     attempts++;
-                    if (attempts > maxAttempts) break;
-                } while (relateProfileId == interaction.ProfileId ||
-                         uniqueInteractions.Contains((interaction.ProfileId, relateProfileId)) ||
-                         uniqueInteractions.Contains((relateProfileId, interaction.ProfileId)) ||
-                         (interaction.Type == InteractionType.Block && relateProfileId == interaction.ProfileId));
 
-                uniqueInteractions.Add((interaction.ProfileId, relateProfileId));
-                return relateProfileId;
-            })
-            .RuleFor(i => i.FriendshipId, (f, interaction) =>
-            {
-                if (interaction.Type == InteractionType.Block || !friendshipIds.Any())
-                {
-                    return null; // Block interaction or no friendships
-                }
-                else
-                {
-                    return Guid.Parse(f.PickRandom(friendshipIds));
-                }
+                    if (attempts > maxAttempts) break;
+
+                } while (relateUserProfileId == interaction.UserProfileId ||
+                         uniqueInteractions.Contains((interaction.UserProfileId, relateUserProfileId)) ||
+                         uniqueInteractions.Contains((relateUserProfileId, interaction.UserProfileId)));
+
+                uniqueInteractions.Add((interaction.UserProfileId, relateUserProfileId));
+                return relateUserProfileId;
             });
 
-        int maxInteractions = 100; // Set limit for interactions
+        int maxInteractions = (new Faker()).Random.Int(5, 20); // Chọn ngẫu nhiên số lượng interactions
 
+        // Tạo interactions và xử lý phần bất đồng bộ sau đó
         for (int i = 0; i < maxInteractions; i++)
         {
             var interaction = faker.Generate();
-            interactions.Add(interaction);
+            interactions.Add(interaction); // Thêm interaction sau khi đã xử lý bất đồng bộ
         }
 
         return interactions;

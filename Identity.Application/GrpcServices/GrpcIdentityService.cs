@@ -6,6 +6,7 @@ using Google.Protobuf.WellKnownTypes;
 using InfinityNetServer.Services.Identity.Domain.Repositories;
 using System.Linq;
 using InfinityNetServer.Services.Identity.Application.Services;
+using System;
 
 namespace InfinityNetServer.Services.Identity.Application.GrpcServices
 {
@@ -22,7 +23,7 @@ namespace InfinityNetServer.Services.Identity.Application.GrpcServices
         {
             _logger = logger;
             _authService = authService;
-            this._accountRepository = accountRepository;
+            _accountRepository = accountRepository;
         }
 
         public override async Task<IntrospectResponse> introspect(IntrospectRequest request, ServerCallContext context)
@@ -39,6 +40,16 @@ namespace InfinityNetServer.Services.Identity.Application.GrpcServices
             return await Task.FromResult(response);
         }
 
+        public override async Task<GetAccountIdResponse> getAccountId(GetAccountIdRequest request, ServerCallContext context)
+        {
+            _logger.LogInformation("Received getAccountId request");
+            var response = new GetAccountIdResponse();
+            var account = await _accountRepository.GetByDefaultUserProfileIdAsync(Guid.Parse(request.DefaultUserProfileId));
+
+            response.Id = account.Id.ToString();
+            return response;
+        }
+
         public override async Task<GetAccountIdsResponse> getAccountIds(Empty request, ServerCallContext context)
         {
             _logger.LogInformation("Received getAccountIds request");
@@ -51,14 +62,14 @@ namespace InfinityNetServer.Services.Identity.Application.GrpcServices
             return response;
         }
 
-        public override async Task<GetAccountWithDefaultProfileIdsResponse> getAccountWithDefaultProfileIds(Empty request, ServerCallContext context)
+        public override async Task<GetAccountsWithDefaultProfilesResponse> getAccountsWithDefaultProfiles(Empty request, ServerCallContext context)
         {
             _logger.LogInformation("Received getAccountWithDefaultProfileIds request");
-            var response = new GetAccountWithDefaultProfileIdsResponse();
+            var response = new GetAccountsWithDefaultProfilesResponse();
             var accounts = await _accountRepository.GetAllAsync();
 
             // Map accounts to AccountWithDefaultProfile objects
-            response.AccountWithDefaultProfiles.AddRange(
+            response.AccountsWithDefaultProfiles.AddRange(
                 accounts.Select(a => new AccountWithDefaultProfile
                 {
                     Id = a.Id.ToString(),

@@ -25,7 +25,7 @@ namespace InfinityNetServer.Services.Group.Infrastructure.Data
         {
             var groupMember = modelBuilder.Entity<GroupMember>();
             groupMember
-                .HasIndex(i => new { i.GroupId, i.ProfileId })
+                .HasIndex(i => new { i.GroupId, i.UserProfileId })
                 .IsUnique();
             groupMember
                 .HasOne(gm => gm.Group)

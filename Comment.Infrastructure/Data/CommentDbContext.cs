@@ -18,6 +18,17 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data
 
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            var comment = modelBuilder.Entity<Domain.Entities.Comment>();
+
+            comment
+                .HasOne(c => c.ParentComment)
+                .WithMany(c => c.repliesComments)
+                .HasForeignKey(c => c.ParentId)
+                .OnDelete(DeleteBehavior.NoAction);
+        }
+
     }
 
 }

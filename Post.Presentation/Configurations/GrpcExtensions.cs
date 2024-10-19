@@ -28,9 +28,16 @@ public static class GrpcExtensions
             options.Address = new Uri(configuration["GrpcServers:ProfileService"]);
         });
 
+        services.AddGrpcClient<GroupService.GroupServiceClient>(options =>
+        {
+            options.Address = new Uri(configuration["GrpcServers:GroupService"]);
+        });
+
         services.AddScoped(typeof(CommonIdentityClient));
 
         services.AddScoped(typeof(CommonProfileClient));
+
+        services.AddScoped(typeof(CommonGroupClient));
     }
 
 }

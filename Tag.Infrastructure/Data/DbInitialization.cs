@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using InfinityNetServer.Services.Tag.Domain.Repositories;
 using InfinityNetServer.Services.Tag.Domain.Entities;
+using System.Linq;
 
 namespace InfinityNetServer.Services.Tag.Infrastructure.Data;
 
@@ -56,15 +57,26 @@ public static class DbInitialization
         var tags = new List<PostTag>();
         var faker = new Faker();
 
-        // Duyệt qua tất cả accountId và postId để tạo reaction nếu chưa có
-        foreach (var profileId in userProfileIds)
+        // Ngẫu nhiên chọn số lượng userProfileIds và postIds
+        var randomProfileCount = faker.Random.Int(1, userProfileIds.Count);
+        var randomPostCount = faker.Random.Int(1, postIds.Count);
+
+        // Chọn ngẫu nhiên một số userProfileIds và postIds để tạo tags
+        var selectedProfileIds = faker.PickRandom(userProfileIds, randomProfileCount).ToList();
+        var selectedPostIds = faker.PickRandom(postIds, randomPostCount).ToList();
+
+        // Duyệt qua các profileIds và postIds đã chọn ngẫu nhiên
+        foreach (var profileId in selectedProfileIds)
         {
-            foreach (var postId in postIds)
+            // Ngẫu nhiên chọn số lượng post cho mỗi profile
+            var randomPostsForProfile = faker.PickRandom(selectedPostIds, faker.Random.Int(1, selectedPostIds.Count()));
+
+            foreach (var postId in randomPostsForProfile)
             {
-                // Kiểm tra xem cặp này đã được sử dụng chưa
+                // Kiểm tra xem cặp (profileId, postId) đã tồn tại chưa
                 if (!usedPairs.Contains((profileId, postId)))
                 {
-                    // Nếu chưa, thêm vào HashSet và tạo mới PostReaction
+                    // Nếu chưa tồn tại, thêm vào HashSet và tạo mới PostTag
                     usedPairs.Add((profileId, postId));
 
                     var tag = new PostTag
@@ -72,7 +84,6 @@ public static class DbInitialization
                         CreatedBy = Guid.Parse(faker.PickRandom(accountIds)),
                         PostId = Guid.Parse(postId),
                         TaggedProfileId = Guid.Parse(profileId)
-
                     };
 
                     tags.Add(tag);
@@ -82,6 +93,7 @@ public static class DbInitialization
 
         return tags;
     }
+
 
     private static async Task<List<CommentTag>> GenerateCommentTags(
         CommonIdentityClient identityClient,
@@ -96,15 +108,26 @@ public static class DbInitialization
         var tags = new List<CommentTag>();
         var faker = new Faker();
 
-        // Duyệt qua tất cả accountId và postId để tạo reaction nếu chưa có
-        foreach (var profileId in userProfileIds)
+        // Ngẫu nhiên chọn số lượng userProfileIds và commentIds
+        var randomProfileCount = faker.Random.Int(1, userProfileIds.Count);
+        var randomCommentCount = faker.Random.Int(1, commentIds.Count);
+
+        // Chọn ngẫu nhiên một số userProfileIds và commentIds để tạo tags
+        var selectedProfileIds = faker.PickRandom(userProfileIds, randomProfileCount).ToList();
+        var selectedCommentIds = faker.PickRandom(commentIds, randomCommentCount).ToList();
+
+        // Duyệt qua các profileIds và commentIds đã chọn ngẫu nhiên
+        foreach (var profileId in selectedProfileIds)
         {
-            foreach (var commentId in commentIds)
+            // Ngẫu nhiên chọn số lượng comment cho mỗi profile
+            var randomCommentsForProfile = faker.PickRandom(selectedCommentIds, faker.Random.Int(1, selectedCommentIds.Count()));
+
+            foreach (var commentId in randomCommentsForProfile)
             {
-                // Kiểm tra xem cặp này đã được sử dụng chưa
+                // Kiểm tra xem cặp (profileId, commentId) đã tồn tại chưa
                 if (!usedPairs.Contains((profileId, commentId)))
                 {
-                    // Nếu chưa, thêm vào HashSet và tạo mới PostReaction
+                    // Nếu chưa tồn tại, thêm vào HashSet và tạo mới CommentTag
                     usedPairs.Add((profileId, commentId));
 
                     var tag = new CommentTag
@@ -112,7 +135,6 @@ public static class DbInitialization
                         CreatedBy = Guid.Parse(faker.PickRandom(accountIds)),
                         CommentId = Guid.Parse(commentId),
                         TaggedProfileId = Guid.Parse(profileId)
-
                     };
 
                     tags.Add(tag);
@@ -122,5 +144,6 @@ public static class DbInitialization
 
         return tags;
     }
+
 
 }

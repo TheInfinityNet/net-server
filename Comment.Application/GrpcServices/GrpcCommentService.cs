@@ -26,7 +26,7 @@ namespace InfinityNetServer.Services.Comment.Application.GrpcServices
             _logger.LogInformation("Received getAccountIds request");
             var response = new GetCommentIdsResponse();
             var comments = await _commentRepository.GetAllAsync();
-            response.CommentIds.AddRange(comments.Select(p => p.Id.ToString()).ToList());
+            response.Ids.AddRange(comments.Select(p => p.Id.ToString()).ToList());
 
             return await Task.FromResult(response);
         }

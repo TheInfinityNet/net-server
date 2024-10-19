@@ -17,7 +17,10 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -71,13 +74,17 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("parent_id");
 
-                    b.Property<int>("PostType")
-                        .HasColumnType("integer")
-                        .HasColumnName("post_type");
+                    b.Property<Guid?>("PresentationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("presentation_id");
 
                     b.Property<int>("Privacy")
                         .HasColumnType("integer")
                         .HasColumnName("privacy");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("post_type");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
@@ -90,7 +97,35 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("PresentationId");
+
                     b.ToTable("posts");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Post.Domain.Entities.Post", b =>
+                {
+                    b.HasOne("InfinityNetServer.Services.Post.Domain.Entities.Post", "Parent")
+                        .WithMany("SharedPosts")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("InfinityNetServer.Services.Post.Domain.Entities.Post", "Presentation")
+                        .WithMany("SubPosts")
+                        .HasForeignKey("PresentationId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Parent");
+
+                    b.Navigation("Presentation");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Post.Domain.Entities.Post", b =>
+                {
+                    b.Navigation("SharedPosts");
+
+                    b.Navigation("SubPosts");
                 });
 #pragma warning restore 612, 618
         }

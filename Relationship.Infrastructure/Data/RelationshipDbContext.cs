@@ -24,7 +24,7 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Interaction>()
-                .HasIndex(i => new { i.ProfileId, i.RelateProfileId })
+                .HasIndex(i => new { i.UserProfileId, i.RelateProfileId })
                 .IsUnique();
 
             var friendship = modelBuilder.Entity<Friendship>();
@@ -33,7 +33,8 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data
             friendship
                 .HasOne(f => f.Interaction)
                 .WithOne(i => i.Friendship)
-                .HasForeignKey<Interaction>(i => i.FriendshipId);
+                .HasForeignKey<Interaction>(i => i.FriendshipId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
     }

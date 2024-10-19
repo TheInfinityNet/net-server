@@ -1,22 +1,22 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
-using InfinityNetServer.BuildingBlocks.Application.Protos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static InfinityNetServer.BuildingBlocks.Application.Protos.ProfileService;
 
 namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
 {
     public class CommonProfileClient
     {
 
-        private readonly ProfileService.ProfileServiceClient _client;
+        private readonly ProfileServiceClient _client;
 
         private readonly ILogger<CommonProfileClient> _logger;
 
-        public CommonProfileClient(ProfileService.ProfileServiceClient client, ILogger<CommonProfileClient> logger)
+        public CommonProfileClient(ProfileServiceClient client, ILogger<CommonProfileClient> logger)
         {
             _client = client;
             _logger = logger;
@@ -44,6 +44,21 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             {
                 _logger.LogInformation("Starting get user profile ids");
                 var response = await _client.getUserProfileIdsAsync(new Empty());
+                // Call the gRPC server to introspect the token
+                return new List<string>(response.Ids);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+            }
+        }
+        public async Task<List<string>> GetPageProfileIds()
+        {
+            try
+            {
+                _logger.LogInformation("Starting get page profile ids");
+                var response = await _client.getPageProfileIdsAsync(new Empty());
                 // Call the gRPC server to introspect the token
                 return new List<string>(response.Ids);
             }

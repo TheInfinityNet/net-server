@@ -1,0 +1,31 @@
+﻿syntax = "proto3";
+
+package InfinityNetServer.BuildingBlocks.Application.Protos;
+
+option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
+
+import "google/protobuf/empty.proto";
+
+message GetGroupIdsResponse {
+  repeated string ids = 1;
+}
+
+message GroupMemberWithGroup {
+
+	string userProfileId = 1;
+
+	string groupId = 2;
+
+}
+
+message GetGroupMembersWithGroupsResponse {
+  repeated GroupMemberWithGroup groupMembersWithGroups = 1;
+}
+
+service GroupService {
+
+  rpc getGroupIds (google.protobuf.Empty) returns (GetGroupIdsResponse) {}
+
+  rpc getGroupMembersWithGroups (google.protobuf.Empty) returns (GetGroupMembersWithGroupsResponse) {}
+
+}
