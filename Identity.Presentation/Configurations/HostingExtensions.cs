@@ -62,8 +62,6 @@ internal static class HostingExtensions
 
         //builder.Services.AddHealthChecks(builder.Configuration);
 
-        builder.Services.AddDefaultCors(builder.Configuration);
-
         builder.Services.AddControllers()
             .AddJsonOptions(options =>
             {
@@ -71,7 +69,7 @@ internal static class HostingExtensions
                 options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
             });
 
-        builder.Services.AddFluentValidation(builder.Configuration);
+        //builder.Services.AddFluentValidation(builder.Configuration);
 
         builder.Services.AddGrpcClients(builder.Configuration);
 
@@ -90,7 +88,7 @@ internal static class HostingExtensions
 
         builder.Services.AddJwtAuthentication(builder.Configuration, localizer);
 
-        builder.Services.AddCors();
+        builder.Services.AddDefaultCors(builder.Configuration);
 
         builder.Services.AddMetrics(builder.Configuration);
 

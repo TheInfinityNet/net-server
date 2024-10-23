@@ -45,9 +45,9 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> Test()
+        public IActionResult Test()
         {
-            var user = User;
+            /*var user = User;
             if (user == null)
             {
                 _logger.LogError("User is null");
@@ -68,10 +68,11 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             await _accountRepository.UpdateAsync(account);
 
             _logger.LogInformation(CultureInfo.CurrentCulture.ToString());
-            return Ok(new { Message = _localizer["msg_test", "Ben"].ToString() });
+            return Ok(new { Message = _localizer["msg_test", "Ben"].ToString() });*/
+            return Ok(new { Message = GetCurrentUserId().ToString() });
         }
 
-        [HttpGet("seed-data")]
+        /*[HttpGet("seed-data")]
         public async Task<IActionResult> SeedData()
         {
             var accounts = await _accountRepository.GetAllAsync();
@@ -97,7 +98,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             }
 
             return Ok(new { Message = "Seeded data successfully!" });
-        }
+        }*/
 
     }
 }

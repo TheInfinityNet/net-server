@@ -37,6 +37,8 @@ namespace InfinityNetServer.Services.Identity.Application.GrpcServices
                 Valid = await _authService.Introspect(request.Token),
             };
 
+            _logger.LogInformation("Token is valid: {Valid}", response.Valid);
+
             return await Task.FromResult(response);
         }
 
