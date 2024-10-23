@@ -39,6 +39,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
                 {
                     Token = token
                 });
+                _logger.LogInformation(" is valid: " + response.Valid);
                 return response.Valid;
             }
             catch (Exception ex)

@@ -42,10 +42,13 @@ public static class JwtConfiguration
                 {
                     OnTokenValidated = async context =>
                     {
+                        string Token = context.Request.Headers["Authorization"].ToString()["Bearer ".Length..];
+                        System.Console.WriteLine("Bearer token: " + Token);
                         if (isGateway)
                         {
                             string bearerToken = context.Request.Headers["Authorization"].ToString()["Bearer ".Length..];
                             var identityClient = context.HttpContext.RequestServices.GetRequiredService<CommonIdentityClient>();
+                            System.Console.WriteLine("Bearer token: " + bearerToken);
                             if (!await identityClient.Introspect(bearerToken!))
                             {
                                 BaseErrorCode errorCode = BaseErrorCode.TOKEN_INVALID;
@@ -64,6 +67,7 @@ public static class JwtConfiguration
                     },
                     OnAuthenticationFailed = context =>
                     {
+                        System.Console.WriteLine("OnAuthenticationFailed");
                         BaseErrorCode errorCode = BaseErrorCode.TOKEN_INVALID;
                         context.Response.ContentType = "application/json";
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -77,6 +81,7 @@ public static class JwtConfiguration
                     },
                     OnChallenge = context =>
                     {
+                        System.Console.WriteLine("OnChallenge");
                         BaseErrorCode errorCode = BaseErrorCode.TOKEN_MISSING;
                         context.HandleResponse();
                         context.Response.ContentType = "application/json";

@@ -14,22 +14,22 @@
       /*"AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []
-      }*/
+      }
       "RateLimitOptions": {
         "EnableRateLimiting": true,
         "Period": "10s",
         "PeriodTimespan": 60,
         "Limit": 5
       },
-      /*"FileCacheOptions": {
+      "FileCacheOptions": {
         "TtlSeconds": 15,
         "Region": "identity-cache"
-      },*/
+      },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 5000,
         "TimeoutValue": 2000
-      },
+      },*/
       "SwaggerKey": "identity"
     },
 
@@ -44,16 +44,6 @@
       ],
       "UpstreamPathTemplate": "/profile/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      /*"AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      }*/
-      "RateLimitOptions": {
-        "EnableRateLimiting": true,
-        "Period": "10s",
-        "PeriodTimespan": 60,
-        "Limit": 5
-      },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 5000,
@@ -73,16 +63,6 @@
       ],
       "UpstreamPathTemplate": "/relationship/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      /*"AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      }*/
-      "RateLimitOptions": {
-        "EnableRateLimiting": true,
-        "Period": "10s",
-        "PeriodTimespan": 60,
-        "Limit": 5
-      },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 5000,
@@ -102,16 +82,6 @@
       ],
       "UpstreamPathTemplate": "/group/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      /*"AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      }*/
-      "RateLimitOptions": {
-        "EnableRateLimiting": true,
-        "Period": "10s",
-        "PeriodTimespan": 60,
-        "Limit": 5
-      },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 5000,
@@ -131,16 +101,6 @@
       ],
       "UpstreamPathTemplate": "/post/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      /*"AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      }*/
-      "RateLimitOptions": {
-        "EnableRateLimiting": true,
-        "Period": "10s",
-        "PeriodTimespan": 60,
-        "Limit": 5
-      },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 5000,
@@ -160,16 +120,6 @@
       ],
       "UpstreamPathTemplate": "/comment/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      /*"AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      }*/
-      "RateLimitOptions": {
-        "EnableRateLimiting": true,
-        "Period": "10s",
-        "PeriodTimespan": 60,
-        "Limit": 5
-      },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 5000,
@@ -189,16 +139,6 @@
       ],
       "UpstreamPathTemplate": "/reaction/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      /*"AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      }*/
-      "RateLimitOptions": {
-        "EnableRateLimiting": true,
-        "Period": "10s",
-        "PeriodTimespan": 60,
-        "Limit": 5
-      },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 5000,
@@ -218,16 +158,6 @@
       ],
       "UpstreamPathTemplate": "/tag/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      /*"AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      }*/
-      "RateLimitOptions": {
-        "EnableRateLimiting": true,
-        "Period": "10s",
-        "PeriodTimespan": 60,
-        "Limit": 5
-      },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 5000,

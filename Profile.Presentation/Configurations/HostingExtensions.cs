@@ -60,8 +60,6 @@ internal static class HostingExtensions
 
         //builder.Services.AddHealthChecks(builder.Configuration);
 
-        builder.Services.AddDefaultCors(builder.Configuration);
-
         builder.Services.AddControllers();
 
         builder.Services.AddGrpcClients(builder.Configuration);
@@ -81,7 +79,7 @@ internal static class HostingExtensions
 
         builder.Services.AddJwtAuthentication(builder.Configuration, localizer);
 
-        builder.Services.AddCors();
+        builder.Services.AddDefaultCors(builder.Configuration);
 
         builder.Services.AddMetrics(builder.Configuration);
 
