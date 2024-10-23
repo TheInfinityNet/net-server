@@ -2,6 +2,7 @@
 using InfinityNetServer.Services.Profile.Application.Services;
 using InfinityNetServer.Services.Profile.Domain.Entities;
 using InfinityNetServer.Services.Profile.Domain.Repositories;
+using MassTransit;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System;
@@ -23,6 +24,14 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
             _userProfileRepository = userProfileRepository;
             _logger = logger;
             _localizer = localizer;
+        }
+
+        // await async là kiến thức về bất đồng bộ có j ông search youtube xem thêm nha
+        public async Task<UserProfile> GetUserProfileByAccountId(string id)
+        {
+            // chỗ này implement cái đã định nghĩa trong interface
+            // truyền id vào là string nên phải parse ra Guid
+            return await _userProfileRepository.GetGetUserProfileByAccountIdAsync(Guid.Parse(id));
         }
 
         public Task<UserProfile> GetUserProfileById(string id)
