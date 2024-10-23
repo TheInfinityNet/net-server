@@ -11,6 +11,7 @@ using InfinityNetServer.BuildingBlocks.Application.Bus;
 using System.Threading.Tasks;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.Services.Profile.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Controllers
 {
@@ -58,6 +59,20 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             ));
         }
 
+        [Authorize]
+        [EndpointDescription("Retrieve user profile")]
+        [HttpGet]
+        [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
+        public IActionResult RetrieveProfile()
+        {
+            _logger.LogInformation("kjfhskjdfksjf");
+            var userId = GetCurrentUserId().ToString();
+            // chỗ này trả về id của user đang đăng nhập thôi
+            return Ok(new CommonMessageResponse
+            (
+                userId
+            ));
+        }
 
     }
 }
