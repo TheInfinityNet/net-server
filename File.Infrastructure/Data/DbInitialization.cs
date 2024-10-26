@@ -4,8 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using InfinityNetServer.Services.Tag.Domain.Repositories;
-using InfinityNetServer.Services.Tag.Domain.Entities;
+using InfinityNetServer.Services.File.Domain.Repositories;
+using InfinityNetServer.Services.File.Domain.Entities;
 using System.Linq;
 
 namespace InfinityNetServer.Services.File.Infrastructure.Data;
@@ -19,32 +19,31 @@ public static class DbInitialization
 
         var dbContext = serviceScope.ServiceProvider.GetService<FileDbContext>();
 
-        dbContext.Database.EnsureDeleted();
+        //dbContext.Database.EnsureDeleted();
     }
 
     public static async void SeedEssentialData(this IServiceProvider serviceProvider)
     {
         using var serviceScope = serviceProvider.CreateScope();
         var dbContext = serviceScope.ServiceProvider.GetService<FileDbContext>();
-        var postTagRepository = serviceScope.ServiceProvider.GetService<IPostTagRepository>();
-        var commentTagRepository = serviceScope.ServiceProvider.GetService<ICommentTagRepository>();
+        var fileMetadataRepository = serviceScope.ServiceProvider.GetService<IFileMetadataRepository>();
         var identityClient = serviceScope.ServiceProvider.GetService<CommonIdentityClient>();
         var profileClient = serviceScope.ServiceProvider.GetService<CommonProfileClient>();
         var postClient = serviceScope.ServiceProvider.GetService<CommonPostClient>();
         var commentClient = serviceScope.ServiceProvider.GetService<CommonCommentClient>();
 
-        var existingTagCount = await postTagRepository.GetAllAsync();
+        /*var existingTagCount = await fileMetadataRepository.GetAllAsync();
         if (existingTagCount.Count == 0)
         {
             var postTags = await GeneratePostTags(identityClient, profileClient, postClient);
-            await postTagRepository.CreateAsync(postTags);
+            await fileMetadataRepository.CreateAsync(postTags);
 
             var commentTags = await GenerateCommentTags(identityClient, profileClient, commentClient);
             await commentTagRepository.CreateAsync(commentTags);
-        }
+        }*/
     }
 
-    private static async Task<List<PostTag>> GeneratePostTags(
+    /*private static async Task<List<PostTag>> GeneratePostTags(
         CommonIdentityClient identityClient,
         CommonProfileClient profileClient,
         CommonPostClient postClient)
@@ -143,7 +142,7 @@ public static class DbInitialization
         }
 
         return tags;
-    }
+    }*/
 
 
 }

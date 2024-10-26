@@ -58,6 +58,10 @@ namespace InfinityNetServer.Services.Tag.Infrastructure.Data.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("profile_id");
+
                     b.Property<Guid>("TaggedProfileId")
                         .HasColumnType("uuid")
                         .HasColumnName("tagged_profile_id");
@@ -111,6 +115,10 @@ namespace InfinityNetServer.Services.Tag.Infrastructure.Data.Migrations
                     b.Property<Guid>("PostId")
                         .HasColumnType("uuid")
                         .HasColumnName("post_id");
+
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("profile_id");
 
                     b.Property<Guid>("TaggedProfileId")
                         .HasColumnType("uuid")

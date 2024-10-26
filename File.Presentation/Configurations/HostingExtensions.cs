@@ -83,7 +83,7 @@ internal static class HostingExtensions
 
         builder.Services.AddGrpcPreConfigured();
 
-        builder.Services.AddTransient<HttpTagExceptionHandler>();
+        builder.Services.AddTransient<HttpFileExceptionHandler>();
 
         builder.Services.AddValidationHanlder(builder.Configuration, fileLocalizer);
 
@@ -106,7 +106,7 @@ internal static class HostingExtensions
 
         app.UseGlobalExceptionHandler();
 
-        app.UseMiddleware<HttpTagExceptionHandler>();
+        app.UseMiddleware<HttpFileExceptionHandler>();
 
         app.UseSwaggerPreConfigured();
 

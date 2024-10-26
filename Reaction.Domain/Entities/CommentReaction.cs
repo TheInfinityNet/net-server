@@ -14,6 +14,10 @@ namespace InfinityNetServer.Services.Reaction.Domain.Entities
         public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
+        [Column("profile_id")]
+        public Guid ProfileId { get; set; } // Link to Profile service
+
+        [Required]
         [Column("type")]
         public ReactionType Type { get; set; }
 

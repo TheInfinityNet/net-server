@@ -1,10 +1,12 @@
 ﻿using Bogus;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.Services.Comment.Domain.Repositories;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace InfinityNetServer.Services.Comment.Infrastructure.Data;
 
@@ -20,63 +22,89 @@ public static class DbInitialization
         dbContext.Database.EnsureDeleted();
     }
 
+    public static void AutoMigration(this WebApplication webApplication)
+    {
+        using var serviceScope = webApplication.Services.CreateScope();
+
+        var dbContext = serviceScope.ServiceProvider.GetRequiredService<CommentDbContext>();
+
+        if (!dbContext.Database.EnsureCreated()) return;
+
+        dbContext.Database.MigrateAsync().Wait(); //generate all in folder Migration
+
+    }
+
     public static async void SeedEssentialData(this IServiceProvider serviceProvider, int numberOfComments)
     {
         using var serviceScope = serviceProvider.CreateScope();
-        var dbContext = serviceScope.ServiceProvider.GetService<CommentDbContext>();
+        serviceScope.ServiceProvider.GetService<CommentDbContext>();
         var commentRepository = serviceScope.ServiceProvider.GetService<ICommentRepository>();
-        var identityClient = serviceScope.ServiceProvider.GetService<CommonIdentityClient>();
+        var profileClient = serviceScope.ServiceProvider.GetService<CommonProfileClient>();
         var postClient = serviceScope.ServiceProvider.GetService<CommonPostClient>();
 
         var existingCommentCount = await commentRepository.GetAllAsync();
         if (existingCommentCount.Count == 0)
         {
-            Faker faker = new Faker();
-            var comments = await GenerateComments(numberOfComments, identityClient, postClient);
+            var comments = await GenerateComments(numberOfComments, profileClient, postClient);
             await commentRepository.CreateAsync(comments);
 
-            var repliedComments = await GenerateRepliedComments(numberOfComments, identityClient, postClient, commentRepository);
+            var repliedComments = 
+                await GenerateRepliedComments(numberOfComments, profileClient, postClient, commentRepository);
             await commentRepository.CreateAsync(repliedComments);
         }
     }
 
     private static async Task<List<Domain.Entities.Comment>> GenerateComments(
-        int count, 
-        CommonIdentityClient identityClient,
+        int count,
+        CommonProfileClient profileClient,
         CommonPostClient postClient)
     {
-        var accountIds = await identityClient.GetAccountIds();
+        var profileIds = await profileClient.GetProfileIds();
         var postIds = await postClient.GetPostIds();
         var faker = new Faker<Domain.Entities.Comment>()
-            .RuleFor(ap => ap.CreatedBy, f => Guid.Parse(f.PickRandom(accountIds)))
             .RuleFor(ap => ap.PostId, f => Guid.Parse(f.PickRandom(postIds)))
-            .CustomInstantiator(f => {
+            .RuleFor(ap => ap.Content, f => f.Lorem.Sentence())
+            .CustomInstantiator(f =>
+            {
+                var createdBy = Guid.Parse(f.PickRandom(profileIds));
+                var profileId = createdBy;
                 var mediaId = (f.Random.Bool()) ? Guid.NewGuid() : (Guid?)null;
                 return new Domain.Entities.Comment
                 {
+                    CreatedBy = createdBy,
+                    ProfileId = profileId,
                     MediaId = mediaId
                 };
-            })
-            .RuleFor(ap => ap.Content, f => f.Lorem.Sentence());
+            });
 
         return faker.Generate(count);
     }
 
     private static async Task<List<Domain.Entities.Comment>> GenerateRepliedComments(
         int count,
-        CommonIdentityClient identityClient,
+        CommonProfileClient profileClient,
         CommonPostClient postClient,
         ICommentRepository commentRepository)
     {
-        var accountIds = await identityClient.GetAccountIds();
+        var profileIds = await profileClient.GetProfileIds();
         var postIds = await postClient.GetPostIds();
         var parentComments = await commentRepository.GetAllAsync();
 
         var faker = new Faker<Domain.Entities.Comment>()
-            .RuleFor(ap => ap.CreatedBy, f => Guid.Parse(f.PickRandom(accountIds)))
             .RuleFor(ap => ap.PostId, f => Guid.Parse(f.PickRandom(postIds)))
             .RuleFor(ap => ap.ParentComment, f => f.PickRandom(parentComments))
-            .RuleFor(ap => ap.Content, f => f.Lorem.Sentence());
+            .RuleFor(ap => ap.Content, f => f.Lorem.Sentence())
+            .CustomInstantiator(f => {
+                var createdBy = Guid.Parse(f.PickRandom(profileIds));
+                var profileId = createdBy;
+                var mediaId = (f.Random.Bool()) ? Guid.NewGuid() : (Guid?)null;
+                return new Domain.Entities.Comment
+                {
+                    CreatedBy = createdBy,
+                    ProfileId = profileId,
+                    MediaId = mediaId
+                };
+            });
 
         return faker.Generate(count);
     }

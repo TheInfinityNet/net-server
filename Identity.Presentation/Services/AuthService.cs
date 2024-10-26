@@ -20,17 +20,11 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
     public class AuthService : IAuthService
     {
 
-        private readonly string ACCESS_SIGNER_KEY;
+        private readonly string _accessTokenSignatureAlgorithm = SecurityAlgorithms.HmacSha512;
 
-        private readonly string ACCESS_TOKEN_SIGNATURE_ALGORITHM = SecurityAlgorithms.HmacSha512;
+        private readonly string _refreshTokenSignatureAlgorithm = SecurityAlgorithms.HmacSha384;
 
-        private readonly string REFRESH_SIGNER_KEY;
-
-        private readonly string REFRESH_TOKEN_SIGNATURE_ALGORITHM = SecurityAlgorithms.HmacSha384;
-
-        private readonly long VALID_DURATION;
-
-        private readonly long REFRESHABLE_DURATION;
+        private readonly JwtOptions _jwtOptions;
 
         private readonly IBaseRedisService<string, string> _baseRedisService;
 
@@ -53,12 +47,8 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             _accountService = accountService;
             _localProviderService = localProviderService;
             _configuration = configuration;
+            _jwtOptions = _configuration.GetSection("Jwt").Get<JwtOptions>();
             _logger = logger;
-
-            ACCESS_SIGNER_KEY = _configuration["Jwt:AccessKey"]!;
-            REFRESH_SIGNER_KEY = _configuration["Jwt:RefreshKey"]!;
-            VALID_DURATION = long.Parse(_configuration["Jwt:ValidDuration"]!);
-            REFRESHABLE_DURATION = long.Parse(_configuration["Jwt:RefreshDuration"]!);
         }
 
         public async Task<LocalProvider> SignIn(string email, string password)
@@ -88,21 +78,25 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             return isValid;
         }
 
-        public string GenerateToken(Account user, bool isRefresh)
+        public string GenerateToken(Account account, bool isRefresh)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(isRefresh ? REFRESH_SIGNER_KEY : ACCESS_SIGNER_KEY));
-            var credentials = new SigningCredentials(securityKey, isRefresh ? REFRESH_TOKEN_SIGNATURE_ALGORITHM : ACCESS_TOKEN_SIGNATURE_ALGORITHM);
+            var securityKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(isRefresh ? _jwtOptions.RefreshKey! : _jwtOptions.AccessKey));
+
+            var credentials = new SigningCredentials(
+                securityKey, isRefresh ? _refreshTokenSignatureAlgorithm : _accessTokenSignatureAlgorithm);
 
             var expiryTime = isRefresh
-                ? DateTime.UtcNow.AddSeconds(REFRESHABLE_DURATION)
-                : DateTime.UtcNow.AddSeconds(VALID_DURATION);
+                ? DateTime.UtcNow.AddSeconds(double.Parse(_jwtOptions.RefreshDuration.ToString()))
+                : DateTime.UtcNow.AddSeconds(double.Parse(_jwtOptions.ValidDuration.ToString()));
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, account.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Iss, _configuration["Jwt:Issuer"]!),
-                new Claim(JwtRegisteredClaimNames.Aud, "webapp.com")
+                new Claim("profile_id", account.DefaultUserProfileId.ToString()),
+                new Claim(JwtRegisteredClaimNames.Iss, _jwtOptions.Issuer),
+                new Claim(JwtRegisteredClaimNames.Aud, _jwtOptions.Audiences.First())
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -112,10 +106,8 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
                 SigningCredentials = credentials
             };
 
-            /*if (!isRefresh)
-            {
-                tokenDescriptor.Subject.AddClaim(new Claim("scope", "ADMIN"));
-            }*/
+            if (!isRefresh) tokenDescriptor.Subject.AddClaim(new Claim("scope", "User"));
+         
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -125,12 +117,11 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
         public async Task<string> Refresh(string refreshToken, string accessToken)
         {
             // Verify the refresh token
-            JwtSecurityToken signedJWT = await VerifyToken(refreshToken, true);
-            string id = signedJWT.Subject ??
+            JwtSecurityToken signedJwt = await VerifyToken(refreshToken, true);
+            string id = signedJwt.Subject ??
                 throw new IdentityException(IdentityErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
 
-            Account account = new Account();
-
+            Account account;
             try
             {
                 account = await _accountService.GetById(id);
@@ -138,7 +129,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             catch (Exception)
             {
                 _logger.LogError("Account not found");
-                throw new IdentityException(IdentityErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
+                throw new IdentityException(IdentityErrorCode.USER_NOT_FOUND, StatusCodes.Status400BadRequest);
             }
 
             var jwtHandler = new JwtSecurityTokenHandler();
@@ -147,7 +138,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
                 throw new IdentityException(IdentityErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
 
             var signedAccessToken = jwtHandler.ReadJwtToken(accessToken);
-            var jwtID = signedAccessToken.Id;
+            var jwtId = signedAccessToken.Id;
             var expiryTime = signedAccessToken.ValidTo;
 
             var subject = signedAccessToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
@@ -157,7 +148,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             if (expiryTime > DateTime.UtcNow)
             {
                 var timeToLive = expiryTime.ToUniversalTime() - DateTime.UtcNow;
-                await _baseRedisService.SetWithExpirationAsync(jwtID, "revoked", timeToLive);
+                await _baseRedisService.SetWithExpirationAsync(jwtId, "revoked", timeToLive);
             }
 
             return GenerateToken(account, false);
@@ -165,7 +156,8 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
 
         private async Task<JwtSecurityToken> VerifyToken(string token, bool isRefresh)
         {
-            var key = Encoding.UTF8.GetBytes(isRefresh ? REFRESH_SIGNER_KEY : ACCESS_SIGNER_KEY);
+            var key = Encoding.UTF8.GetBytes(isRefresh ? _jwtOptions.RefreshKey! : _jwtOptions.AccessKey);
+
             var securityKey = new SymmetricSecurityKey(key);
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -193,8 +185,8 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
                 }
                 else if (expiryTime < DateTime.UtcNow) throw new IdentityException(IdentityErrorCode.TOKEN_INVALID, StatusCodes.Status401Unauthorized);
 
-                var jwtID = jwtToken.Id;
-                var value = await _baseRedisService.GetAsync(jwtID);
+                var jwtId = jwtToken.Id;
+                var value = await _baseRedisService.GetAsync(jwtId);
 
                 if (value != null)
                 {
@@ -236,7 +228,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = jwtOptions.Issuer,
                 ValidAudiences = jwtOptions.Audiences,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(REFRESH_SIGNER_KEY)),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.RefreshKey!)),
                 ClockSkew = TimeSpan.Zero,
             };
 

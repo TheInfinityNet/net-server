@@ -71,6 +71,10 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("post_id");
 
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("profile_id");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
@@ -90,7 +94,7 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data.Migrations
             modelBuilder.Entity("InfinityNetServer.Services.Comment.Domain.Entities.Comment", b =>
                 {
                     b.HasOne("InfinityNetServer.Services.Comment.Domain.Entities.Comment", "ParentComment")
-                        .WithMany("repliesComments")
+                        .WithMany("RepliesComments")
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.NoAction);
 
@@ -99,7 +103,7 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("InfinityNetServer.Services.Comment.Domain.Entities.Comment", b =>
                 {
-                    b.Navigation("repliesComments");
+                    b.Navigation("RepliesComments");
                 });
 #pragma warning restore 612, 618
         }

@@ -52,8 +52,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
 
                 if (entry.State == EntityState.Added)
                 {
-                    if (entry.Entity.CreatedBy == null) 
-                        entry.Entity.CreatedBy = authenticationName;
+                    if (entry.Entity.CreatedBy == null) entry.Entity.CreatedBy = authenticationName;
                     entry.Entity.CreatedAt = DateTime.Now;
                     entry.Property(x => x.UpdatedBy).IsModified = false;
                     entry.Property(x => x.UpdatedAt).IsModified = false;
@@ -64,8 +63,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
                 {
                     if (entry.Entity.IsDeleted)
                     {
-                        if (entry.Entity.DeletedBy == Guid.Empty)
-                            entry.Entity.DeletedBy = authenticationName;
+                        if (entry.Entity.DeletedBy == Guid.Empty) entry.Entity.DeletedBy = authenticationName;
                         entry.Entity.DeletedAt = DateTime.Now;
                         entry.Property(x => x.CreatedBy).IsModified = false;
                         entry.Property(x => x.CreatedAt).IsModified = false;
@@ -74,8 +72,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
                     }
                     else
                     {
-                        if (entry.Entity.UpdatedBy == Guid.Empty)
-                            entry.Entity.UpdatedBy = authenticationName;
+                        if (entry.Entity.UpdatedBy == Guid.Empty) entry.Entity.UpdatedBy = authenticationName;
                         entry.Entity.UpdatedAt = DateTime.Now;
                         entry.Property(x => x.CreatedBy).IsModified = false;
                         entry.Property(x => x.CreatedAt).IsModified = false;

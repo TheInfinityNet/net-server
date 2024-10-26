@@ -1,4 +1,4 @@
-using InfinityNetServer.Services.Tag.Presentation.Configurations;
+using InfinityNetServer.Services.File.Presentation.Configurations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 

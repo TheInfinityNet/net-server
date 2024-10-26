@@ -17,9 +17,9 @@ namespace InfinityNetServer.Services.Relationship.Domain.Entities
         [Required]
         public InteractionType Type { get; set; } // Enum for "Follow", "Mute", "Block"
 
-        [Column("user_profile_id")]
+        [Column("profile_id")]
         [Required]
-        public Guid UserProfileId { get; set; } // Triggering profile (links to Profile service)
+        public Guid ProfileId { get; set; } // Triggering profile (links to Profile service)
 
         [Column("relate_profile_id")]
         [Required]
