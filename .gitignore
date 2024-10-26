@@ -679,3 +679,5 @@ ocelot.json
 /**/appsettings.Local.json
 
 Docker/grafana-stack/tempo/tempo-data/
+
+Docker/minio/infinity-net-minio-data/.minio.sys/
