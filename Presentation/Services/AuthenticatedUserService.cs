@@ -19,7 +19,10 @@ public class AuthenticatedUserService
     {
         try
         {
-            var user = httpContextAccessor.HttpContext!.User;
+            var user = httpContextAccessor.HttpContext?.User;
+
+            if (user == null) return null;
+
             if (user.Identity != null & user.Identity!.IsAuthenticated) 
                 return Guid.Parse(user.FindFirstValue("profile_id")!);
             

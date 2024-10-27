@@ -46,6 +46,8 @@ internal static class HostingExtensions
 
         builder.Services.AddMappers();
 
+        builder.Services.AddLocalization(builder.Configuration);
+
         builder.Services.AddGrpc();
 
         builder.Services.AddGrpcClients(builder.Configuration);
@@ -53,8 +55,6 @@ internal static class HostingExtensions
         builder.Services.AddCommonService();
 
         builder.Services.AddServices();
-
-        builder.Services.AddLocalization(builder.Configuration);
 
         //builder.Services.AddHealthChecks(builder.Configuration);
 

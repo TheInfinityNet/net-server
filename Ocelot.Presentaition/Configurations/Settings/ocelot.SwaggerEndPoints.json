@@ -50,7 +50,7 @@
         {
           "Name": "Post Service",
           "Version": "v1",
-          "Url": "https://localhost:60005/swagger/v1/swagger.json"
+          "Url": "http://localhost:60005/swagger/v1/swagger.json"
         }
       ]
     },
@@ -61,7 +61,7 @@
         {
           "Name": "Comment Service",
           "Version": "v1",
-          "Url": "https://localhost:60006/swagger/v1/swagger.json"
+          "Url": "http://localhost:60006/swagger/v1/swagger.json"
         }
       ]
     },

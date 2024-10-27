@@ -7,9 +7,11 @@
 
         Text,
 
-        Media,
+        Video,
 
-        AlbumMedia
+        Photo,
+
+        Audio
 
     }
 

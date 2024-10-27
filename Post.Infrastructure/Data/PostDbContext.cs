@@ -1,6 +1,9 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Services;
+﻿using System.Text.Json;
+using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL;
+using InfinityNetServer.Services.Post.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Configuration;
 
 namespace InfinityNetServer.Services.Post.Infrastructure.Data
@@ -32,6 +35,14 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
                 .WithMany(post => post.SubPosts)
                 .HasForeignKey(p => p.PresentationId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            var converter = new ValueConverter<Privacy, string>(
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null), // Chuyển đối tượng MyData thành chuỗi JSON
+                v => JsonSerializer.Deserialize<Privacy>(v, (JsonSerializerOptions)null) // Chuyển chuỗi JSON thành đối tượng MyData
+            );
+
+            post.Property(e => e.Privacy)
+                .HasConversion(converter);
         }
 
     }

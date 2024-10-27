@@ -2,6 +2,7 @@
 using InfinityNetServer.BuildingBlocks.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,7 +28,9 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseLazyLoadingProxies().UseNpgsql(_configuration.GetConnectionString("DefaultConnection"));
+            optionsBuilder.UseLazyLoadingProxies()
+                .UseNpgsql(_configuration.GetConnectionString("DefaultConnection"))
+                .LogTo(Console.WriteLine, LogLevel.Information); ;
         }
 
         public override int SaveChanges()
