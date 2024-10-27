@@ -86,6 +86,17 @@
           "Url": "http://localhost:60008/swagger/v1/swagger.json"
         }
       ]
+    },
+
+    {
+      "Key": "file",
+      "Config": [
+        {
+          "Name": "File Service",
+          "Version": "v1",
+          "Url": "http://localhost:60010/swagger/v1/swagger.json"
+        }
+      ]
     }
   ]
 }

@@ -1,6 +1,5 @@
 using InfinityNetServer.Services.File.Presentation.Configurations;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Hosting;
 
 namespace InfinityNetServer.Services.File.Presentation
 {

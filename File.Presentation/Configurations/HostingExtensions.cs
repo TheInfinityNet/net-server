@@ -24,6 +24,9 @@ using InfinityNetServer.Services.File.Infrastructure.DependencyInjection;
 using InfinityNetServer.Services.File.Application;
 using InfinityNetServer.Services.File.Presentation.Services;
 using InfinityNetServer.Services.File.Presentation.Exceptions;
+using Elastic.CommonSchema;
+using InfinityNetServer.BuildingBlocks.Infrastructure.Redis;
+using InfinityNetServer.Services.File.Infrastructure.Minio;
 
 namespace InfinityNetServer.Services.File.Presentation.Configurations;
 
@@ -38,27 +41,31 @@ internal static class HostingExtensions
 
         builder.Services.AddHttpContextAccessor();
 
+        builder.Services.AddDbContext();
+
+        builder.Services.AddMessageBus(builder.Configuration);
+
+        builder.Services.AddRedisConnection(builder.Configuration);
+
+        builder.Services.AddMinioClient(builder.Configuration);
+
+        builder.Services.AddRepositories();
+
+        builder.Services.AddMappers();
+
+        builder.Services.AddGrpc();
+
+        builder.Services.AddGrpcClients(builder.Configuration);
+
         builder.Services.AddCommonService();
 
         builder.Services.AddServices();
 
-        builder.Services.AddMappers();
-
-        builder.Services.AddDbContext();
-
-        builder.Services.AddRepositories();
-
-        builder.Services.AddGrpc();
-
         builder.Services.AddLocalization(builder.Configuration);
-
-        builder.Services.AddMessageBus(builder.Configuration);
 
         //builder.Services.AddHealthChecks(builder.Configuration);
 
         builder.Services.AddControllers();
-
-        builder.Services.AddGrpcClients(builder.Configuration);
 
         builder.Services.AddEndpointsApiExplorer();
 
