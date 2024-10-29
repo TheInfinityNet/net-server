@@ -16,8 +16,10 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    picture_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    cover_picture_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    account_id = table.Column<Guid>(type: "uuid", maxLength: 50, nullable: false),
+                    avatar_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    cover_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    mobile_number = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     type = table.Column<int>(type: "integer", nullable: false),
                     status = table.Column<int>(type: "integer", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
@@ -38,7 +40,6 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    owner_id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     description = table.Column<string>(type: "text", nullable: true)
                 },
@@ -58,9 +59,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    account_id = table.Column<Guid>(type: "uuid", maxLength: 50, nullable: false),
                     username = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    mobile_number = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     first_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     middle_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     last_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
@@ -78,12 +77,6 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_user_profiles_mobile_number",
-                table: "user_profiles",
-                column: "mobile_number",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_user_profiles_username",

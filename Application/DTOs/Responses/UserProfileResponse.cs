@@ -13,7 +13,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses
 
         public string LastName { get; set; }
 
-        public DateOnly Birthdate { get; set; }
+        public DateOnly? Birthdate { get; set; }
 
         public string Gender { get; set; }
 

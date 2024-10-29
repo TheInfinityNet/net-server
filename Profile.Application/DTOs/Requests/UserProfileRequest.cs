@@ -22,6 +22,7 @@ namespace InfinityNetServer.Services.Profile.Application.DTOs.Requests
         [StringLength(100, MinimumLength = 1, ErrorMessage = "size_last_name")]
         public string LastName { get; set; }
 
+        [Required(ErrorMessage = "null_birthdate")]
         public DateOnly Birthdate { get; set; }
 
         public string Gender { get; set; }

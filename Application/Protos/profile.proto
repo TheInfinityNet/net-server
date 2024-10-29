@@ -18,23 +18,33 @@ message GetProfileRequest {
 
 message UserProfileResponse {
 
-	string username = 1;
+	string id = 1;
 
-	string firstName = 2;
+	string username = 2;
 
-	string middleName = 3;
+	string firstName = 3;
 
-	string lastName = 4;
+	string middleName = 4;
 
-	string name = 5;
+	string lastName = 5;
 
-	string mobileNumber = 6;
+	string name = 6;
 
-	google.protobuf.Timestamp birthdate = 7;
+	string mobileNumber = 7;
 
-	Gender gender = 8;
+	google.protobuf.Timestamp birthdate = 8;
 
-	ProfileStatus status = 9;
+	Gender gender = 9;
+
+	ProfileStatus status = 10;
+
+	google.protobuf.Timestamp createdAt = 11;
+
+	google.protobuf.Timestamp updatedAt = 12;
+
+	google.protobuf.Timestamp deletedAt = 13;
+
+	ProfileType type = 14;
 
 }
 

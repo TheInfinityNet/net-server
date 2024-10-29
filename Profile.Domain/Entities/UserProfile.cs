@@ -28,6 +28,7 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         [Column("last_name")]
         public string LastName { get; set; }
 
+        [Required]
         [Column("birthdate")]
         public DateOnly Birthdate { get; set; }
 

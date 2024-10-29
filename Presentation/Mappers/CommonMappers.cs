@@ -22,6 +22,9 @@ public class CommonMappers : Profile
             {
                 dest.Gender = src.Gender.ToString(); // Chuyển enum sang string
                 dest.Status = src.Status.ToString(); // Chuyển enum sang string
+                dest.CreatedAt = dest.CreatedAt.ToLocalTime();
+                dest.UpdatedAt = dest.UpdatedAt?.ToLocalTime();
+                dest.DeletedAt = dest.DeletedAt?.ToLocalTime();
             });
 
         CreateMap<Application.Protos.AccountWithDefaultProfile, Application.DTOs.Others.AccountWithDefaultProfile>();

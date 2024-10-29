@@ -6,9 +6,9 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses
     public abstract class BaseProfileResponse
     {
 
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
-        public string AccountId { get; set; }
+        public Guid AccountId { get; set; }
 
         public string Email { get; set; }
 

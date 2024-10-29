@@ -50,8 +50,8 @@ public static class DbInitialization
             var userProfiles = await GenerateUserProfiles(identityClient);
             await userProfileRepository.CreateAsync(userProfiles);
 
-            var profiles = await GeneratePageProfiles(numberOfProfiles, identityClient);
-            await pageRepository.CreateAsync(profiles);
+            var pageProfiles = await GeneratePageProfiles(numberOfProfiles, identityClient);
+            await pageRepository.CreateAsync(pageProfiles);
         }
     }
 
@@ -66,7 +66,8 @@ public static class DbInitialization
                 return new PageProfile
                 {
                     Type = ProfileType.Page,
-                    OwnerId = randomAccountId,
+                    MobileNumber = f.Phone.PhoneNumber(),
+                    AccountId = randomAccountId,
                     CreatedBy = randomAccountId
                 };
             })

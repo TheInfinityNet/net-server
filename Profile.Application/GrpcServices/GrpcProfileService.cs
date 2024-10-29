@@ -51,7 +51,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
         {
             _logger.LogInformation("Received get user profile ids request");
             var response = new GetUserProfileIdsResponse();
-            var userProfiles = await _profileRepository.GetByType(ProfileType.User);
+            var userProfiles = await _profileRepository.GetByType(BuildingBlocks.Domain.Enums.ProfileType.User);
             response.Ids.AddRange(userProfiles.Select(p => p.Id.ToString()).ToList());
 
             return await Task.FromResult(response);
@@ -61,7 +61,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
         {
             _logger.LogInformation("Received get page profile ids request");
             var response = new GetPageProfileIdsResponse();
-            var pageProfiles = await _profileRepository.GetByType(ProfileType.Page);
+            var pageProfiles = await _profileRepository.GetByType(BuildingBlocks.Domain.Enums.ProfileType.Page);
             response.Ids.AddRange(pageProfiles.Select(p => p.Id.ToString()).ToList());
 
             return await Task.FromResult(response);

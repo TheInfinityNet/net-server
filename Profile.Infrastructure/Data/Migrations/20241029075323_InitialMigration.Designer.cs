@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ProfileDbContext))]
-    [Migration("20241019124617_InitialMigration")]
+    [Migration("20241029075323_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -35,9 +35,18 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid?>("CoverPictureId")
+                    b.Property<Guid>("AccountId")
+                        .HasMaxLength(50)
                         .HasColumnType("uuid")
-                        .HasColumnName("cover_picture_id");
+                        .HasColumnName("account_id");
+
+                    b.Property<Guid?>("AvatarId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("avatar_id");
+
+                    b.Property<Guid?>("CoverId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("cover_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone")
@@ -61,9 +70,15 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<Guid?>("PictureId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("picture_id");
+                    b.Property<string>("MobileNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("mobile_number");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer")
@@ -99,21 +114,12 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
-                    b.Property<Guid>("OwnerId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("owner_id");
-
                     b.ToTable("page_profiles");
                 });
 
             modelBuilder.Entity("InfinityNetServer.Services.Profile.Domain.Entities.UserProfile", b =>
                 {
                     b.HasBaseType("InfinityNetServer.Services.Profile.Domain.Entities.Profile");
-
-                    b.Property<Guid>("AccountId")
-                        .HasMaxLength(50)
-                        .HasColumnType("uuid")
-                        .HasColumnName("account_id");
 
                     b.Property<string>("Bio")
                         .HasColumnType("text")
@@ -144,12 +150,6 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("middle_name");
-
-                    b.Property<string>("MobileNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("mobile_number");
 
                     b.Property<string>("Username")
                         .IsRequired()
