@@ -54,6 +54,10 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("deleted_by");
 
+                    b.Property<Guid?>("FileMetadataId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("file_metadata_id");
+
                     b.Property<Guid?>("GroupId")
                         .HasColumnType("uuid")
                         .HasColumnName("group_id");
@@ -61,10 +65,6 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
-
-                    b.Property<Guid?>("MediaId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("media_id");
 
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uuid")
@@ -78,8 +78,9 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("presentation_id");
 
-                    b.Property<int>("Privacy")
-                        .HasColumnType("integer")
+                    b.Property<string>("Privacy")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
                         .HasColumnName("privacy");
 
                     b.Property<int>("Type")

@@ -2,12 +2,13 @@
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Profile.Domain.Entities;
-using InfinityNetServer.Services.Profile.Domain.Enums;
 using InfinityNetServer.Services.Profile.Domain.Repositories;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace InfinityNetServer.Services.Profile.Infrastructure.Data;
 
@@ -23,10 +24,22 @@ public static class DbInitialization
         dbContext.Database.EnsureDeleted();
     }
 
+    public static void AutoMigration(this WebApplication webApplication)
+    {
+        using var serviceScope = webApplication.Services.CreateScope();
+
+        var dbContext = serviceScope.ServiceProvider.GetRequiredService<ProfileDbContext>();
+
+        if (!dbContext.Database.EnsureCreated()) return;
+
+        dbContext.Database.MigrateAsync().Wait(); //generate all in folder Migration
+
+    }
+
     public static async void SeedEssentialData(this IServiceProvider serviceProvider, int numberOfProfiles)
     {
         using var serviceScope = serviceProvider.CreateScope();
-        var dbContext = serviceScope.ServiceProvider.GetService<ProfileDbContext>();
+        serviceScope.ServiceProvider.GetService<ProfileDbContext>();
         var pageRepository = serviceScope.ServiceProvider.GetService<IPageProfileRepository>();
         var userProfileRepository = serviceScope.ServiceProvider.GetService<IUserProfileRepository>();
         var identityClient = serviceScope.ServiceProvider.GetService<CommonIdentityClient>();
@@ -37,8 +50,8 @@ public static class DbInitialization
             var userProfiles = await GenerateUserProfiles(identityClient);
             await userProfileRepository.CreateAsync(userProfiles);
 
-            var profiles = await GeneratePageProfiles(numberOfProfiles, identityClient);
-            await pageRepository.CreateAsync(profiles);
+            var pageProfiles = await GeneratePageProfiles(numberOfProfiles, identityClient);
+            await pageRepository.CreateAsync(pageProfiles);
         }
     }
 
@@ -53,7 +66,8 @@ public static class DbInitialization
                 return new PageProfile
                 {
                     Type = ProfileType.Page,
-                    OwnerId = randomAccountId,
+                    MobileNumber = f.Phone.PhoneNumber(),
+                    AccountId = randomAccountId,
                     CreatedBy = randomAccountId
                 };
             })

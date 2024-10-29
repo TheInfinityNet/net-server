@@ -14,6 +14,10 @@ namespace InfinityNetServer.Services.Comment.Domain.Entities
         public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
+        [Column("profile_id")]
+        public Guid ProfileId { get; set; } // Link to Profile service
+
+        [Required]
         [Column("post_id")]
         public Guid PostId { get; set; } // Link to Post service
 
@@ -30,7 +34,7 @@ namespace InfinityNetServer.Services.Comment.Domain.Entities
         [ForeignKey("ParentId")]
         public virtual Comment? ParentComment { get; set; } = null;
 
-        public virtual ICollection<Comment> repliesComments { get; set; } = new List<Comment>();
+        public virtual ICollection<Comment> RepliesComments { get; set; } = new List<Comment>();
 
     }
 }

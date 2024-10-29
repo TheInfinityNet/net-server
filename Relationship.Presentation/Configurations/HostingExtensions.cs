@@ -38,27 +38,27 @@ internal static class HostingExtensions
 
         builder.Services.AddHttpContextAccessor();
 
+        builder.Services.AddDbContext();
+
+        builder.Services.AddMessageBus(builder.Configuration);
+
+        builder.Services.AddRepositories();
+
+        builder.Services.AddMappers();
+
+        builder.Services.AddLocalization(builder.Configuration);
+
+        builder.Services.AddGrpc();
+
+        builder.Services.AddGrpcClients(builder.Configuration);
+
         builder.Services.AddCommonService();
 
         builder.Services.AddServices();
 
-        builder.Services.AddMappers();
-
-        builder.Services.AddDbContext();
-
-        builder.Services.AddRepositories();
-
-        builder.Services.AddGrpc();
-
-        builder.Services.AddLocalization(builder.Configuration);
-
-        builder.Services.AddMessageBus(builder.Configuration);
-
         //builder.Services.AddHealthChecks(builder.Configuration);
 
         builder.Services.AddControllers();
-
-        builder.Services.AddGrpcClients(builder.Configuration);
 
         builder.Services.AddEndpointsApiExplorer();
 
@@ -123,6 +123,8 @@ internal static class HostingExtensions
         app.UseAuthentication();
 
         app.UseAuthorization();
+
+        //app.AutoMigration();
 
         app.Services.SeedEssentialData();
 

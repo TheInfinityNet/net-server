@@ -58,6 +58,10 @@ namespace InfinityNetServer.Services.Reaction.Infrastructure.Data.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("profile_id");
+
                     b.Property<int>("Type")
                         .HasColumnType("integer")
                         .HasColumnName("type");
@@ -73,7 +77,7 @@ namespace InfinityNetServer.Services.Reaction.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedBy", "CommentId")
+                    b.HasIndex("CreatedBy", "ProfileId", "CommentId")
                         .IsUnique();
 
                     b.ToTable("comment_reactions");
@@ -112,6 +116,10 @@ namespace InfinityNetServer.Services.Reaction.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("post_id");
 
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("profile_id");
+
                     b.Property<int>("Type")
                         .HasColumnType("integer")
                         .HasColumnName("type");
@@ -127,7 +135,7 @@ namespace InfinityNetServer.Services.Reaction.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedBy", "PostId")
+                    b.HasIndex("CreatedBy", "ProfileId", "PostId")
                         .IsUnique();
 
                     b.ToTable("post_reactions");

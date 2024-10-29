@@ -13,3 +13,23 @@ enum Gender {
     Other = 2;
 
 }
+
+enum ProfileType {
+
+	Page = 0;
+
+	User = 1;
+
+}
+
+enum ProfileStatus {
+
+    Active = 0;
+
+	Inactive = 1;
+
+	Locked = 2;
+
+	Deleted = 3;
+
+}

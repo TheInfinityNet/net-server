@@ -8,6 +8,8 @@ using MassTransit;
 using InfinityNetServer.Services.Identity.Domain.Repositories;
 using InfinityNetServer.BuildingBlocks.Domain.Repositories;
 using InfinityNetServer.Services.Identity.Application.Helpers;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 
 namespace InfinityNetServer.Services.Identity.Infrastructure.Data;
 
@@ -23,14 +25,25 @@ public static class DbInitialization
         dbContext.Database.EnsureDeleted();
     }
 
+    public static void AutoMigration(this WebApplication webApplication)
+    {
+        using var serviceScope = webApplication.Services.CreateScope();
+
+        var dbContext = serviceScope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+
+        if (!dbContext.Database.EnsureCreated()) return;
+
+        dbContext.Database.MigrateAsync().Wait(); //generate all in folder Migration
+
+    }
+
     public static async void SeedEssentialData(this IServiceProvider serviceProvider, int numberOfAccounts)
     {
         using var serviceScope = serviceProvider.CreateScope();
-        var dbContext = serviceScope.ServiceProvider.GetService<IdentityDbContext>();
+        serviceScope.ServiceProvider.GetService<IdentityDbContext>();
         var accountRepository = serviceScope.ServiceProvider.GetService<IAccountRepository>();
         var accountProviderRepository = serviceScope.ServiceProvider.GetService<ILocalProviderRepository>();
         var verificationRepository = serviceScope.ServiceProvider.GetService<IVerificationRepository>();
-        var _publishEndpoint = serviceScope.ServiceProvider.GetService<IPublishEndpoint>();
 
         var existingAccountCount = await accountRepository.GetAllAsync();
         if (existingAccountCount.Count == 0)

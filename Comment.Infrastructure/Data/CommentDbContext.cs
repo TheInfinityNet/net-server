@@ -5,18 +5,14 @@ using Microsoft.Extensions.Configuration;
 
 namespace InfinityNetServer.Services.Comment.Infrastructure.Data
 {
-    public class CommentDbContext : PostreSqlDbContext<CommentDbContext>
+    public class CommentDbContext(
+        DbContextOptions<CommentDbContext> options,
+        IConfiguration configuration,
+        IAuthenticatedUserService authenticatedUserService) 
+        : PostreSqlDbContext<CommentDbContext>(options, configuration, authenticatedUserService)
     {
 
-        DbSet<Domain.Entities.Comment> comments { get; set; }
-
-        public CommentDbContext(
-            DbContextOptions<CommentDbContext> options,
-            IConfiguration configuration,
-            IAuthenticatedUserService authenticatedUserService) : base(options, configuration, authenticatedUserService)
-        {
-
-        }
+        DbSet<Domain.Entities.Comment> Comments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,7 +20,7 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data
 
             comment
                 .HasOne(c => c.ParentComment)
-                .WithMany(c => c.repliesComments)
+                .WithMany(c => c.RepliesComments)
                 .HasForeignKey(c => c.ParentId)
                 .OnDelete(DeleteBehavior.NoAction);
         }

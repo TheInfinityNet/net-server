@@ -26,8 +26,6 @@ using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Grpc;
 using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
 using InfinityNetServer.Services.Profile.Presentation.Mappers;
 using InfinityNetServer.BuildingBlocks.Presentation.Services;
-using Elastic.CommonSchema;
-using Grpc.AspNetCore.Web;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Configurations;
 
@@ -42,27 +40,27 @@ internal static class HostingExtensions
 
         builder.Services.AddHttpContextAccessor();
 
+        builder.Services.AddDbContext();
+
+        builder.Services.AddMessageBus(builder.Configuration, typeof(ProfileCreatedConsumer));
+
+        builder.Services.AddRepositories();
+
+        builder.Services.AddMappers(typeof(ProfileMapper));
+
+        builder.Services.AddLocalization(builder.Configuration);
+
+        builder.Services.AddGrpc();
+
+        builder.Services.AddGrpcClients(builder.Configuration);
+
         builder.Services.AddCommonService();
 
         builder.Services.AddServices();
 
-        builder.Services.AddMappers(typeof(ProfileMapper));
-
-        builder.Services.AddDbContext();
-
-        builder.Services.AddRepositories();
-
-        builder.Services.AddGrpc();
-
-        builder.Services.AddLocalization(builder.Configuration);
-
-        builder.Services.AddMessageBus(builder.Configuration, typeof(ProfileCreatedConsumer));
-
         //builder.Services.AddHealthChecks(builder.Configuration);
 
         builder.Services.AddControllers();
-
-        builder.Services.AddGrpcClients(builder.Configuration);
 
         builder.Services.AddEndpointsApiExplorer();
 
@@ -127,6 +125,8 @@ internal static class HostingExtensions
         app.UseAuthentication();
 
         app.UseAuthorization();
+
+        //app.AutoMigration();
 
         app.Services.SeedEssentialData(50);
 

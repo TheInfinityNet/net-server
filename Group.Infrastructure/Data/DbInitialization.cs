@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using InfinityNetServer.Services.Group.Domain.Repositories;
 using InfinityNetServer.Services.Group.Domain.Entities;
 using InfinityNetServer.Services.Group.Domain.Enums;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 
 namespace InfinityNetServer.Services.Group.Infrastructure.Data;
 
@@ -22,58 +24,67 @@ public static class DbInitialization
         dbContext.Database.EnsureDeleted();
     }
 
+    public static void AutoMigration(this WebApplication webApplication)
+    {
+        using var serviceScope = webApplication.Services.CreateScope();
+
+        var dbContext = serviceScope.ServiceProvider.GetRequiredService<GroupDbContext>();
+
+        if (!dbContext.Database.EnsureCreated()) return;
+
+        dbContext.Database.MigrateAsync().Wait(); //generate all in folder Migration
+
+    }
+
     public static async void SeedEssentialData(this IServiceProvider serviceProvider, int numberOfGroups)
     {
         using var serviceScope = serviceProvider.CreateScope();
-        var dbContext = serviceScope.ServiceProvider.GetService<GroupDbContext>();
+        serviceScope.ServiceProvider.GetService<GroupDbContext>();
         var groupRepository = serviceScope.ServiceProvider.GetService<IGroupRepository>();
         var groupMemberRepository = serviceScope.ServiceProvider.GetService<IGroupMemberRepository>();
-        var identityClient = serviceScope.ServiceProvider.GetService<CommonIdentityClient>();
         var profileClient = serviceScope.ServiceProvider.GetService<CommonProfileClient>();
 
         var existingGroupCount = await groupRepository.GetAllAsync();
         if (existingGroupCount.Count == 0)
         {
-            var groups = await GenerateGroups(numberOfGroups, identityClient);
+            var groups = await GenerateGroups(numberOfGroups, profileClient);
             await groupRepository.CreateAsync(groups);
 
             Faker faker = new Faker();
-            var groupMembers = await GenerateGroupMembers(identityClient, groupRepository);
+            var groupMembers = await GenerateGroupMembers(profileClient, groupRepository);
             await groupMemberRepository.CreateAsync(groupMembers);
         }
     }
 
-    private static async Task<List<Domain.Entities.Group>> GenerateGroups(
-        int count,
-        CommonIdentityClient identityClient)
+    private static async Task<List<Domain.Entities.Group>> GenerateGroups(int count, CommonProfileClient profileClient)
     {
-        var accountWithDefaultProfiles = await identityClient.GetAccountsWithDefaultProfiles();
+        var userProfileIds = await profileClient.GetUserProfileIds();
         
         var faker = new Faker<Domain.Entities.Group>()
             .CustomInstantiator(f =>
             {
-                var randomAccountWithDefaultProfile = f.PickRandom(accountWithDefaultProfiles);
+                var randomUserProfile = f.PickRandom(userProfileIds);
                 return new Domain.Entities.Group
                 {
                     Name = f.Lorem.Sentence(3),
                     Description = f.Lorem.Sentence(50),
-                    OwnerId = Guid.Parse(randomAccountWithDefaultProfile.DefaultUserProfileId),
-                    CreatedBy = Guid.Parse(randomAccountWithDefaultProfile.Id)
+                    OwnerId = Guid.Parse(randomUserProfile),
+                    CreatedBy = Guid.Parse(randomUserProfile)
                 };
             });
 
         return faker.Generate(count);
     }
 
-    private static async Task<List<GroupMember>> GenerateGroupMembers(CommonIdentityClient identityClient, IGroupRepository groupRepository)
+    private static async Task<List<GroupMember>> GenerateGroupMembers(CommonProfileClient profileClient, IGroupRepository groupRepository)
     {
-        var accountWithDefaultProfiles = await identityClient.GetAccountsWithDefaultProfiles();
+        var userProfileIds = await profileClient.GetUserProfileIds();
         var groups = await groupRepository.GetAllAsync();
 
         var faker = new Faker();
 
         // Sử dụng HashSet để kiểm tra cặp profileId và groupId duy nhất
-        var uniquePairs = new HashSet<(Guid ProfileId, Guid GroupId)>();
+        var uniquePairs = new HashSet<(Guid UserProfileId, Guid GroupId)>();
         var groupMembers = new List<GroupMember>();
 
         foreach (var group in groups)
@@ -83,10 +94,10 @@ public static class DbInitialization
 
             for (int i = 0; i < memberCount; i++)
             {
-                var randomAccountWithDefaultProfile = faker.PickRandom(accountWithDefaultProfiles);
+                var randomUserProfile = faker.PickRandom(userProfileIds);
                 var randomGroup = faker.PickRandom(groups);
 
-                var userProfileId = Guid.Parse(randomAccountWithDefaultProfile.DefaultUserProfileId);
+                var userProfileId = Guid.Parse(randomUserProfile);
 
                 // Kiểm tra nếu cặp (profileId, groupId) đã tồn tại trong HashSet
                 if (!uniquePairs.Contains((userProfileId, randomGroup.Id)))
@@ -99,7 +110,7 @@ public static class DbInitialization
                         Role = faker.PickRandom<GroupMemberRole>(), // Enum for roles
                         Group = randomGroup,
                         UserProfileId = userProfileId,
-                        CreatedBy = Guid.Parse(randomAccountWithDefaultProfile.Id)
+                        CreatedBy = userProfileId
                     };
                     groupMembers.Add(member);
                 }

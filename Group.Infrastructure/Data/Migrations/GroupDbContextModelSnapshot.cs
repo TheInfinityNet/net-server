@@ -134,7 +134,7 @@ namespace InfinityNetServer.Services.Group.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GroupId", "UserProfileId")
+                    b.HasIndex("GroupId", "UserProfileId", "CreatedBy")
                         .IsUnique();
 
                     b.ToTable("groups_members");

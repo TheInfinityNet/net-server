@@ -6,26 +6,22 @@ using Microsoft.Extensions.Configuration;
 
 namespace InfinityNetServer.Services.Group.Infrastructure.Data
 {
-    public class GroupDbContext : PostreSqlDbContext<GroupDbContext>
+    public class GroupDbContext(
+        DbContextOptions<GroupDbContext> options,
+        IConfiguration configuration,
+        IAuthenticatedUserService authenticatedUserService) 
+        : PostreSqlDbContext<GroupDbContext>(options, configuration, authenticatedUserService)
     {
 
         public DbSet<Domain.Entities.Group> Groups { get; set; }
 
         public DbSet<GroupMember> GroupMembers { get; set; }
 
-        public GroupDbContext(
-            DbContextOptions<GroupDbContext> options,
-            IConfiguration configuration,
-            IAuthenticatedUserService authenticatedUserService) : base(options, configuration, authenticatedUserService)
-        {
-
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var groupMember = modelBuilder.Entity<GroupMember>();
             groupMember
-                .HasIndex(i => new { i.GroupId, i.UserProfileId })
+                .HasIndex(i => new { i.GroupId, i.UserProfileId, i.CreatedBy })
                 .IsUnique();
             groupMember
                 .HasOne(gm => gm.Group)

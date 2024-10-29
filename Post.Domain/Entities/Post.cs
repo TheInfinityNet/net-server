@@ -18,8 +18,8 @@ namespace InfinityNetServer.Services.Post.Domain.Entities
         public string Content { get; set; } = string.Empty;
 
         [Required]
-        [Column("privacy")]
-        public Privacy Privacy { get; set; }
+        [Column("privacy", TypeName = "jsonb")]
+        public Privacy Privacy { get; set; } = new ();
 
         [Required]
         [Column("post_type")]
@@ -38,8 +38,8 @@ namespace InfinityNetServer.Services.Post.Domain.Entities
         [Column("group_id")]
         public Guid? GroupId { get; set; } = null; // Link to Group service
 
-        [Column("media_id")]
-        public Guid? MediaId { get; set; } = null; // Link to File service
+        [Column("file_metadata_id")]
+        public Guid? FileMetadataId { get; set; } = null; // Link to File service
 
         [ForeignKey("ParentId")]
         public virtual Post Parent { get; set; } = null;

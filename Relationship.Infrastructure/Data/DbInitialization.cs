@@ -3,12 +3,12 @@ using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.Services.Relationship.Domain.Entities;
 using InfinityNetServer.Services.Relationship.Domain.Enums;
 using InfinityNetServer.Services.Relationship.Domain.Repositories;
-using MassTransit.Initializers;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace InfinityNetServer.Services.Relationship.Infrastructure.Data;
 
@@ -24,33 +24,43 @@ public static class DbInitialization
         dbContext.Database.EnsureDeleted();
     }
 
+    public static void AutoMigration(this WebApplication webApplication)
+    {
+        using var serviceScope = webApplication.Services.CreateScope();
+
+        var dbContext = serviceScope.ServiceProvider.GetRequiredService<RelationshipDbContext>();
+
+        if (!dbContext.Database.EnsureCreated()) return;
+
+        dbContext.Database.MigrateAsync().Wait(); //generate all in folder Migration
+
+    }
+
     public static async void SeedEssentialData(this IServiceProvider serviceProvider)
     {
         using var serviceScope = serviceProvider.CreateScope();
-        var dbContext = serviceScope.ServiceProvider.GetService<RelationshipDbContext>();
+        serviceScope.ServiceProvider.GetService<RelationshipDbContext>();
         var friendshipRepository = serviceScope.ServiceProvider.GetService<IFriendshipRepository>();
         var interactionRepository = serviceScope.ServiceProvider.GetService<IInteractionRepository>();
-        var identityClient = serviceScope.ServiceProvider.GetService<CommonIdentityClient>();
         var profileClient = serviceScope.ServiceProvider.GetService<CommonProfileClient>();
 
         var existingFriendshipCount = await friendshipRepository.GetAllAsync();
         if (existingFriendshipCount.Count == 0)
         {
-            var Friendships = await GenerateFriendships(identityClient);
-            await friendshipRepository.CreateAsync(Friendships);
+            var friendships = await GenerateFriendships(profileClient);
+            await friendshipRepository.CreateAsync(friendships);
 
             var userInteractions = await GenerateUserInteractions(friendshipRepository);
             await interactionRepository.CreateAsync(userInteractions);
 
-            var pageInteractions = await GeneratePageInteractions(identityClient, profileClient);
+            var pageInteractions = await GeneratePageInteractions(profileClient);
             await interactionRepository.CreateAsync(pageInteractions);
         }
     }
 
-    private static async Task<List<Friendship>> GenerateFriendships(CommonIdentityClient identityClient)
+    private static async Task<List<Friendship>> GenerateFriendships(CommonProfileClient profileClient)
     {
-        var accountWithProfileIds = await identityClient.GetAccountsWithDefaultProfiles();
-
+        var userProfileIds = await profileClient.GetUserProfileIds();
         var uniqueFriendships = new HashSet<(Guid SenderId, Guid ReceiverId)>();
         var friendships = new List<Friendship>();
 
@@ -58,12 +68,12 @@ public static class DbInitialization
             .RuleFor(f => f.Id, f => Guid.NewGuid())
             .CustomInstantiator(f =>
             {
-                var randomAccountWithProfileId = f.PickRandom(accountWithProfileIds);
+                var randomProfileId = f.PickRandom(userProfileIds);
                 return new Friendship
                 {
-                    CreatedBy = Guid.Parse(randomAccountWithProfileId.Id),
+                    CreatedBy = Guid.Parse(randomProfileId),
                     Status = FriendshipStatus.Accepted,
-                    SenderId = Guid.Parse(randomAccountWithProfileId.DefaultUserProfileId)
+                    SenderId = Guid.Parse(randomProfileId)
                 };
             })
             .RuleFor(f => f.ReceiverId, (f, friendship) =>
@@ -72,7 +82,7 @@ public static class DbInitialization
                 int attempts = 0;
                 do
                 {
-                    receiverId = Guid.Parse(f.PickRandom(accountWithProfileIds).DefaultUserProfileId);
+                    receiverId = Guid.Parse(f.PickRandom(userProfileIds));
                     attempts++;
                     if (attempts > 10) // Tránh vòng lặp vô tận nếu không tìm thấy cặp duy nhất
                     {
@@ -92,7 +102,8 @@ public static class DbInitialization
             });
 
         // Chọn số lượng mối quan hệ tình bạn ngẫu nhiên
-        var maxFriendships = (new Faker()).Random.Int(20, Math.Min(accountWithProfileIds.Count * (accountWithProfileIds.Count - 1) / 2, 100)); // Tối đa 100 mối quan hệ
+        var maxFriendships = (new Faker()).Random.Int(20, 
+            Math.Min(userProfileIds.Count * (userProfileIds.Count - 1) / 2, 100)); // Tối đa 100 mối quan hệ
 
         for (int i = 0; i < maxFriendships; i++)
         {
@@ -130,7 +141,7 @@ public static class DbInitialization
                 {
                     CreatedBy = randomFriendship.CreatedBy,
                     Type = InteractionType.Follow,
-                    UserProfileId = randomFriendship.SenderId,
+                    ProfileId = randomFriendship.SenderId,
                     RelateProfileId = randomFriendship.ReceiverId
                 };
             });
@@ -147,9 +158,9 @@ public static class DbInitialization
         return interactions;
     }
 
-    private static async Task<List<Interaction>> GeneratePageInteractions(CommonIdentityClient identityClient, CommonProfileClient profileClient)
+    private static async Task<List<Interaction>> GeneratePageInteractions(CommonProfileClient profileClient)
     {
-        var accountWithProfileIds = await identityClient.GetAccountsWithDefaultProfiles();
+        var userProfileIds = await profileClient.GetUserProfileIds();
         var pageProfileIds = await profileClient.GetPageProfileIds();
 
         var uniqueInteractions = new HashSet<(Guid UserProfileId, Guid RelateProfileId)>();
@@ -159,13 +170,13 @@ public static class DbInitialization
             .RuleFor(i => i.Type, f => f.PickRandom<InteractionType>())
             .CustomInstantiator(f =>
             {
-                var randomAccountWithProfileId = f.PickRandom(accountWithProfileIds);
-                var randomAccountId = Guid.Parse(randomAccountWithProfileId.Id);
-                var randomUserProfileId = Guid.Parse(randomAccountWithProfileId.DefaultUserProfileId);
+                var randomProfileId = f.PickRandom(userProfileIds);
+                var randomAccountId = Guid.Parse(randomProfileId);
+                var randomUserProfileId = Guid.Parse(randomProfileId);
                 return new Interaction
                 {
                     CreatedBy = randomAccountId,
-                    UserProfileId = randomUserProfileId
+                    ProfileId = randomUserProfileId
                 };
             })
             .RuleFor(i => i.Type, InteractionType.Follow)
@@ -182,11 +193,11 @@ public static class DbInitialization
 
                     if (attempts > maxAttempts) break;
 
-                } while (relateUserProfileId == interaction.UserProfileId ||
-                         uniqueInteractions.Contains((interaction.UserProfileId, relateUserProfileId)) ||
-                         uniqueInteractions.Contains((relateUserProfileId, interaction.UserProfileId)));
+                } while (relateUserProfileId == interaction.ProfileId ||
+                         uniqueInteractions.Contains((interaction.ProfileId, relateUserProfileId)) ||
+                         uniqueInteractions.Contains((relateUserProfileId, interaction.ProfileId)));
 
-                uniqueInteractions.Add((interaction.UserProfileId, relateUserProfileId));
+                uniqueInteractions.Add((interaction.ProfileId, relateUserProfileId));
                 return relateUserProfileId;
             });
 

@@ -20,17 +20,17 @@ public static class GrpcExtensions
     {
         services.AddGrpcClient<IdentityService.IdentityServiceClient>(options =>
         {
-            options.Address = new Uri(configuration["GrpcServers:IdentityService"]);
+            options.Address = new Uri(configuration["GrpcServers:IdentityService"]!);
         });
 
         services.AddGrpcClient<ProfileService.ProfileServiceClient>(options =>
         {
-            options.Address = new Uri(configuration["GrpcServers:ProfileService"]);
+            options.Address = new Uri(configuration["GrpcServers:ProfileService"]!);
         });
 
         services.AddScoped(typeof(CommonIdentityClient));
 
-        //services.AddScoped(typeof(ProfileClient));
+        services.AddScoped(typeof(CommonProfileClient));
     }
 
 }

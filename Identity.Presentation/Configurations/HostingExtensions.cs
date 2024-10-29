@@ -42,23 +42,25 @@ internal static class HostingExtensions
 
         builder.Services.AddHttpContextAccessor();
 
-        builder.Services.AddCommonService();
-
-        builder.Services.AddServices();
-
-        builder.Services.AddMappers();
-
         builder.Services.AddDbContext();
-
-        builder.Services.AddRepositories();
 
         builder.Services.AddMessageBus(builder.Configuration);
 
         builder.Services.AddRedisConnection(builder.Configuration);
 
-        builder.Services.AddGrpc();
+        builder.Services.AddRepositories();
+
+        builder.Services.AddMappers();
 
         builder.Services.AddLocalization(builder.Configuration);
+
+        builder.Services.AddGrpc();
+
+        builder.Services.AddGrpcClients(builder.Configuration);
+
+        builder.Services.AddCommonService();
+
+        builder.Services.AddServices();
 
         //builder.Services.AddHealthChecks(builder.Configuration);
 
@@ -70,8 +72,6 @@ internal static class HostingExtensions
             });
 
         //builder.Services.AddFluentValidation(builder.Configuration);
-
-        builder.Services.AddGrpcClients(builder.Configuration);
 
         builder.Services.AddEndpointsApiExplorer();
 

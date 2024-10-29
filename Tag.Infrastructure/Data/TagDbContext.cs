@@ -6,20 +6,16 @@ using Microsoft.Extensions.Configuration;
 
 namespace InfinityNetServer.Services.Tag.Infrastructure.Data
 {
-    public class TagDbContext : PostreSqlDbContext<TagDbContext>
+    public class TagDbContext(
+        DbContextOptions<TagDbContext> options,
+        IConfiguration configuration,
+        IAuthenticatedUserService authenticatedUserService) 
+        : PostreSqlDbContext<TagDbContext>(options, configuration, authenticatedUserService)
     {
 
         DbSet<PostTag> PostTags { get; set; }
 
         DbSet<CommentTag> CommentTags { get; set; }
-
-        public TagDbContext(
-            DbContextOptions<TagDbContext> options,
-            IConfiguration configuration,
-            IAuthenticatedUserService authenticatedUserService) : base(options, configuration, authenticatedUserService)
-        {
-
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

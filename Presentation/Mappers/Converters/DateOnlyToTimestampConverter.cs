@@ -13,4 +13,5 @@ namespace InfinityNetServer.BuildingBlocks.Presentation.Mappers.Converters
             return Timestamp.FromDateTime(dateTime);
         }
     }
+
 }

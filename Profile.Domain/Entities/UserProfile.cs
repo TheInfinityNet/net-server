@@ -10,19 +10,9 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
     {
 
         [Required]
-        [Column("account_id")]
-        [MaxLength(50)]
-        public Guid AccountId { get; set; }
-
-        [Required]
         [Column("username")]
         [MaxLength(50)]
         public string Username { get; set; }
-
-        [Required]
-        [MaxLength(50)]
-        [Column("mobile_number")]
-        public string MobileNumber { get; set; }
 
         [Required]
         [MaxLength(50)]
@@ -38,6 +28,7 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         [Column("last_name")]
         public string LastName { get; set; }
 
+        [Required]
         [Column("birthdate")]
         public DateOnly Birthdate { get; set; }
 

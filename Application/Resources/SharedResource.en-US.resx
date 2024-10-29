@@ -144,4 +144,7 @@
   <data name="seed_data_error" xml:space="preserve">
     <value>Error when seeding data</value>
   </data>
+  <data name="validation_error" xml:space="preserve">
+    <value>Invalid input</value>
+  </data>
 </root>

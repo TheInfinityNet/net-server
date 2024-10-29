@@ -116,6 +116,10 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("profile_id");
+
                     b.Property<Guid>("RelateProfileId")
                         .HasColumnType("uuid")
                         .HasColumnName("relate_profile_id");
@@ -133,16 +137,12 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("updated_by");
 
-                    b.Property<Guid>("UserProfileId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_profile_id");
-
                     b.HasKey("Id");
 
                     b.HasIndex("FriendshipId")
                         .IsUnique();
 
-                    b.HasIndex("UserProfileId", "RelateProfileId")
+                    b.HasIndex("ProfileId", "RelateProfileId")
                         .IsUnique();
 
                     b.ToTable("interactions");

@@ -6,25 +6,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace InfinityNetServer.Services.Relationship.Infrastructure.Data
 {
-    public class RelationshipDbContext : PostreSqlDbContext<RelationshipDbContext>
+    public class RelationshipDbContext(
+        DbContextOptions<RelationshipDbContext> options,
+        IConfiguration configuration,
+        IAuthenticatedUserService authenticatedUserService) 
+        : PostreSqlDbContext<RelationshipDbContext>(options, configuration, authenticatedUserService)
     {
 
         public DbSet<Friendship> Friendships { get; set; }
 
         public DbSet<Interaction> Interactions { get; set; }
 
-        public RelationshipDbContext(
-            DbContextOptions<RelationshipDbContext> options,
-            IConfiguration configuration,
-            IAuthenticatedUserService authenticatedUserService) : base(options, configuration, authenticatedUserService)
-        {
-
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Interaction>()
-                .HasIndex(i => new { i.UserProfileId, i.RelateProfileId })
+                .HasIndex(i => new { UserProfileId = i.ProfileId, i.RelateProfileId })
                 .IsUnique();
 
             var friendship = modelBuilder.Entity<Friendship>();

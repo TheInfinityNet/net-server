@@ -24,7 +24,7 @@ public static class SwaggerConfiguration
         services.AddSwaggerGen(c =>
         {
             c.EnableAnnotations();
-
+            c.OperationFilter<SwaggerFileOperationFilter>();
             c.SwaggerDoc(options.Value.Version, new OpenApiInfo
             {
                 Title = options.Value.Title,

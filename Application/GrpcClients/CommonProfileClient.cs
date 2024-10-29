@@ -9,62 +9,52 @@ using static InfinityNetServer.BuildingBlocks.Application.Protos.ProfileService;
 
 namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
 {
-    public class CommonProfileClient
+    public class CommonProfileClient(ProfileServiceClient client, ILogger<CommonProfileClient> logger)
     {
 
-        private readonly ProfileServiceClient _client;
-
-        private readonly ILogger<CommonProfileClient> _logger;
-
-        public CommonProfileClient(ProfileServiceClient client, ILogger<CommonProfileClient> logger)
-        {
-            _client = client;
-            _logger = logger;
-        }
-
-        public async Task<List<string>> GetProfileIds()
+        public async Task<IList<string>> GetProfileIds()
         {
             try
             {
-                _logger.LogInformation("Starting get profile ids");
-                var response = await _client.getProfileIdsAsync(new Empty());
+                logger.LogInformation("Starting get profile ids");
+                var response = await client.getProfileIdsAsync(new Empty());
                 // Call the gRPC server to introspect the token
                 return new List<string>(response.Ids);
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                logger.LogError(e.Message);
                 throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
-        public async Task<List<string>> GetUserProfileIds()
+        public async Task<IList<string>> GetUserProfileIds()
         {
             try
             {
-                _logger.LogInformation("Starting get user profile ids");
-                var response = await _client.getUserProfileIdsAsync(new Empty());
+                logger.LogInformation("Starting get user profile ids");
+                var response = await client.getUserProfileIdsAsync(new Empty());
                 // Call the gRPC server to introspect the token
                 return new List<string>(response.Ids);
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                logger.LogError(e.Message);
                 throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
             }
         }
-        public async Task<List<string>> GetPageProfileIds()
+        public async Task<IList<string>> GetPageProfileIds()
         {
             try
             {
-                _logger.LogInformation("Starting get page profile ids");
-                var response = await _client.getPageProfileIdsAsync(new Empty());
+                logger.LogInformation("Starting get page profile ids");
+                var response = await client.getPageProfileIdsAsync(new Empty());
                 // Call the gRPC server to introspect the token
                 return new List<string>(response.Ids);
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                logger.LogError(e.Message);
                 throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
             }
         }

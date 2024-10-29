@@ -10,7 +10,7 @@ namespace InfinityNetServer.Services.Identity.Application.Services
 
         Task<bool> Introspect(string token);
 
-        string GenerateToken(Account user, bool isRefresh);
+        string GenerateToken(Account account, bool isRefresh);
 
         Task<string> Refresh(string refreshToken, string accessToken);
 

@@ -6,14 +6,9 @@ using InfinityNetServer.BuildingBlocks.Application.Services;
 
 namespace InfinityNetServer.BuildingBlocks.Presentation.Services
 {
-    public class BaseRedisService<TKey, TValue> : IBaseRedisService<TKey, TValue>
+    public class BaseRedisService<TKey, TValue>(IConnectionMultiplexer redis) : IBaseRedisService<TKey, TValue>
     {
-        private readonly IDatabase _database;
-
-        public BaseRedisService(IConnectionMultiplexer redis)
-        {
-            _database = redis.GetDatabase();
-        }
+        private readonly IDatabase _database = redis.GetDatabase();
 
         public async Task SetAsync(TKey key, TValue value)
         {

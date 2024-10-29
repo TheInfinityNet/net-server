@@ -12,6 +12,10 @@ namespace InfinityNetServer.Services.Tag.Domain.Entities
         [Column("id")]
         public Guid Id { get; set; } = Guid.NewGuid();
 
+        [Required]
+        [Column("profile_id")]
+        public Guid ProfileId { get; set; } // Link to Profile service
+
         [Column("post_id")]
         public Guid PostId { get; set; } // Links to Post service
 
