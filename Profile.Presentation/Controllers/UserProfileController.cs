@@ -13,7 +13,6 @@ using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.Services.Profile.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using InfinityNetServer.Services.Profile.Domain.Entities;
-using InfinityNetServer.Services.Profile.Application.DTOs.Responses;
 using AutoMapper;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Controllers
@@ -70,19 +69,14 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         [Authorize]
         [EndpointDescription("Retrieve user profile")]
         [HttpGet("{userId}")]
-        [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> RetrieveProfile()
+        [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> RetrieveProfile(string userId)
         {
             _logger.LogInformation("Retrieve user profile");
-            var userId = GetCurrentUserId().ToString(); // lấy id của user đang login
 
-            UserProfile currentProfile = await _userProfileService.GetUserProfileByAccountId(userId);
+            UserProfile currentProfile = await _userProfileService.GetUserProfileById(userId);
 
-            return Ok(new
-            {
-                userProfile = _mapper.Map<MyInfoResponse>(currentProfile)
-
-            });
+            return Ok(_mapper.Map<UserProfileResponse>(currentProfile));
         }
 
     }

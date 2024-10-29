@@ -1,4 +1,4 @@
-﻿using InfinityNetServer.Services.Profile.Application.DTOs.Responses;
+﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
 using InfinityNetServer.Services.Profile.Domain.Entities;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Mappers;
@@ -11,13 +11,12 @@ public class ProfileMapper : AutoMapper.Profile
 
         // tạo mapper
         // cú pháp <nguồn, đích>
-        CreateMap<UserProfile, MyInfoResponse>()
+        CreateMap<UserProfile, UserProfileResponse>()
             .AfterMap((src, dest) =>
             {
                 //chỗ này custome nếu trg hợp đích (dest) và nguồn (src) khác tên thuộc tính
-                dest.CoverPhoto = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s";
-                dest.AvatarPhoto = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s";
-                dest.Status = "on";
+                dest.CoverId = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s";
+                dest.AvatarId = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s";
             }); 
     }
 }
