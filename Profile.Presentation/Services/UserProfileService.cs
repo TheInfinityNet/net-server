@@ -31,7 +31,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
         {
             // chỗ này implement cái đã định nghĩa trong interface
             // truyền id vào là string nên phải parse ra Guid
-            return await _userProfileRepository.GetGetUserProfileByAccountIdAsync(Guid.Parse(id));
+            return await _userProfileRepository.GetUserProfileByAccountIdAsync(Guid.Parse(id));
         }
 
         public Task<UserProfile> GetUserProfileById(string id)

@@ -69,29 +69,19 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
 
         [Authorize]
         [EndpointDescription("Retrieve user profile")]
-        [HttpGet("my-info")]
+        [HttpGet("{userId}")]
         [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> RetrieveProfile()
         {
-            _logger.LogInformation("kjfhskjdfksjf");
+            _logger.LogInformation("Retrieve user profile");
             var userId = GetCurrentUserId().ToString(); // lấy id của user đang login
 
             UserProfile currentProfile = await _userProfileService.GetUserProfileByAccountId(userId);
 
-            //chỗ này ông thấy response trả về thấy gớm
-            // lý do là tui lười
-            // tui để trả về class entity luôn
-            // thể nên mình phải định nghĩa 1 class DTO để map entity qua
-            // rồi trả về dto
-            // ví dụ
-            // tạo mới luôn đi
-            // oke r ddos
-            // mà ở đây có thêm 1 vấn đề
-            // ông thấy là nếu dto có bao nhiêu thuộc tính thì mình gán bấy nhiêu lần
-            // Map<đích>(nguồn)
             return Ok(new
             {
                 userProfile = _mapper.Map<MyInfoResponse>(currentProfile)
+
             });
         }
 

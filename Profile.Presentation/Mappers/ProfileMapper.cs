@@ -15,7 +15,9 @@ public class ProfileMapper : AutoMapper.Profile
             .AfterMap((src, dest) =>
             {
                 //chỗ này custome nếu trg hợp đích (dest) và nguồn (src) khác tên thuộc tính
-                dest.Firstnameee = src.FirstName;
-            }); ;
+                dest.CoverPhoto = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s";
+                dest.AvatarPhoto = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s";
+                dest.Status = "on";
+            }); 
     }
 }

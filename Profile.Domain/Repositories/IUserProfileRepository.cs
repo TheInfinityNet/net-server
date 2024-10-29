@@ -16,7 +16,7 @@ namespace InfinityNetServer.Services.Profile.Domain.Repositories
         // tầng DAL <==> repository
         // tầng BLL(BUS) <==> service
         // tầng GUI <==> controller (ở đây là api thay vì view)
-        Task<UserProfile> GetGetUserProfileByAccountIdAsync(Guid accountId);
+        Task<UserProfile> GetUserProfileByAccountIdAsync(Guid accountId);
 
     }
 }
