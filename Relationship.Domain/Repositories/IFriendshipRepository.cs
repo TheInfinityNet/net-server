@@ -1,6 +1,7 @@
 ﻿using InfinityNetServer.BuildingBlocks.Domain.Repositories;
 using InfinityNetServer.Services.Relationship.Domain.Entities;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Relationship.Domain.Repositories
@@ -9,6 +10,8 @@ namespace InfinityNetServer.Services.Relationship.Domain.Repositories
     {
 
         Task<bool> HasFriendship(Guid senderId, Guid receiverId);
+
+        Task<int> CountFriendship(Guid profileId);
 
     }
 }

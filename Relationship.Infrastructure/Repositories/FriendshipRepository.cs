@@ -5,13 +5,19 @@ using InfinityNetServer.Services.Relationship.Infrastructure.Data;
 using System;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using InfinityNetServer.Services.Relationship.Domain.Enums;
 
 namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
 {
-    public class FriendshipRepository : SqlRepository<Friendship, Guid>, IFriendshipRepository
+    public class FriendshipRepository(RelationshipDbContext context) : SqlRepository<Friendship, Guid>(context) , IFriendshipRepository
     {
-        public FriendshipRepository(RelationshipDbContext context) : base(context) { }
 
+        public async Task<int> CountFriendship(Guid profileId)
+        {
+            return await((RelationshipDbContext)_context).Friendships.CountAsync(f =>
+                (f.SenderId == profileId || f.ReceiverId == profileId) &&
+                f.Status == FriendshipStatus.Accepted);
+        }
 
         public async Task<bool> HasFriendship(Guid senderId, Guid receiverId)
         {
