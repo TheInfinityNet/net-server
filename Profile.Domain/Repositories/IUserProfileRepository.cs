@@ -18,5 +18,7 @@ namespace InfinityNetServer.Services.Profile.Domain.Repositories
         // tầng GUI <==> controller (ở đây là api thay vì view)
         Task<UserProfile> GetUserProfileByAccountIdAsync(Guid accountId);
 
+        Task<IList<UserProfile>> GetUserProfilesByIdsAsync(IEnumerable<Guid> ids);
+
     }
 }

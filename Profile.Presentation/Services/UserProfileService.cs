@@ -6,6 +6,8 @@ using MassTransit;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Services
@@ -34,10 +36,14 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
             return await _userProfileRepository.GetUserProfileByAccountIdAsync(Guid.Parse(id));
         }
 
-        public Task<UserProfile> GetUserProfileById(string id)
+        public async Task<UserProfile> GetUserProfileById(string id)
         {
-            return _userProfileRepository.GetByIdAsync(Guid.Parse(id));
+            return await _userProfileRepository.GetByIdAsync(Guid.Parse(id));
         }
 
+        public async Task<IList<UserProfile>> GetUserProfilesByIds(IList<string> ids)
+        {
+            return await _userProfileRepository.GetUserProfilesByIdsAsync(ids.Select(Guid.Parse).ToList());
+        }
     }
 }

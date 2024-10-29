@@ -30,7 +30,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses
 
         public string Status { get; set; }
 
-        protected abstract void SetName();
+        public abstract string GenerateName();
 
     }
 }

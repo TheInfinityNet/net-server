@@ -11,7 +11,9 @@ namespace InfinityNetServer.Services.Relationship.Domain.Repositories
 
         Task<bool> HasFriendship(Guid senderId, Guid receiverId);
 
-        Task<int> CountFriendship(Guid profileId);
+        Task<int> CountFriendshipsAsync(Guid profileId);
+
+        Task<IList<Friendship>> GetFriendshipsWithLimitAsync(Guid profileId, int limit);
 
     }
 }

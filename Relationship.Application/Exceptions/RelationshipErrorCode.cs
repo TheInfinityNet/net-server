@@ -18,7 +18,7 @@ namespace InfinityNetServer.Services.Relationship.Application.Exceptions
          */
 
         // Static instances to represent each error code
-
+        public static readonly RelationshipErrorCode FRIENDS_NOT_FOUND = new("relationship/friends-not-found", "friends_not_found");
 
     }
 

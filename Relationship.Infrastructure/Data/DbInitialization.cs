@@ -84,34 +84,23 @@ public static class DbInitialization
                 {
                     receiverId = Guid.Parse(f.PickRandom(userProfileIds));
                     attempts++;
-                    if (attempts > 10) // Tránh vòng lặp vô tận nếu không tìm thấy cặp duy nhất
-                    {
-                        break;
-                    }
+                    if (attempts > 10) break;
+                    
                 } while (receiverId == friendship.SenderId ||
                          uniqueFriendships.Contains((friendship.SenderId, receiverId)) ||
                          uniqueFriendships.Contains((receiverId, friendship.SenderId)));
 
-                if (receiverId != friendship.SenderId)
-                {
-                    // Đảm bảo tính duy nhất theo cả hai chiềus
-                    uniqueFriendships.Add((friendship.SenderId, receiverId));
-                }
+                if (receiverId != friendship.SenderId) uniqueFriendships.Add((friendship.SenderId, receiverId));
+                
 
                 return receiverId;
             });
 
-        // Chọn số lượng mối quan hệ tình bạn ngẫu nhiên
-        var maxFriendships = (new Faker()).Random.Int(20, 
-            Math.Min(userProfileIds.Count * (userProfileIds.Count - 1) / 2, 100)); // Tối đa 100 mối quan hệ
-
-        for (int i = 0; i < maxFriendships; i++)
+        for (int i = 0; i < 2000; i++)
         {
             var friendship = faker.Generate();
-            if (friendship.SenderId != friendship.ReceiverId)
-            {
-                friendships.Add(friendship);
-            }
+            if (friendship.SenderId != friendship.ReceiverId) friendships.Add(friendship);
+            
         }
 
         return friendships;
@@ -146,10 +135,8 @@ public static class DbInitialization
                 };
             });
 
-        int maxInteractions = (new Faker()).Random.Int(5, 20); // Chọn ngẫu nhiên số lượng interactions
-
         // Tạo interactions không trùng lặp
-        for (int i = 0; i < maxInteractions; i++)
+        for (int i = 0; i < 1000; i++)
         {
             var interaction = faker.Generate();
             interactions.Add(interaction); // Thêm interaction vào danh sách
@@ -201,10 +188,8 @@ public static class DbInitialization
                 return relateUserProfileId;
             });
 
-        int maxInteractions = (new Faker()).Random.Int(5, 20); // Chọn ngẫu nhiên số lượng interactions
-
         // Tạo interactions và xử lý phần bất đồng bộ sau đó
-        for (int i = 0; i < maxInteractions; i++)
+        for (int i = 0; i < 500; i++)
         {
             var interaction = faker.Generate();
             interactions.Add(interaction); // Thêm interaction sau khi đã xử lý bất đồng bộ

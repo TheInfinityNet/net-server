@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using InfinityNetServer.Services.Relationship.Application.GrpcClients;
 
 namespace InfinityNetServer.Services.Relationship.Presentation.Configurations;
 
@@ -30,6 +31,8 @@ public static class GrpcExtensions
         services.AddScoped(typeof(CommonIdentityClient));
 
         services.AddScoped(typeof(CommonProfileClient));
+
+        services.AddScoped(typeof(ProfileClient));
     }
 
 }

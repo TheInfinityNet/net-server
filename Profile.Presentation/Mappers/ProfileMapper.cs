@@ -17,6 +17,7 @@ public class ProfileMapper : AutoMapper.Profile
                 //chỗ này custome nếu trg hợp đích (dest) và nguồn (src) khác tên thuộc tính
                 dest.CoverId = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s";
                 dest.AvatarId = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s";
+                dest.Name = dest.GenerateName();
             }); 
     }
 }

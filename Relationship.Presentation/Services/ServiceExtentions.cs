@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using InfinityNetServer.Services.Relationship.Application;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InfinityNetServer.Services.Relationship.Presentation.Services
@@ -8,7 +8,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
 
         public static void AddServices(this IServiceCollection services)
         {
-            //services.AddScoped<IUserProfileService, UserProfileService>();
+            services.AddScoped<IFriendshipService, FriendshipService>();
         }
 
     }

@@ -37,6 +37,15 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
             return _mapper.Map<UserProfileResponse>(source);
         }
 
+        public override async Task<FriendsOfProfileResponse> getFriendsOfProfile(GetFriendsOfProfileRequest request, ServerCallContext context)
+        {
+            _logger.LogInformation("GetFriendsOfProfile");
+            var source = await _userProfileService.GetUserProfilesByIds(request.Ids);
+            var response = new FriendsOfProfileResponse();
+            response.Friends.AddRange(source.Select(_mapper.Map<UserProfileResponse>).ToList());
+            return response;
+        }
+
         public override async Task<GetProfileIdsResponse> getProfileIds(Empty request, ServerCallContext context)
         {
             _logger.LogInformation("Received get profile ids request");
