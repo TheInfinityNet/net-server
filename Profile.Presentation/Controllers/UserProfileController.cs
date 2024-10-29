@@ -11,6 +11,9 @@ using InfinityNetServer.BuildingBlocks.Application.Bus;
 using System.Threading.Tasks;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.Services.Profile.Application.Services;
+using Microsoft.AspNetCore.Authorization;
+using InfinityNetServer.Services.Profile.Domain.Entities;
+using AutoMapper;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Controllers
 {
@@ -23,9 +26,12 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
 
         private readonly ILogger<UserProfileController> _logger;
 
+        // khai báo thêm mapper
+        private readonly IMapper _mapper;
+
         private readonly IConfiguration _configuration;
 
-        private readonly IUserProfileService _profileService;
+        private readonly IUserProfileService _userProfileService;
 
         private readonly IMessageBus _messageBus;
 
@@ -33,14 +39,16 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             IAuthenticatedUserService authenticatedUserService,
             IStringLocalizer<ProfileSharedResource> localizer, 
             ILogger<UserProfileController> logger, 
+            IMapper mapper,
             IConfiguration configuration, 
             IUserProfileService profileService, 
             IMessageBus messageBus) : base(authenticatedUserService)
         {
             _localizer = localizer;
             _logger = logger;
+            _mapper = mapper;
             _configuration = configuration;
-            _profileService = profileService;
+            _userProfileService = profileService;
             _messageBus = messageBus;
         }
 
@@ -50,7 +58,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         public IActionResult UpdateProfile([FromBody] UpdateUserProfileRequest request)
         {
             // TODO: Call the service to update the user profile
-            // await _profileService.UpdateProfile(request);
+            // await _userProfileService.UpdateProfile(request);
 
             return Ok(new CommonMessageResponse
             (
@@ -58,6 +66,18 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             ));
         }
 
+        [Authorize]
+        [EndpointDescription("Retrieve user profile")]
+        [HttpGet("{userId}")]
+        [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> RetrieveProfile(string userId)
+        {
+            _logger.LogInformation("Retrieve user profile");
+
+            UserProfile currentProfile = await _userProfileService.GetUserProfileById(userId);
+
+            return Ok(_mapper.Map<UserProfileResponse>(currentProfile));
+        }
 
     }
 }

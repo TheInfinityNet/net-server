@@ -8,5 +8,8 @@ namespace InfinityNetServer.Services.Profile.Application.Services
 
         Task<UserProfile> GetUserProfileById(string id);
 
+        // Định nghĩa trong service interface
+        Task<UserProfile> GetUserProfileByAccountId(string id);
+
     }
 }
