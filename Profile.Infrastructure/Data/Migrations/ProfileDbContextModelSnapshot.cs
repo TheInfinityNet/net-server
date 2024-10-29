@@ -66,6 +66,10 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("type");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");

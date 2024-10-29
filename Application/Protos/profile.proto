@@ -26,11 +26,15 @@ message UserProfileResponse {
 
 	string lastName = 4;
 
-	string mobileNumber = 5;
+	string name = 5;
 
-	google.protobuf.Timestamp birthdate = 6;
+	string mobileNumber = 6;
 
-	Gender gender = 7;
+	google.protobuf.Timestamp birthdate = 7;
+
+	Gender gender = 8;
+
+	ProfileStatus status = 9;
 
 }
 

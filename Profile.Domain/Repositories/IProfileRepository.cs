@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Domain.Repositories;
-using InfinityNetServer.Services.Profile.Domain.Enums;
 
 namespace InfinityNetServer.Services.Profile.Domain.Repositories
 {

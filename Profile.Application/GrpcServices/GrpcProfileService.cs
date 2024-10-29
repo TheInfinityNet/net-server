@@ -7,6 +7,7 @@ using Google.Protobuf.WellKnownTypes;
 using InfinityNetServer.Services.Profile.Domain.Repositories;
 using System.Linq;
 using InfinityNetServer.Services.Profile.Application.Services;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 
 namespace InfinityNetServer.Services.Profile.Application.GrpcServices
 {
@@ -50,7 +51,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
         {
             _logger.LogInformation("Received get user profile ids request");
             var response = new GetUserProfileIdsResponse();
-            var userProfiles = await _profileRepository.GetByType(Domain.Enums.ProfileType.User);
+            var userProfiles = await _profileRepository.GetByType(ProfileType.User);
             response.Ids.AddRange(userProfiles.Select(p => p.Id.ToString()).ToList());
 
             return await Task.FromResult(response);
@@ -60,7 +61,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
         {
             _logger.LogInformation("Received get page profile ids request");
             var response = new GetPageProfileIdsResponse();
-            var pageProfiles = await _profileRepository.GetByType(Domain.Enums.ProfileType.Page);
+            var pageProfiles = await _profileRepository.GetByType(ProfileType.Page);
             response.Ids.AddRange(pageProfiles.Select(p => p.Id.ToString()).ToList());
 
             return await Task.FromResult(response);

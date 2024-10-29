@@ -2,11 +2,11 @@
 using InfinityNetServer.Services.Profile.Infrastructure.Data;
 using InfinityNetServer.Services.Profile.Domain.Repositories;
 using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositories;
-using InfinityNetServer.Services.Profile.Domain.Enums;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 
 namespace InfinityNetServer.Services.Profile.Infrastructure.Repositories
 {

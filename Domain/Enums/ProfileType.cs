@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace InfinityNetServer.Services.Profile.Domain.Enums
+namespace InfinityNetServer.BuildingBlocks.Domain.Enums
 {
     public enum ProfileType
     {

@@ -2,7 +2,6 @@
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Profile.Domain.Entities;
-using InfinityNetServer.Services.Profile.Domain.Enums;
 using InfinityNetServer.Services.Profile.Domain.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;

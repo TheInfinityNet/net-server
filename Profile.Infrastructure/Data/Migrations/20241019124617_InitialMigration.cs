@@ -19,6 +19,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                     picture_id = table.Column<Guid>(type: "uuid", nullable: true),
                     cover_picture_id = table.Column<Guid>(type: "uuid", nullable: true),
                     type = table.Column<int>(type: "integer", nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
