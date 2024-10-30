@@ -18,6 +18,7 @@ using AutoMapper;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.Services.Profile.Application.DTOs.Responses;
 using InfinityNetServer.Services.Profile.Domain.Enums;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Controllers
 {

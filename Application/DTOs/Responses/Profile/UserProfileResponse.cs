@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses
+namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile
 {
-    public sealed class UserProfileResponse : BaseProfileResponse
+    public sealed record UserProfileResponse : BaseProfileResponse
     {
 
         public string Username { get; set; }

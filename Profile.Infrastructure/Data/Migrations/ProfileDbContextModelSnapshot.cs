@@ -37,11 +37,11 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("account_id");
 
-                    b.Property<Guid?>("AvatarId")
+                    b.Property<Guid?>("Avatar")
                         .HasColumnType("uuid")
                         .HasColumnName("avatar_id");
 
-                    b.Property<Guid?>("CoverId")
+                    b.Property<Guid?>("Cover")
                         .HasColumnType("uuid")
                         .HasColumnName("cover_id");
 

@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
 using System.Linq;
 using InfinityNetServer.Services.Relationship.Application.GrpcClients;
 using InfinityNetServer.Services.Relationship.Application.Services;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 
 namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
 {

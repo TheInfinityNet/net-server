@@ -26,7 +26,7 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcClients
             _mapper = mapper;
         }
 
-        public async Task<IList<BuildingBlocks.Application.DTOs.Responses.UserProfileResponse>> GetPreviewFriendsOfProfile(IList<string> friendIds)
+        public async Task<IList<BuildingBlocks.Application.DTOs.Responses.Profile.UserProfileResponse>> GetPreviewFriendsOfProfile(IList<string> friendIds)
         {
             try
             {
@@ -35,7 +35,7 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcClients
                 {
                     FriendIds = { friendIds }
                 });
-                return response.Friends.Select(_mapper.Map<BuildingBlocks.Application.DTOs.Responses.UserProfileResponse>).ToList();
+                return response.Friends.Select(_mapper.Map<BuildingBlocks.Application.DTOs.Responses.Profile.UserProfileResponse>).ToList();
             }
             catch (Exception e)
             {
