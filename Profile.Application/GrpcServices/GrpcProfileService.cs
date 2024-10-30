@@ -7,7 +7,6 @@ using Google.Protobuf.WellKnownTypes;
 using InfinityNetServer.Services.Profile.Domain.Repositories;
 using System.Linq;
 using InfinityNetServer.Services.Profile.Application.Services;
-using InfinityNetServer.BuildingBlocks.Domain.Enums;
 
 namespace InfinityNetServer.Services.Profile.Application.GrpcServices
 {
@@ -37,11 +36,11 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
             return _mapper.Map<UserProfileResponse>(source);
         }
 
-        public override async Task<FriendsOfProfileResponse> getFriendsOfProfile(GetFriendsOfProfileRequest request, ServerCallContext context)
+        public override async Task<PreviewFriendsOfProfileResponse> getPreviewFriendsOfProfile(GetPreviewFriendsOfProfileRequest request, ServerCallContext context)
         {
             _logger.LogInformation("GetFriendsOfProfile");
-            var source = await _userProfileService.GetUserProfilesByIds(request.Ids);
-            var response = new FriendsOfProfileResponse();
+            var source = await _userProfileService.GetUserProfilesByIds(request.FriendIds);
+            var response = new PreviewFriendsOfProfileResponse();
             response.Friends.AddRange(source.Select(_mapper.Map<UserProfileResponse>).ToList());
             return response;
         }

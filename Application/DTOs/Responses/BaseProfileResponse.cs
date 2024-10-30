@@ -10,8 +10,6 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses
 
         public Guid AccountId { get; set; }
 
-        public string Email { get; set; }
-
         public string AvatarId { get; set; }
 
         public string CoverId { get; set; }

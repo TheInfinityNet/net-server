@@ -1,0 +1,33 @@
+﻿syntax = "proto3";
+
+package InfinityNetServer.BuildingBlocks.Application.Protos;
+
+option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
+
+message GetProfilesRelationshipRequest {
+
+  string currentProfileId = 1;
+
+  string targetProfileId = 2;
+
+}
+
+message GetProfilesRelationshipResponse {
+
+  bool result = 1;
+
+}
+
+service RelationshipService {
+
+  rpc hasFriendship(GetProfilesRelationshipRequest) returns (GetProfilesRelationshipResponse) {}
+
+  rpc hasBlocked(GetProfilesRelationshipRequest) returns (GetProfilesRelationshipResponse) {}
+
+  rpc hasFollowed(GetProfilesRelationshipRequest) returns (GetProfilesRelationshipResponse) {}
+
+  rpc hasMuted(GetProfilesRelationshipRequest) returns (GetProfilesRelationshipResponse) {}
+
+  rpc hasFriendRequest(GetProfilesRelationshipRequest) returns (GetProfilesRelationshipResponse) {}
+
+}

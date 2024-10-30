@@ -14,27 +14,26 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
     public class FriendshipRepository(RelationshipDbContext context) : SqlRepository<Friendship, Guid>(context) , IFriendshipRepository
     {
 
+        public async Task<bool> HasFriendship(Guid senderId, Guid receiverId)
+            => await context.Friendships.AnyAsync(f =>
+                (f.SenderId.Equals(senderId) && f.ReceiverId.Equals(receiverId)) ||
+                (f.SenderId.Equals(receiverId) && f.ReceiverId.Equals(senderId)));
+
         public async Task<int> CountFriendshipsAsync(Guid profileId)
-        {
-            return await((RelationshipDbContext)_context).Friendships.CountAsync(f =>
-                (f.SenderId == profileId || f.ReceiverId == profileId) &&
-                f.Status == FriendshipStatus.Accepted);
-        }
+            => await context.Friendships.CountAsync(f =>
+                    (f.SenderId == profileId || f.ReceiverId == profileId) &&
+                    f.Status == FriendshipStatus.Accepted);
+        
+
+        public async Task<Friendship> GetByStatus(FriendshipStatus status, Guid senderId, Guid receiverId) 
+            => await context.Friendships.FirstOrDefaultAsync(f =>
+                    (f.SenderId.Equals(senderId) && f.ReceiverId.Equals(receiverId)) && f.Status == status);
 
         public async Task<IList<Friendship>> GetFriendshipsWithLimitAsync(Guid profileId, int limit)
-        {
-            return await ((RelationshipDbContext)_context).Friendships
+            => await context.Friendships
                 .Where(f =>
                     (f.SenderId == profileId || f.ReceiverId == profileId) &&
                     f.Status == FriendshipStatus.Accepted).Take(limit).ToListAsync();
-        }
-
-        public async Task<bool> HasFriendship(Guid senderId, Guid receiverId)
-        {
-            return await ((RelationshipDbContext)_context).Friendships.AnyAsync(f =>
-                (f.SenderId.Equals(senderId) && f.ReceiverId.Equals(receiverId)) ||
-                (f.SenderId.Equals(receiverId) && f.ReceiverId.Equals(senderId)));
-        }
-
+        
     }
 }

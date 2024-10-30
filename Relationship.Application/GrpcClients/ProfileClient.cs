@@ -26,14 +26,14 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcClients
             _mapper = mapper;
         }
 
-        public async Task<IList<BuildingBlocks.Application.DTOs.Responses.UserProfileResponse>> GetFriendsOfProfile(IList<string> ids)
+        public async Task<IList<BuildingBlocks.Application.DTOs.Responses.UserProfileResponse>> GetPreviewFriendsOfProfile(IList<string> friendIds)
         {
             try
             {
                 _logger.LogInformation("Starting get friends of profile");
-                var response = await _client.getFriendsOfProfileAsync(new GetFriendsOfProfileRequest
+                var response = await _client.getPreviewFriendsOfProfileAsync(new GetPreviewFriendsOfProfileRequest
                 {
-                    Ids = { ids }
+                    FriendIds = { friendIds }
                 });
                 return response.Friends.Select(_mapper.Map<BuildingBlocks.Application.DTOs.Responses.UserProfileResponse>).ToList();
             }

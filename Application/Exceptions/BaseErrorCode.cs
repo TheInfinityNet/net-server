@@ -25,4 +25,7 @@ public record BaseErrorCode
     public static readonly BaseErrorCode TOO_MANY_REQUESTS = new("common/too-many-requests", "too_many_requests");
     public static readonly BaseErrorCode RATE_LIMIT_EXCEEDED = new("common/rate-limit-exceeded", "rate_limit_exceeded");
 
+    // Relationship Errors
+    public static readonly BaseErrorCode RELATIONSHIP_NOT_FOUND = new("common/relationship-not-found", "relationship_not_found");
+
 }

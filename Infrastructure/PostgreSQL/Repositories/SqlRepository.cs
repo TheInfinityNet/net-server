@@ -9,63 +9,56 @@ using InfinityNetServer.BuildingBlocks.Domain.Entities;
 
 namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositories
 {
-    public class SqlRepository<TEntity, TId> : ISqlRepository<TEntity, TId> where TEntity : AuditEntity
+    public class SqlRepository<TEntity, TId>(DbContext context) : ISqlRepository<TEntity, TId> where TEntity : AuditEntity
     {
 
-        protected readonly DbContext _context;
-        protected readonly DbSet<TEntity> _dbSet;
-
-        public SqlRepository(DbContext context)
-        {
-            _context = context;
-            _dbSet = context.Set<TEntity>();
-        }
+        protected readonly DbSet<TEntity> DbSet = context.Set<TEntity>();
 
         public async Task<List<TEntity>> GetAllAsync()
         {
-            return await _dbSet.ToListAsync();
+            return await DbSet.ToListAsync();
         }
 
         public async Task<TEntity> GetByIdAsync(TId id)
         {
-            return await _dbSet.FindAsync(id);
+            return await DbSet.FindAsync(id);
         }
 
         public async Task CreateAsync(IEnumerable<TEntity> items)
         {
             if (items == null) throw new ArgumentNullException(nameof(items));
-            await _dbSet.AddRangeAsync(items);
-            await _context.SaveChangesAsync();
+            await DbSet.AddRangeAsync(items);
+            await context.SaveChangesAsync();
         }
 
         public async Task<TEntity> CreateAsync(TEntity item)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
-            await _dbSet.AddAsync(item);
-            await _context.SaveChangesAsync();
+            await DbSet.AddAsync(item);
+            await context.SaveChangesAsync();
             return item;
         }
 
         public async Task UpdateAsync(TEntity item)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
-            _dbSet.Attach(item);
-            _context.Entry(item).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            DbSet.Attach(item);
+            context.Entry(item).State = EntityState.Modified;
+            await context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(TId id)
         {
             var entity = await GetByIdAsync(id);
             if (entity == null) throw new KeyNotFoundException($"Entity with id {id} not found.");
-            _dbSet.Remove(entity);
-            await _context.SaveChangesAsync();
+            DbSet.Remove(entity);
+            await context.SaveChangesAsync();
         }
 
         public async Task<List<TEntity>> FindAsync(Func<TEntity, bool> predicate)
         {
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
-            return await Task.FromResult(_dbSet.AsEnumerable().Where(predicate).ToList());
+            return await Task.FromResult(DbSet.AsEnumerable().Where(predicate).ToList());
         }
 
         public async Task<bool> ExistsAsync(TId id)
@@ -76,7 +69,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
 
         public async Task<int> CountAsync()
         {
-            return await _dbSet.CountAsync();
+            return await DbSet.CountAsync();
         }
 
         public async Task<PagedResult<TEntity>> GetPagedAsync(ISqlSpecification<TEntity> spec)
@@ -107,7 +100,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
 
         private IQueryable<TEntity> ApplySpecification(ISqlSpecification<TEntity> spec)
         {
-            IQueryable<TEntity> query = _dbSet;
+            IQueryable<TEntity> query = DbSet;
 
             // Apply Criteria
             if (spec.Criteria != null)

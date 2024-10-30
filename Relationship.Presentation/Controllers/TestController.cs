@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
 using System.Linq;
 using InfinityNetServer.Services.Relationship.Application.GrpcClients;
+using InfinityNetServer.Services.Relationship.Application.Services;
 
 namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
 {
@@ -35,7 +36,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         public async Task<IActionResult> GetFriends(string profileId)
         {
             IList<string> friendIds = await friendshipService.GetPreviewFriendIds(profileId);
-            IList<UserProfileResponse> friends = await profileClient.GetFriendsOfProfile(friendIds);
+            IList<UserProfileResponse> friends = await profileClient.GetPreviewFriendsOfProfile(friendIds);
             int totalFriends = await friendshipService.CountFriendships(profileId);
             return Ok(new
             {
