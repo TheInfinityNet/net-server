@@ -1,4 +1,4 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
+﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 
 namespace InfinityNetServer.Services.Identity.Application.DTOs.Responses
 {

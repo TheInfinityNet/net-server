@@ -48,6 +48,18 @@ message UserProfileResponse {
 
 }
 
+message GetPreviewFriendsOfProfileRequest {
+
+	repeated string friendIds = 1;
+
+}
+
+message PreviewFriendsOfProfileResponse {
+
+	repeated UserProfileResponse friends = 1;
+
+}
+
 message GetProfileIdsResponse {
   repeated string ids = 1;
 }
@@ -63,6 +75,8 @@ message GetPageProfileIdsResponse {
 service ProfileService {
 
   rpc getUserProfile(GetProfileRequest) returns (UserProfileResponse) {}
+
+  rpc getPreviewFriendsOfProfile(GetPreviewFriendsOfProfileRequest) returns (PreviewFriendsOfProfileResponse) {}
 
   rpc getProfileIds(google.protobuf.Empty) returns (GetProfileIdsResponse) {}
 

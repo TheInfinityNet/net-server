@@ -5,7 +5,25 @@
 
         ProfileCoverPhotoUpload,
 
-        ProfileCoverPhotoDelete
+        ProfileCoverPhotoDelete,
+
+        AddFriend,
+
+        RemoveFriend,
+
+        Block,
+
+        Unblock,
+
+        Follow,
+
+        Unfollow,
+
+        Mute,
+
+        UnMute,
+
+        AcceptOrRejectFriendRequest,
 
     }
 }

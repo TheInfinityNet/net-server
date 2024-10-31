@@ -5,20 +5,35 @@ using InfinityNetServer.Services.Relationship.Infrastructure.Data;
 using System;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using InfinityNetServer.Services.Relationship.Domain.Enums;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
 {
-    public class FriendshipRepository : SqlRepository<Friendship, Guid>, IFriendshipRepository
+    public class FriendshipRepository(RelationshipDbContext context) : SqlRepository<Friendship, Guid>(context) , IFriendshipRepository
     {
-        public FriendshipRepository(RelationshipDbContext context) : base(context) { }
-
 
         public async Task<bool> HasFriendship(Guid senderId, Guid receiverId)
-        {
-            return await ((RelationshipDbContext)_context).Friendships.AnyAsync(f =>
+            => await context.Friendships.AnyAsync(f =>
                 (f.SenderId.Equals(senderId) && f.ReceiverId.Equals(receiverId)) ||
                 (f.SenderId.Equals(receiverId) && f.ReceiverId.Equals(senderId)));
-        }
 
+        public async Task<int> CountFriendshipsAsync(Guid profileId)
+            => await context.Friendships.CountAsync(f =>
+                    (f.SenderId == profileId || f.ReceiverId == profileId) &&
+                    f.Status == FriendshipStatus.Accepted);
+        
+
+        public async Task<Friendship> GetByStatus(FriendshipStatus status, Guid senderId, Guid receiverId) 
+            => await context.Friendships.FirstOrDefaultAsync(f =>
+                    (f.SenderId.Equals(senderId) && f.ReceiverId.Equals(receiverId)) && f.Status == status);
+
+        public async Task<IList<Friendship>> GetFriendshipsWithLimitAsync(Guid profileId, int limit)
+            => await context.Friendships
+                .Where(f =>
+                    (f.SenderId == profileId || f.ReceiverId == profileId) &&
+                    f.Status == FriendshipStatus.Accepted).Take(limit).ToListAsync();
+        
     }
 }

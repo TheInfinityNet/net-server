@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses
+namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile
 {
-    public sealed class UserProfileResponse : BaseProfileResponse
+    public sealed record UserProfileResponse : BaseProfileResponse
     {
 
         public string Username { get; set; }
@@ -17,9 +17,9 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses
 
         public string Gender { get; set; }
 
-        protected override void SetName()
+        public override string GenerateName()
         {
-            Name = FirstName + " " + (MiddleName.Length != 0 ? MiddleName + " " : "") + LastName;
+            return FirstName + " " + (MiddleName.Length != 0 ? MiddleName + " " : "") + LastName;
         }
     }
 }

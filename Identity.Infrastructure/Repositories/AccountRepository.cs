@@ -8,16 +8,11 @@ using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Identity.Infrastructure.Repositories
 {
-    public class AccountRepository : SqlRepository<Account, Guid>, IAccountRepository
+    public class AccountRepository(IdentityDbContext context) : SqlRepository<Account, Guid>(context), IAccountRepository
     {
 
-        public AccountRepository(IdentityDbContext context) : base(context)
-        { }
-
         public async Task<Account> GetByDefaultUserProfileIdAsync(Guid defaultUserProfileId)
-        {
-            return await ((IdentityDbContext)_context).Accounts.FirstOrDefaultAsync(x => x.DefaultUserProfileId == defaultUserProfileId);
-        }
+            => await context.Accounts.FirstOrDefaultAsync(x => x.DefaultUserProfileId == defaultUserProfileId);
 
     }
 }

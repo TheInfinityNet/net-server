@@ -36,6 +36,7 @@
 	  <None Remove="Protos\comment.proto" />
 	  <None Remove="Protos\group.proto" />
 	  <None Remove="Protos\post.proto" />
+	  <None Remove="Protos\relationship.proto" />
 	</ItemGroup>
 	
 	<ItemGroup>
@@ -46,6 +47,12 @@
 	  <EmbeddedResource Update="Resources\SharedResource.en-US.resx">
 	    <SubType>Designer</SubType>
 	  </EmbeddedResource>
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <Protobuf Update="Protos\relationship.proto">
+	    <GrpcServices>Both</GrpcServices>
+	  </Protobuf>
 	</ItemGroup>
 	
 	<ItemGroup>

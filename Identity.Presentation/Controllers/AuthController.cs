@@ -129,7 +129,6 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 
             var userProfile = await _profileClient.GetUserProfile(account.DefaultUserProfileId.ToString());
             userProfile.AccountId = account.Id;
-            userProfile.Email = localProvider.Email;
 
             return Ok(new SignInResponse
             (
