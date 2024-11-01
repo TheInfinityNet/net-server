@@ -1,7 +1,7 @@
 {
   "Routes": [
     {
-      "DownstreamPathTemplate": "/identity/{everything}",
+      "DownstreamPathTemplate": "/auth/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -9,7 +9,7 @@
           "Port": 60001
         }
       ],
-      "UpstreamPathTemplate": "/identity/{everything}",
+      "UpstreamPathTemplate": "/auth/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
       /*"AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
@@ -34,7 +34,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/profile/{everything}",
+      "DownstreamPathTemplate": "/profiles/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -42,7 +42,7 @@
           "Port": 60002
         }
       ],
-      "UpstreamPathTemplate": "/profile/{everything}",
+      "UpstreamPathTemplate": "/profiles/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
       "FileCacheOptions": {
         "TtlSeconds": 15,
@@ -57,7 +57,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/relationship/{everything}",
+      "DownstreamPathTemplate": "/relationships/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -65,7 +65,7 @@
           "Port": 60003
         }
       ],
-      "UpstreamPathTemplate": "/relationship/{everything}",
+      "UpstreamPathTemplate": "/relationships/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
       "FileCacheOptions": {
         "TtlSeconds": 15,
@@ -80,7 +80,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/group/{everything}",
+      "DownstreamPathTemplate": "/groups/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -88,7 +88,7 @@
           "Port": 60004
         }
       ],
-      "UpstreamPathTemplate": "/group/{everything}",
+      "UpstreamPathTemplate": "/groups/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
       "FileCacheOptions": {
         "TtlSeconds": 15,
@@ -103,7 +103,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/post/{everything}",
+      "DownstreamPathTemplate": "/posts/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -111,7 +111,7 @@
           "Port": 60005
         }
       ],
-      "UpstreamPathTemplate": "/post/{everything}",
+      "UpstreamPathTemplate": "/posts/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
       "FileCacheOptions": {
         "TtlSeconds": 15,
@@ -126,7 +126,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/comment/{everything}",
+      "DownstreamPathTemplate": "/comments/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -134,7 +134,7 @@
           "Port": 60006
         }
       ],
-      "UpstreamPathTemplate": "/comment/{everything}",
+      "UpstreamPathTemplate": "/comments/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
       "FileCacheOptions": {
         "TtlSeconds": 15,
@@ -149,7 +149,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/reaction/{everything}",
+      "DownstreamPathTemplate": "/reactions/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -157,7 +157,7 @@
           "Port": 60007
         }
       ],
-      "UpstreamPathTemplate": "/reaction/{everything}",
+      "UpstreamPathTemplate": "/reactions/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
       "FileCacheOptions": {
         "TtlSeconds": 15,
@@ -172,7 +172,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/tag/{everything}",
+      "DownstreamPathTemplate": "/tags/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -180,7 +180,7 @@
           "Port": 60008
         }
       ],
-      "UpstreamPathTemplate": "/tag/{everything}",
+      "UpstreamPathTemplate": "/tags/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
       "FileCacheOptions": {
         "TtlSeconds": 15,
@@ -195,7 +195,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/file/{everything}",
+      "DownstreamPathTemplate": "/files/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -203,7 +203,7 @@
           "Port": 60010
         }
       ],
-      "UpstreamPathTemplate": "/{everything}",
+      "UpstreamPathTemplate": "/files/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
       "FileCacheOptions": {
         "TtlSeconds": 15,

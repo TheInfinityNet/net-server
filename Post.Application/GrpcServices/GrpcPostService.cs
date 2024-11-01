@@ -8,24 +8,14 @@ using InfinityNetServer.Services.Post.Domain.Repositories;
 
 namespace InfinityNetServer.Services.Post.Application.GrpcServices
 {
-    public class GrpcPostService : PostService.PostServiceBase
+    public class GrpcPostService(ILogger<GrpcPostService> logger, IPostRepository postRepository) : PostService.PostServiceBase
     {
-
-        private readonly ILogger<GrpcPostService> _logger;
-
-        private readonly IPostRepository _postRepository;
-
-        public GrpcPostService(ILogger<GrpcPostService> logger, IPostRepository postRepository)
-        {
-            _logger = logger;
-            _postRepository = postRepository;
-        }
 
         public override async Task<GetPostIdsResponse> getPostIds(Empty request, ServerCallContext context)
         {
-            _logger.LogInformation("Received getAccountIds request");
+            logger.LogInformation("Received getAccountIds request");
             var response = new GetPostIdsResponse();
-            var posts = await _postRepository.GetAllAsync();
+            var posts = await postRepository.GetAllAsync();
             response.Ids.AddRange(posts.Select(p => p.Id.ToString()).ToList());
 
             return await Task.FromResult(response);

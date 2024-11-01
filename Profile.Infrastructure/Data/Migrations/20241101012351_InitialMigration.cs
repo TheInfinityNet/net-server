@@ -20,6 +20,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                     avatar_id = table.Column<Guid>(type: "uuid", nullable: true),
                     cover_id = table.Column<Guid>(type: "uuid", nullable: true),
                     mobile_number = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    IsMobileNumberVerified = table.Column<bool>(type: "boolean", nullable: false),
                     type = table.Column<int>(type: "integer", nullable: false),
                     status = table.Column<int>(type: "integer", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
@@ -77,6 +78,33 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_page_profiles_name",
+                table: "page_profiles",
+                column: "name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_profiles_account_id",
+                table: "profiles",
+                column: "account_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_profiles_mobile_number",
+                table: "profiles",
+                column: "mobile_number",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_profiles_status",
+                table: "profiles",
+                column: "status");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_profiles_type",
+                table: "profiles",
+                column: "type");
 
             migrationBuilder.CreateIndex(
                 name: "IX_user_profiles_username",

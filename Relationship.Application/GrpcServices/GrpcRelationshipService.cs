@@ -4,6 +4,7 @@ using InfinityNetServer.BuildingBlocks.Application.Protos;
 using System.Threading.Tasks;
 using AutoMapper;
 using InfinityNetServer.Services.Relationship.Application.Services;
+using System.Linq;
 
 namespace InfinityNetServer.Services.Relationship.Application.GrpcServices
 {
@@ -66,6 +67,15 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcServices
             {
                 Result = source
             };
+            return response;
+        }
+
+        public override async Task<GetFollowersResponse> getFollowers(GetFollowersRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Get followers for ProfileId: {ProfileId}", request.ProfileId);
+            var source = await interactionService.GetByType(Domain.Enums.InteractionType.Follow, null, request.ProfileId, null);
+            var response = new GetFollowersResponse();
+            response.FollowerIds.AddRange(source.Select(i => i.ProfileId.ToString()).ToList());
             return response;
         }
 

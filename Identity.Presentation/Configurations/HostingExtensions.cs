@@ -139,7 +139,9 @@ internal static class HostingExtensions
 
         app.UseAuthorization();
 
-        app.Services.SeedEssentialData(100);
+        app.AutoMigration();
+
+        app.Services.SeedEssentialData(200);
 
         app.MapGrpcServices();
 

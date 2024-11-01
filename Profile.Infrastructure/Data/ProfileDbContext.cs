@@ -27,16 +27,25 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var userProfile = modelBuilder.Entity<UserProfile>();
-            userProfile.HasIndex(p => p.Username).IsUnique();
+            var profile = modelBuilder.Entity<Domain.Entities.Profile>();
+            var pageProfile = modelBuilder.Entity<PageProfile>();
 
-            userProfile.HasIndex(p => p.MobileNumber).IsUnique();
+            profile.HasIndex(p => p.MobileNumber).IsUnique();
+            profile.HasIndex(p => p.AccountId);
+            profile.HasIndex(p => p.Type);
+            profile.HasIndex(p => p.Status);
+
+            userProfile.HasIndex(p => p.Username).IsUnique();
             //userProfile.HasIndex(p => new { p.Username, p.MobileNumber }).IsUnique();
+
             userProfile
                 .HasOne(p => p.Profile)
                 .WithOne(b => b.UserProfile)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<PageProfile>()
+            pageProfile.HasIndex(p => p.Name).IsUnique();
+
+            pageProfile
                 .HasOne(p => p.Profile)
                 .WithOne(b => b.PageProfile)
                 .OnDelete(DeleteBehavior.Cascade);

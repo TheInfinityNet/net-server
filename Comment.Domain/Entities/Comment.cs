@@ -24,17 +24,17 @@ namespace InfinityNetServer.Services.Comment.Domain.Entities
         [Column("parent_id")]
         public Guid? ParentId { get; set; } = null; // Nullable for reply comments
 
-        [Column("media_id")]
-        public Guid? MediaId { get; set; } = null; // Link to File service
+        [Column("file_metadata_id")]
+        public Guid? FileMetadataId { get; set; } = null; // Link to File service
 
         [Required]
-        [Column("content")]
-        public string Content { get; set; }
+        [Column("content", TypeName = "jsonb")]
+        public CommentContent Content { get; set; } = new CommentContent();
 
         [ForeignKey("ParentId")]
         public virtual Comment? ParentComment { get; set; } = null;
 
-        public virtual ICollection<Comment> RepliesComments { get; set; } = new List<Comment>();
+        public virtual ICollection<Comment> RepliesComments { get; set; } = [];
 
     }
 }

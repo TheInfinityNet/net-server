@@ -24,6 +24,8 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var post = modelBuilder.Entity<Domain.Entities.Post>();
+            var postPrivacy = modelBuilder.Entity<PostPrivacy>();
+
             post
                 .HasOne(p => p.Parent)
                 .WithMany(post => post.SharedPosts)
@@ -36,13 +38,28 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
                 .HasForeignKey(p => p.PresentationId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            var converter = new ValueConverter<Privacy, string>(
+            var converter = new ValueConverter<PostContent, string>(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null), // Chuyển đối tượng MyData thành chuỗi JSON
-                v => JsonSerializer.Deserialize<Privacy>(v, (JsonSerializerOptions)null) // Chuyển chuỗi JSON thành đối tượng MyData
+                v => JsonSerializer.Deserialize<PostContent>(v, (JsonSerializerOptions)null) // Chuyển chuỗi JSON thành đối tượng MyData
             );
 
-            post.Property(e => e.Privacy)
-                .HasConversion(converter);
+            post.Property(e => e.Content).HasConversion(converter);
+
+            post.HasIndex(p => p.OwnerId);
+            post.HasIndex(p => p.GroupId);
+            post.HasIndex(p => p.Type);
+            post.HasIndex(p => p.CreatedAt);
+
+            postPrivacy
+                .HasOne(p => p.Post)
+                .WithMany(post => post.PostPrivacies)
+                .HasForeignKey(p => p.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            postPrivacy.HasIndex(pp => pp.PostId);
+            postPrivacy.HasIndex(pp => pp.Type);
+
+
         }
 
     }

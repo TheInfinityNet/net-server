@@ -33,7 +33,8 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
                         .HasColumnName("id");
 
                     b.Property<string>("Content")
-                        .HasColumnType("text")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
                         .HasColumnName("content");
 
                     b.Property<DateTime>("CreatedAt")
@@ -78,11 +79,6 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("presentation_id");
 
-                    b.Property<string>("Privacy")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("privacy");
-
                     b.Property<int>("Type")
                         .HasColumnType("integer")
                         .HasColumnName("post_type");
@@ -98,11 +94,180 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("OwnerId");
+
                     b.HasIndex("ParentId");
 
                     b.HasIndex("PresentationId");
 
+                    b.HasIndex("Type");
+
                     b.ToTable("posts");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Post.Domain.Entities.PostPrivacy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("post_id");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("privacy_type");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("Type");
+
+                    b.ToTable("post_privacies");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Post.Domain.Entities.PostPrivacyExclude", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid>("PostPrivacyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("post_privacy_id");
+
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("profile_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostPrivacyId");
+
+                    b.ToTable("post_privacy_excludes");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Post.Domain.Entities.PostPrivacyInclude", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid>("PostPrivacyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("post_privacy_id");
+
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("profile_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostPrivacyId");
+
+                    b.ToTable("post_privacy_includes");
                 });
 
             modelBuilder.Entity("InfinityNetServer.Services.Post.Domain.Entities.Post", b =>
@@ -122,11 +287,53 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
                     b.Navigation("Presentation");
                 });
 
+            modelBuilder.Entity("InfinityNetServer.Services.Post.Domain.Entities.PostPrivacy", b =>
+                {
+                    b.HasOne("InfinityNetServer.Services.Post.Domain.Entities.Post", "Post")
+                        .WithMany("PostPrivacies")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Post.Domain.Entities.PostPrivacyExclude", b =>
+                {
+                    b.HasOne("InfinityNetServer.Services.Post.Domain.Entities.PostPrivacy", "PostPrivacy")
+                        .WithMany("PostPrivacyExcludes")
+                        .HasForeignKey("PostPrivacyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PostPrivacy");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Post.Domain.Entities.PostPrivacyInclude", b =>
+                {
+                    b.HasOne("InfinityNetServer.Services.Post.Domain.Entities.PostPrivacy", "PostPrivacy")
+                        .WithMany("PostPrivacyIncludes")
+                        .HasForeignKey("PostPrivacyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PostPrivacy");
+                });
+
             modelBuilder.Entity("InfinityNetServer.Services.Post.Domain.Entities.Post", b =>
                 {
+                    b.Navigation("PostPrivacies");
+
                     b.Navigation("SharedPosts");
 
                     b.Navigation("SubPosts");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Post.Domain.Entities.PostPrivacy", b =>
+                {
+                    b.Navigation("PostPrivacyExcludes");
+
+                    b.Navigation("PostPrivacyIncludes");
                 });
 #pragma warning restore 612, 618
         }

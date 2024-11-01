@@ -5,12 +5,10 @@ using System;
 
 namespace InfinityNetServer.Services.Post.Infrastructure.Repositories
 {
-    public class PostRepository : SqlRepository<Domain.Entities.Post, Guid>, IPostRepository
+    public class PostRepository(PostDbContext context) 
+        : SqlRepository<Domain.Entities.Post, Guid>(context), IPostRepository
     {
 
-        public PostRepository(PostDbContext context) : base(context)
-        {
-        }
 
 
     }

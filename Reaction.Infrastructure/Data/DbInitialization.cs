@@ -9,6 +9,7 @@ using InfinityNetServer.Services.Reaction.Domain.Entities;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using InfinityNetServer.Services.Reaction.Domain.Enums;
 
 namespace InfinityNetServer.Services.Reaction.Infrastructure.Data;
 
@@ -49,21 +50,22 @@ public static class DbInitialization
         var existingReactionCount = await postReactionRepository.GetAllAsync();
         if (existingReactionCount.Count == 0)
         {
-            var postReactions = await GeneratePostReactions(profileClient, postClient);
+            IList<string> profileIds = await profileClient.GetProfileIds();
+            IList<string> postIds = await postClient.GetPostIds();
+            IList<string> commentIds = await commentClient.GetCommentIds();
+
+            var postReactions = GeneratePostReactions(profileIds, postIds);
             await postReactionRepository.CreateAsync(postReactions);
 
-            var commentReactions = await GenerateCommentReactions(profileClient, commentClient);
+            var commentReactions = GenerateCommentReactions(profileIds, commentIds);
             await commentReactionRepository.CreateAsync(commentReactions);
         }
     }
 
-    private static async Task<List<PostReaction>> GeneratePostReactions(
-        CommonProfileClient profileClient,
-        CommonPostClient postClient)
+    private static List<PostReaction> GeneratePostReactions(
+        IList<string> profileIds,
+        IList<string> postIds)
     {
-        var profileIds = await profileClient.GetProfileIds();
-        var postIds = await postClient.GetPostIds();
-
         var usedPairs = new HashSet<(string accountId, string postId)>();
         var reactions = new List<PostReaction>();
         var faker = new Faker();
@@ -92,9 +94,11 @@ public static class DbInitialization
 
                     var reaction = new PostReaction
                     {
-                        CreatedBy = Guid.Parse(profileId),
+                        Type = faker.PickRandom<ReactionType>(),
                         ProfileId = Guid.Parse(profileId),
-                        PostId = Guid.Parse(postId)
+                        PostId = Guid.Parse(postId),
+                        CreatedBy = Guid.Parse(profileId),
+                        CreatedAt = faker.Date.Recent(faker.Random.Int(1, 365))
                     };
 
                     reactions.Add(reaction);
@@ -105,13 +109,10 @@ public static class DbInitialization
         return reactions;
     }
 
-    private static async Task<List<CommentReaction>> GenerateCommentReactions(
-        CommonProfileClient profileClient,
-        CommonCommentClient commentClient)
+    private static List<CommentReaction> GenerateCommentReactions(
+        IList<string> profileIds,
+        IList<string> commentIds)
     {
-        var profileIds = await profileClient.GetProfileIds();
-        var commentIds = await commentClient.GetCommentIds();
-
         var usedPairs = new HashSet<(string accountId, string commentId)>();
         var reactions = new List<CommentReaction>();
         var faker = new Faker();
@@ -141,9 +142,11 @@ public static class DbInitialization
 
                     var reaction = new CommentReaction
                     {
-                        CreatedBy = Guid.Parse(profileId),
+                        Type = faker.PickRandom<ReactionType>(),
                         ProfileId = Guid.Parse(profileId),
-                        CommentId = Guid.Parse(commentId)
+                        CommentId = Guid.Parse(commentId),
+                        CreatedBy = Guid.Parse(profileId),
+                        CreatedAt = faker.Date.Recent(faker.Random.Int(1, 365))
                     };
 
                     reactions.Add(reaction);

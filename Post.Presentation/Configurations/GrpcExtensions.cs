@@ -33,11 +33,18 @@ public static class GrpcExtensions
             options.Address = new Uri(configuration["GrpcServers:GroupService"]);
         });
 
+        services.AddGrpcClient<RelationshipService.RelationshipServiceClient>(options =>
+        {
+            options.Address = new Uri(configuration["GrpcServers:RelationshipService"]);
+        });
+
         services.AddScoped(typeof(CommonIdentityClient));
 
         services.AddScoped(typeof(CommonProfileClient));
 
         services.AddScoped(typeof(CommonGroupClient));
+
+        services.AddScoped(typeof(CommonRelationshipClient));
     }
 
 }

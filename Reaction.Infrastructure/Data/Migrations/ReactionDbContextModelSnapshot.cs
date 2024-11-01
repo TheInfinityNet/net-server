@@ -77,6 +77,8 @@ namespace InfinityNetServer.Services.Reaction.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedAt");
+
                     b.HasIndex("CreatedBy", "ProfileId", "CommentId")
                         .IsUnique();
 
@@ -134,6 +136,8 @@ namespace InfinityNetServer.Services.Reaction.Infrastructure.Data.Migrations
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
 
                     b.HasIndex("CreatedBy", "ProfileId", "PostId")
                         .IsUnique();

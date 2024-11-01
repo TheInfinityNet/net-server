@@ -29,11 +29,12 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
             => await context.Friendships.FirstOrDefaultAsync(f =>
                     (f.SenderId.Equals(senderId) && f.ReceiverId.Equals(receiverId)) && f.Status == status);
 
-        public async Task<IList<Friendship>> GetFriendshipsWithLimitAsync(Guid profileId, int limit)
+        public async Task<IList<Friendship>> GetFriendshipsWithLimitAsync(Guid profileId, int? limit)
             => await context.Friendships
                 .Where(f =>
-                    (f.SenderId == profileId || f.ReceiverId == profileId) &&
-                    f.Status == FriendshipStatus.Accepted).Take(limit).ToListAsync();
+                    (f.SenderId == profileId || f.ReceiverId == profileId) 
+                    && f.Status == FriendshipStatus.Accepted)
+                .Take(limit ?? context.Friendships.Count()).ToListAsync();
         
     }
 }

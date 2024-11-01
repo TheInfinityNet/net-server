@@ -61,10 +61,25 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_friendships_created_at",
+                table: "friendships",
+                column: "created_at");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_friendships_sender_id_receiver_id",
                 table: "friendships",
                 columns: new[] { "sender_id", "receiver_id" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_friendships_status",
+                table: "friendships",
+                column: "status");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_interactions_created_at",
+                table: "interactions",
+                column: "created_at");
 
             migrationBuilder.CreateIndex(
                 name: "IX_interactions_friendship_id",
@@ -77,6 +92,11 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
                 table: "interactions",
                 columns: new[] { "profile_id", "relate_profile_id" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_interactions_type",
+                table: "interactions",
+                column: "type");
         }
 
         /// <inheritdoc />

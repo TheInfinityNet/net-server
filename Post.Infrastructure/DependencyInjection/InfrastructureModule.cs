@@ -19,6 +19,9 @@ public static class InfrastructureModule
     {
         services.AddScoped(typeof(ISqlRepository<,>), typeof(SqlRepository<,>));
         services.AddScoped<IPostRepository, PostRepository>();
+        services.AddScoped<IPostPrivacyRepository, PostPrivacyRepository>();
+        services.AddScoped<IPostPrivacyIncludeRepository, PostPrivacyIncludeRepository>();
+        services.AddScoped<IPostPrivacyExcludeRepository, PostPrivacyExcludeRepository>();
     }
 
 }

@@ -10,7 +10,7 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         [Column("name")]
         [MaxLength(100)]
         [Required]
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; }
 
         [Column("description", TypeName = "text")]
         public string Description { get; set; }

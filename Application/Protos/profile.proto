@@ -72,6 +72,15 @@ message GetPageProfileIdsResponse {
   repeated string ids = 1;
 }
 
+message ProfileIdWithName {
+  string id = 1;
+  string name = 2;
+}
+
+message GetProfileIdsWithNamesResponse {
+  repeated ProfileIdWithName profileIdsWithNames = 1;
+}
+
 service ProfileService {
 
   rpc getUserProfile(GetProfileRequest) returns (UserProfileResponse) {}
@@ -83,5 +92,7 @@ service ProfileService {
   rpc getUserProfileIds(google.protobuf.Empty) returns (GetUserProfileIdsResponse) {}
 
   rpc getPageProfileIds(google.protobuf.Empty) returns (GetPageProfileIdsResponse) {}
+
+  rpc getProfileIdsWithNames(google.protobuf.Empty) returns (GetProfileIdsWithNamesResponse) {}
 
 }

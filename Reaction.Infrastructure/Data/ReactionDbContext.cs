@@ -19,8 +19,15 @@ namespace InfinityNetServer.Services.Reaction.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<PostReaction>().HasIndex(p => new { p.CreatedBy, p.ProfileId, p.PostId }).IsUnique(); 
-            modelBuilder.Entity<CommentReaction>().HasIndex(p => new { p.CreatedBy, p.ProfileId, p.CommentId }).IsUnique(); 
+            var postReaction = modelBuilder.Entity<PostReaction>();
+            var commentReaction = modelBuilder.Entity<CommentReaction>();
+
+            postReaction.HasIndex(p => new { p.CreatedBy, p.ProfileId, p.PostId }).IsUnique();
+            postReaction.HasIndex(p => p.CreatedAt);
+
+            commentReaction.HasIndex(p => new { p.CreatedBy, p.ProfileId, p.CommentId }).IsUnique();
+            commentReaction.HasIndex(p => p.CreatedAt);
+
         }
 
     }

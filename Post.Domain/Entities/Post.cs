@@ -14,12 +14,9 @@ namespace InfinityNetServer.Services.Post.Domain.Entities
         [Column("id")]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        [Column("content")]
-        public string Content { get; set; } = string.Empty;
-
         [Required]
-        [Column("privacy", TypeName = "jsonb")]
-        public Privacy Privacy { get; set; } = new ();
+        [Column("content", TypeName = "jsonb")]
+        public PostContent Content { get; set; } = new ();
 
         [Required]
         [Column("post_type")]
@@ -47,9 +44,11 @@ namespace InfinityNetServer.Services.Post.Domain.Entities
         [ForeignKey("PresentationId")]
         public virtual Post Presentation { get; set; } = null;
 
-        public virtual ICollection<Post> SharedPosts { get; set; } = new List<Post>();
+        public virtual ICollection<Post> SharedPosts { get; set; } = [];
 
-        public virtual ICollection<Post> SubPosts { get; set; } = new List<Post>();
+        public virtual ICollection<Post> SubPosts { get; set; } = [];
+
+        public virtual ICollection<PostPrivacy> PostPrivacies { get; set; } = [];
 
     }
 
