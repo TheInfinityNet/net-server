@@ -54,10 +54,20 @@ namespace InfinityNetServer.Services.Reaction.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_comment_reactions_created_at",
+                table: "comment_reactions",
+                column: "created_at");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_comment_reactions_created_by_profile_id_comment_id",
                 table: "comment_reactions",
                 columns: new[] { "created_by", "profile_id", "comment_id" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_post_reactions_created_at",
+                table: "post_reactions",
+                column: "created_at");
 
             migrationBuilder.CreateIndex(
                 name: "IX_post_reactions_created_by_profile_id_post_id",

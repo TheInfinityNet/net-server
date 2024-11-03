@@ -33,3 +33,13 @@ enum ProfileStatus {
 	Deleted = 3;
 
 }
+
+enum InteractionType {
+
+	Follow = 0;
+
+	Mute = 1;
+
+	Block = 2;
+
+}

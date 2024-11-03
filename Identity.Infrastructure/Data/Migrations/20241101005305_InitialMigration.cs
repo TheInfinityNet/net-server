@@ -145,6 +145,12 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                 column: "account_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_accounts_default_user_profile_id",
+                table: "accounts",
+                column: "default_user_profile_id",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_local_providers_email",
                 table: "local_providers",
                 column: "email",

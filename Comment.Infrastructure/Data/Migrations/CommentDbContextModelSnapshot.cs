@@ -34,7 +34,7 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("jsonb")
                         .HasColumnName("content");
 
                     b.Property<DateTime>("CreatedAt")
@@ -55,13 +55,13 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("deleted_by");
 
+                    b.Property<Guid?>("FileMetadataId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("file_metadata_id");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
-
-                    b.Property<Guid?>("MediaId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("media_id");
 
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("uuid")
@@ -86,7 +86,13 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedAt");
+
                     b.HasIndex("ParentId");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("ProfileId");
 
                     b.ToTable("comments");
                 });

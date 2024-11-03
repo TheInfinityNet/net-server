@@ -23,7 +23,6 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 {
     [Tags("Auth APIs")]
     [ApiController]
-    [Route("auth")]
     public class AuthController : BaseApiController
     {
         private readonly IStringLocalizer<IdentitySharedResource> _localizer;

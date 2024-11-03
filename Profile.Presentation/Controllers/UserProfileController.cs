@@ -63,7 +63,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
 
             UserProfile currentProfile = await userProfileService.GetUserProfileById(userId);
 
-            List<string> actions = new List<string>();
+            List<string> actions = [];
 
             if (currentUserId != userId)
             {

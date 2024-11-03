@@ -57,5 +57,7 @@ public class CommonMappers : Profile
         CreateMap<Application.Protos.AccountWithDefaultProfile, Application.DTOs.Others.AccountWithDefaultProfile>();
 
         CreateMap<Application.Protos.GroupMemberWithGroup, Application.DTOs.Others.GroupMemberWithGroup>();
+
+        CreateMap<Application.Protos.ProfileIdWithName, Application.DTOs.Others.ProfileIdWithName>();
     }
 }

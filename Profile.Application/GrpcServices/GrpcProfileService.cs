@@ -75,5 +75,21 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
             return await Task.FromResult(response);
         }
 
+        public override async Task<GetProfileIdsWithNamesResponse> getProfileIdsWithNames(Empty request, ServerCallContext context)
+        {
+            _logger.LogInformation("Received get profile ids with name request");
+            var response = new GetProfileIdsWithNamesResponse();
+            var profiles = await _profileRepository.GetAllAsync();
+            response.ProfileIdsWithNames.AddRange(profiles.Select(p => new ProfileIdWithName
+            {
+                Id = p.Id.ToString(),
+                Name = p.Type == BuildingBlocks.Domain.Enums.ProfileType.User
+                ? p.UserProfile.FirstName + " " + (p.UserProfile.MiddleName != null ? p.UserProfile.MiddleName + " " : "") + p.UserProfile.LastName
+                : p.PageProfile.Name
+            }).ToList());
+
+            return await Task.FromResult(response);
+        }
+
     }
 }

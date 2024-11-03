@@ -5,8 +5,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using InfinityNetServer.BuildingBlocks.Domain.Entities;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
+using InfinityNetServer.Services.Comment.Domain.Entities;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 
 namespace InfinityNetServer.Services.Comment.Infrastructure.Data;
 
@@ -45,68 +48,123 @@ public static class DbInitialization
         var existingCommentCount = await commentRepository.GetAllAsync();
         if (existingCommentCount.Count == 0)
         {
-            var comments = await GenerateComments(numberOfComments, profileClient, postClient);
+            IList<string> profileIds = await profileClient.GetProfileIds();
+            IList<string> postIds = await postClient.GetPostIds();
+            IList<ProfileIdWithName> profileIdsWithNames = await profileClient.GetProfileIdsWithNames();
+
+            var comments = GenerateComments(numberOfComments, profileIds, postIds, profileIdsWithNames);
             await commentRepository.CreateAsync(comments);
 
-            var repliedComments = 
-                await GenerateRepliedComments(numberOfComments, profileClient, postClient, commentRepository);
+            profileIdsWithNames = await profileClient.GetProfileIdsWithNames();
+            var parentComments = await commentRepository.GetAllAsync();
+            var repliedComments = GenerateRepliedComments(
+                numberOfComments * 2, profileIds, postIds, parentComments, profileIdsWithNames);
             await commentRepository.CreateAsync(repliedComments);
         }
     }
 
-    private static async Task<List<Domain.Entities.Comment>> GenerateComments(
+    private static List<Domain.Entities.Comment> GenerateComments(
         int count,
-        CommonProfileClient profileClient,
-        CommonPostClient postClient)
+        IList<string> profileIds,
+        IList<string> postIds,
+        IList<ProfileIdWithName> profileIdsWithNames)
     {
-        var profileIds = await profileClient.GetProfileIds();
-        var postIds = await postClient.GetPostIds();
         var faker = new Faker<Domain.Entities.Comment>()
             .RuleFor(ap => ap.PostId, f => Guid.Parse(f.PickRandom(postIds)))
-            .RuleFor(ap => ap.Content, f => f.Lorem.Sentence())
+            .RuleFor(ap => ap.Content, f => GenerateCommentContent(profileIdsWithNames))
             .CustomInstantiator(f =>
             {
                 var createdBy = Guid.Parse(f.PickRandom(profileIds));
                 var profileId = createdBy;
-                var mediaId = (f.Random.Bool()) ? Guid.NewGuid() : (Guid?)null;
+                var fileMetadataId = (f.Random.Bool()) ? Guid.NewGuid() : (Guid?)null;
                 return new Domain.Entities.Comment
                 {
-                    CreatedBy = createdBy,
                     ProfileId = profileId,
-                    MediaId = mediaId
+                    FileMetadataId = fileMetadataId,
+                    CreatedBy = createdBy,
+                    CreatedAt = f.Date.Recent(f.Random.Int(1, 365))
                 };
             });
 
         return faker.Generate(count);
     }
 
-    private static async Task<List<Domain.Entities.Comment>> GenerateRepliedComments(
+    private static List<Domain.Entities.Comment> GenerateRepliedComments(
         int count,
-        CommonProfileClient profileClient,
-        CommonPostClient postClient,
-        ICommentRepository commentRepository)
+        IList<string> profileIds,
+        IList<string> postIds,
+        IList<Domain.Entities.Comment> parentComments,
+        IList<ProfileIdWithName> profileIdsWithNames)
     {
-        var profileIds = await profileClient.GetProfileIds();
-        var postIds = await postClient.GetPostIds();
-        var parentComments = await commentRepository.GetAllAsync();
-
         var faker = new Faker<Domain.Entities.Comment>()
             .RuleFor(ap => ap.PostId, f => Guid.Parse(f.PickRandom(postIds)))
             .RuleFor(ap => ap.ParentComment, f => f.PickRandom(parentComments))
-            .RuleFor(ap => ap.Content, f => f.Lorem.Sentence())
+            .RuleFor(ap => ap.Content, f => GenerateCommentContent(profileIdsWithNames))
             .CustomInstantiator(f => {
                 var createdBy = Guid.Parse(f.PickRandom(profileIds));
                 var profileId = createdBy;
-                var mediaId = (f.Random.Bool()) ? Guid.NewGuid() : (Guid?)null;
+                var fileMetadataId = (f.Random.Bool()) ? Guid.NewGuid() : (Guid?)null;
                 return new Domain.Entities.Comment
                 {
-                    CreatedBy = createdBy,
                     ProfileId = profileId,
-                    MediaId = mediaId
+                    FileMetadataId = fileMetadataId,
+                    CreatedBy = createdBy,
+                    CreatedAt = f.Date.Recent(f.Random.Int(1, 365))
                 };
             });
 
         return faker.Generate(count);
+    }
+
+    private static CommentContent GenerateCommentContent(
+        IList<ProfileIdWithName> profileIdsWithNames)
+    {
+        Faker faker = new();
+        CommentContent commentContent = new();
+        int facetCount = faker.Random.Int(1, profileIdsWithNames.Count < 3 ? profileIdsWithNames.Count : 3);
+        int minContentLength = 50;
+        int minStart = 0;
+        IList<string> text = [faker.Lorem.Sentence(minContentLength)];
+        IList<ProfileIdWithName> usedProfileIdsWithNames = [];
+
+        for (int i = 0; i < facetCount; i++)
+        {
+            var randomProfileIdWithName = faker.PickRandom(profileIdsWithNames);
+            while (usedProfileIdsWithNames.Contains(randomProfileIdWithName))
+                randomProfileIdWithName = faker.PickRandom(profileIdsWithNames);
+
+            int tagLength = randomProfileIdWithName.Name.Length;
+
+            // Đảm bảo minStart không vượt qua minContentLength - tagLength
+            if (minStart > minContentLength - tagLength)
+            {
+                minContentLength = minStart + tagLength + 1;
+                text[^1] = text[^1] + faker.Lorem.Sentence(tagLength + 1);
+            }
+
+            int start = faker.Random.Int(minStart, minContentLength - tagLength);
+            int end = start + tagLength;
+
+            commentContent.TagFacets.Add(new TagFacet
+            {
+                Type = FacetType.Tag,
+                ProfileId = Guid.Parse(randomProfileIdWithName.Id),
+                Start = start,
+                End = end
+            });
+
+            text[^1] = text[^1].Insert(start, $" @{randomProfileIdWithName.Name}");
+            usedProfileIdsWithNames.Add(randomProfileIdWithName);
+
+            minContentLength += 50;
+            minStart = end;
+            text.Add(faker.Lorem.Sentence(50));
+            
+        }
+
+        commentContent.Text = string.Join(" ", text);
+
+        return commentContent;
     }
 
 }

@@ -56,7 +56,6 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
                 if (entry.State == EntityState.Added)
                 {
                     if (entry.Entity.CreatedBy == null) entry.Entity.CreatedBy = authenticationName;
-                    entry.Entity.CreatedAt = DateTime.Now;
                     entry.Property(x => x.UpdatedBy).IsModified = false;
                     entry.Property(x => x.UpdatedAt).IsModified = false;
                     entry.Property(x => x.DeletedBy).IsModified = false;

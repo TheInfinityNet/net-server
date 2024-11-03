@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 
 namespace InfinityNetServer.Services.Profile.Infrastructure.Data;
 
@@ -36,7 +36,7 @@ public static class DbInitialization
 
     }
 
-    public static async void SeedEssentialData(this IServiceProvider serviceProvider, int numberOfProfiles)
+    public static async void SeedEssentialData(this IServiceProvider serviceProvider, int numberOfPageProfiles)
     {
         using var serviceScope = serviceProvider.CreateScope();
         serviceScope.ServiceProvider.GetService<ProfileDbContext>();
@@ -47,22 +47,23 @@ public static class DbInitialization
         var existingPageProfileCount = await pageRepository.GetAllAsync();
         if (existingPageProfileCount.Count == 0)
         {
-            var userProfiles = await GenerateUserProfiles(identityClient);
+            IList<string> accountIds = await identityClient.GetAccountIds();
+            IList<AccountWithDefaultProfile> accountWithDefaultProfiles = await identityClient.GetAccountsWithDefaultProfiles();
+
+            var userProfiles = GenerateUserProfiles(accountWithDefaultProfiles);
             await userProfileRepository.CreateAsync(userProfiles);
 
-            var pageProfiles = await GeneratePageProfiles(numberOfProfiles, identityClient);
+            var pageProfiles = GeneratePageProfiles(numberOfPageProfiles, accountIds);
             await pageRepository.CreateAsync(pageProfiles);
         }
     }
 
-    private static async Task<List<PageProfile>> GeneratePageProfiles(int count, CommonIdentityClient identityClient)
+    private static List<PageProfile> GeneratePageProfiles(int count, IList<string> accountIds)
     {
-        var accountIds = await identityClient.GetAccountIds();
         var faker = new Faker<PageProfile>()
-            .RuleFor(ap => ap.Name, f => f.Company.CompanyName())
             .CustomInstantiator(f =>
             {
-                var randomAccountId = Guid.Parse(f.PickRandom(accountIds));
+                var randomAccountId = Guid.Parse(f.PickRandom((IList<string>)accountIds));
                 return new PageProfile
                 {
                     Type = ProfileType.Page,
@@ -71,21 +72,23 @@ public static class DbInitialization
                     CreatedBy = randomAccountId
                 };
             })
-            .RuleFor(ap => ap.Description, f => f.Lorem.Sentence());
+            .RuleFor(ap => ap.Name, f => f.Company.CompanyName())
+            .RuleFor(ap => ap.Description, f => f.Lorem.Sentence())
+            .RuleFor(p => p.CreatedAt, f => f.Date.Recent(f.Random.Int(1, 365))); ;
 
         return faker.Generate(count);
     }
 
-    private static async Task<List<UserProfile>> GenerateUserProfiles(CommonIdentityClient identityClient)
+    private static IList<UserProfile> GenerateUserProfiles(
+        IList<AccountWithDefaultProfile> accountWithDefaultProfileIds)
     {
-        var accountWithProfileIds = await identityClient.GetAccountsWithDefaultProfiles();
-        List<UserProfile> userProfiles = new List<UserProfile>();
-        Faker faker = new Faker();
+        IList<UserProfile> userProfiles =  [];
+        Faker faker = new ();
 
-        foreach (var item in accountWithProfileIds)
+        foreach (var item in accountWithDefaultProfileIds)
         {
 
-            UserProfile userProfile = new UserProfile
+            UserProfile userProfile = new ()
             {
                 Id = Guid.Parse(item.DefaultUserProfileId),
                 Type = ProfileType.User,
@@ -98,7 +101,8 @@ public static class DbInitialization
                 LastName = faker.Name.LastName(),
                 Birthdate = GenerateRandomBirthDate(),
                 Gender = faker.PickRandom<Gender>(),
-                Bio = faker.Lorem.Sentence(50)
+                Bio = faker.Lorem.Sentence(50),
+                CreatedAt = faker.Date.Recent(faker.Random.Int(1, 365))
             };
             userProfiles.Add(userProfile);
 

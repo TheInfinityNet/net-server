@@ -19,7 +19,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile
 
         public override string GenerateName()
         {
-            return FirstName + " " + (MiddleName.Length != 0 ? MiddleName + " " : "") + LastName;
+            return FirstName + " " + (MiddleName != null ? MiddleName + " " : "") + LastName;
         }
     }
 }

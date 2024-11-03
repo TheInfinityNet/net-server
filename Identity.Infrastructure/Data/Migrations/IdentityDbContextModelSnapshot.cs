@@ -69,6 +69,9 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DefaultUserProfileId")
+                        .IsUnique();
+
                     b.ToTable("accounts");
                 });
 

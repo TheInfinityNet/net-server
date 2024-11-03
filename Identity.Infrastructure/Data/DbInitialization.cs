@@ -10,6 +10,7 @@ using InfinityNetServer.BuildingBlocks.Domain.Repositories;
 using InfinityNetServer.Services.Identity.Application.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Principal;
 
 namespace InfinityNetServer.Services.Identity.Infrastructure.Data;
 
@@ -55,17 +56,18 @@ public static class DbInitialization
             {
                 var accountProviders = GenerateAccountProviders(account, 1); 
                 await accountProviderRepository.CreateAsync(accountProviders);
-
-                var verifications = GenerateVerifications(account, 2); 
-                await verificationRepository.CreateAsync(verifications);
             }
+            var verifications = GenerateVerifications(
+                (new Faker()).PickRandom(accounts), 50);
+            await verificationRepository.CreateAsync(verifications);
         }
     }
 
     private static List<Account> GenerateAccounts(int count)
     {
         var faker = new Faker<Account>()
-            .RuleFor(a => a.DefaultUserProfileId, f => Guid.NewGuid());
+            .RuleFor(a => a.DefaultUserProfileId, f => Guid.NewGuid())
+            .RuleFor(p => p.CreatedAt, f => f.Date.Recent(f.Random.Int(1, 365)));
 
         return faker.Generate(count);
     }
@@ -76,7 +78,9 @@ public static class DbInitialization
             .RuleFor(ap => ap.Account, account)
             .RuleFor(ap => ap.Email, f => f.Internet.Email())
             .RuleFor(ap => ap.PasswordHash, PasswordHelper.HashPassword("123456"))
-            .RuleFor(ap => ap.Type, ProviderType.Local);
+            .RuleFor(ap => ap.Type, ProviderType.Local)
+            .RuleFor(p => p.CreatedBy, account.Id)
+            .RuleFor(p => p.CreatedAt, account.CreatedAt);
 
         return faker.Generate(count);
     }
@@ -87,7 +91,9 @@ public static class DbInitialization
             .RuleFor(v => v.Account, account)
             .RuleFor(v => v.Token, f => f.Random.AlphaNumeric(32))
             .RuleFor(v => v.Code, f => f.Random.Number(100000, 999999).ToString())
-            .RuleFor(v => v.ExpiresAt, f => f.Date.Future());
+            .RuleFor(v => v.ExpiresAt, f => f.Date.Future())
+            .RuleFor(p => p.CreatedBy, account.Id)
+            .RuleFor(p => p.CreatedAt, f => f.Date.Recent(f.Random.Int(1, 365)));
 
         return faker.Generate(count);
     }

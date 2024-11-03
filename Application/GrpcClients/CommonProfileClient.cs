@@ -1,15 +1,18 @@
-﻿using Google.Protobuf.WellKnownTypes;
+﻿using AutoMapper;
+using Google.Protobuf.WellKnownTypes;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using static InfinityNetServer.BuildingBlocks.Application.Protos.ProfileService;
 
 namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
 {
-    public class CommonProfileClient(ProfileServiceClient client, ILogger<CommonProfileClient> logger)
+    public class CommonProfileClient(ProfileServiceClient client, ILogger<CommonProfileClient> logger, IMapper mapper)
     {
 
         public async Task<IList<string>> GetProfileIds()
@@ -51,6 +54,22 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
                 var response = await client.getPageProfileIdsAsync(new Empty());
                 // Call the gRPC server to introspect the token
                 return new List<string>(response.Ids);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+            }
+        }
+
+        public async Task<IList<ProfileIdWithName>> GetProfileIdsWithNames()
+        {
+            try
+            {
+                logger.LogInformation("Starting get profile ids with name");
+                var response = await client.getProfileIdsWithNamesAsync(new Empty());
+                // Call the gRPC server to introspect the token
+                return new List<ProfileIdWithName>(response.ProfileIdsWithNames.Select(mapper.Map<ProfileIdWithName>).ToList());
             }
             catch (Exception e)
             {

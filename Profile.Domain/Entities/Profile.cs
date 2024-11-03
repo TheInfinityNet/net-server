@@ -30,6 +30,9 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         [Column("mobile_number")]
         public string MobileNumber { get; set; }
 
+        [Required]
+        public bool IsMobileNumberVerified { get; set; } = false;
+
         [Column("type")]
         public ProfileType Type { get; set; }
 

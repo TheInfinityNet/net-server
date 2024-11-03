@@ -12,39 +12,26 @@ using static InfinityNetServer.BuildingBlocks.Application.Protos.IdentityService
 
 namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
 {
-    public class CommonIdentityClient
+    public class CommonIdentityClient(IdentityServiceClient client, ILogger<CommonIdentityClient> logger, IMapper mapper)
     {
-
-        private readonly IdentityServiceClient _client;
-
-        private readonly ILogger<CommonIdentityClient> _logger;
-
-        private readonly IMapper _mapper;
-
-        public CommonIdentityClient(IdentityServiceClient client, ILogger<CommonIdentityClient> logger, IMapper mapper)
-        {
-            _client = client;
-            _logger = logger;
-            _mapper = mapper;
-        }
 
         public async Task<bool> Introspect(string token)
         {
             try
             {
-                _logger.LogInformation("Starting token introspection for token: {Token}", token);
+                logger.LogInformation("Starting token introspection for token: {Token}", token);
 
                 // Call the gRPC server to introspect the token
-                var response = await _client.introspectAsync(new IntrospectRequest
+                var response = await client.introspectAsync(new IntrospectRequest
                 {
                     Token = token
                 });
-                _logger.LogInformation(" is valid: " + response.Valid);
+                logger.LogInformation(" is valid: " + response.Valid);
                 return response.Valid;
             }
             catch (Exception ex)
             {
-                _logger.LogError(message: ex.Message);
+                logger.LogError(message: ex.Message);
                 return false;
             }
         }
@@ -53,8 +40,8 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
         {
             try
             {
-                _logger.LogInformation("Starting get account id");
-                var response = await _client.getAccountIdAsync(new GetAccountIdRequest
+                logger.LogInformation("Starting get account id");
+                var response = await client.getAccountIdAsync(new GetAccountIdRequest
                 {
                     DefaultUserProfileId = defaultUserProfileId
                 });
@@ -63,42 +50,42 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                logger.LogError(e.Message);
                 throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
-        public async Task<List<string>> GetAccountIds()
+        public async Task<IList<string>> GetAccountIds()
         {
             try
             {
-                _logger.LogInformation("Starting get account ids");
-                var response = await _client.getAccountIdsAsync(new Empty());
+                logger.LogInformation("Starting get account ids");
+                var response = await client.getAccountIdsAsync(new Empty());
                 // Call the gRPC server to introspect the token
                 return new List<string>(response.Ids);
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                logger.LogError(e.Message);
                 throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
-        public async Task<List<DTOs.Others.AccountWithDefaultProfile>> GetAccountsWithDefaultProfiles()
+        public async Task<IList<DTOs.Others.AccountWithDefaultProfile>> GetAccountsWithDefaultProfiles()
         {
             try
             {
-                _logger.LogInformation("Starting get account with default profile ids");
-                var response = await _client.getAccountsWithDefaultProfilesAsync(new Empty());
+                logger.LogInformation("Starting get account with default profile ids");
+                var response = await client.getAccountsWithDefaultProfilesAsync(new Empty());
 
                 var result = response.AccountsWithDefaultProfiles
-                    .Select(_ => _mapper.Map<DTOs.Others.AccountWithDefaultProfile>(_)).ToList();
+                    .Select(_ => mapper.Map<DTOs.Others.AccountWithDefaultProfile>(_)).ToList();
 
                 return result;
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                logger.LogError(e.Message);
                 throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
             }
         }

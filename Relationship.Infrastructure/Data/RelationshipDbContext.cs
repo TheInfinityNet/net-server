@@ -19,18 +19,31 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Interaction>()
-                .HasIndex(i => new { UserProfileId = i.ProfileId, i.RelateProfileId })
-                .IsUnique();
 
             var friendship = modelBuilder.Entity<Friendship>();
+            var interaction = modelBuilder.Entity<Interaction>();
 
             friendship.HasIndex(f => new { f.SenderId, f.ReceiverId }).IsUnique();
+
+            friendship.HasIndex(i => i.Status);
+
+            friendship.HasIndex(i => i.CreatedAt);
+
             friendship
                 .HasOne(f => f.Interaction)
                 .WithOne(i => i.Friendship)
                 .HasForeignKey<Interaction>(i => i.FriendshipId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            interaction
+                .HasIndex(i => new { i.ProfileId, i.RelateProfileId })
+                .IsUnique();
+
+            interaction.HasIndex(i => i.FriendshipId);
+
+            interaction.HasIndex(i => i.Type);
+
+            interaction.HasIndex(i => i.CreatedAt);
         }
 
     }

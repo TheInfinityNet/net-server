@@ -77,6 +77,10 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("Status");
+
                     b.HasIndex("SenderId", "ReceiverId")
                         .IsUnique();
 
@@ -139,8 +143,12 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedAt");
+
                     b.HasIndex("FriendshipId")
                         .IsUnique();
+
+                    b.HasIndex("Type");
 
                     b.HasIndex("ProfileId", "RelateProfileId")
                         .IsUnique();

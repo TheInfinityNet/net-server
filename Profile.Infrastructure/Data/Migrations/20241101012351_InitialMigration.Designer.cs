@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ProfileDbContext))]
-    [Migration("20241029075323_InitialMigration")]
+    [Migration("20241101012351_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -70,6 +70,9 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
+                    b.Property<bool>("IsMobileNumberVerified")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("MobileNumber")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -95,6 +98,15 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("MobileNumber")
+                        .IsUnique();
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("Type");
+
                     b.ToTable("profiles");
 
                     b.UseTptMappingStrategy();
@@ -113,6 +125,9 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("page_profiles");
                 });
@@ -156,9 +171,6 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("username");
-
-                    b.HasIndex("MobileNumber")
-                        .IsUnique();
 
                     b.HasIndex("Username")
                         .IsUnique();

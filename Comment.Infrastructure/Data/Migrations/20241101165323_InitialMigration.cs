@@ -19,8 +19,8 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data.Migrations
                     profile_id = table.Column<Guid>(type: "uuid", nullable: false),
                     post_id = table.Column<Guid>(type: "uuid", nullable: false),
                     parent_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    media_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    content = table.Column<string>(type: "text", nullable: false),
+                    file_metadata_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    content = table.Column<string>(type: "jsonb", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
@@ -40,9 +40,24 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_comments_created_at",
+                table: "comments",
+                column: "created_at");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_comments_parent_id",
                 table: "comments",
                 column: "parent_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_comments_post_id",
+                table: "comments",
+                column: "post_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_comments_profile_id",
+                table: "comments",
+                column: "profile_id");
         }
 
         /// <inheritdoc />
