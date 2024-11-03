@@ -6,12 +6,29 @@ option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
 
 import "google/protobuf/empty.proto";
 
+import "Protos/base.proto";
+
 message GetPostIdsResponse {
   repeated string ids = 1;
+}
+
+message GetFileMetadataIdsWithTypesRequest {
+	string type = 1;
+}
+
+message FileMetadataIdWithType {
+	string fileMetadataId = 1;
+	string type = 2;
+}
+
+message GetFileMetadataIdsWithTypesResponse {
+	repeated FileMetadataIdWithType fileMetadataIdsWithTypes = 1;
 }
 
 service PostService {
 
   rpc getPostIds (google.protobuf.Empty) returns (GetPostIdsResponse) {}
+
+  rpc getFileMetadataIdsWithTypes (GetFileMetadataIdsWithTypesRequest) returns (GetFileMetadataIdsWithTypesResponse) {}
 
 }

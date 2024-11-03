@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Post.Application.Services
 {
@@ -6,6 +7,8 @@ namespace InfinityNetServer.Services.Post.Application.Services
     {
 
         Task<Domain.Entities.Post> GetById(string id);
+
+        Task<IList<Domain.Entities.Post>> GetByType(string type);
 
     }
 }

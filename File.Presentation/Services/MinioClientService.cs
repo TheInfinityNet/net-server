@@ -80,5 +80,31 @@ namespace InfinityNetServer.Services.File.Presentation.Services
             }
         }
 
+        public async Task CopyObject(string sourceObjectKey, string destinationObjectKey)
+        {
+            try
+            {
+                await EnsureBucketExists();
+
+                // Copy object within the same bucket with a new object key
+                await minioClient.CopyObjectAsync(new CopyObjectArgs()
+                    .WithBucket(_bucketName) // Source and destination bucket are the same
+                    .WithObject(destinationObjectKey) // New name for the copied object
+                    .WithCopyObjectSource(new CopySourceObjectArgs()
+                        .WithBucket(_bucketName) // Source bucket
+                        .WithObject(sourceObjectKey) // Original object key to be copied
+                    )
+                );
+
+                logger.LogInformation($"Object '{sourceObjectKey}' copied to '{destinationObjectKey}' successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error occurred while copying object: {ex.Message}");
+                throw new FileException(FileErrorCode.CAN_NOT_COPY_FILE, StatusCodes.Status422UnprocessableEntity);
+            }
+        }
+
+
     }
 }

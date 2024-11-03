@@ -10,5 +10,7 @@ namespace InfinityNetServer.Services.File.Application.Services
 
         Task DeleteObject(string objectKey);
 
+        Task CopyObject(string sourceObjectKey, string destinationObjectKey);
+
     }
 }

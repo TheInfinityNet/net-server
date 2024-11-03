@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using FFMpegCore;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 
 namespace InfinityNetServer.Services.File.Presentation.Controllers
 {
@@ -32,8 +33,23 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         IStringLocalizer<FileSharedResource> Localizer,
         IMessageBus messageBus,
         IFileMetadataRepository fileMetadataRepository,
+        CommonPostClient postClient,
         IMinioClientService minioClientService) : BaseApiController(authenticatedUserService) 
     {
+
+        [HttpGet("test/{type}")]
+        public async Task<IActionResult> Test(string type)
+        {
+
+            var fileMetadataIdsWithTypes = await postClient.GetFileMetadataIdsWithTypes(type);
+
+            await minioClientService.CopyObject("photo.jpg", GenerateFileName("image", "jpg"));
+
+            return Ok(new
+            {
+                fileMetadataIdsWithTypes
+            });
+        }
 
         [HttpPost("upload")]
         public async Task<IActionResult> UploadRawFile(IFormFile file)
