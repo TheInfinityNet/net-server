@@ -2,11 +2,11 @@
   "Routes": [
     {
       "DownstreamPathTemplate": "/auth/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 60001
+          "Port": 61001
         }
       ],
       "UpstreamPathTemplate": "/auth/{everything}",
@@ -35,11 +35,11 @@
 
     {
       "DownstreamPathTemplate": "/profiles/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 60002
+          "Port": 61002
         }
       ],
       "UpstreamPathTemplate": "/profiles/{everything}",

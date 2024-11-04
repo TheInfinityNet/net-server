@@ -26,7 +26,7 @@ public static class DbInitialization
     {
         using var serviceScope = serviceProvider.CreateScope();
         var dbContext = serviceScope.ServiceProvider.GetService<FileDbContext>();
-        var fileMetadataRepository = serviceScope.ServiceProvider.GetService<IFileMetadataRepository>();
+        var fileMetadataRepository = serviceScope.ServiceProvider.GetService<IPhotoMetadataRepository>();
         var identityClient = serviceScope.ServiceProvider.GetService<CommonIdentityClient>();
         var profileClient = serviceScope.ServiceProvider.GetService<CommonProfileClient>();
         var postClient = serviceScope.ServiceProvider.GetService<CommonPostClient>();

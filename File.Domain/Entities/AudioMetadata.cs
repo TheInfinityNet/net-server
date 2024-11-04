@@ -2,11 +2,11 @@
 
 namespace InfinityNetServer.Services.File.Domain.Entities
 {
-    public class FileMetadata : BaseMetadata
+    public class AudioMetadata : BaseMetadata
     {
 
-        [BsonElement("mimeType")]
-        public string MimeType { get; set; }
+        [BsonElement("duration")]
+        public double Duration { get; set; }
 
     }
 }

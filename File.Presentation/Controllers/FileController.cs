@@ -32,7 +32,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         ILogger<FileController> logger,
         IStringLocalizer<FileSharedResource> Localizer,
         IMessageBus messageBus,
-        IFileMetadataRepository fileMetadataRepository,
+        IPhotoMetadataRepository fileMetadataRepository,
         CommonPostClient postClient,
         IMinioClientService minioClientService) : BaseApiController(authenticatedUserService) 
     {
