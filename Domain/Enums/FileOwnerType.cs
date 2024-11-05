@@ -1,4 +1,4 @@
-﻿namespace InfinityNetServer.Services.File.Domain.Enums
+﻿namespace InfinityNetServer.BuildingBlocks.Domain.Enums
 {
     public enum FileOwnerType
     {

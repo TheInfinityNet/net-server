@@ -196,11 +196,11 @@
 
     {
       "DownstreamPathTemplate": "/files/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 60010
+          "Port": 61010
         }
       ],
       "UpstreamPathTemplate": "/files/{everything}",
@@ -211,8 +211,8 @@
       },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
-        "DurationOfBreak": 5000,
-        "TimeoutValue": 2000
+        "DurationOfBreak": 10000,
+        "TimeoutValue": 5000
       },
       "SwaggerKey": "file"
     }

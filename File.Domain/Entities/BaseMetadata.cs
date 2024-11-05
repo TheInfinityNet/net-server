@@ -1,5 +1,5 @@
 ﻿using System;
-using InfinityNetServer.Services.File.Domain.Enums;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -9,9 +9,11 @@ namespace InfinityNetServer.Services.File.Domain.Entities
     {
 
         [BsonId]
-        public ObjectId Id { get; set; }
+        [BsonRepresentation(BsonType.String)]
+        public Guid Id { get; set; }
 
         [BsonElement("owner_id")]
+        [BsonRepresentation(BsonType.String)]
         public Guid OwnerId { get; set; }
 
         [BsonElement("name")]
@@ -21,7 +23,7 @@ namespace InfinityNetServer.Services.File.Domain.Entities
         public FileOwnerType OwnerType { get; set; }
 
         [BsonElement("type")]
-        public FileType Type { get; set; }
+        public FileMetadataType Type { get; set; }
 
         [BsonElement("size")]
         public long Size { get; set; }
@@ -30,18 +32,21 @@ namespace InfinityNetServer.Services.File.Domain.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [BsonElement("created_by")]
-        public Guid CreatedBy { get; set; }
+        [BsonRepresentation(BsonType.String)]
+        public Guid? CreatedBy { get; set; }
 
         [BsonElement("updated_at")]
         public DateTime? UpdatedAt { get; set; }
 
         [BsonElement("updated_by")]
+        [BsonRepresentation(BsonType.String)]
         public Guid? UpdatedBy { get; set; }
 
         [BsonElement("deleted_at")]
         public DateTime? DeletedAt { get; set; }
 
         [BsonElement("deleted_by")]
+        [BsonRepresentation(BsonType.String)]
         public Guid? DeletedBy { get; set; }
 
         [BsonElement("is_deleted")]

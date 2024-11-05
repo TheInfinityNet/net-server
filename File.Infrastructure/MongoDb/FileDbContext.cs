@@ -1,7 +1,6 @@
 ﻿using InfinityNetServer.Services.File.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
-using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.File.Infrastructure.MongoDb
 {
@@ -13,8 +12,6 @@ namespace InfinityNetServer.Services.File.Infrastructure.MongoDb
         protected readonly IMongoClient _client;
 
         protected readonly IMongoDatabase _database;
-
-        public IMongoCollection<BaseMetadata> BaseMetadata { get; }
 
         public IMongoCollection<PhotoMetadata> PhotoMetadata { get; }
 
@@ -29,11 +26,17 @@ namespace InfinityNetServer.Services.File.Infrastructure.MongoDb
             _configuration = configuration;
 
             _client = new MongoClient(MongoClientSettings
-                .FromUrl(new MongoUrl(configuration.GetSection("MongoDB.Connection").ToString())));
+                .FromUrl(new MongoUrl(configuration["MongoDB:Connection"].ToString())));
 
-            _database = _client.GetDatabase(configuration.GetSection("MongoDB.DatabaseName").ToString());
+            _database = _client.GetDatabase(configuration["MongoDB:DatabaseName"].ToString());
 
-            FileMetadata = GetCollection<BaseMetadata>();
+            PhotoMetadata = GetCollection<PhotoMetadata>();
+
+            VideoMetadata = GetCollection<VideoMetadata>();
+
+            AudioMetadata = GetCollection<AudioMetadata>();
+
+            FileMetadata = GetCollection<FileMetadata>();
 
         }
 

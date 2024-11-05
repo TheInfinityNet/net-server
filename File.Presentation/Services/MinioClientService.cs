@@ -18,18 +18,20 @@ namespace InfinityNetServer.Services.File.Presentation.Services
         ILogger<MinioClientService> logger) : IMinioClientService
     {
 
-        private readonly string _bucketName = MinioConnectionExtension.GetBucketName(configuration);
+        public string MainBucket { get; } = MinioConnectionExtension.GetMainBucketName(configuration);
 
-        public async Task StoreObject(Stream file, string fileName, string contentType)
+        public string TempBucket { get; } = MinioConnectionExtension.GetTempBucketName(configuration);
+
+        public async Task StoreObject(Stream file, string fileName, string contentType, string bucketName)
         {
             try
             {
                 // Check if the bucket exists, and create if it doesn't
-                await EnsureBucketExists();
+                await EnsureBucketExists(bucketName);
 
                 // Store object in the bucket
                 await minioClient.PutObjectAsync(new PutObjectArgs()
-                    .WithBucket(_bucketName)
+                    .WithBucket(bucketName)
                     .WithObject(fileName)
                     .WithStreamData(file)
                     .WithObjectSize(file.Length)
@@ -43,15 +45,15 @@ namespace InfinityNetServer.Services.File.Presentation.Services
             }
         }
 
-        public async Task DeleteObject(string objectKey)
+        public async Task DeleteObject(string objectKey, string bucketName)
         {
             try
             {
-                await EnsureBucketExists();
+                await EnsureBucketExists(bucketName);
 
                 // Delete the object from the bucket
                 await minioClient.RemoveObjectAsync(new RemoveObjectArgs()
-                    .WithBucket(_bucketName)
+                    .WithBucket(bucketName)
                     .WithObject(objectKey)
                 );
             }
@@ -62,36 +64,36 @@ namespace InfinityNetServer.Services.File.Presentation.Services
             }
         }
 
-        private async Task EnsureBucketExists()
+        private async Task EnsureBucketExists(string bucketName)
         {
             try
             {
-                var bucketExists = await minioClient.BucketExistsAsync(new BucketExistsArgs().WithBucket(_bucketName));
+                var bucketExists = await minioClient.BucketExistsAsync(new BucketExistsArgs().WithBucket(bucketName));
                 if (!bucketExists)
                 {
-                    await minioClient.MakeBucketAsync(new MakeBucketArgs().WithBucket(_bucketName));
-                    logger.LogInformation($"Bucket '{_bucketName}' created successfully.");
+                    await minioClient.MakeBucketAsync(new MakeBucketArgs().WithBucket(bucketName));
+                    logger.LogInformation($"Bucket '{bucketName}' created successfully.");
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error ensuring bucket '{_bucketName}' exists: {ex.Message}");
+                logger.LogError($"Error ensuring bucket '{bucketName}' exists: {ex.Message}");
                 throw new FileException(FileErrorCode.BUCKET_CREATION_FAILED, StatusCodes.Status500InternalServerError);
             }
         }
 
-        public async Task CopyObject(string sourceObjectKey, string destinationObjectKey)
+        public async Task CopyObject(string sourceBucket, string sourceObjectKey, string destinationBucket, string destinationObjectKey)
         {
             try
             {
-                await EnsureBucketExists();
+                await EnsureBucketExists(sourceBucket);
+                await EnsureBucketExists(destinationBucket);
 
-                // Copy object within the same bucket with a new object key
                 await minioClient.CopyObjectAsync(new CopyObjectArgs()
-                    .WithBucket(_bucketName) // Source and destination bucket are the same
+                    .WithBucket(destinationBucket) 
                     .WithObject(destinationObjectKey) // New name for the copied object
                     .WithCopyObjectSource(new CopySourceObjectArgs()
-                        .WithBucket(_bucketName) // Source bucket
+                        .WithBucket(sourceBucket) // Source bucket
                         .WithObject(sourceObjectKey) // Original object key to be copied
                     )
                 );

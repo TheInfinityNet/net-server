@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
 using InfinityNetServer.Services.Profile.Application.DTOs.Requests;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
-using InfinityNetServer.BuildingBlocks.Application.Bus;
 using System.Threading.Tasks;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.Services.Profile.Application.Services;
@@ -19,6 +18,7 @@ using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.Services.Profile.Application.DTOs.Responses;
 using InfinityNetServer.Services.Profile.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
+using InfinityNetServer.BuildingBlocks.Application.Contracts;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Controllers
 {

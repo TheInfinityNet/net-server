@@ -1,5 +1,5 @@
 ﻿using InfinityNetServer.Services.File.Domain.Entities;
-using MongoDB.Bson;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,9 +12,9 @@ namespace InfinityNetServer.Services.File.Domain.Repositories
 
         Task UpdateAsync(PhotoMetadata entity);
 
-        Task DeleteAsync(ObjectId id);
+        Task DeleteAsync(PhotoMetadata entity);
 
-        Task<PhotoMetadata> GetByIdAsync(ObjectId id);
+        Task<PhotoMetadata> GetByIdAsync(Guid id);
 
         Task<IList<PhotoMetadata>> GetAllAsync();
 

@@ -6,16 +6,12 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System;
-using Bogus;
 using InfinityNetServer.Services.File.Domain.Entities;
 using InfinityNetServer.Services.File.Application;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Commands;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.File.Domain.Repositories;
-using InfinityNetServer.BuildingBlocks.Application.Bus;
 using InfinityNetServer.BuildingBlocks.Application.Services;
-using InfinityNetServer.Services.File.Application.DTOs;
 using InfinityNetServer.Services.File.Application.Exceptions;
 using InfinityNetServer.Services.File.Application.Services;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +19,8 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using FFMpegCore;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
+using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using MongoDB.Bson;
 
 namespace InfinityNetServer.Services.File.Presentation.Controllers
 {
@@ -37,17 +35,32 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         IMinioClientService minioClientService) : BaseApiController(authenticatedUserService) 
     {
 
-        [HttpGet("test/{type}")]
-        public async Task<IActionResult> Test(string type)
+        [HttpGet("seed/posts/{type}")]
+        public async Task<IActionResult> SeedDataForPostFile(string type)
         {
 
             var fileMetadataIdsWithTypes = await postClient.GetFileMetadataIdsWithTypes(type);
 
-            await minioClientService.CopyObject("photo.jpg", GenerateFileName("image", "jpg"));
+            foreach (var fileMetadataIdWithType in fileMetadataIdsWithTypes)
+            {
+                string fileName = GenerateFileName("image", "jpg");
+                await minioClientService.CopyObject(minioClientService.TempBucket, "photo.jpg", minioClientService.MainBucket, fileName);
+                await fileMetadataRepository.CreateAsync(new PhotoMetadata
+                {
+                    Id = Guid.Parse(fileMetadataIdWithType.FileMetadataId),
+                    Type = Enum.Parse<FileMetadataType>(fileMetadataIdWithType.Type),
+                    Name = fileName,
+                    Width = 800,
+                    Height = 400,
+                    OwnerType = FileOwnerType.Post,
+                    OwnerId = Guid.Parse(fileMetadataIdWithType.Id),
+                    CreatedBy = Guid.Parse(fileMetadataIdWithType.OwnerId),
+                });
+            }
 
             return Ok(new
             {
-                fileMetadataIdsWithTypes
+                Message = "Data seeded successfully"
             });
         }
 
@@ -59,7 +72,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
             await using var stream = file.OpenReadStream();
             var filetype = file.ContentType.Split('/').First();
             var extension = file.FileName.Split('.').Last();
-            await minioClientService.StoreObject(stream, GenerateFileName(filetype, extension), file.ContentType);
+            await minioClientService.StoreObject(stream, GenerateFileName(filetype, extension), file.ContentType, minioClientService.MainBucket);
 
             return Ok(new
             {
@@ -89,7 +102,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
 
                 var filetype = photo.ContentType.Split('/').First();
                 var extension = photo.ContentType.Split('/').Last();
-                await minioClientService.StoreObject(stream, GenerateFileName(filetype, extension), photo.ContentType);
+                await minioClientService.StoreObject(stream, GenerateFileName(filetype, extension), photo.ContentType, minioClientService.MainBucket);
             }
 
             return Ok(new
@@ -156,14 +169,14 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
             {
                 var filetype = video.ContentType.Split('/').First();
                 var extension = video.ContentType.Split('/').Last();
-                await minioClientService.StoreObject(stream, GenerateFileName(filetype, extension), video.ContentType);
+                await minioClientService.StoreObject(stream, GenerateFileName(filetype, extension), video.ContentType, minioClientService.MainBucket);
             }
 
             // Lưu thumbnail vào MinIO
             await using (var thumbnailStream = new FileStream(thumbnailPath, FileMode.Open, FileAccess.Read))
             {
                 var thumbnailFileName = GenerateFileName("thumbnail", "jpg"); // Tạo tên file cho thumbnail
-                await minioClientService.StoreObject(thumbnailStream, thumbnailFileName, "image/jpeg");
+                await minioClientService.StoreObject(thumbnailStream, thumbnailFileName, "image/jpeg", minioClientService.MainBucket);
             }
 
             // Xóa file tạm sau khi xử lý

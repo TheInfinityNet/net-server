@@ -29,6 +29,8 @@ namespace InfinityNetServer.Services.Post.Application.GrpcServices
             var fileMetadataIdsWithTypes = await postService.GetByType(request.Type.ToString());
             response.FileMetadataIdsWithTypes.AddRange(fileMetadataIdsWithTypes.Select(p => new FileMetadataIdWithType
             {
+                Id = p.Id.ToString(),
+                OwnerId = p.OwnerId.ToString(),
                 FileMetadataId = p.Id.ToString(),
                 Type = p.Type.ToString()
             }));

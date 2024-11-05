@@ -17,8 +17,15 @@ message GetFileMetadataIdsWithTypesRequest {
 }
 
 message FileMetadataIdWithType {
-	string fileMetadataId = 1;
-	string type = 2;
+
+	string id = 1;
+
+	string ownerId = 2;
+
+	string fileMetadataId = 3;
+
+	string type = 4;
+
 }
 
 message GetFileMetadataIdsWithTypesResponse {

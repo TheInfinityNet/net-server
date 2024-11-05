@@ -38,7 +38,8 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
                 logger.LogInformation("Starting get file metadata ids with types");
                 var response = await client.getFileMetadataIdsWithTypesAsync(new GetFileMetadataIdsWithTypesRequest { Type = type });
                 // Call the gRPC server to introspect the token
-                return new List<DTOs.Others.FileMetadataIdWithType>(response.FileMetadataIdsWithTypes.Select(_ => mapper.Map<DTOs.Others.FileMetadataIdWithType>(_)).ToList());
+                return new List<DTOs.Others.FileMetadataIdWithType>(response.FileMetadataIdsWithTypes
+                    .Select(_ => mapper.Map<DTOs.Others.FileMetadataIdWithType>(_)).ToList());
             }
             catch (Exception e)
             {
