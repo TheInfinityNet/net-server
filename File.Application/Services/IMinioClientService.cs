@@ -6,9 +6,15 @@ namespace InfinityNetServer.Services.File.Application.Services
     public interface IMinioClientService
     {
 
-        Task StoreObject(Stream file, string fileName, string contentType);
+        public string MainBucket { get; }
 
-        Task DeleteObject(string objectKey);
+        public string TempBucket { get; }
+
+        Task StoreObject(Stream file, string fileName, string contentType, string bucketName);
+
+        Task DeleteObject(string objectKey, string bucketName);
+
+        Task CopyObject(string sourceBucket, string sourceObjectKey, string destinationBucket, string destinationObjectKey);
 
     }
 }

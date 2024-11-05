@@ -24,6 +24,7 @@ namespace InfinityNetServer.Services.File.Application.Exceptions
         public static readonly FileErrorCode FILE_EMPTY = new("file/file-empty", "file_empty");
         public static readonly FileErrorCode FILE_SIZE_EXCEEDED = new("file/file-size-exceeded", "file_size_exceeded");
         public static readonly FileErrorCode INVALID_FILE_TYPE = new("file/invalid-file-type", "invalid_file_type");
+        public static readonly FileErrorCode CAN_NOT_COPY_FILE = new("file/can-not-copy-file", "can_not_copy_file");
 
     }
 

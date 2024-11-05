@@ -36,10 +36,16 @@ namespace InfinityNetServer.Services.File.Infrastructure.Minio
         }
 
         // Helper method to get bucket name from configuration
-        public static string GetBucketName(Microsoft.Extensions.Configuration.IConfiguration configuration)
+        public static string GetMainBucketName(Microsoft.Extensions.Configuration.IConfiguration configuration)
         {
             var minioOptions = configuration.GetSection("Minio").Get<MinioOptions>();
-            return minioOptions.BucketName;
+            return minioOptions.MainBucketName;
+        }
+
+        public static string GetTempBucketName(Microsoft.Extensions.Configuration.IConfiguration configuration)
+        {
+            var minioOptions = configuration.GetSection("Minio").Get<MinioOptions>();
+            return minioOptions.TempBucketName;
         }
 
     }

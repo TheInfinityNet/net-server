@@ -27,6 +27,7 @@ using InfinityNetServer.Services.File.Presentation.Exceptions;
 using Elastic.CommonSchema;
 using InfinityNetServer.BuildingBlocks.Infrastructure.Redis;
 using InfinityNetServer.Services.File.Infrastructure.Minio;
+using InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ;
 
 namespace InfinityNetServer.Services.File.Presentation.Configurations;
 
@@ -41,9 +42,11 @@ internal static class HostingExtensions
 
         builder.Services.AddHttpContextAccessor();
 
-        builder.Services.AddDbContext();
+        builder.Services.AddDbContext(builder.Configuration);
 
         builder.Services.AddMessageBus(builder.Configuration);
+
+        builder.Services.AddMediatR(typeof(Program));
 
         builder.Services.AddRedisConnection(builder.Configuration);
 

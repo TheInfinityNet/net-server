@@ -21,7 +21,6 @@ using InfinityNetServer.Services.Profile.Infrastructure.DependencyInjection;
 using InfinityNetServer.Services.Profile.Infrastructure.Data;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.CORS;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.HealthCheck;
-using InfinityNetServer.Services.Profile.Application.Consumers;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Grpc;
 using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
 using InfinityNetServer.Services.Profile.Presentation.Mappers;
@@ -42,7 +41,7 @@ internal static class HostingExtensions
 
         builder.Services.AddDbContext();
 
-        builder.Services.AddMessageBus(builder.Configuration, typeof(ProfileCreatedConsumer));
+        builder.Services.AddMessageBus(builder.Configuration);
 
         builder.Services.AddRepositories();
 

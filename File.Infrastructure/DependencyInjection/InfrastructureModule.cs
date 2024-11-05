@@ -1,25 +1,22 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using InfinityNetServer.BuildingBlocks.Domain.Repositories;
-using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositories;
 using InfinityNetServer.Services.File.Domain.Repositories;
 using InfinityNetServer.Services.File.Infrastructure.Repositories;
-using InfinityNetServer.Services.File.Infrastructure.Data;
-using InfinityNetServer.Services.File.Domain.Repositories;
+using Microsoft.Extensions.Configuration;
+using InfinityNetServer.Services.File.Infrastructure.MongoDb;
 
 namespace InfinityNetServer.Services.File.Infrastructure.DependencyInjection;
 
 public static class InfrastructureModule
 {
 
-    public static void AddDbContext(this IServiceCollection services)
+    public static void AddDbContext(this IServiceCollection services, IConfiguration configuration)
     {
-        //services.AddDbContext<FileDbContext>();
+        services.AddScoped<FileDbContext>().AddOptions<IConfiguration>().Bind(configuration);
     }
 
     public static void AddRepositories(this IServiceCollection services)
     {
-        services.AddScoped(typeof(ISqlRepository<,>), typeof(SqlRepository<,>));
-        services.AddScoped<IFileMetadataRepository, FileMetadataRepository>();
+        services.AddScoped<IPhotoMetadataRepository, PhotoMetadataRepository>();
     }
 
 }

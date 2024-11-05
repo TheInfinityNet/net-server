@@ -1,4 +1,4 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Bus;
+﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,9 +12,7 @@ public static class BusExtensions
     public static void AddMessageBus(this IServiceCollection services, IConfiguration configuration, Type consumerAssemblyMarkerType = null)
     {
         if (consumerAssemblyMarkerType != null) services.AddMassTransitConsumers(configuration, consumerAssemblyMarkerType);
-
         else services.AddMassTransitProducers(configuration);
-
         services.AddScoped<IMessageBus, MessageBus>();
     }
 

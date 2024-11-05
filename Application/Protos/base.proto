@@ -43,3 +43,17 @@ enum InteractionType {
 	Block = 2;
 
 }
+
+enum PostType {
+
+	Share = 0;
+
+	Text = 1;
+
+	Photo = 2;
+
+	Video = 3;
+
+	Audio = 4;
+
+}

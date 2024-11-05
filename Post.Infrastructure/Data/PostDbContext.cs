@@ -11,7 +11,7 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
     public class PostDbContext : PostreSqlDbContext<PostDbContext>
     {
 
-        DbSet<Domain.Entities.Post> Posts { get; set; }
+        public DbSet<Domain.Entities.Post> Posts { get; set; }
 
         public PostDbContext(
             DbContextOptions<PostDbContext> options,

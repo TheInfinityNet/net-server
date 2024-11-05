@@ -13,11 +13,13 @@ using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
 using InfinityNetServer.Services.Identity.Application.DTOs.Responses;
 using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
-using InfinityNetServer.BuildingBlocks.Application.Bus;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Commands;
 using InfinityNetServer.Services.Identity.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.Services.Identity.Application.Services;
+using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
+using Microsoft.AspNetCore.Authorization;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 {
@@ -72,16 +74,20 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 
         [EndpointDescription("Send verification email")]
         [ProducesResponseType(typeof(SendMailResponse), StatusCodes.Status200OK)]
+        [Authorize]
         [HttpPost("send-mail")]
         public async Task<IActionResult> SendMail([FromBody] SendMailRequest request)
         {
             _logger.LogInformation(CultureInfo.CurrentCulture.ToString());
-            await _messageBus.Publish(new BaseCommand<SendMailRequest>
+            await _messageBus.Publish(new DomainEvent.SendMailWithCodeEvent
             {
-                RoutingKey = "app.info",
-                SentAt = DateTime.UtcNow,
+                Id = Guid.NewGuid(),
+                ToMail = request.Email,
+                Type = request.Type,
                 AcceptLanguage = CultureInfo.CurrentCulture.ToString(),
-                Payload = request
+                Code = "123456",
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = GetCurrentUserId()
             });
 
             return Ok(new SendMailResponse
