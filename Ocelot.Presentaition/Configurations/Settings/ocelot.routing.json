@@ -211,8 +211,8 @@
       },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
-        "DurationOfBreak": 10000,
-        "TimeoutValue": 5000
+        "DurationOfBreak": 20000,
+        "TimeoutValue": 10000
       },
       "SwaggerKey": "file"
     }

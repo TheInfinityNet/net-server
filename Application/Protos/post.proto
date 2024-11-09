@@ -6,8 +6,6 @@ option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
 
 import "google/protobuf/empty.proto";
 
-import "Protos/base.proto";
-
 message GetPostIdsResponse {
   repeated string ids = 1;
 }

@@ -10,8 +10,24 @@ message GetCommentIdsResponse {
   repeated string ids = 1;
 }
 
+message FileMetadataIdWithOwnerId {
+
+	string id = 1;
+
+	string ownerId = 2;
+
+	string fileMetadataId = 3;
+
+}
+
+message GetFileMetadataIdsWithOwnerIdsResponse {
+	repeated FileMetadataIdWithOwnerId fileMetadataIdsWithOwnerIds = 1;
+}
+
 service CommentService {
 
   rpc getCommentIds (google.protobuf.Empty) returns (GetCommentIdsResponse) {}
+
+  rpc getFileMetadataIdsWithOwnerIds (google.protobuf.Empty) returns (GetFileMetadataIdsWithOwnerIdsResponse) {}
 
 }

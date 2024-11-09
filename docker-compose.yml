@@ -109,7 +109,7 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - ./Docker/minio/infinity-net-minio-data:/data:rw
+      - infinity-net-minio-data:/data:r
     environment:
       MINIO_ROOT_USER: infinitynetUser
       MINIO_ROOT_PASSWORD: Password@123
@@ -251,4 +251,5 @@ volumes:
   infinity-net-pgadmin-data:
   infinity-net-postgres-data:
   infinity-net-mongodb-data:
+  infinity-net-minio-data:
   #infinity-net-elasticsearch-data:

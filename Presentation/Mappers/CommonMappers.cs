@@ -61,5 +61,7 @@ public class CommonMappers : Profile
         CreateMap<Application.Protos.ProfileIdWithName, Application.DTOs.Others.ProfileIdWithName>();
 
         CreateMap<Application.Protos.FileMetadataIdWithType, Application.DTOs.Others.FileMetadataIdWithType>().ReverseMap();
+
+        CreateMap<Application.Protos.FileMetadataIdWithOwnerId, Application.DTOs.Others.FileMetadataIdWithOwnerId>().ReverseMap();
     }
 }

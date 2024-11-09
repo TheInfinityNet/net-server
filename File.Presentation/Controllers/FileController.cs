@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System;
@@ -12,7 +10,6 @@ using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.File.Domain.Repositories;
 using InfinityNetServer.BuildingBlocks.Application.Services;
-using InfinityNetServer.Services.File.Application.Exceptions;
 using InfinityNetServer.Services.File.Application.Services;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
@@ -20,7 +17,9 @@ using System.IO;
 using FFMpegCore;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Contracts;
-using MongoDB.Bson;
+using InfinityNetServer.Services.File.Application.Helper;
+using static InfinityNetServer.Services.File.Application.Helper.FileHelper;
+using static InfinityNetServer.Services.File.Infrastructure.Minio.MinioExtension;
 
 namespace InfinityNetServer.Services.File.Presentation.Controllers
 {
@@ -32,29 +31,85 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         IMessageBus messageBus,
         IPhotoMetadataRepository fileMetadataRepository,
         CommonPostClient postClient,
+        CommonCommentClient commentClient,
         IMinioClientService minioClientService) : BaseApiController(authenticatedUserService) 
     {
 
         [HttpGet("seed/posts/{type}")]
         public async Task<IActionResult> SeedDataForPostFile(string type)
         {
-
+            await minioClientService.DeleteAllObjectsInBucket(MAIN_BUCKET_NAME);
             var fileMetadataIdsWithTypes = await postClient.GetFileMetadataIdsWithTypes(type);
 
             foreach (var fileMetadataIdWithType in fileMetadataIdsWithTypes)
             {
+                int ramdomIndex = new Random().Next(1, 9);
+                string filePath = FAKE_PHOTOS_FOLDER_PATH + $"\\photo{ramdomIndex}.jpg";
                 string fileName = GenerateFileName("image", "jpg");
-                await minioClientService.CopyObject(minioClientService.TempBucket, "photo.jpg", minioClientService.MainBucket, fileName);
+                string contentType = GetContentType(filePath);
+
+                int width;
+                int height;
+                using (FileStream stream = System.IO.File.OpenRead(filePath))
+                {
+                    (width, height) = await GetImageDimensionsAsync(stream);
+                    stream.Position = 0;
+
+                    await minioClientService.StoreObject(stream, fileName, contentType, MAIN_BUCKET_NAME);
+                }
+
                 await fileMetadataRepository.CreateAsync(new PhotoMetadata
                 {
                     Id = Guid.Parse(fileMetadataIdWithType.FileMetadataId),
                     Type = Enum.Parse<FileMetadataType>(fileMetadataIdWithType.Type),
                     Name = fileName,
-                    Width = 800,
-                    Height = 400,
+                    Width = width,
+                    Height = height,
                     OwnerType = FileOwnerType.Post,
                     OwnerId = Guid.Parse(fileMetadataIdWithType.Id),
                     CreatedBy = Guid.Parse(fileMetadataIdWithType.OwnerId),
+                });
+            }
+
+            return Ok(new
+            {
+                Message = "Data seeded successfully"
+            });
+        }
+
+        [HttpGet("seed/comments")]
+        public async Task<IActionResult> SeedDataForCommentFile()
+        {
+            //await minioClientService.DeleteAllObjectsInBucket(MAIN_BUCKET_NAME);
+            var fileMetadataIdsWithOwnerIds = await commentClient.GetFileMetadataIdsWithOwnerIds();
+
+            foreach (var fileMetadataIdWithOwnerId in fileMetadataIdsWithOwnerIds)
+            {
+                int ramdomIndex = new Random().Next(1, 9);
+                string filePath = FAKE_PHOTOS_FOLDER_PATH + $"\\photo{ramdomIndex}.jpg";
+                string fileName = GenerateFileName("image", "jpg");
+                string contentType = GetContentType(filePath);
+
+                int width;
+                int height;
+                using (FileStream stream = System.IO.File.OpenRead(filePath))
+                {
+                    (width, height) = await GetImageDimensionsAsync(stream);
+                    stream.Position = 0;
+
+                    await minioClientService.StoreObject(stream, fileName, contentType, MAIN_BUCKET_NAME);
+                }
+
+                await fileMetadataRepository.CreateAsync(new PhotoMetadata
+                {
+                    Id = Guid.Parse(fileMetadataIdWithOwnerId.FileMetadataId),
+                    Type = FileMetadataType.Photo,
+                    Name = fileName,
+                    Width = width,
+                    Height = height,
+                    OwnerType = FileOwnerType.Comment,
+                    OwnerId = Guid.Parse(fileMetadataIdWithOwnerId.Id),
+                    CreatedBy = Guid.Parse(fileMetadataIdWithOwnerId.OwnerId),
                 });
             }
 
@@ -72,7 +127,8 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
             await using var stream = file.OpenReadStream();
             var filetype = file.ContentType.Split('/').First();
             var extension = file.FileName.Split('.').Last();
-            await minioClientService.StoreObject(stream, GenerateFileName(filetype, extension), file.ContentType, minioClientService.MainBucket);
+            await minioClientService.StoreObject(
+                stream, GenerateFileName(filetype, extension), file.ContentType, MAIN_BUCKET_NAME);
 
             return Ok(new
             {
@@ -91,18 +147,15 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
             int height;
             await using (var stream = photo.OpenReadStream())
             {
-                using (var image = await SixLabors.ImageSharp.Image.LoadAsync(stream))
-                {
-                    width = image.Width;
-                    height = image.Height;
-                }
+                (width, height) = await FileHelper.GetImageDimensionsAsync(stream);
 
                 // Reset stream position to the beginning
                 stream.Position = 0;
 
                 var filetype = photo.ContentType.Split('/').First();
                 var extension = photo.ContentType.Split('/').Last();
-                await minioClientService.StoreObject(stream, GenerateFileName(filetype, extension), photo.ContentType, minioClientService.MainBucket);
+                await minioClientService.StoreObject(
+                    stream, GenerateFileName(filetype, extension), photo.ContentType, MAIN_BUCKET_NAME);
             }
 
             return Ok(new
@@ -169,14 +222,15 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
             {
                 var filetype = video.ContentType.Split('/').First();
                 var extension = video.ContentType.Split('/').Last();
-                await minioClientService.StoreObject(stream, GenerateFileName(filetype, extension), video.ContentType, minioClientService.MainBucket);
+                await minioClientService.StoreObject(
+                    stream, GenerateFileName(filetype, extension), video.ContentType, MAIN_BUCKET_NAME);
             }
 
             // Lưu thumbnail vào MinIO
             await using (var thumbnailStream = new FileStream(thumbnailPath, FileMode.Open, FileAccess.Read))
             {
                 var thumbnailFileName = GenerateFileName("thumbnail", "jpg"); // Tạo tên file cho thumbnail
-                await minioClientService.StoreObject(thumbnailStream, thumbnailFileName, "image/jpeg", minioClientService.MainBucket);
+                await minioClientService.StoreObject(thumbnailStream, thumbnailFileName, "image/jpeg", MAIN_BUCKET_NAME);
             }
 
             // Xóa file tạm sau khi xử lý
@@ -194,71 +248,6 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                     height = thumbnailHeight
                 }
             });
-        }
-
-        private void ValidateVideo(IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-                throw new FileException(FileErrorCode.FILE_EMPTY, StatusCodes.Status400BadRequest);
-
-            if (file.Length > 20971520) // 20MB = 20 * 1024 * 1024
-                throw new FileException(FileErrorCode.FILE_SIZE_EXCEEDED, StatusCodes.Status400BadRequest);
-
-            var allowedExtensions = new[] { ".mp4", ".avi", ".mov", ".mkv" };
-            if (!allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
-                throw new FileException(FileErrorCode.INVALID_FILE_TYPE, StatusCodes.Status415UnsupportedMediaType);
-        }
-
-        private void ValidateImage(IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-                throw new FileException(FileErrorCode.FILE_EMPTY, StatusCodes.Status400BadRequest);
-
-            if (file.Length > 20971520) // 20MB = 20 * 1024 * 1024
-                throw new FileException(FileErrorCode.FILE_SIZE_EXCEEDED, StatusCodes.Status400BadRequest);
-
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
-            if (!allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
-                throw new FileException(FileErrorCode.INVALID_FILE_TYPE, StatusCodes.Status415UnsupportedMediaType);
-        }
-
-        private void ValidateAudio(IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-                throw new FileException(FileErrorCode.FILE_EMPTY, StatusCodes.Status400BadRequest);
-
-            if (file.Length > 20971520) // 20MB = 20 * 1024 * 1024
-                throw new FileException(FileErrorCode.FILE_SIZE_EXCEEDED, StatusCodes.Status400BadRequest);
-
-            var allowedExtensions = new[] { ".mp3", ".wav", ".flac", ".aac" };
-            if (!allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
-                throw new FileException(FileErrorCode.INVALID_FILE_TYPE, StatusCodes.Status415UnsupportedMediaType);
-        }
-
-        private void ValidateFile(IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-                throw new FileException(FileErrorCode.FILE_EMPTY, StatusCodes.Status400BadRequest);
-
-            if (file.Length > 20971520) // 20MB = 20 * 1024 * 1024
-                throw new FileException(FileErrorCode.FILE_SIZE_EXCEEDED, StatusCodes.Status400BadRequest);
-
-            var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".txt", ".zip", ".rar" }; // Add other file extensions if needed
-            if (!allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
-                throw new FileException(FileErrorCode.INVALID_FILE_TYPE, StatusCodes.Status415UnsupportedMediaType);
-        }
-
-
-        private string GenerateFileName(string fileType, string extension)
-        {
-            // Lấy thời gian hiện tại với format yyyyMMdd_HHmmss
-            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture);
-
-            // Tạo UUID duy nhất
-            string uniqueId = Guid.NewGuid().ToString();
-
-            // Kết hợp tên file
-            return $"{fileType}_{timestamp}_{uniqueId}.{extension}";
         }
 
     }

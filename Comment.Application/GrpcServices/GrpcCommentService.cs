@@ -8,25 +8,30 @@ using InfinityNetServer.Services.Comment.Domain.Repositories;
 
 namespace InfinityNetServer.Services.Comment.Application.GrpcServices
 {
-    public class GrpcCommentService : CommentService.CommentServiceBase
+    public class GrpcCommentService(ILogger<GrpcCommentService> logger, ICommentRepository commentRepository) : CommentService.CommentServiceBase
     {
-
-        private readonly ILogger<GrpcCommentService> _logger;
-
-        private readonly ICommentRepository _commentRepository;
-
-        public GrpcCommentService(ILogger<GrpcCommentService> logger, ICommentRepository commentRepository)
-        {
-            _logger = logger;
-            _commentRepository = commentRepository;
-        }
 
         public override async Task<GetCommentIdsResponse> getCommentIds(Empty request, ServerCallContext context)
         {
-            _logger.LogInformation("Received getAccountIds request");
+            logger.LogInformation("Received getAccountIds request");
             var response = new GetCommentIdsResponse();
-            var comments = await _commentRepository.GetAllAsync();
+            var comments = await commentRepository.GetAllAsync();
             response.Ids.AddRange(comments.Select(p => p.Id.ToString()).ToList());
+
+            return await Task.FromResult(response);
+        }
+
+        public override async Task<GetFileMetadataIdsWithOwnerIdsResponse> getFileMetadataIdsWithOwnerIds(Empty request, ServerCallContext context)
+        {
+            logger.LogInformation("Received getFileMetadataIdsWithTypes request");
+            var response = new GetFileMetadataIdsWithOwnerIdsResponse();
+            var comments = await commentRepository.GetAllMediaCommentAsync();
+            response.FileMetadataIdsWithOwnerIds.AddRange(comments.Select(p => new FileMetadataIdWithOwnerId
+            {
+                Id = p.Id.ToString(),
+                OwnerId = p.ProfileId.ToString(),
+                FileMetadataId = p.Id.ToString()
+            }));
 
             return await Task.FromResult(response);
         }

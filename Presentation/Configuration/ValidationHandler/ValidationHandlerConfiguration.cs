@@ -23,7 +23,7 @@ public static class ValidationHandlerConfiguration
                 Dictionary<string, string[]> errors = context.ModelState
                         .Where(x => x.Value!.Errors.Count > 0)
                         .ToDictionary(
-                            kvp => kvp.Key,
+                            kvp => LowercaseFirstChar(kvp.Key),
                             kvp => kvp.Value!.Errors.Select(
                                 e =>
                                 {
@@ -32,12 +32,12 @@ public static class ValidationHandlerConfiguration
                                 }).ToArray()
                         );
                 BaseErrorCode commonErrorCode = BaseErrorCode.VALIDATION_ERROR;
-                string errorCode = commonErrorCode.Code;
+                string type = commonErrorCode.Code;
                 string message = stringLocalizer[commonErrorCode.Message].ToString();
 
                 return new BadRequestObjectResult(new
                 {
-                    errorCode,
+                    type,
                     message,
                     errors
                 });
@@ -73,6 +73,14 @@ public static class ValidationHandlerConfiguration
         });
     }*/
 
+    private static string LowercaseFirstChar(string input)
+    {
+        if (string.IsNullOrEmpty(input) || char.IsLower(input[0]))
+            return input;
+
+        return char.ToLower(input[0]) + input.Substring(1);
+    }
+
     private static IList<string> GetValidationErrorMessage(
         ActionContext context, string propertyName, ModelErrorCollection errors, IStringLocalizer stringLocalizer)
     {
@@ -81,7 +89,7 @@ public static class ValidationHandlerConfiguration
             .FirstOrDefault(param => param.Name == propertyName)?
             .ParameterType;
 
-        List<string> errorMessages = new List<string>();
+        List<string> errorMessages = [];
 
         if (modelType != null)
         {

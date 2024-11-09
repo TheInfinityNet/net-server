@@ -13,7 +13,7 @@ public record BaseErrorCode
     }
 
     // Static instances to represent each error code
-    public static readonly BaseErrorCode VALIDATION_ERROR = new("common/validation-error", "validation_error");
+    public static readonly BaseErrorCode VALIDATION_ERROR = new("ValidationError", "validation_error");
     public static readonly BaseErrorCode SEED_DATA_ERROR = new("common/seed-data-error", "seed_data_error");
 
     // Token Errors
