@@ -6,7 +6,6 @@ using InfinityNetServer.BuildingBlocks.Application.Consumers;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System.Threading;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Commands;
 using InfinityNetServer.Services.Profile.Domain.Entities;
 using System;
 using InfinityNetServer.Services.Profile.Domain.Repositories;

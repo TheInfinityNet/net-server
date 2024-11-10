@@ -14,6 +14,7 @@ using InfinityNetServer.Services.Identity.Application.Helpers;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Jwt;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.Services.Identity.Application.Services;
+using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Services
 {
@@ -183,7 +184,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
 
                     ValidateRefreshTokenSignature(token);
                 }
-                else if (expiryTime < DateTime.UtcNow) throw new IdentityException(IdentityErrorCode.TOKEN_INVALID, StatusCodes.Status401Unauthorized);
+                else if (expiryTime < DateTime.UtcNow) throw new CommonException(BaseErrorCode.TOKEN_INVALID, StatusCodes.Status401Unauthorized);
 
                 var jwtId = jwtToken.Id;
                 var value = await _baseRedisService.GetAsync(jwtId);
@@ -211,7 +212,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                throw new IdentityException(IdentityErrorCode.INVALID_SIGNATURE, StatusCodes.Status401Unauthorized);
+                throw new CommonException(BaseErrorCode.INVALID_SIGNATURE, StatusCodes.Status401Unauthorized);
             }
 
         }
@@ -238,7 +239,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             }
             catch (Exception)
             {
-                throw new IdentityException(IdentityErrorCode.INVALID_SIGNATURE, StatusCodes.Status401Unauthorized);
+                throw new CommonException(BaseErrorCode.INVALID_SIGNATURE, StatusCodes.Status401Unauthorized);
             }
         }
 

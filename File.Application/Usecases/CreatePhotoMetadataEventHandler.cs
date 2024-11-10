@@ -13,7 +13,7 @@ namespace InfinityNetServer.Services.File.Application.Usecases
 
         public Task Handle(DomainEvent.PhotoMetadataEvent request, CancellationToken cancellationToken)
         {
-            logger.LogInformation("Handling message with file name: {Name}", request.Name);
+            logger.LogInformation("Handling message with file name: {Id}", request.Id);
             return Task.CompletedTask;
         }
 
