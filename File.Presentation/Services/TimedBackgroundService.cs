@@ -13,7 +13,7 @@ namespace InfinityNetServer.Services.File.Presentation.Services
     public class TimedBackgroundService
         (ILogger<TimedBackgroundService> logger, IMinioClientService minioClientService) : BackgroundService
     {
-        private readonly TimeSpan _interval = TimeSpan.FromMinutes(1);
+        private readonly TimeSpan _interval = TimeSpan.FromDays(1);
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {

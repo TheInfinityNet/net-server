@@ -12,6 +12,8 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Events
 
             public Guid Id { get; set; }
 
+            public Guid TempId { get; set; }
+
             public Guid OwnerId { get; set; }
 
             public FileOwnerType OwnerType { get; set; }

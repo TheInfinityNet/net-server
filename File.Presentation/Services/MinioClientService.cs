@@ -15,7 +15,7 @@ namespace InfinityNetServer.Services.File.Presentation.Services
         ILogger<MinioClientService> logger) : IMinioClientService
     {
 
-        public async Task StoreObject(Stream file, string fileName, string contentType, string bucketName)
+        public async Task StoreObject(string bucketName, Stream file, string fileName, string contentType)
         {
             try
             {
@@ -38,7 +38,7 @@ namespace InfinityNetServer.Services.File.Presentation.Services
             }
         }
 
-        public async Task DeleteObject(string objectKey, string bucketName)
+        public async Task DeleteObject(string bucketName, string objectKey)
         {
             try
             {

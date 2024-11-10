@@ -1,23 +1,23 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FFMpegCore;
+using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
+using InfinityNetServer.BuildingBlocks.Application.Services;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
+using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
+using InfinityNetServer.Services.File.Application;
+using InfinityNetServer.Services.File.Application.Services;
+using InfinityNetServer.Services.File.Domain.Entities;
+using InfinityNetServer.Services.File.Domain.Repositories;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using System.Linq;
-using System.Threading.Tasks;
 using System;
-using InfinityNetServer.Services.File.Domain.Entities;
-using InfinityNetServer.Services.File.Application;
-using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
-using InfinityNetServer.BuildingBlocks.Domain.Enums;
-using InfinityNetServer.Services.File.Domain.Repositories;
-using InfinityNetServer.BuildingBlocks.Application.Services;
-using InfinityNetServer.Services.File.Application.Services;
-using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
-using FFMpegCore;
-using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
-using InfinityNetServer.BuildingBlocks.Application.Contracts;
-using InfinityNetServer.Services.File.Application.Helper;
+using System.Linq;
+using System.Threading.Tasks;
 using static InfinityNetServer.Services.File.Application.Helper.FileHelper;
 using static InfinityNetServer.Services.File.Infrastructure.Minio.MinioExtension;
 
@@ -29,7 +29,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         ILogger<FileController> logger,
         IStringLocalizer<FileSharedResource> Localizer,
         IMessageBus messageBus,
-        IPhotoMetadataRepository fileMetadataRepository,
+        IPhotoMetadataRepository photoMetadataRepository,
         CommonPostClient postClient,
         CommonCommentClient commentClient,
         IMinioClientService minioClientService,
@@ -56,10 +56,10 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                     (width, height) = await GetImageDimensionsAsync(stream);
                     stream.Position = 0;
 
-                    await minioClientService.StoreObject(stream, fileName, contentType, MAIN_BUCKET_NAME);
+                    await minioClientService.StoreObject(MAIN_BUCKET_NAME, stream, fileName, contentType);
                 }
 
-                await fileMetadataRepository.CreateAsync(new PhotoMetadata
+                await photoMetadataRepository.CreateAsync(new PhotoMetadata
                 {
                     Id = Guid.Parse(fileMetadataIdWithType.FileMetadataId),
                     Type = Enum.Parse<FileMetadataType>(fileMetadataIdWithType.Type),
@@ -98,10 +98,10 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                     (width, height) = await GetImageDimensionsAsync(stream);
                     stream.Position = 0;
 
-                    await minioClientService.StoreObject(stream, fileName, contentType, MAIN_BUCKET_NAME);
+                    await minioClientService.StoreObject(MAIN_BUCKET_NAME, stream, fileName, contentType);
                 }
 
-                await fileMetadataRepository.CreateAsync(new PhotoMetadata
+                await photoMetadataRepository.CreateAsync(new PhotoMetadata
                 {
                     Id = Guid.Parse(fileMetadataIdWithOwnerId.FileMetadataId),
                     Type = FileMetadataType.Photo,
@@ -128,7 +128,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
             var filetype = file.ContentType.Split('/').First();
             var extension = file.FileName.Split('.').Last();
             await minioClientService.StoreObject(
-                stream, GenerateFileName(filetype, extension), file.ContentType, MAIN_BUCKET_NAME);
+                MAIN_BUCKET_NAME, stream, GenerateFileName(filetype, extension), file.ContentType);
 
             return Ok(new
             {
@@ -138,6 +138,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
             });
         }
 
+        [Authorize]
         [HttpPost("upload/photo")]
         public async Task<IActionResult> UploadRawImage(IFormFile photo, [FromForm] bool isTemporarily = false)
         {
@@ -152,13 +153,13 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
 
             await using (var stream = photo.OpenReadStream())
             {
-                (width, height) = await FileHelper.GetImageDimensionsAsync(stream);
+                (width, height) = await GetImageDimensionsAsync(stream);
 
                 // Reset stream position to the beginning
                 stream.Position = 0;
 
-                await minioClientService.StoreObject(stream, fileName, photo.ContentType, 
-                    isTemporarily ? TEMP_BUCKET_NAME : MAIN_BUCKET_NAME);
+                await minioClientService.StoreObject(isTemporarily ? TEMP_BUCKET_NAME : MAIN_BUCKET_NAME, 
+                    stream, fileName, photo.ContentType);
 
                 if (isTemporarily) 
                     await baseRedisService.SetWithExpirationAsync(id.ToString(), new PhotoMetadata
@@ -168,7 +169,6 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                             Name = fileName,
                             Width = width,
                             Height = height,
-                            OwnerType = FileOwnerType.Comment,
                             CreatedBy = GetCurrentUserId(),
                         }, TimeSpan.FromMinutes(30));
             }
@@ -207,9 +207,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
             // Tạo file tạm cho video
             var tempFilePath = Path.GetTempFileName();
             await using (var stream = new FileStream(tempFilePath, FileMode.Create))
-            {
-                await video.CopyToAsync(stream);
-            }
+            await video.CopyToAsync(stream);
 
             // Phân tích video và lấy thông tin chiều rộng và chiều cao
             var videoInfo = await FFProbe.AnalyseAsync(tempFilePath);
@@ -239,14 +237,14 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                 var filetype = video.ContentType.Split('/').First();
                 var extension = video.ContentType.Split('/').Last();
                 await minioClientService.StoreObject(
-                    stream, GenerateFileName(filetype, extension), video.ContentType, MAIN_BUCKET_NAME);
+                    MAIN_BUCKET_NAME, stream, GenerateFileName(filetype, extension), video.ContentType);
             }
 
             // Lưu thumbnail vào MinIO
             await using (var thumbnailStream = new FileStream(thumbnailPath, FileMode.Open, FileAccess.Read))
             {
                 var thumbnailFileName = GenerateFileName("thumbnail", "jpg"); // Tạo tên file cho thumbnail
-                await minioClientService.StoreObject(thumbnailStream, thumbnailFileName, "image/jpeg", MAIN_BUCKET_NAME);
+                await minioClientService.StoreObject(MAIN_BUCKET_NAME, thumbnailStream, thumbnailFileName, "image/jpeg");
             }
 
             // Xóa file tạm sau khi xử lý

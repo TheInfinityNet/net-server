@@ -8,7 +8,7 @@ namespace InfinityNetServer.Services.File.Presentation.Services
 
         public static void AddServices(this IServiceCollection services)
         {
-            services.AddScoped<IMinioClientService, MinioClientService>();
+            services.AddSingleton<IMinioClientService, MinioClientService>();
             services.AddHostedService<TimedBackgroundService>();
         }
 

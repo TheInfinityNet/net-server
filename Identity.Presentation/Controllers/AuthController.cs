@@ -1,5 +1,16 @@
-﻿using InfinityNetServer.Services.Identity.Application;
-using InfinityNetServer.Services.Identity.Application.Exceptions;
+﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
+using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+using InfinityNetServer.BuildingBlocks.Application.Services;
+using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
+using InfinityNetServer.Services.Identity.Application;
+using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
+using InfinityNetServer.Services.Identity.Application.DTOs.Responses;
+using InfinityNetServer.Services.Identity.Application.GrpcClients;
+using InfinityNetServer.Services.Identity.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -8,18 +19,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
-using InfinityNetServer.Services.Identity.Application.DTOs.Responses;
-using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
-using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
-using InfinityNetServer.Services.Identity.Application.GrpcClients;
-using InfinityNetServer.BuildingBlocks.Application.Services;
-using InfinityNetServer.Services.Identity.Application.Services;
-using InfinityNetServer.BuildingBlocks.Application.Contracts;
-using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
-using Microsoft.AspNetCore.Authorization;
-using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 {

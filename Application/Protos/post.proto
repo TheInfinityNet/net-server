@@ -30,10 +30,20 @@ message GetFileMetadataIdsWithTypesResponse {
 	repeated FileMetadataIdWithType fileMetadataIdsWithTypes = 1;
 }
 
+message GetFileMetadataIdOfPostRequest {
+	string id = 1;
+}
+
+message GetFileMetadataIdOfPostResponse {
+	string fileMetadataId = 1;
+}
+
 service PostService {
 
   rpc getPostIds (google.protobuf.Empty) returns (GetPostIdsResponse) {}
 
   rpc getFileMetadataIdsWithTypes (GetFileMetadataIdsWithTypesRequest) returns (GetFileMetadataIdsWithTypesResponse) {}
+
+  rpc getFileMetadataIdOfPost (GetFileMetadataIdOfPostRequest) returns (GetFileMetadataIdOfPostResponse) {}
 
 }

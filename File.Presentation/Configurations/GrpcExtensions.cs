@@ -1,5 +1,6 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
+using InfinityNetServer.Services.File.Application.GrpcClients;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
@@ -45,6 +46,7 @@ public static class GrpcExtensions
 
         services.AddScoped(typeof(CommonCommentClient));
 
+        services.AddScoped(typeof(PostClient));
     }
 
 }

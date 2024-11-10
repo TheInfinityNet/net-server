@@ -26,6 +26,7 @@ namespace InfinityNetServer.Services.File.Infrastructure.Repositories
         public virtual async Task UpdateAsync(PhotoMetadata entity)
         {
             if (entity.UpdatedBy == null) entity.UpdatedBy = authenticatedUserService.GetAuthenticatedUserId();
+            if (entity.UpdatedAt == null) entity.UpdatedAt = DateTime.Now;
             await _collection.ReplaceOneAsync(p => p.Id == entity.Id, entity, new ReplaceOptions() { IsUpsert = false });
         }
 
@@ -33,13 +34,14 @@ namespace InfinityNetServer.Services.File.Infrastructure.Repositories
         public async Task DeleteAsync(PhotoMetadata entity)
         {
             if (entity.DeletedBy == null) entity.DeletedBy = authenticatedUserService.GetAuthenticatedUserId();
+            if (entity.DeletedAt == null) entity.DeletedAt = DateTime.Now;
             entity.IsDeleted = true;
             await _collection.ReplaceOneAsync(p => p.Id == entity.Id, entity, new ReplaceOptions() { IsUpsert = false });
         }
         
 
-        public virtual async Task<PhotoMetadata> GetByIdAsync(Guid id)
-            => await _collection.Find(e => e.Id == id).FirstOrDefaultAsync();
+        public virtual async Task<PhotoMetadata> GetByIdAsync(string id)
+            => await _collection.Find(e => e.Id.ToString() == id).FirstOrDefaultAsync();
         
 
         public virtual async Task<IList<PhotoMetadata>> GetAllAsync()

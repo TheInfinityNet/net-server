@@ -4,7 +4,8 @@ using MediatR;
 
 namespace InfinityNetServer.Services.Mail.Application.Consumers
 {
-    public class SendMailWithCodeEventConsumer(ISender sender) : BaseConsumer<DomainEvent.SendMailWithCodeEvent>(sender)
+    public class SendMailWithCodeEventConsumer
+        (ISender sender) : BaseConsumer<DomainEvent.SendMailWithCodeEvent>(sender)
     {
 
     }

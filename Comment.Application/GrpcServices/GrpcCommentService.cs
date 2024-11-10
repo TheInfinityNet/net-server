@@ -30,7 +30,7 @@ namespace InfinityNetServer.Services.Comment.Application.GrpcServices
             {
                 Id = p.Id.ToString(),
                 OwnerId = p.ProfileId.ToString(),
-                FileMetadataId = p.Id.ToString()
+                FileMetadataId = p.FileMetadataId.ToString()
             }));
 
             return await Task.FromResult(response);

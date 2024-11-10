@@ -31,10 +31,19 @@ namespace InfinityNetServer.Services.Post.Application.GrpcServices
             {
                 Id = p.Id.ToString(),
                 OwnerId = p.OwnerId.ToString(),
-                FileMetadataId = p.Id.ToString(),
+                FileMetadataId = p.FileMetadataId.ToString(),
                 Type = p.Type.ToString()
             }));
 
+            return await Task.FromResult(response);
+        }
+
+        public override async Task<GetFileMetadataIdOfPostResponse> getFileMetadataIdOfPost(GetFileMetadataIdOfPostRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Received getFileMetadataIdOfPost request");
+            var response = new GetFileMetadataIdOfPostResponse();
+            var post = await postService.GetById(request.Id);
+            response.FileMetadataId = post != null ? post.FileMetadataId.ToString() : string.Empty;
             return await Task.FromResult(response);
         }
 

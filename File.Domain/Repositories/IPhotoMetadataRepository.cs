@@ -14,7 +14,7 @@ namespace InfinityNetServer.Services.File.Domain.Repositories
 
         Task DeleteAsync(PhotoMetadata entity);
 
-        Task<PhotoMetadata> GetByIdAsync(Guid id);
+        Task<PhotoMetadata> GetByIdAsync(string id);
 
         Task<IList<PhotoMetadata>> GetAllAsync();
 

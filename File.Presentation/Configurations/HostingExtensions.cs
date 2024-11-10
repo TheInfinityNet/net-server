@@ -28,6 +28,8 @@ using Elastic.CommonSchema;
 using InfinityNetServer.BuildingBlocks.Infrastructure.Redis;
 using InfinityNetServer.Services.File.Infrastructure.Minio;
 using InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ;
+using InfinityNetServer.Services.File.Application.Consumers;
+using InfinityNetServer.Services.File.Application.Usecases;
 
 namespace InfinityNetServer.Services.File.Presentation.Configurations;
 
@@ -36,7 +38,7 @@ internal static class HostingExtensions
 
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
-        if (builder == null) throw new ArgumentNullException(nameof(builder));
+        ArgumentNullException.ThrowIfNull(builder);
 
         builder.AddSettings();
 
@@ -44,9 +46,9 @@ internal static class HostingExtensions
 
         builder.Services.AddDbContext(builder.Configuration);
 
-        builder.Services.AddMessageBus(builder.Configuration);
+        builder.Services.AddMessageBus(builder.Configuration, typeof(CreatePhotoMetadataEventConsumer));
 
-        builder.Services.AddMediatR(typeof(Program));
+        builder.Services.AddMediatR(typeof(CreatePhotoMetadataEventHandler));
 
         builder.Services.AddRedisConnection(builder.Configuration);
 
@@ -104,7 +106,7 @@ internal static class HostingExtensions
 
     public static WebApplication ConfigurePipeline(this WebApplication app, IConfiguration configuration)
     {
-        if (app == null) throw new ArgumentNullException(nameof(app));
+        ArgumentNullException.ThrowIfNull(app);
 
         app.UseSerilogRequestLogging();
 
