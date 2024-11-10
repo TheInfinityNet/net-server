@@ -13,13 +13,13 @@ using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
 using InfinityNetServer.Services.Identity.Application.DTOs.Responses;
 using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Commands;
 using InfinityNetServer.Services.Identity.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.Services.Identity.Application.Services;
 using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
 using Microsoft.AspNetCore.Authorization;
+using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 {
@@ -162,7 +162,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
                     newAccessToken
                 ));
             }
-            throw new IdentityException(IdentityErrorCode.TOKEN_MISSING, StatusCodes.Status422UnprocessableEntity);
+            throw new CommonException(BaseErrorCode.TOKEN_MISSING, StatusCodes.Status422UnprocessableEntity);
         }
 
     }

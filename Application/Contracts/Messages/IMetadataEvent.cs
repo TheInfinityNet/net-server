@@ -6,13 +6,13 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Messages
     public interface IMetadataEvent : IMessage
     {
 
-        public string Name { get; set; }
-
         public Guid OwnerId { get; set; }
 
         public FileOwnerType OwnerType { get; set; }
 
-        public FileMetadataType Type { get; set; }
+        public DateTime UpdatedAt { get; set; }
+
+        public Guid UpdatedBy { get; set; }
 
     }
 }

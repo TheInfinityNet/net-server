@@ -14,13 +14,13 @@ namespace InfinityNetServer.Services.File.Domain.Entities
 
         [BsonElement("owner_id")]
         [BsonRepresentation(BsonType.String)]
-        public Guid OwnerId { get; set; }
+        public Guid? OwnerId { get; set; }
 
         [BsonElement("name")]
         public string Name { get; set; }
 
         [BsonElement("owner_type")]
-        public FileOwnerType OwnerType { get; set; }
+        public FileOwnerType? OwnerType { get; set; }
 
         [BsonElement("type")]
         public FileMetadataType Type { get; set; }
@@ -29,7 +29,7 @@ namespace InfinityNetServer.Services.File.Domain.Entities
         public long Size { get; set; }
 
         [BsonElement("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         [BsonElement("created_by")]
         [BsonRepresentation(BsonType.String)]

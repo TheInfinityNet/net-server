@@ -32,7 +32,8 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         IPhotoMetadataRepository fileMetadataRepository,
         CommonPostClient postClient,
         CommonCommentClient commentClient,
-        IMinioClientService minioClientService) : BaseApiController(authenticatedUserService) 
+        IMinioClientService minioClientService,
+        IBaseRedisService<string, PhotoMetadata> baseRedisService) : BaseApiController(authenticatedUserService) 
     {
 
         [HttpGet("seed/posts/{type}")]
@@ -107,7 +108,6 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                     Name = fileName,
                     Width = width,
                     Height = height,
-                    OwnerType = FileOwnerType.Comment,
                     OwnerId = Guid.Parse(fileMetadataIdWithOwnerId.Id),
                     CreatedBy = Guid.Parse(fileMetadataIdWithOwnerId.OwnerId),
                 });
@@ -139,12 +139,17 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         }
 
         [HttpPost("upload/photo")]
-        public async Task<IActionResult> UploadRawImage(IFormFile photo)
+        public async Task<IActionResult> UploadRawImage(IFormFile photo, [FromForm] bool isTemporarily = false)
         {
             ValidateImage(photo);
 
             int width;
             int height;
+            var filetype = photo.ContentType.Split('/').First();
+            var extension = photo.ContentType.Split('/').Last();
+            var fileName = GenerateFileName(filetype, extension);
+            var id = Guid.NewGuid();
+
             await using (var stream = photo.OpenReadStream())
             {
                 (width, height) = await FileHelper.GetImageDimensionsAsync(stream);
@@ -152,15 +157,26 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                 // Reset stream position to the beginning
                 stream.Position = 0;
 
-                var filetype = photo.ContentType.Split('/').First();
-                var extension = photo.ContentType.Split('/').Last();
-                await minioClientService.StoreObject(
-                    stream, GenerateFileName(filetype, extension), photo.ContentType, MAIN_BUCKET_NAME);
+                await minioClientService.StoreObject(stream, fileName, photo.ContentType, 
+                    isTemporarily ? TEMP_BUCKET_NAME : MAIN_BUCKET_NAME);
+
+                if (isTemporarily) 
+                    await baseRedisService.SetWithExpirationAsync(id.ToString(), new PhotoMetadata
+                        {
+                            Id = id,
+                            Type = FileMetadataType.Photo,
+                            Name = fileName,
+                            Width = width,
+                            Height = height,
+                            OwnerType = FileOwnerType.Comment,
+                            CreatedBy = GetCurrentUserId(),
+                        }, TimeSpan.FromMinutes(30));
             }
 
             return Ok(new
             {
-                fileName = photo.FileName,
+                id,
+                fileName,
                 size = photo.Length,
                 width,
                 height

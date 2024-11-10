@@ -10,23 +10,15 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Events
         public sealed record PhotoMetadataEvent : IMetadataEvent
         {
 
-            public string Name { get; set; }
+            public Guid Id { get; set; }
 
             public Guid OwnerId { get; set; }
 
             public FileOwnerType OwnerType { get; set; }
 
-            public FileMetadataType Type { get; set; }
+            public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
-            public int Width { get; set; }
-
-            public int Height { get; set; }
-
-            public Guid Id { get; set; }
-
-            public DateTime CreatedAt { get; set; }
-
-            public Guid? CreatedBy { get; set; }
+            public Guid UpdatedBy { get; set; }
 
         }
 

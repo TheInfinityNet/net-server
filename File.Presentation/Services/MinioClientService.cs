@@ -1,5 +1,4 @@
 ﻿using InfinityNetServer.Services.File.Application.Services;
-using Microsoft.Extensions.Configuration;
 using Minio;
 using Minio.DataModel.Args;
 using System.IO;
@@ -8,15 +7,12 @@ using System;
 using InfinityNetServer.Services.File.Application.Exceptions;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
-using InfinityNetServer.Services.File.Domain.Repositories;
 
 namespace InfinityNetServer.Services.File.Presentation.Services
 {
     public class MinioClientService(
-        IMinioClient minioClient, 
-        IConfiguration configuration, 
-        ILogger<MinioClientService> logger,
-        IPhotoMetadataRepository fileMetadataRepository) : IMinioClientService
+        IMinioClient minioClient,
+        ILogger<MinioClientService> logger) : IMinioClientService
     {
 
         public async Task StoreObject(Stream file, string fileName, string contentType, string bucketName)
