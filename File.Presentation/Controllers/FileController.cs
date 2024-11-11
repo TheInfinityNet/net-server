@@ -1,13 +1,12 @@
-﻿using FFMpegCore;
-using InfinityNetServer.BuildingBlocks.Application.Contracts;
+﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.File.Application;
+using InfinityNetServer.Services.File.Application.Exceptions;
 using InfinityNetServer.Services.File.Application.Services;
 using InfinityNetServer.Services.File.Domain.Entities;
-using InfinityNetServer.Services.File.Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -29,18 +28,21 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         ILogger<FileController> logger,
         IStringLocalizer<FileSharedResource> Localizer,
         IMessageBus messageBus,
-        IPhotoMetadataRepository photoMetadataRepository,
+        IPhotoMetadataService photoMetadataService,
+        IVideoMetadataService videoMetadataService,
+        IBaseRedisService<string, PhotoMetadata> redisServiceForPhoto,
+        IBaseRedisService<string, VideoMetadata> redisServiceForVideo,
         CommonPostClient postClient,
         CommonCommentClient commentClient,
-        IMinioClientService minioClientService,
-        IBaseRedisService<string, PhotoMetadata> baseRedisService) : BaseApiController(authenticatedUserService) 
+        IMinioClientService minioClientService) : BaseApiController(authenticatedUserService) 
     {
 
-        [HttpGet("seed/posts/{type}")]
-        public async Task<IActionResult> SeedDataForPostFile(string type)
+        [EndpointDescription("Seed data for post photo")]
+        [HttpGet("seed/posts/photos")]
+        public async Task<IActionResult> SeedDataForPostPhoto()
         {
-            await minioClientService.DeleteAllObjectsInBucket(MAIN_BUCKET_NAME);
-            var fileMetadataIdsWithTypes = await postClient.GetFileMetadataIdsWithTypes(type);
+            //await minioClientService.DeleteAllObjectsInBucket(MAIN_BUCKET_NAME);
+            var fileMetadataIdsWithTypes = await postClient.GetFileMetadataIdsWithTypes(BuildingBlocks.Application.Protos.PostType.Photo);
 
             foreach (var fileMetadataIdWithType in fileMetadataIdsWithTypes)
             {
@@ -51,21 +53,24 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
 
                 int width;
                 int height;
+                long size;
                 using (FileStream stream = System.IO.File.OpenRead(filePath))
                 {
                     (width, height) = await GetImageDimensionsAsync(stream);
+                    size = stream.Length;
                     stream.Position = 0;
 
                     await minioClientService.StoreObject(MAIN_BUCKET_NAME, stream, fileName, contentType);
                 }
 
-                await photoMetadataRepository.CreateAsync(new PhotoMetadata
+                await photoMetadataService.Create(new PhotoMetadata
                 {
                     Id = Guid.Parse(fileMetadataIdWithType.FileMetadataId),
                     Type = Enum.Parse<FileMetadataType>(fileMetadataIdWithType.Type),
                     Name = fileName,
                     Width = width,
                     Height = height,
+                    Size = size,
                     OwnerType = FileOwnerType.Post,
                     OwnerId = Guid.Parse(fileMetadataIdWithType.Id),
                     CreatedBy = Guid.Parse(fileMetadataIdWithType.OwnerId),
@@ -78,6 +83,78 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
             });
         }
 
+        [EndpointDescription("Seed data for post video")]
+        [HttpGet("seed/posts/videos")]
+        public async Task<IActionResult> SeedDataForPostVideo()
+        {
+            await minioClientService.DeleteAllObjectsInBucket(MAIN_BUCKET_NAME);
+            var fileMetadataIdsWithTypes = await postClient.GetFileMetadataIdsWithTypes(BuildingBlocks.Application.Protos.PostType.Video);
+
+            foreach (var fileMetadataIdWithType in fileMetadataIdsWithTypes)
+            {
+                int ramdomIndex = new Random().Next(1, 9);
+                string filePath = FAKE_VIDEOS_FOLDER_PATH + $"\\video{ramdomIndex}.mp4";
+                string fileName = GenerateFileName("video", "mp4");
+                string contentType = GetContentType(filePath);
+
+                int width;
+                int height;
+                TimeSpan duration;
+                long size;
+                
+                (width, height, duration) = await GetVideoInfoAsync(filePath);
+
+                using (FileStream stream = System.IO.File.OpenRead(filePath))
+                {
+                    (width, height, duration) = await GetVideoInfoAsync(filePath);
+                    size = stream.Length;
+                    stream.Position = 0;
+
+                    await minioClientService.StoreObject(MAIN_BUCKET_NAME, stream, fileName, contentType);
+                }
+
+                var thumbnailPath = await CreateThumbnail(filePath, width, height, TimeSpan.FromSeconds(1));
+                var thumbnailName = GenerateFileName("thumbnail", "jpg");
+                var thumnailSize = new FileInfo(thumbnailPath).Length;
+                using (var thumbnailStream = new FileStream(thumbnailPath, FileMode.Open, FileAccess.Read))
+                    await minioClientService.StoreObject(MAIN_BUCKET_NAME, thumbnailStream, thumbnailName, "image/jpg");
+
+                thumbnailPath = Path.ChangeExtension(filePath, ".jpg");
+                if (System.IO.File.Exists(thumbnailPath)) System.IO.File.Delete(thumbnailPath);
+
+                await videoMetadataService.Create(new VideoMetadata
+                {
+                    Id = Guid.Parse(fileMetadataIdWithType.FileMetadataId),
+                    Type = Enum.Parse<FileMetadataType>(fileMetadataIdWithType.Type),
+                    Name = fileName,
+                    Width = width,
+                    Height = height,
+                    Size = size,
+                    Duration = duration.Seconds,
+                    OwnerType = FileOwnerType.Post,
+                    OwnerId = Guid.Parse(fileMetadataIdWithType.Id),
+                    CreatedBy = Guid.Parse(fileMetadataIdWithType.OwnerId),
+                    Thumbnail = new PhotoMetadata
+                    {
+                        Type = FileMetadataType.Photo,
+                        Name = thumbnailName,
+                        Width = width,
+                        Height = height,
+                        Size = thumnailSize,
+                        OwnerType = FileOwnerType.Post,
+                        OwnerId = Guid.Parse(fileMetadataIdWithType.Id),
+                        CreatedBy = Guid.Parse(fileMetadataIdWithType.OwnerId)
+                    }
+                });
+            }
+
+            return Ok(new
+            {
+                Message = "Data seeded successfully"
+            });
+        }
+
+        [EndpointDescription("Seed data for comment file")]
         [HttpGet("seed/comments")]
         public async Task<IActionResult> SeedDataForCommentFile()
         {
@@ -93,21 +170,24 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
 
                 int width;
                 int height;
+                long size;
                 using (FileStream stream = System.IO.File.OpenRead(filePath))
                 {
                     (width, height) = await GetImageDimensionsAsync(stream);
+                    size = stream.Length;
                     stream.Position = 0;
 
                     await minioClientService.StoreObject(MAIN_BUCKET_NAME, stream, fileName, contentType);
                 }
 
-                await photoMetadataRepository.CreateAsync(new PhotoMetadata
+                await photoMetadataService.Create(new PhotoMetadata
                 {
                     Id = Guid.Parse(fileMetadataIdWithOwnerId.FileMetadataId),
                     Type = FileMetadataType.Photo,
                     Name = fileName,
                     Width = width,
                     Height = height,
+                    Size = size,
                     OwnerId = Guid.Parse(fileMetadataIdWithOwnerId.Id),
                     CreatedBy = Guid.Parse(fileMetadataIdWithOwnerId.OwnerId),
                 });
@@ -119,6 +199,8 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
             });
         }
 
+        [EndpointDescription("Upload raw file")]
+        [Authorize]
         [HttpPost("upload")]
         public async Task<IActionResult> UploadRawFile(IFormFile file)
         {
@@ -138,14 +220,18 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
             });
         }
 
+        [EndpointDescription("Upload raw image")]
         [Authorize]
         [HttpPost("upload/photo")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> UploadRawImage(IFormFile photo, [FromForm] bool isTemporarily = false)
         {
             ValidateImage(photo);
 
             int width;
             int height;
+            long size = photo.Length;
+
             var filetype = photo.ContentType.Split('/').First();
             var extension = photo.ContentType.Split('/').Last();
             var fileName = GenerateFileName(filetype, extension);
@@ -162,13 +248,14 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                     stream, fileName, photo.ContentType);
 
                 if (isTemporarily) 
-                    await baseRedisService.SetWithExpirationAsync(id.ToString(), new PhotoMetadata
+                    await redisServiceForPhoto.SetWithExpirationAsync(id.ToString(), new PhotoMetadata
                         {
                             Id = id,
                             Type = FileMetadataType.Photo,
                             Name = fileName,
                             Width = width,
                             Height = height,
+                            Size = size,
                             CreatedBy = GetCurrentUserId(),
                         }, TimeSpan.FromMinutes(30));
             }
@@ -177,91 +264,115 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
             {
                 id,
                 fileName,
-                size = photo.Length,
+                size,
                 width,
                 height
 
             });
         }
 
+        [EndpointDescription("Upload raw video")]
+        [Authorize]
         [HttpPost("upload/video")]
-        public async Task<IActionResult> UploadVideo(
-            IFormFile video, 
-
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadRawVideo(
+            IFormFile video,
             [FromForm]
             [Required(ErrorMessage = "null_thumbnail_width")]
             [Range(1, 1920, ErrorMessage = "invalid_thumbnail_width")]
-            int thumbnailWidth, 
+            int thumbnailWidth,
 
-            [FromForm] 
+            [FromForm]
             [Required(ErrorMessage = "null_thumbnail_height")]
             [Range(1, 1080, ErrorMessage = "invalid_thumbnail_height")]
-            int thumbnailHeight)
+            int thumbnailHeight,
+
+            [FromForm] 
+            bool isTemporarily = false)
         {
-            // Validate video
-            ValidateVideo(video);
+            if (video == null || video.Length == 0)
+                throw new FileException(FileErrorCode.FILE_EMPTY, StatusCodes.Status400BadRequest);
 
-            int width = 0;
-            int height = 0;
+            var filetype = video.ContentType.Split('/').First();
+            var extension = video.ContentType.Split('/').Last();
+            var id = Guid.NewGuid();
+            long size = video.Length;   
 
-            // Tạo file tạm cho video
             var tempFilePath = Path.GetTempFileName();
             await using (var stream = new FileStream(tempFilePath, FileMode.Create))
-            await video.CopyToAsync(stream);
+                await video.CopyToAsync(stream);
 
-            // Phân tích video và lấy thông tin chiều rộng và chiều cao
-            var videoInfo = await FFProbe.AnalyseAsync(tempFilePath);
-            var videoStream = videoInfo.PrimaryVideoStream;
-            if (videoStream != null)
+            try
             {
-                width = videoStream.Width;
-                height = videoStream.Height;
+                // Lấy thông tin chiều rộng, chiều cao của video
+                var (width, height, duration) = await GetVideoInfoAsync(tempFilePath);
+
+                // Tạo thumbnail từ video với kích thước tùy chỉnh
+                var thumbnailTime = TimeSpan.FromSeconds(1);
+                var thumbnailPath = await CreateThumbnail(tempFilePath, thumbnailWidth, thumbnailHeight, thumbnailTime);
+
+                // Lưu video lên MinIO
+                var videoFileName = GenerateFileName(filetype, extension);
+                await using (var videoStream = video.OpenReadStream())
+                    await minioClientService.StoreObject(isTemporarily ? TEMP_BUCKET_NAME : MAIN_BUCKET_NAME, videoStream, videoFileName, video.ContentType);
+
+                // Lưu thumbnail vào MinIO
+                var thumbnailFileName = GenerateFileName("thumbnail", "jpg");
+                long thumbnailSize = new FileInfo(thumbnailPath).Length;
+                await using (var thumbnailStream = new FileStream(thumbnailPath, FileMode.Open, FileAccess.Read))
+                    await minioClientService.StoreObject(isTemporarily ? TEMP_BUCKET_NAME : MAIN_BUCKET_NAME, thumbnailStream, thumbnailFileName, "image/jpg");
+
+                if (isTemporarily)
+                    await redisServiceForVideo.SetWithExpirationAsync(id.ToString(), new VideoMetadata
+                    {
+                        Id = id,
+                        Type = FileMetadataType.Video,
+                        Name = videoFileName,
+                        Width = width,
+                        Height = height,
+                        Size = size,
+                        Duration = duration.Seconds,
+                        CreatedBy = GetCurrentUserId(),
+                        Thumbnail = new PhotoMetadata
+                        {
+                            Type = FileMetadataType.Photo,
+                            Name = thumbnailFileName,
+                            Width = width,
+                            Height = height,
+                            Size = thumbnailSize,
+                            CreatedBy = GetCurrentUserId()
+                        }
+                    }, TimeSpan.FromMinutes(30));
+
+                return Ok(new
+                {
+                    id,
+                    fileName = videoFileName,
+                    size,
+                    width,
+                    height,
+                    duration,
+                    thumbnail = new
+                    {
+                        name = thumbnailFileName,
+                        width = thumbnailWidth,
+                        height = thumbnailHeight,
+                        size = thumbnailSize
+                    }
+                });
             }
-
-            // Tạo thumbnail từ video với kích thước tùy chỉnh
-            var thumbnailPath = Path.ChangeExtension(tempFilePath, ".jpg"); // Tạo file thumbnail
-            var thumbnailTime = TimeSpan.FromSeconds(1); // Thay đổi thời gian theo yêu cầu của bạn (ở giây thứ 1)
-
-            await FFMpegArguments
-                .FromFileInput(tempFilePath)
-                .OutputToFile(thumbnailPath, overwrite: true, options => options
-                    .WithVideoCodec("mjpeg") // Đảm bảo mã hóa thumbnail thành JPEG
-                    .WithCustomArgument($"-ss {thumbnailTime.TotalSeconds}") // Tạo thumbnail từ thời gian chỉ định
-                    .WithCustomArgument($"-vf scale={thumbnailWidth}:{thumbnailHeight}") // Thay đổi kích thước thumbnail
-                )
-                .ProcessAsynchronously();
-
-            // Lưu video lên MinIO
-            await using (var stream = video.OpenReadStream())
+            catch (Exception ex)
             {
-                var filetype = video.ContentType.Split('/').First();
-                var extension = video.ContentType.Split('/').Last();
-                await minioClientService.StoreObject(
-                    MAIN_BUCKET_NAME, stream, GenerateFileName(filetype, extension), video.ContentType);
+                logger.LogError($"Can not save file caused by: {ex.Message}");
+                throw new FileException(FileErrorCode.CAN_NOT_STORE_FILE, StatusCodes.Status422UnprocessableEntity);
             }
-
-            // Lưu thumbnail vào MinIO
-            await using (var thumbnailStream = new FileStream(thumbnailPath, FileMode.Open, FileAccess.Read))
+            finally
             {
-                var thumbnailFileName = GenerateFileName("thumbnail", "jpg"); // Tạo tên file cho thumbnail
-                await minioClientService.StoreObject(MAIN_BUCKET_NAME, thumbnailStream, thumbnailFileName, "image/jpeg");
+                if (System.IO.File.Exists(tempFilePath)) System.IO.File.Delete(tempFilePath);
+
+                var thumbnailPath = Path.ChangeExtension(tempFilePath, ".jpg");
+                if (System.IO.File.Exists(thumbnailPath)) System.IO.File.Delete(thumbnailPath);
             }
-
-            // Xóa file tạm sau khi xử lý
-            System.IO.File.Delete(tempFilePath);
-            System.IO.File.Delete(thumbnailPath);
-
-            return Ok(new
-            {
-                fileName = video.FileName,
-                size = video.Length,
-                width,
-                height,
-                thumbnail = new {
-                    width = thumbnailWidth,
-                    height = thumbnailHeight
-                }
-            });
         }
 
     }

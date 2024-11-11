@@ -2,6 +2,7 @@
 using Google.Protobuf.WellKnownTypes;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
@@ -31,12 +32,12 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
-        public async Task<List<DTOs.Others.FileMetadataIdWithType>> GetFileMetadataIdsWithTypes(string type)
+        public async Task<List<DTOs.Others.FileMetadataIdWithType>> GetFileMetadataIdsWithTypes(PostType type)
         {
             try
             {
                 logger.LogInformation("Starting get file metadata ids with types");
-                var response = await client.getFileMetadataIdsWithTypesAsync(new GetFileMetadataIdsWithTypesRequest { Type = type });
+                var response = await client.getFileMetadataIdsWithTypesAsync(new GetFileMetadataIdsWithTypesRequest { Type = type.ToString() });
                 // Call the gRPC server to introspect the token
                 return new List<DTOs.Others.FileMetadataIdWithType>(response.FileMetadataIdsWithTypes
                     .Select(_ => mapper.Map<DTOs.Others.FileMetadataIdWithType>(_)).ToList());

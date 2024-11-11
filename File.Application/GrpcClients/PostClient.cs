@@ -11,14 +11,14 @@ namespace InfinityNetServer.Services.File.Application.GrpcClients
     public class PostClient(PostServiceClient client, ILogger<PostClient> logger)
     {
 
-        public async Task<string> GetFileMetadataIdOfPost(string id)
+        public async Task<Guid> GetFileMetadataIdOfPost(string id)
         {
             try
             {
                 logger.LogInformation("Starting get file metadata id of post");
                 var response = await client.getFileMetadataIdOfPostAsync(new GetFileMetadataIdOfPostRequest { Id = id });
                 // Call the gRPC server to introspect the token
-                return response.FileMetadataId;
+                return Guid.Parse(response.FileMetadataId);
             }
             catch (Exception e)
             {

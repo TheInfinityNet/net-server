@@ -10,7 +10,7 @@ namespace InfinityNetServer.Services.File.Domain.Entities
 
         [BsonId]
         [BsonRepresentation(BsonType.String)]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [BsonElement("owner_id")]
         [BsonRepresentation(BsonType.String)]
@@ -51,9 +51,6 @@ namespace InfinityNetServer.Services.File.Domain.Entities
 
         [BsonElement("is_deleted")]
         public bool IsDeleted { get; set; } = false;
-
-        [BsonElement("url")]
-        public string Url { get; set; }
 
     }
 

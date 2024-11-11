@@ -10,6 +10,8 @@ namespace InfinityNetServer.Services.File.Presentation.Services
         {
             services.AddSingleton<IMinioClientService, MinioClientService>();
             services.AddHostedService<TimedBackgroundService>();
+            services.AddScoped<IPhotoMetadataService, PhotoMetadataService>();
+            services.AddScoped<IVideoMetadataService, VideoMetadataService>();
         }
 
     }

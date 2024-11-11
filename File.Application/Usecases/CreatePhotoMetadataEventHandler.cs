@@ -5,7 +5,6 @@ using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.File.Application.GrpcClients;
 using InfinityNetServer.Services.File.Application.Services;
 using InfinityNetServer.Services.File.Domain.Entities;
-using InfinityNetServer.Services.File.Domain.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
@@ -19,7 +18,7 @@ namespace InfinityNetServer.Services.File.Application.Usecases
         IBaseRedisService<string, PhotoMetadata> baseRedisService,
         IMinioClientService minioClientService,
         PostClient postClient,
-        IPhotoMetadataRepository photoMetadataRepository) : IRequestHandler<DomainEvent.PhotoMetadataEvent>
+        IPhotoMetadataService photoMetadataService) : IRequestHandler<DomainEvent.PhotoMetadataEvent>
     {
 
         public async Task Handle(DomainEvent.PhotoMetadataEvent request, CancellationToken cancellationToken)
@@ -30,18 +29,19 @@ namespace InfinityNetServer.Services.File.Application.Usecases
 
             PhotoMetadata photoMetadata = await baseRedisService.GetAsync(tempId);
 
-            string fileMetadataId = await postClient.GetFileMetadataIdOfPost(request.OwnerId.ToString());
+            Guid fileMetadataId = await postClient.GetFileMetadataIdOfPost(request.OwnerId.ToString());
             logger.LogInformation("File metadata id: {fileMetadataId}", fileMetadataId);
 
             if (fileMetadataId.Equals(string.Empty))
             {
-                await photoMetadataRepository.CreateAsync(new PhotoMetadata
+                await photoMetadataService.Create(new PhotoMetadata
                 {
                     Id = request.Id,
                     Type = FileMetadataType.Photo,
                     Name = photoMetadata.Name,
                     Width = photoMetadata.Width,
                     Height = photoMetadata.Height,
+                    Size = photoMetadata.Size,
                     OwnerType = request.OwnerType,
                     OwnerId = request.OwnerId,
                     CreatedBy = photoMetadata.CreatedBy,
@@ -53,16 +53,18 @@ namespace InfinityNetServer.Services.File.Application.Usecases
             }
             else
             {
-                PhotoMetadata existedPhotoMetadata = await photoMetadataRepository.GetByIdAsync(fileMetadataId);
+                PhotoMetadata existedPhotoMetadata = await photoMetadataService.GetById(fileMetadataId.ToString());
                 await minioClientService.DeleteObject("infinity-net-bucket", existedPhotoMetadata.Name);
 
                 existedPhotoMetadata.Name = photoMetadata.Name;
                 existedPhotoMetadata.Width = photoMetadata.Width;
                 existedPhotoMetadata.Height = photoMetadata.Height;
+                existedPhotoMetadata.Size = photoMetadata.Size;
+                existedPhotoMetadata.OwnerType = request.OwnerType;
                 existedPhotoMetadata.UpdatedAt = request.UpdatedAt;
                 existedPhotoMetadata.UpdatedBy = request.UpdatedBy;
 
-                await photoMetadataRepository.UpdateAsync(existedPhotoMetadata);
+                await photoMetadataService.Update(existedPhotoMetadata);
             }
 
             await baseRedisService.DeleteAsync(tempId);

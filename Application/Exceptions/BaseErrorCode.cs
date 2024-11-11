@@ -27,5 +27,7 @@ public record BaseErrorCode
 
     // Relationship Errors
     public static readonly BaseErrorCode RELATIONSHIP_NOT_FOUND = new("common/relationship-not-found", "relationship_not_found");
+    public static readonly BaseErrorCode POST_NOT_FOUND = new("common/post-not-found", "post_not_found");
+    public static readonly BaseErrorCode FILE_NOT_FOUND = new("common/file-not-found", "file_not_found");
 
 }

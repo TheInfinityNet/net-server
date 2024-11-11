@@ -24,6 +24,23 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Events
 
         }
 
+        public sealed record VideoMetadataEvent : IMetadataEvent
+        {
+
+            public Guid Id { get; set; }
+
+            public Guid TempId { get; set; }
+
+            public Guid OwnerId { get; set; }
+
+            public FileOwnerType OwnerType { get; set; }
+
+            public DateTime UpdatedAt { get; set; } = DateTime.Now;
+
+            public Guid UpdatedBy { get; set; }
+
+        }
+
         public sealed record SendMailWithCodeEvent : IMailEvent
         {
 

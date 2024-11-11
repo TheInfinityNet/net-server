@@ -14,13 +14,16 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ
         public static IServiceCollection AddMassTransitConsumers(
             this IServiceCollection services,
             IConfiguration configuration,
-            Type consumerAssemblyMarkerType)
+            params Type[] consumerAssemblyMarkerType)
         {
             var rabbitMqOptions = configuration.GetSection("RabbitMQ").Get<RabbitMqOptions>();
 
             return services.AddMassTransit(cfg =>
             {
-                cfg.AddConsumers(consumerAssemblyMarkerType);
+                //cfg.AddConsumers(consumerAssemblyMarkerType);
+
+                foreach (var consumerType in consumerAssemblyMarkerType)
+                    cfg.AddConsumer(consumerType);
 
                 cfg.UsingRabbitMq((context, bus) =>
                 {

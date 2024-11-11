@@ -1,4 +1,5 @@
-﻿using InfinityNetServer.Services.File.Application.Exceptions;
+﻿using FFMpegCore;
+using InfinityNetServer.Services.File.Application.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
 using SixLabors.ImageSharp;
@@ -6,7 +7,6 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.File.Application.Helper
@@ -15,6 +15,7 @@ namespace InfinityNetServer.Services.File.Application.Helper
     {
 
         public static readonly string FAKE_PHOTOS_FOLDER_PATH = Path.Combine(Directory.GetCurrentDirectory(), "FakeData\\Photos").Replace("\\bin\\Debug\\net8.0", "");
+        public static readonly string FAKE_VIDEOS_FOLDER_PATH = Path.Combine(Directory.GetCurrentDirectory(), "FakeData\\Videos").Replace("\\bin\\Debug\\net8.0", "");
 
         public static async Task<(int width, int height)> GetImageDimensionsAsync(Stream imageStream)
         {
@@ -25,6 +26,32 @@ namespace InfinityNetServer.Services.File.Application.Helper
             using var image = await Image.LoadAsync(imageStream);
             return (image.Width, image.Height);
         }
+
+        public static async Task<(int Width, int Height, TimeSpan Duration)> GetVideoInfoAsync(string videoPath)
+        {
+            var videoInfo = await FFProbe.AnalyseAsync(videoPath);
+            var videoStream = videoInfo.PrimaryVideoStream ?? throw new FileException(FileErrorCode.FILE_EMPTY, StatusCodes.Status400BadRequest);
+
+            return (videoStream.Width, videoStream.Height, videoStream.Duration);
+        }
+
+        public static async Task<string> CreateThumbnail(string videoPath, int width, int height, TimeSpan thumbnailTime)
+        {
+            var thumbnailPath = Path.ChangeExtension(videoPath, ".jpg");
+
+            await FFMpegArguments
+                .FromFileInput(videoPath)
+                .OutputToFile(thumbnailPath, overwrite: true, options => options
+                    .WithVideoCodec("mjpeg")
+                    .WithCustomArgument($"-ss {thumbnailTime.TotalSeconds}")
+                    .WithCustomArgument($"-vf scale={width}:{height}")
+                    .WithCustomArgument("-frames:v 1")
+                )
+                .ProcessAsynchronously();
+
+            return thumbnailPath;
+        }
+
 
         public static void ValidateVideo(IFormFile file)
         {

@@ -28,9 +28,17 @@ public static class GrpcExtensions
             options.Address = new Uri(configuration["GrpcServers:RelationshipService"]!);
         });
 
+        services.AddGrpcClient<FileService.FileServiceClient>(options =>
+        {
+            options.Address = new Uri(configuration["GrpcServers:FileService"]);
+        });
+
         services.AddScoped(typeof(CommonIdentityClient));
 
         services.AddScoped(typeof(CommonRelationshipClient));
+
+        services.AddScoped(typeof(CommonFileClient));
+
     }
 
 }

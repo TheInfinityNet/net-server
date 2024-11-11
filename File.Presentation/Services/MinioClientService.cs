@@ -134,6 +134,28 @@ namespace InfinityNetServer.Services.File.Presentation.Services
                 throw new FileException(FileErrorCode.CAN_NOT_DELETE_FILE, StatusCodes.Status422UnprocessableEntity);
             }
         }
-        
+
+        public async Task<string> GetObjectUrl(string bucketName, string objectKey)
+        {
+            try
+            {
+                await EnsureBucketExists(bucketName);
+
+                var url = await minioClient.PresignedGetObjectAsync(new PresignedGetObjectArgs()
+                    .WithBucket(bucketName)
+                    .WithObject(objectKey)
+                    .WithExpiry(60 * 60 * 24) // 24 hours
+                );
+
+                logger.LogInformation($"Presigned URL for object '{objectKey}' in bucket '{bucketName}': {url}");
+                return url;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error getting presigned URL for object '{objectKey}' in bucket '{bucketName}': {ex.Message}");
+                throw new FileException(FileErrorCode.CAN_NOT_RETRIEVE_FILE, StatusCodes.Status422UnprocessableEntity);
+            }
+        }
+
     }
 }

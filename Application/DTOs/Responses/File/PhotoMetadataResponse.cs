@@ -1,6 +1,6 @@
 ﻿namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File
 {
-    public record PhotoMetadataResponse : BaseFileMetadataResponse
+    public record PhotoMetadataResponse : BaseMetadataResponse
     {
 
         public int Width { get; set; }

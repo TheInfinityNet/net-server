@@ -9,9 +9,9 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.Bus;
 public static class BusExtensions
 {
 
-    public static void AddMessageBus(this IServiceCollection services, IConfiguration configuration, Type consumerAssemblyMarkerType = null)
+    public static void AddMessageBus(this IServiceCollection services, IConfiguration configuration, params Type[] consumerAssemblyMarkerType)
     {
-        if (consumerAssemblyMarkerType != null) services.AddMassTransitConsumers(configuration, consumerAssemblyMarkerType);
+        if (consumerAssemblyMarkerType.Length != 0) services.AddMassTransitConsumers(configuration, consumerAssemblyMarkerType);
         else services.AddMassTransitProducers(configuration);
         services.AddScoped<IMessageBus, MessageBus>();
     }

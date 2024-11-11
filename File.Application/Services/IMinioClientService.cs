@@ -14,5 +14,7 @@ namespace InfinityNetServer.Services.File.Application.Services
 
         Task DeleteAllObjectsInBucket(string bucketName);
 
+        Task<string> GetObjectUrl(string bucketName, string objectKey);
+
     }
 }

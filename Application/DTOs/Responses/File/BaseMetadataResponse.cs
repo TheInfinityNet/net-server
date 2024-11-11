@@ -2,12 +2,12 @@
 
 namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File
 {
-    public abstract record BaseFileMetadataResponse
+    public abstract record BaseMetadataResponse
     {
 
         public string Id { get; set; }
 
-        public string Filename { get; set; }
+        public string Name { get; set; }
 
         public string Type { get; set; }
 
@@ -20,6 +20,13 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File
         public DateTime? DeletedAt { get; set; }
 
         public string Url { get; set; }
+
+        public void SetTimeToLocal()
+        {
+            CreatedAt = CreatedAt.ToLocalTime();
+            UpdatedAt = UpdatedAt?.ToLocalTime();
+            DeletedAt = DeletedAt?.ToLocalTime();
+        }
 
     }
 }

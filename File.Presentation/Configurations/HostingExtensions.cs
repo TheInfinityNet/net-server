@@ -30,6 +30,7 @@ using InfinityNetServer.Services.File.Infrastructure.Minio;
 using InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ;
 using InfinityNetServer.Services.File.Application.Consumers;
 using InfinityNetServer.Services.File.Application.Usecases;
+using InfinityNetServer.Services.Profile.Presentation.Mappers;
 
 namespace InfinityNetServer.Services.File.Presentation.Configurations;
 
@@ -46,9 +47,12 @@ internal static class HostingExtensions
 
         builder.Services.AddDbContext(builder.Configuration);
 
-        builder.Services.AddMessageBus(builder.Configuration, typeof(CreatePhotoMetadataEventConsumer));
+        builder.Services.AddMessageBus(builder.Configuration, typeof(CreatePhotoMetadataEventConsumer), typeof(CreateVideoMetadataEventConsumer));
 
-        builder.Services.AddMediatR(typeof(CreatePhotoMetadataEventHandler));
+        builder.Services.AddMediatR(cfg => {
+            cfg.RegisterServicesFromAssembly(typeof(CreatePhotoMetadataEventHandler).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(CreateVideoMetadataEventHandler).Assembly);
+        });
 
         builder.Services.AddRedisConnection(builder.Configuration);
 
@@ -56,7 +60,7 @@ internal static class HostingExtensions
 
         builder.Services.AddRepositories();
 
-        builder.Services.AddMappers();
+        builder.Services.AddMappers(typeof(FileMapper));
 
         builder.Services.AddGrpc();
 

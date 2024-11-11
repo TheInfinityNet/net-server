@@ -32,7 +32,7 @@ public class CommonMappers : Profile
                 dest.Cover = new PhotoMetadataResponse
                 {
                     Id = Guid.NewGuid().ToString(),
-                    Filename = "cover.jpg",
+                    Name = "cover.jpg",
                     Width = 500,
                     Height = 500,
                     Size = 1000,
@@ -43,7 +43,7 @@ public class CommonMappers : Profile
                 dest.Avatar = new PhotoMetadataResponse
                 {
                     Id = Guid.NewGuid().ToString(),
-                    Filename = "cover.jpg",
+                    Name = "cover.jpg",
                     Width = 500,
                     Height = 500,
                     Size = 1000,
@@ -52,7 +52,19 @@ public class CommonMappers : Profile
                     CreatedAt = DateTime.Now
                 };
                 dest.Name = dest.GenerateName();
-            });
+            }).ReverseMap();
+
+        CreateMap<Application.Protos.PhotoMetadataResponse, PhotoMetadataResponse>()
+            .AfterMap((src, dest) =>
+            {
+                dest.Type = src.Type.ToString(); // Chuyển enum sang string
+            }).ReverseMap();
+
+        CreateMap<Application.Protos.VideoMetadataResponse, VideoMetadataResponse>()
+            .AfterMap((src, dest) =>
+            {
+                dest.Type = src.Type.ToString(); // Chuyển enum sang string
+            }).ReverseMap();
 
         CreateMap<Application.Protos.AccountWithDefaultProfile, Application.DTOs.Others.AccountWithDefaultProfile>();
 

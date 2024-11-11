@@ -22,7 +22,7 @@ public class ProfileMapper : AutoMapper.Profile
                 dest.Cover = new PhotoMetadataResponse
                 {
                     Id = Guid.NewGuid().ToString(),
-                    Filename = "cover.jpg",
+                    Name = "cover.jpg",
                     Width = 500,
                     Height = 500,
                     Size = 1000,
@@ -33,7 +33,7 @@ public class ProfileMapper : AutoMapper.Profile
                 dest.Avatar = new PhotoMetadataResponse
                 {
                     Id = Guid.NewGuid().ToString(),
-                    Filename = "cover.jpg",
+                    Name = "cover.jpg",
                     Width = 500,
                     Height = 500,
                     Size = 1000,
