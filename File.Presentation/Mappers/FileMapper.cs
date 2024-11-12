@@ -7,22 +7,22 @@ public class FileMapper : AutoMapper.Profile
 {
     public FileMapper()
     {
-        CreateMap<PhotoMetadata, BuildingBlocks.Application.Protos.PhotoMetadataResponse>().ReverseMap();
+        CreateMap<PhotoMetadata, BuildingBlocks.Application.Protos.PhotoMetadataResponse>();
 
         // tạo mapper
         // cú pháp <nguồn, đích>
         CreateMap<PhotoMetadata, PhotoMetadataResponse>()
             .AfterMap((src, dest) => {
                 dest.Type = src.Type.ToString();
-            }).ReverseMap();
+            });
 
-        CreateMap<VideoMetadata, BuildingBlocks.Application.Protos.VideoMetadataResponse>().ReverseMap();
+        CreateMap<VideoMetadata, BuildingBlocks.Application.Protos.VideoMetadataResponse>();
 
         // tạo mapper
         // cú pháp <nguồn, đích>
         CreateMap<VideoMetadata, VideoMetadataResponse>()
             .AfterMap((src, dest) => {
                 dest.Type = src.Type.ToString();
-            }).ReverseMap();
+            });
     }
 }

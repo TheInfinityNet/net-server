@@ -1,10 +1,9 @@
-﻿using System;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
-using InfinityNetServer.BuildingBlocks.Domain.Enums;
+﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
+using System;
 
 namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile
 {
-    public abstract record BaseProfileResponse
+    public record BaseProfileResponse
     {
 
         public Guid Id { get; set; }
@@ -28,8 +27,6 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile
         public DateTime? DeletedAt { get; set; }
 
         public string Status { get; set; }
-
-        public abstract string GenerateName();
 
     }
 }

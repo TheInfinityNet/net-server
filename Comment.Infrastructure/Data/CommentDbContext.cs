@@ -1,17 +1,23 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Services;
+﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
+using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL;
 using InfinityNetServer.Services.Comment.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Comment.Infrastructure.Data
 {
     public class CommentDbContext(
         DbContextOptions<CommentDbContext> options,
         IConfiguration configuration,
-        IAuthenticatedUserService authenticatedUserService) 
+        IAuthenticatedUserService authenticatedUserService,
+        IMessageBus messageBus) 
         : PostreSqlDbContext<CommentDbContext>(options, configuration, authenticatedUserService)
     {
 
@@ -38,6 +44,57 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data
             comment.HasIndex(c => c.PostId);
             comment.HasIndex(c => c.ParentId);
             comment.HasIndex(c => c.CreatedAt);
+        }
+
+        public override int SaveChanges()
+        {
+            return base.SaveChanges();
+        }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker.Entries<Domain.Entities.Comment>();
+
+            foreach (var entry in entries)
+            {
+                Guid id = entry.Entity.Id;
+                Guid profileId = entry.Entity.ProfileId;
+
+                // tagged in comment
+                CommentContent content = entry.Entity.Content;
+                if (content.TagFacets.Count > 0)
+                {
+                    foreach (var tag in content.TagFacets)
+                    {
+                        Guid taggedProfileId = tag.ProfileId;
+                        await messageBus.Publish(new DomainCommand.CommentNotificationCommand
+                        {
+                            Id = Guid.NewGuid(),
+                            TriggeredBy = profileId.ToString(),
+                            RelatedProfileId = taggedProfileId,
+                            CommentId = id,
+                            Type = BuildingBlocks.Domain.Enums.NotificationType.TaggedInComment
+                        });
+                    }
+                }
+
+                // reply to comment
+                if (entry.Entity.ParentId != null)
+                {
+                    Guid parentCommentId = entry.Entity.ParentId.Value;
+                    Domain.Entities.Comment parentComment = await Comments.FindAsync(parentCommentId);
+                    await messageBus.Publish(new DomainCommand.CommentNotificationCommand
+                    {
+                        Id = Guid.NewGuid(),
+                        TriggeredBy = profileId.ToString(),
+                        RelatedProfileId = parentComment.ProfileId,
+                        CommentId = id,
+                        Type = BuildingBlocks.Domain.Enums.NotificationType.ReplyToComment
+                    });
+                }
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
         }
 
     }

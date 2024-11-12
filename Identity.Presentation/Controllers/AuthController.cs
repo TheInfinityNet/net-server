@@ -3,12 +3,12 @@ using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.Identity.Application;
 using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
 using InfinityNetServer.Services.Identity.Application.DTOs.Responses;
-using InfinityNetServer.Services.Identity.Application.GrpcClients;
 using InfinityNetServer.Services.Identity.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -36,7 +36,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 
         private readonly IAccountService _accountService;
 
-        private readonly ProfileClient _profileClient;
+        private readonly CommonProfileClient _profileClient;
 
         private readonly IMessageBus _messageBus;
 
@@ -47,7 +47,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             IConfiguration configuration,
             IAuthService authService,
             IAccountService accountService,
-            ProfileClient profileClient,
+            CommonProfileClient profileClient,
             IMessageBus messageBus) : base(authenticatedUserService)
         {
             _logger = logger;

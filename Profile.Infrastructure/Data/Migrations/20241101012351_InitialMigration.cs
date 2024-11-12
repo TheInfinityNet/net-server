@@ -16,7 +16,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    account_id = table.Column<Guid>(type: "uuid", maxLength: 50, nullable: false),
+                    account_id = table.Column<Guid>(type: "uuid", nullable: false),
                     avatar_id = table.Column<Guid>(type: "uuid", nullable: true),
                     cover_id = table.Column<Guid>(type: "uuid", nullable: true),
                     mobile_number = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),

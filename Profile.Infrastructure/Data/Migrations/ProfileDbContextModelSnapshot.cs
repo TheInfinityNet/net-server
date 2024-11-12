@@ -33,7 +33,6 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnName("id");
 
                     b.Property<Guid>("AccountId")
-                        .HasMaxLength(50)
                         .HasColumnType("uuid")
                         .HasColumnName("account_id");
 

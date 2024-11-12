@@ -16,7 +16,6 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
 
         [Required]
         [Column("account_id")]
-        [MaxLength(50)]
         public Guid AccountId { get; set; }
 
         [Column("avatar_id")]

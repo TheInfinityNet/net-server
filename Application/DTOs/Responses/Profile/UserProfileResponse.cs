@@ -17,7 +17,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile
 
         public string Gender { get; set; }
 
-        public override string GenerateName()
+        public string GenerateName()
         {
             return FirstName + " " + (MiddleName != null ? MiddleName + " " : "") + LastName;
         }

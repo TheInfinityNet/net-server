@@ -5,7 +5,6 @@ using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.File.Application.GrpcClients;
 using InfinityNetServer.Services.File.Application.Services;
 using InfinityNetServer.Services.File.Domain.Entities;
-using InfinityNetServer.Services.File.Domain.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
@@ -19,7 +18,7 @@ namespace InfinityNetServer.Services.File.Application.Usecases
         IBaseRedisService<string, VideoMetadata> baseRedisService,
         IMinioClientService minioClientService,
         PostClient postClient,
-        IVideoMetadataRepository videoMetadataRepository) : IRequestHandler<DomainEvent.VideoMetadataEvent>
+        IVideoMetadataService videoMetadataService) : IRequestHandler<DomainEvent.VideoMetadataEvent>
     {
 
         public async Task Handle(DomainEvent.VideoMetadataEvent request, CancellationToken cancellationToken)
@@ -35,7 +34,7 @@ namespace InfinityNetServer.Services.File.Application.Usecases
 
             if (fileMetadataId.Equals(string.Empty))
             {
-                await videoMetadataRepository.CreateAsync(new VideoMetadata
+                await videoMetadataService.Create(new VideoMetadata
                 {
                     Id = request.Id,
                     Type = FileMetadataType.Photo,
@@ -56,7 +55,7 @@ namespace InfinityNetServer.Services.File.Application.Usecases
             }
             else
             {
-                VideoMetadata existedVideoMetadata = await videoMetadataRepository.GetByIdAsync(fileMetadataId);
+                VideoMetadata existedVideoMetadata = await videoMetadataService.GetById(fileMetadataId.ToString());
                 await minioClientService.DeleteObject("infinity-net-bucket", existedVideoMetadata.Name);
                 await minioClientService.DeleteObject("infinity-net-bucket", existedVideoMetadata.Thumbnail.Name);
 
@@ -70,7 +69,7 @@ namespace InfinityNetServer.Services.File.Application.Usecases
                 existedVideoMetadata.UpdatedBy = request.UpdatedBy;
                 existedVideoMetadata.Thumbnail = videoMetadata.Thumbnail;
 
-                await videoMetadataRepository.UpdateAsync(existedVideoMetadata);
+                await videoMetadataService.Update(existedVideoMetadata);
             }
 
             await baseRedisService.DeleteAsync(tempId);

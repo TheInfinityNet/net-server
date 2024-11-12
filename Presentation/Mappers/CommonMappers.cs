@@ -20,6 +20,44 @@ public class CommonMappers : Profile
 
         CreateMap<DateOnly, Timestamp>().ConvertUsing<DateOnlyToTimestampConverter>();
 
+        CreateMap<Application.Protos.ProfileResponse, BaseProfileResponse>()
+            .AfterMap((src, dest) =>
+            {
+                dest.Type = src.Type.ToString(); // Chuyển enum sang string
+                dest.CreatedAt = dest.CreatedAt.ToLocalTime();
+                dest.UpdatedAt = dest.UpdatedAt?.ToLocalTime();
+                dest.DeletedAt = dest.DeletedAt?.ToLocalTime();
+                if (src.AvatarId.Equals(Guid.Empty.ToString()))
+                {
+                    dest.Avatar = new PhotoMetadataResponse
+                    {
+                        Id = string.Empty,
+                        Name = "cover.jpg",
+                        Width = 500,
+                        Height = 500,
+                        Size = 1000,
+                        Type = FileMetadataType.Photo.ToString(),
+                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
+                        CreatedAt = DateTime.Now
+                    };
+                }
+
+                if (src.CoverId.Equals(Guid.Empty.ToString()))
+                {
+                    dest.Cover = new PhotoMetadataResponse
+                    {
+                        Id = string.Empty,
+                        Name = "cover.jpg",
+                        Width = 500,
+                        Height = 500,
+                        Size = 1000,
+                        Type = FileMetadataType.Photo.ToString(),
+                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
+                        CreatedAt = DateTime.Now
+                    };
+                }
+            });
+
         CreateMap<Application.Protos.UserProfileResponse, UserProfileResponse>()
             .AfterMap((src, dest) =>
             {
@@ -29,42 +67,49 @@ public class CommonMappers : Profile
                 dest.CreatedAt = dest.CreatedAt.ToLocalTime();
                 dest.UpdatedAt = dest.UpdatedAt?.ToLocalTime();
                 dest.DeletedAt = dest.DeletedAt?.ToLocalTime();
-                dest.Cover = new PhotoMetadataResponse
+                if (src.AvatarId.Equals(Guid.Empty.ToString()))
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = "cover.jpg",
-                    Width = 500,
-                    Height = 500,
-                    Size = 1000,
-                    Type = FileMetadataType.Photo.ToString(),
-                    Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
-                    CreatedAt = DateTime.Now
-                };
-                dest.Avatar = new PhotoMetadataResponse
+                    dest.Avatar = new PhotoMetadataResponse
+                    {
+                        Id = string.Empty,
+                        Name = "cover.jpg",
+                        Width = 500,
+                        Height = 500,
+                        Size = 1000,
+                        Type = FileMetadataType.Photo.ToString(),
+                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
+                        CreatedAt = DateTime.Now
+                    };
+                }
+
+                if (src.CoverId.Equals(Guid.Empty.ToString()))
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = "cover.jpg",
-                    Width = 500,
-                    Height = 500,
-                    Size = 1000,
-                    Type = FileMetadataType.Photo.ToString(),
-                    Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
-                    CreatedAt = DateTime.Now
-                };
+                    dest.Cover = new PhotoMetadataResponse
+                    {
+                        Id = string.Empty,
+                        Name = "cover.jpg",
+                        Width = 500,
+                        Height = 500,
+                        Size = 1000,
+                        Type = FileMetadataType.Photo.ToString(),
+                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
+                        CreatedAt = DateTime.Now
+                    };
+                }
                 dest.Name = dest.GenerateName();
-            }).ReverseMap();
+            });
 
         CreateMap<Application.Protos.PhotoMetadataResponse, PhotoMetadataResponse>()
             .AfterMap((src, dest) =>
             {
                 dest.Type = src.Type.ToString(); // Chuyển enum sang string
-            }).ReverseMap();
+            });
 
         CreateMap<Application.Protos.VideoMetadataResponse, VideoMetadataResponse>()
             .AfterMap((src, dest) =>
             {
                 dest.Type = src.Type.ToString(); // Chuyển enum sang string
-            }).ReverseMap();
+            });
 
         CreateMap<Application.Protos.AccountWithDefaultProfile, Application.DTOs.Others.AccountWithDefaultProfile>();
 
@@ -72,8 +117,8 @@ public class CommonMappers : Profile
 
         CreateMap<Application.Protos.ProfileIdWithName, Application.DTOs.Others.ProfileIdWithName>();
 
-        CreateMap<Application.Protos.FileMetadataIdWithType, Application.DTOs.Others.FileMetadataIdWithType>().ReverseMap();
+        CreateMap<Application.Protos.FileMetadataIdWithType, Application.DTOs.Others.FileMetadataIdWithType>();
 
-        CreateMap<Application.Protos.FileMetadataIdWithOwnerId, Application.DTOs.Others.FileMetadataIdWithOwnerId>().ReverseMap();
+        CreateMap<Application.Protos.FileMetadataIdWithOwnerId, Application.DTOs.Others.FileMetadataIdWithOwnerId>();
     }
 }

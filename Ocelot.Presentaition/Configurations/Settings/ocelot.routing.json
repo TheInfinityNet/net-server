@@ -172,7 +172,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/tags/{everything}",
+      "DownstreamPathTemplate": "/notifications/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -180,18 +180,18 @@
           "Port": 61008
         }
       ],
-      "UpstreamPathTemplate": "/tags/{everything}",
+      "UpstreamPathTemplate": "/notifications/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
       "FileCacheOptions": {
         "TtlSeconds": 15,
-        "Region": "tag-cache"
+        "Region": "notification-cache"
       },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 5000,
         "TimeoutValue": 2000
       },
-      "SwaggerKey": "tag"
+      "SwaggerKey": "notification"
     },
 
     {

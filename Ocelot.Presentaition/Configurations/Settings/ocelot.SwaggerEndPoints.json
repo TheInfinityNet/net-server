@@ -78,12 +78,12 @@
     },
 
     {
-      "Key": "tag",
+      "Key": "notification",
       "Config": [
         {
-          "Name": "Tag Service",
+          "Name": "Notification Service",
           "Version": "v1",
-          "Url": "http://localhost:60008/swagger/v1/swagger.json"
+          "Url": "https://localhost:61008/swagger/v1/swagger.json"
         }
       ]
     },

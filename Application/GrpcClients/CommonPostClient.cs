@@ -20,7 +20,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
         {
             try
             {
-                logger.LogInformation("Starting get account ids");
+                logger.LogInformation("Starting get post ids");
                 var response = await client.getPostIdsAsync(new Empty());
                 // Call the gRPC server to introspect the token
                 return new List<string>(response.Ids);
