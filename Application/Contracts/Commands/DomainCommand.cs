@@ -20,6 +20,8 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Commands
 
             public Guid PostId { get; set; }
 
+            public DateTime CreatedAt { get; set; }
+
         }
 
         public sealed record CommentNotificationCommand : INotificationCommand
@@ -34,6 +36,8 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Commands
             public string TriggeredBy { get; set; }
 
             public Guid CommentId { get; set; }
+
+            public DateTime CreatedAt { get; set; }
 
         }
 

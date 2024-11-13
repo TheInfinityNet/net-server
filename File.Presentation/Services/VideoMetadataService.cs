@@ -16,7 +16,7 @@ namespace InfinityNetServer.Services.File.Presentation.Services
         public async Task Delete(string id)
         {
             VideoMetadata videoMetadata = await GetById(id);
-            await videoMetadataRepository.DeleteAsync(videoMetadata);
+            await videoMetadataRepository.SoftDeleteAsync(videoMetadata);
         }
 
         public Task<VideoMetadata> GetById(string id)

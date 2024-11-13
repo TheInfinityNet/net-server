@@ -5,7 +5,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File
     public abstract record BaseMetadataResponse
     {
 
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         public string Name { get; set; }
 

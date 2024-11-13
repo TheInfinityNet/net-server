@@ -69,6 +69,10 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                     b.Property<bool>("IsMobileNumberVerified")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Location")
+                        .HasColumnType("text")
+                        .HasColumnName("location");
+
                     b.Property<string>("MobileNumber")
                         .IsRequired()
                         .HasMaxLength(50)

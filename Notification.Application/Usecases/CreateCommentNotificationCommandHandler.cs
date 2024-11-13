@@ -12,6 +12,8 @@ namespace InfinityNetServer.Services.Notification.Application.Usecases
     public class CreateCommentNotificationCommandHandler
         (ILogger<CreateCommentNotificationCommandHandler> logger,
         CommonProfileClient profileClient,
+        CommonPostClient postClient,
+        CommonCommentClient commentClient,
         INotificationService notificationService) : IRequestHandler<DomainCommand.CommentNotificationCommand>
     {
 
@@ -20,17 +22,20 @@ namespace InfinityNetServer.Services.Notification.Application.Usecases
             logger.LogInformation("Starting create comment notification command handler");
             var profile = await profileClient.GetProfile(request.RelatedProfileId.ToString());
             var triggerProfile = await profileClient.GetProfile(request.TriggeredBy);
+            var comment = await commentClient.GetPreviewComment(request.CommentId.ToString());
+            var post = await postClient.GetPreviewPost(comment.PostId.ToString());
             switch (request.Type)
             {
                 case BuildingBlocks.Domain.Enums.NotificationType.TaggedInComment:
                     await notificationService.Create(new Domain.Entities.Notification
                     {
                         AccountId = profile.AccountId,
-                        ThumbnailId = !profile.Avatar.Id.Equals(string.Empty) ? Guid.Parse(profile.Avatar.Id) : null,
-                        Permalink = $"/{request.CommentId}",
+                        ThumbnailId = profile.Avatar.Id,
+                        EntityId = request.CommentId.ToString(),
                         Type = BuildingBlocks.Domain.Enums.NotificationType.TaggedInComment,
-                        Title = "Tagged in comment",
+                        Title = $"Post: {post.PreviewContent}",
                         Content = $"{triggerProfile.Name} tagged you in a comment",
+                        CreatedAt = request.CreatedAt
                     });
                     break;
 
@@ -38,11 +43,12 @@ namespace InfinityNetServer.Services.Notification.Application.Usecases
                     await notificationService.Create(new Domain.Entities.Notification
                     {
                         AccountId = profile.AccountId,
-                        ThumbnailId = !profile.Avatar.Id.Equals(string.Empty) ? Guid.Parse(profile.Avatar.Id) : null,
-                        Permalink = $"/{request.CommentId}",
+                        ThumbnailId = profile.Avatar.Id,
+                        EntityId = request.CommentId.ToString(),
                         Type = BuildingBlocks.Domain.Enums.NotificationType.ReplyToComment,
-                        Title = "Replied to comment",
+                        Title = $"Post: {post.PreviewContent}",
                         Content = $"{triggerProfile.Name} replied to your comment",
+                        CreatedAt = request.CreatedAt
                     });
                     break;
             }

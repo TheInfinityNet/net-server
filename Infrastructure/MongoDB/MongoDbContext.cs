@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 
-namespace InfinityNetServer.Services.Notification.Infrastructure.MongoDb
+namespace InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB
 {
-    public class NotificationDbContext
+    public class MongoDbContext
     {
 
         protected readonly IConfiguration _configuration;
@@ -12,9 +12,7 @@ namespace InfinityNetServer.Services.Notification.Infrastructure.MongoDb
 
         protected readonly IMongoDatabase _database;
 
-        public IMongoCollection<Domain.Entities.Notification> Notifications { get; }
-
-        public NotificationDbContext(IConfiguration configuration)
+        public MongoDbContext(IConfiguration configuration)
         {
             _configuration = configuration;
 
@@ -22,8 +20,6 @@ namespace InfinityNetServer.Services.Notification.Infrastructure.MongoDb
                 .FromUrl(new MongoUrl(configuration["MongoDB:Connection"].ToString())));
 
             _database = _client.GetDatabase(configuration["MongoDB:DatabaseName"].ToString());
-
-            Notifications = GetCollection<Domain.Entities.Notification>();
 
         }
 

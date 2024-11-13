@@ -214,6 +214,8 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
 
                     b.HasIndex("PostPrivacyId");
 
+                    b.HasIndex("ProfileId");
+
                     b.ToTable("post_privacy_excludes");
                 });
 
@@ -266,6 +268,8 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PostPrivacyId");
+
+                    b.HasIndex("ProfileId");
 
                     b.ToTable("post_privacy_includes");
                 });

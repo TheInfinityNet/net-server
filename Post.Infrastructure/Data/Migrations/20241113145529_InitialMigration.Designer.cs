@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(PostDbContext))]
-    [Migration("20241101084536_InitialMigration")]
+    [Migration("20241113145529_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -217,6 +217,8 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
 
                     b.HasIndex("PostPrivacyId");
 
+                    b.HasIndex("ProfileId");
+
                     b.ToTable("post_privacy_excludes");
                 });
 
@@ -269,6 +271,8 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PostPrivacyId");
+
+                    b.HasIndex("ProfileId");
 
                     b.ToTable("post_privacy_includes");
                 });

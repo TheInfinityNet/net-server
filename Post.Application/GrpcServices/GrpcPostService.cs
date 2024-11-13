@@ -6,10 +6,15 @@ using Google.Protobuf.WellKnownTypes;
 using System.Linq;
 using InfinityNetServer.Services.Post.Domain.Repositories;
 using InfinityNetServer.Services.Post.Application.Services;
+using AutoMapper;
 
 namespace InfinityNetServer.Services.Post.Application.GrpcServices
 {
-    public class GrpcPostService(ILogger<GrpcPostService> logger, IPostRepository postRepository, IPostService postService) : PostService.PostServiceBase
+    public class GrpcPostService(
+        ILogger<GrpcPostService> logger,
+        IMapper mapper,
+        IPostRepository postRepository, 
+        IPostService postService) : PostService.PostServiceBase
     {
 
         public override async Task<GetPostIdsResponse> getPostIds(Empty request, ServerCallContext context)
@@ -45,6 +50,13 @@ namespace InfinityNetServer.Services.Post.Application.GrpcServices
             var post = await postService.GetById(request.Id);
             response.FileMetadataId = post != null ? post.FileMetadataId.ToString() : string.Empty;
             return await Task.FromResult(response);
+        }
+
+        public override async Task<PreviewPostResponse> getPreviewPost(PreviewPostRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Received previewPost request");
+            var post = await postService.GetById(request.Id);
+            return mapper.Map<PreviewPostResponse>(post);
         }
 
     }

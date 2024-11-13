@@ -141,9 +141,19 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
                 column: "post_privacy_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_post_privacy_excludes_profile_id",
+                table: "post_privacy_excludes",
+                column: "profile_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_post_privacy_includes_post_privacy_id",
                 table: "post_privacy_includes",
                 column: "post_privacy_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_post_privacy_includes_profile_id",
+                table: "post_privacy_includes",
+                column: "profile_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_posts_created_at",

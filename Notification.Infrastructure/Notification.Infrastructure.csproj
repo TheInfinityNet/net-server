@@ -11,8 +11,4 @@
     <ProjectReference Include="..\Notification.Application\Notification.Application.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Data\" />
-  </ItemGroup>
-
 </Project>

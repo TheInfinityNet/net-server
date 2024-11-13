@@ -16,7 +16,7 @@ namespace InfinityNetServer.Services.File.Presentation.Services
         public async Task Delete(string id)
         {
             PhotoMetadata photoMetadata = await GetById(id);
-            await photoMetadataRepository.DeleteAsync(photoMetadata);
+            await photoMetadataRepository.SoftDeleteAsync(photoMetadata);
         }
 
         public Task<PhotoMetadata> GetById(string id)

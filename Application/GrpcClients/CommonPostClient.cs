@@ -2,7 +2,6 @@
 using Google.Protobuf.WellKnownTypes;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
-using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
@@ -46,6 +45,22 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             {
                 logger.LogError(e.Message);
                 throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+            }
+        }
+
+        public async Task<DTOs.Responses.Post.PreviewPostResponse> GetPreviewPost(string id)
+        {
+            try
+            {
+                logger.LogInformation("Starting get preview post");
+                var response = await client.getPreviewPostAsync(new PreviewPostRequest { Id = id });
+                // Call the gRPC server to introspect the token
+                return mapper.Map<DTOs.Responses.Post.PreviewPostResponse>(response);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new CommonException(BaseErrorCode.POST_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 

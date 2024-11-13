@@ -48,5 +48,21 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
+        public async Task<DTOs.Responses.Comment.PreviewCommentResponse> GetPreviewComment(string id)
+        {
+            try
+            {
+                logger.LogInformation("Starting get preview comment");
+                var response = await client.getPreviewCommentAsync(new PreviewCommentRequest { Id = id });
+                // Call the gRPC server to introspect the token
+                return mapper.Map<DTOs.Responses.Comment.PreviewCommentResponse>(response);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new CommonException(BaseErrorCode.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
+
     }
 }

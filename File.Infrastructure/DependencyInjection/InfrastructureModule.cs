@@ -1,5 +1,7 @@
-﻿using InfinityNetServer.Services.File.Domain.Repositories;
-using InfinityNetServer.Services.File.Infrastructure.MongoDb;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Repositories;
+using InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB.Repositories;
+using InfinityNetServer.Services.File.Domain.Repositories;
+using InfinityNetServer.Services.File.Infrastructure.Data;
 using InfinityNetServer.Services.File.Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +18,7 @@ public static class InfrastructureModule
 
     public static void AddRepositories(this IServiceCollection services)
     {
-        services.AddScoped(typeof(IMongoDbGenericRepository<>), typeof(MongoDbGenericRepository<>));
+        services.AddScoped(typeof(IMongoDbGenericRepository<,>), typeof(MongoDbGenericRepository<,>));
         services.AddScoped<IPhotoMetadataRepository, PhotoMetadataRepository>();
         services.AddScoped<IVideoMetadataRepository, VideoMetadataRepository>();
     }

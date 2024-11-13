@@ -1,16 +1,15 @@
-﻿using Grpc.Core;
-using Microsoft.Extensions.Logging;
-using InfinityNetServer.BuildingBlocks.Application.Protos;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
-using InfinityNetServer.Services.Profile.Domain.Repositories;
-using System.Linq;
-using InfinityNetServer.Services.Profile.Application.Services;
-using System;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
+using Grpc.Core;
+using InfinityNetServer.BuildingBlocks.Application.Protos;
 using InfinityNetServer.Services.Profile.Application.Exceptions;
+using InfinityNetServer.Services.Profile.Application.Services;
+using InfinityNetServer.Services.Profile.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Profile.Application.GrpcServices
 {
@@ -69,8 +68,8 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
                 BuildingBlocks.Domain.Enums.ProfileType.Page => source.PageProfile.Name,
                 _ => throw new ProfileException(ProfileErrorCode.PROFILE_TYPE_NOT_FOUND, StatusCodes.Status404NotFound),
             };
-            if (source.AvatarId == null) source.AvatarId = Guid.Empty;
-            if (source.CoverId == null) source.CoverId = Guid.Empty;
+            source.AvatarId ??= Guid.Empty;
+            source.CoverId ??= Guid.Empty;
             var response = mapper.Map<ProfileResponse>(source);
             response.Name = name;
             return response;
@@ -80,8 +79,8 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
         {
             logger.LogInformation("GetUserProfile called with ProfileId: {ProfileId}", request.Id);
             var source = await userProfileService.GetUserProfileById(request.Id);
-            if (source.AvatarId == null) source.AvatarId = Guid.Empty;
-            if (source.CoverId == null) source.CoverId = Guid.Empty;
+            source.AvatarId ??= Guid.Empty;
+            source.CoverId ??= Guid.Empty;
             return mapper.Map<UserProfileResponse>(source);
         }
 

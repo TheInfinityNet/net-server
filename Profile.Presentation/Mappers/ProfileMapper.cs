@@ -27,7 +27,7 @@ public class ProfileMapper : AutoMapper.Profile
                 {
                     dest.Avatar = new PhotoMetadataResponse
                     {
-                        Id = Guid.NewGuid().ToString(),
+                        Id = Guid.NewGuid(),
                         Name = "cover.jpg",
                         Width = 500,
                         Height = 500,
@@ -35,6 +35,13 @@ public class ProfileMapper : AutoMapper.Profile
                         Type = FileMetadataType.Photo.ToString(),
                         Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
                         CreatedAt = DateTime.Now
+                    };
+                }
+                else
+                {
+                    dest.Avatar = new PhotoMetadataResponse
+                    {
+                        Id = src.AvatarId.Value,
                     };
                 }
 
@@ -42,7 +49,7 @@ public class ProfileMapper : AutoMapper.Profile
                 {
                     dest.Cover = new PhotoMetadataResponse
                     {
-                        Id = Guid.NewGuid().ToString(),
+                        Id = Guid.NewGuid(),
                         Name = "cover.jpg",
                         Width = 500,
                         Height = 500,
@@ -52,7 +59,13 @@ public class ProfileMapper : AutoMapper.Profile
                         CreatedAt = DateTime.Now
                     };
                 }
-                
+                else
+                {
+                    dest.Cover = new PhotoMetadataResponse
+                    {
+                        Id = src.CoverId.Value,
+                    };
+                }
                 dest.Name = dest.GenerateName();
             }); 
     }

@@ -29,6 +29,7 @@ public record BaseErrorCode
     public static readonly BaseErrorCode PROFILE_NOT_FOUND = new("common/profile-not-found", "profile_not_found");
     public static readonly BaseErrorCode RELATIONSHIP_NOT_FOUND = new("common/relationship-not-found", "relationship_not_found");
     public static readonly BaseErrorCode POST_NOT_FOUND = new("common/post-not-found", "post_not_found");
+    public static readonly BaseErrorCode COMMENT_NOT_FOUND = new("common/comment-not-found", "comment_not_found");
     public static readonly BaseErrorCode FILE_NOT_FOUND = new("common/file-not-found", "file_not_found");
 
 }

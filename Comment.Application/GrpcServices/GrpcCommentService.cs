@@ -5,10 +5,15 @@ using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using System.Linq;
 using InfinityNetServer.Services.Comment.Domain.Repositories;
+using System;
+using AutoMapper;
 
 namespace InfinityNetServer.Services.Comment.Application.GrpcServices
 {
-    public class GrpcCommentService(ILogger<GrpcCommentService> logger, ICommentRepository commentRepository) : CommentService.CommentServiceBase
+    public class GrpcCommentService(
+        ILogger<GrpcCommentService> logger,
+        IMapper mapper,
+        ICommentRepository commentRepository) : CommentService.CommentServiceBase
     {
 
         public override async Task<GetCommentIdsResponse> getCommentIds(Empty request, ServerCallContext context)
@@ -34,6 +39,13 @@ namespace InfinityNetServer.Services.Comment.Application.GrpcServices
             }));
 
             return await Task.FromResult(response);
+        }
+
+        public override async Task<PreviewCommentResponse> getPreviewComment(PreviewCommentRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Received getPreviewComment request");
+            Domain.Entities.Comment comment = await commentRepository.GetByIdAsync(Guid.Parse(request.Id));
+            return mapper.Map<PreviewCommentResponse>(comment);
         }
 
     }

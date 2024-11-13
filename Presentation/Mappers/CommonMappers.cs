@@ -31,7 +31,29 @@ public class CommonMappers : Profile
                 {
                     dest.Avatar = new PhotoMetadataResponse
                     {
-                        Id = string.Empty,
+                        Id = Guid.Empty,
+                        Name = "cover.jpg",
+                        Width = 500,
+                        Height = 500,
+                        Size = 1000,
+                        Type = FileMetadataType.Photo.ToString(),
+                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
+                        CreatedAt = DateTime.Now
+                    };
+                } 
+                else
+                {
+                    dest.Avatar = new PhotoMetadataResponse
+                    {
+                        Id = Guid.Parse(src.AvatarId),
+                    };
+                }
+
+                if (src.CoverId.Equals(Guid.Empty.ToString()))
+                {
+                    dest.Cover = new PhotoMetadataResponse
+                    {
+                        Id = Guid.Empty,
                         Name = "cover.jpg",
                         Width = 500,
                         Height = 500,
@@ -41,19 +63,11 @@ public class CommonMappers : Profile
                         CreatedAt = DateTime.Now
                     };
                 }
-
-                if (src.CoverId.Equals(Guid.Empty.ToString()))
+                else
                 {
                     dest.Cover = new PhotoMetadataResponse
                     {
-                        Id = string.Empty,
-                        Name = "cover.jpg",
-                        Width = 500,
-                        Height = 500,
-                        Size = 1000,
-                        Type = FileMetadataType.Photo.ToString(),
-                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
-                        CreatedAt = DateTime.Now
+                        Id = Guid.Parse(src.CoverId),
                     };
                 }
             });
@@ -71,7 +85,7 @@ public class CommonMappers : Profile
                 {
                     dest.Avatar = new PhotoMetadataResponse
                     {
-                        Id = string.Empty,
+                        Id = Guid.Empty,
                         Name = "cover.jpg",
                         Width = 500,
                         Height = 500,
@@ -81,12 +95,18 @@ public class CommonMappers : Profile
                         CreatedAt = DateTime.Now
                     };
                 }
+                else {
+                    dest.Avatar = new PhotoMetadataResponse
+                    {
+                        Id = Guid.Parse(src.AvatarId),
+                    };
+                }
 
                 if (src.CoverId.Equals(Guid.Empty.ToString()))
                 {
                     dest.Cover = new PhotoMetadataResponse
                     {
-                        Id = string.Empty,
+                        Id = Guid.Empty,
                         Name = "cover.jpg",
                         Width = 500,
                         Height = 500,
@@ -94,6 +114,13 @@ public class CommonMappers : Profile
                         Type = FileMetadataType.Photo.ToString(),
                         Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
                         CreatedAt = DateTime.Now
+                    };
+                }
+                else
+                {
+                    dest.Cover = new PhotoMetadataResponse
+                    {
+                        Id = Guid.Parse(src.CoverId),
                     };
                 }
                 dest.Name = dest.GenerateName();
@@ -110,6 +137,10 @@ public class CommonMappers : Profile
             {
                 dest.Type = src.Type.ToString(); // Chuyển enum sang string
             });
+
+        CreateMap<Application.Protos.PreviewPostResponse, Application.DTOs.Responses.Post.PreviewPostResponse>();
+
+        CreateMap<Application.Protos.PreviewCommentResponse, Application.DTOs.Responses.Comment.PreviewCommentResponse>();
 
         CreateMap<Application.Protos.AccountWithDefaultProfile, Application.DTOs.Others.AccountWithDefaultProfile>();
 

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ProfileDbContext))]
-    [Migration("20241101012351_InitialMigration")]
+    [Migration("20241113142742_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -36,7 +36,6 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnName("id");
 
                     b.Property<Guid>("AccountId")
-                        .HasMaxLength(50)
                         .HasColumnType("uuid")
                         .HasColumnName("account_id");
 
@@ -72,6 +71,10 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
 
                     b.Property<bool>("IsMobileNumberVerified")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("text")
+                        .HasColumnName("location");
 
                     b.Property<string>("MobileNumber")
                         .IsRequired()

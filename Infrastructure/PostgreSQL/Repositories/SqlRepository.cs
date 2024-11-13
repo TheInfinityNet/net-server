@@ -24,7 +24,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
             return await DbSet.FindAsync(id);
         }
 
-        public async Task CreateAsync(IEnumerable<TEntity> items)
+        public virtual async Task CreateAsync(IEnumerable<TEntity> items)
         {
             ArgumentNullException.ThrowIfNull(items);
             await DbSet.AddRangeAsync(items);

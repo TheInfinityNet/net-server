@@ -20,6 +20,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                     avatar_id = table.Column<Guid>(type: "uuid", nullable: true),
                     cover_id = table.Column<Guid>(type: "uuid", nullable: true),
                     mobile_number = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    location = table.Column<string>(type: "text", nullable: true),
                     IsMobileNumberVerified = table.Column<bool>(type: "boolean", nullable: false),
                     type = table.Column<int>(type: "integer", nullable: false),
                     status = table.Column<int>(type: "integer", nullable: false),

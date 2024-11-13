@@ -38,6 +38,20 @@ message GetFileMetadataIdOfPostResponse {
 	string fileMetadataId = 1;
 }
 
+message PreviewPostRequest {
+	string id = 1;
+}
+
+message PreviewPostResponse {
+
+	string id = 1;
+
+	string ownerId = 2;
+
+	string previewContent = 3;
+
+}
+
 service PostService {
 
   rpc getPostIds (google.protobuf.Empty) returns (GetPostIdsResponse) {}
@@ -45,5 +59,7 @@ service PostService {
   rpc getFileMetadataIdsWithTypes (GetFileMetadataIdsWithTypesRequest) returns (GetFileMetadataIdsWithTypesResponse) {}
 
   rpc getFileMetadataIdOfPost (GetFileMetadataIdOfPostRequest) returns (GetFileMetadataIdOfPostResponse) {}
+
+  rpc getPreviewPost (PreviewPostRequest) returns (PreviewPostResponse) {}
 
 }

@@ -1,16 +1,13 @@
 ﻿using System;
+using InfinityNetServer.BuildingBlocks.Domain.Entities;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace InfinityNetServer.Services.File.Domain.Entities
 {
-    public class BaseMetadata
+    public class BaseMetadata : MongoEntity<Guid>
     {
-
-        [BsonId]
-        [BsonRepresentation(BsonType.String)]
-        public Guid Id { get; set; } = Guid.NewGuid();
 
         [BsonElement("owner_id")]
         [BsonRepresentation(BsonType.String)]
@@ -28,15 +25,9 @@ namespace InfinityNetServer.Services.File.Domain.Entities
         [BsonElement("size")]
         public long Size { get; set; }
 
-        [BsonElement("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-
         [BsonElement("created_by")]
         [BsonRepresentation(BsonType.String)]
         public Guid? CreatedBy { get; set; }
-
-        [BsonElement("updated_at")]
-        public DateTime? UpdatedAt { get; set; }
 
         [BsonElement("updated_by")]
         [BsonRepresentation(BsonType.String)]
