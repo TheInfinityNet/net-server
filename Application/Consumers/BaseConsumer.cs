@@ -1,16 +1,14 @@
 ﻿using System.Threading.Tasks;
+using InfinityNetServer.BuildingBlocks.Application.Contracts.Messages;
 using MassTransit;
+using MediatR;
 
 namespace InfinityNetServer.BuildingBlocks.Application.Consumers;
 
-public abstract class BaseConsumer<TEvent> : IConsumer<TEvent> where TEvent : class
+public abstract class BaseConsumer<TEvent>(ISender sender) : IConsumer<TEvent> where TEvent : class, IMessage
 {
 
-    public abstract Task ConsumeMessage(ConsumeContext<TEvent> context);
-
     public async Task Consume(ConsumeContext<TEvent> context)
-    {
-        await ConsumeMessage(context);
-    }
-
+        => await sender.Send(context.Message);
+    
 }

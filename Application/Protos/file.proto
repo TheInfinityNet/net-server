@@ -1,0 +1,82 @@
+﻿syntax = "proto3";
+
+package InfinityNetServer.BuildingBlocks.Application.Protos;
+
+option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
+
+import "google/protobuf/timestamp.proto";
+
+enum FileMetadataType {
+
+	Photo = 0;
+
+	Video = 1;
+
+	Audio = 2;
+
+}
+
+message GetFileMetadataRequest {
+
+	string id = 1;
+
+}
+
+message PhotoMetadataResponse {
+
+	string id = 1;
+
+	string name = 2;
+
+	FileMetadataType type = 3;
+
+	int32 width = 4;
+
+	int32 height = 5;
+
+	int64 size = 6;
+
+	google.protobuf.Timestamp createdAt = 7;
+
+	google.protobuf.Timestamp updatedAt = 8;
+
+	google.protobuf.Timestamp deletedAt = 9;
+
+	string url = 10;
+
+}
+
+message VideoMetadataResponse {
+
+	string id = 1;
+
+	string name = 2;
+
+	FileMetadataType type = 3;
+
+	int32 width = 4;
+
+	int32 height = 5;
+
+	int64 duration = 6;
+
+	int64 size = 7;
+
+	google.protobuf.Timestamp createdAt = 8;
+
+	google.protobuf.Timestamp updatedAt = 9;
+
+	google.protobuf.Timestamp deletedAt = 10;
+
+	PhotoMetadataResponse thumbnail = 11;
+
+	string url = 12;
+}
+
+service FileService {
+
+  rpc getPhotoMetadata(GetFileMetadataRequest) returns (PhotoMetadataResponse) {}
+
+  rpc getVideoMetadata(GetFileMetadataRequest) returns (VideoMetadataResponse) {}
+
+}

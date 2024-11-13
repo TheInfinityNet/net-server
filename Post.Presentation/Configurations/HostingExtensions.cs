@@ -24,6 +24,7 @@ using InfinityNetServer.Services.Post.Infrastructure.Data;
 using InfinityNetServer.BuildingBlocks.Presentation.Services;
 using InfinityNetServer.Services.Post.Presentation.Services;
 using InfinityNetServer.Services.Post.Presentation.Exceptions;
+using InfinityNetServer.Services.Post.Presentation.Mappers;
 
 namespace InfinityNetServer.Services.Post.Presentation.Configurations;
 
@@ -44,7 +45,7 @@ internal static class HostingExtensions
 
         builder.Services.AddRepositories();
 
-        builder.Services.AddMappers();
+        builder.Services.AddMappers(typeof(PostMappers));
 
         builder.Services.AddLocalization(builder.Configuration);
 

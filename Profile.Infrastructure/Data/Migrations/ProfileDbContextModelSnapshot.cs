@@ -33,7 +33,6 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnName("id");
 
                     b.Property<Guid>("AccountId")
-                        .HasMaxLength(50)
                         .HasColumnType("uuid")
                         .HasColumnName("account_id");
 
@@ -69,6 +68,10 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
 
                     b.Property<bool>("IsMobileNumberVerified")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("text")
+                        .HasColumnName("location");
 
                     b.Property<string>("MobileNumber")
                         .IsRequired()

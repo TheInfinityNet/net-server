@@ -63,18 +63,21 @@ public static class DbInitialization
         var faker = new Faker<PageProfile>()
             .CustomInstantiator(f =>
             {
-                var randomAccountId = Guid.Parse(f.PickRandom((IList<string>)accountIds));
+                var randomAccountId = Guid.Parse(f.PickRandom(accountIds));
                 return new PageProfile
                 {
                     Type = ProfileType.Page,
-                    MobileNumber = f.Phone.PhoneNumber(),
                     AccountId = randomAccountId,
                     CreatedBy = randomAccountId
                 };
             })
-            .RuleFor(ap => ap.Name, f => f.Company.CompanyName())
-            .RuleFor(ap => ap.Description, f => f.Lorem.Sentence())
-            .RuleFor(p => p.CreatedAt, f => f.Date.Recent(f.Random.Int(1, 365))); ;
+            .RuleFor(p => p.AvatarId, f => Guid.NewGuid())
+            .RuleFor(p => p.CoverId, f => Guid.NewGuid())
+            .RuleFor(p => p.MobileNumber, f => f.Phone.PhoneNumber())
+            .RuleFor(p => p.Location, f => f.Address.FullAddress())
+            .RuleFor(p => p.Name, f => f.Company.CompanyName())
+            .RuleFor(p => p.Description, f => f.Lorem.Sentence(30))
+            .RuleFor(p => p.CreatedAt, f => f.Date.Recent(f.Random.Int(1, 365)));
 
         return faker.Generate(count);
     }
@@ -93,9 +96,12 @@ public static class DbInitialization
                 Id = Guid.Parse(item.DefaultUserProfileId),
                 Type = ProfileType.User,
                 AccountId = Guid.Parse(item.Id),
+                AvatarId = Guid.NewGuid(),
+                CoverId = Guid.NewGuid(),
                 CreatedBy = Guid.Parse(item.Id),
                 Username = faker.Internet.UserName(),
                 MobileNumber = faker.Phone.PhoneNumber(),
+                Location = faker.Address.FullAddress(),
                 FirstName = faker.Name.FirstName(),
                 MiddleName = faker.Name.FirstName(),
                 LastName = faker.Name.LastName(),

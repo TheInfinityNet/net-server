@@ -21,7 +21,9 @@
 		</PackageReference>
 		<PackageReference Include="MassTransit" Version="8.3.0" />
 		<PackageReference Include="MassTransit.RabbitMQ" Version="8.3.0" />
+		<PackageReference Include="MediatR" Version="12.4.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.10" />
+		<PackageReference Include="MongoDB.Driver" Version="3.0.0" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
 		<PackageReference Include="StackExchange.Redis" Version="2.8.16" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
@@ -34,6 +36,7 @@
 
 	<ItemGroup>
 	  <None Remove="Protos\comment.proto" />
+	  <None Remove="Protos\file.proto" />
 	  <None Remove="Protos\group.proto" />
 	  <None Remove="Protos\post.proto" />
 	  <None Remove="Protos\relationship.proto" />
@@ -47,6 +50,12 @@
 	  <EmbeddedResource Update="Resources\SharedResource.en-US.resx">
 	    <SubType>Designer</SubType>
 	  </EmbeddedResource>
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <Protobuf Update="Protos\file.proto">
+	    <GrpcServices>Both</GrpcServices>
+	  </Protobuf>
 	</ItemGroup>
 	
 	<ItemGroup>

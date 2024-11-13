@@ -16,7 +16,6 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
 
         [Required]
         [Column("account_id")]
-        [MaxLength(50)]
         public Guid AccountId { get; set; }
 
         [Column("avatar_id")]
@@ -29,6 +28,9 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         [MaxLength(50)]
         [Column("mobile_number")]
         public string MobileNumber { get; set; }
+
+        [Column("location", TypeName = "text")]
+        public string? Location { get; set; }
 
         [Required]
         public bool IsMobileNumberVerified { get; set; } = false;

@@ -1,22 +1,14 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Bus;
+﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.Contracts.Messages;
 using MassTransit;
 using System.Threading.Tasks;
 
 namespace InfinityNetServer.BuildingBlocks.Infrastructure.Bus;
 
-public class MessageBus : IMessageBus
+public class MessageBus(IPublishEndpoint publishEndpoint) : IMessageBus
 {
 
-    private readonly IPublishEndpoint _publishEndpoint;
-
-    public MessageBus(IPublishEndpoint publishEndpoint)
-    {
-        _publishEndpoint = publishEndpoint;
-    }
-
-    public async Task Publish<TEvent>(TEvent @event) where TEvent : IIntegrationEvent
-    {
-        await _publishEndpoint.Publish(@event);
-    }
-
+    public async Task Publish<TEvent>(TEvent @event) where TEvent : IMessage
+        => await publishEndpoint.Publish(@event);
+ 
 }

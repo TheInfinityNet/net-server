@@ -16,6 +16,24 @@ message GetProfileRequest {
 
 }
 
+message ProfileResponse {
+
+	string id = 1;
+
+	string name = 5;
+
+	string mobileNumber = 6;
+
+	string accountId = 7;
+
+	string avatarId = 8;
+
+	string coverId = 9;
+
+	ProfileType type = 10;
+
+}
+
 message UserProfileResponse {
 
 	string id = 1;
@@ -45,6 +63,12 @@ message UserProfileResponse {
 	google.protobuf.Timestamp deletedAt = 13;
 
 	ProfileType type = 14;
+
+	string accountId = 15;
+
+	string avatarId = 16;
+
+	string coverId = 17;
 
 }
 
@@ -83,16 +107,18 @@ message GetProfileIdsWithNamesResponse {
 
 service ProfileService {
 
-  rpc getUserProfile(GetProfileRequest) returns (UserProfileResponse) {}
+	rpc getProfile(GetProfileRequest) returns (ProfileResponse) {}
 
-  rpc getPreviewFriendsOfProfile(GetPreviewFriendsOfProfileRequest) returns (PreviewFriendsOfProfileResponse) {}
+	rpc getUserProfile(GetProfileRequest) returns (UserProfileResponse) {}
 
-  rpc getProfileIds(google.protobuf.Empty) returns (GetProfileIdsResponse) {}
+	rpc getPreviewFriendsOfProfile(GetPreviewFriendsOfProfileRequest) returns (PreviewFriendsOfProfileResponse) {}
 
-  rpc getUserProfileIds(google.protobuf.Empty) returns (GetUserProfileIdsResponse) {}
+	rpc getProfileIds(google.protobuf.Empty) returns (GetProfileIdsResponse) {}
 
-  rpc getPageProfileIds(google.protobuf.Empty) returns (GetPageProfileIdsResponse) {}
+	rpc getUserProfileIds(google.protobuf.Empty) returns (GetUserProfileIdsResponse) {}
 
-  rpc getProfileIdsWithNames(google.protobuf.Empty) returns (GetProfileIdsWithNamesResponse) {}
+	rpc getPageProfileIds(google.protobuf.Empty) returns (GetPageProfileIdsResponse) {}
+
+	rpc getProfileIdsWithNames(google.protobuf.Empty) returns (GetProfileIdsWithNamesResponse) {}
 
 }

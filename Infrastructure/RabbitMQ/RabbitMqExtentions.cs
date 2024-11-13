@@ -1,9 +1,6 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
 using System;
-using System.Reflection;
-using InfinityNetServer.BuildingBlocks.Application.Attributes;
 using Microsoft.Extensions.Configuration;
 
 namespace InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ
@@ -11,53 +8,45 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ
     public static class RabbitMqExtentions
     {
 
-        public static void AddMassTransitConsumers(
+        public static IServiceCollection AddMediatR(this IServiceCollection services, Type handlerAssemblyMarkerType)
+            => services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(handlerAssemblyMarkerType.Assembly));
+
+        public static IServiceCollection AddMassTransitConsumers(
             this IServiceCollection services,
             IConfiguration configuration,
-            Type consumerAssemblyMarkerType)
+            params Type[] consumerAssemblyMarkerType)
         {
             var rabbitMqOptions = configuration.GetSection("RabbitMQ").Get<RabbitMqOptions>();
 
-            services.AddMassTransit(x =>
+            return services.AddMassTransit(cfg =>
             {
-                x.AddConsumers(consumerAssemblyMarkerType.Assembly);
+                //cfg.AddConsumers(consumerAssemblyMarkerType);
 
-                x.UsingRabbitMq((context, cfg) =>
+                foreach (var consumerType in consumerAssemblyMarkerType)
+                    cfg.AddConsumer(consumerType);
+
+                cfg.UsingRabbitMq((context, bus) =>
                 {
-                    cfg.Host(rabbitMqOptions.Host, rabbitMqOptions.VirtualHost, h =>
+                    bus.Host(rabbitMqOptions.Host, rabbitMqOptions.VirtualHost, h =>
                     {
                         h.Username(rabbitMqOptions.Username);
                         h.Password(rabbitMqOptions.Password);
                     });
 
-                    // Lấy tất cả các consumer đã đăng ký
-                    var consumerTypes = consumerAssemblyMarkerType.Assembly.GetTypes()
-                        .Where(t => t.IsClass && !t.IsAbstract && typeof(IConsumer).IsAssignableFrom(t))
-                        .ToList();
+                    bus.UseMessageRetry(retry => 
+                        retry.Incremental(
+                            retryLimit: 3,
+                            initialInterval: TimeSpan.FromSeconds(5),
+                            intervalIncrement: TimeSpan.FromSeconds(5)
+                        ));
 
-                    foreach (var consumerType in consumerTypes)
-                    {
-                        // Kiểm tra xem consumer có QueueNameAttribute không
-                        var queueNameAttribute = consumerType.GetCustomAttribute<QueueNameAttribute>();
-                        // Tạo tên queue dựa trên ExchangeName và tên consumer
-                        var queueName = queueNameAttribute != null
-                                    ? $"{rabbitMqOptions.ExchangeName}-{queueNameAttribute.QueueName}-queue"
-                                    : $"{rabbitMqOptions.ExchangeName}-{GetQueueName(consumerType)}-queue";
-
-                        cfg.ReceiveEndpoint(queueName, e =>
-                        {
-                            // Cấu hình consumer cho endpoint này
-                            e.ConfigureConsumer(context, consumerType);
-
-                            // Tùy chọn cấu hình thêm cho endpoint nếu cần
-                            e.PrefetchCount = 16;
-                            e.ConcurrentMessageLimit = 8;
-                            e.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
-                        });
-                    }
-
-                    // Tùy chọn cấu hình thêm nếu cần
-                    cfg.ConfigureEndpoints(context);
+                    bus.ConfigureEndpoints(context);
+                    //bus.ReceiveEndpoint(
+                    //    rabbitMqOptions.ExchangeName, e =>
+                    //    {
+                    //        e.ConfigureConsumers(context);
+                    //    }
+                    //);
                 });
             });
         }
@@ -66,11 +55,11 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ
         {
             RabbitMqOptions rabbitMqOptions = configuration.GetSection("RabbitMQ").Get<RabbitMqOptions>();
 
-            services.AddMassTransit(x =>
+            services.AddMassTransit(cfg =>
             {
-                x.UsingRabbitMq((context, cfg) =>
+                cfg.UsingRabbitMq((context, bus) =>
                 {
-                    cfg.Host(rabbitMqOptions.Host, rabbitMqOptions.VirtualHost, h =>
+                    bus.Host(rabbitMqOptions.Host, rabbitMqOptions.VirtualHost, h =>
                     {
                         h.Username(rabbitMqOptions.Username);
                         h.Password(rabbitMqOptions.Password);

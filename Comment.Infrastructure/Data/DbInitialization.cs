@@ -76,7 +76,7 @@ public static class DbInitialization
             {
                 var createdBy = Guid.Parse(f.PickRandom(profileIds));
                 var profileId = createdBy;
-                var fileMetadataId = (f.Random.Bool()) ? Guid.NewGuid() : (Guid?)null;
+                var fileMetadataId = f.Random.Bool() ? Guid.NewGuid() : (Guid?)null;
                 return new Domain.Entities.Comment
                 {
                     ProfileId = profileId,

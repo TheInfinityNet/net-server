@@ -18,7 +18,6 @@ namespace InfinityNetServer.Services.Identity.Application.Exceptions
          */
 
         // Static instances to represent each error code
-        public static readonly IdentityErrorCode VALIDATION_ERROR = new("auth/validation-error", "validation_error");
         public static readonly IdentityErrorCode INVALID_EMAIL = new("auth/invalid-email", "invalid_email");
         public static readonly IdentityErrorCode WEAK_PASSWORD = new("auth/weak-password", "weak_password");
         public static readonly IdentityErrorCode PASSWORD_MISMATCH = new("auth/password-mismatch", "password_mismatch");
@@ -31,13 +30,10 @@ namespace InfinityNetServer.Services.Identity.Application.Exceptions
         public static readonly IdentityErrorCode INVALID_ACTIVATION_CODE = new("auth/invalid-activation-code", "invalid_activation_code");
 
         // Token Errors
-        public static readonly IdentityErrorCode TOKEN_MISSING = new("auth/token-missing", "token_missing");
-        public static readonly IdentityErrorCode TOKEN_INVALID = new("auth/token-invalid", "token_invalid");
         public static readonly IdentityErrorCode TOKEN_EXPIRED = new("auth/token-expired", "token_expired");
         public static readonly IdentityErrorCode INVALID_TOKEN = new("auth/invalid-token", "invalid_token");
         public static readonly IdentityErrorCode TOKEN_REVOKED = new("auth/token-revoked", "token_revoked");
         public static readonly IdentityErrorCode TOKEN_BLACKLISTED = new("auth/token-blacklisted", "token_blacklisted");
-        public static readonly IdentityErrorCode INVALID_SIGNATURE = new("auth/invalid-signature", "invalid_signature");
 
         // Verification Errors
         public static readonly IdentityErrorCode CODE_INVALID = new("auth/code-invalid", "code_invalid");

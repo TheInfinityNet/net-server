@@ -1,16 +1,12 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Services;
-using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL;
-using InfinityNetServer.Services.File.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB;
 using Microsoft.Extensions.Configuration;
 
 namespace InfinityNetServer.Services.File.Infrastructure.Data
 {
-    public class FileDbContext 
+    public class FileDbContext(IConfiguration configuration) : MongoDbContext(configuration)
     {
 
         
 
     }
-
 }

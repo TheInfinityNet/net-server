@@ -18,7 +18,7 @@ namespace InfinityNetServer.Services.Profile.Application.Exceptions
          */
 
         // Static instances to represent each error code
-       
+       public static readonly ProfileErrorCode PROFILE_TYPE_NOT_FOUND = new("profile/profile-type-not-found", "profile_type_not_found");
 
     }
 

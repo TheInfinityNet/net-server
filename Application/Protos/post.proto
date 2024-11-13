@@ -10,8 +10,56 @@ message GetPostIdsResponse {
   repeated string ids = 1;
 }
 
+message GetFileMetadataIdsWithTypesRequest {
+	string type = 1;
+}
+
+message FileMetadataIdWithType {
+
+	string id = 1;
+
+	string ownerId = 2;
+
+	string fileMetadataId = 3;
+
+	string type = 4;
+
+}
+
+message GetFileMetadataIdsWithTypesResponse {
+	repeated FileMetadataIdWithType fileMetadataIdsWithTypes = 1;
+}
+
+message GetFileMetadataIdOfPostRequest {
+	string id = 1;
+}
+
+message GetFileMetadataIdOfPostResponse {
+	string fileMetadataId = 1;
+}
+
+message PreviewPostRequest {
+	string id = 1;
+}
+
+message PreviewPostResponse {
+
+	string id = 1;
+
+	string ownerId = 2;
+
+	string previewContent = 3;
+
+}
+
 service PostService {
 
   rpc getPostIds (google.protobuf.Empty) returns (GetPostIdsResponse) {}
+
+  rpc getFileMetadataIdsWithTypes (GetFileMetadataIdsWithTypesRequest) returns (GetFileMetadataIdsWithTypesResponse) {}
+
+  rpc getFileMetadataIdOfPost (GetFileMetadataIdOfPostRequest) returns (GetFileMetadataIdOfPostResponse) {}
+
+  rpc getPreviewPost (PreviewPostRequest) returns (PreviewPostResponse) {}
 
 }

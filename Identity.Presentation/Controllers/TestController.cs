@@ -9,12 +9,11 @@ using System;
 using Bogus;
 using InfinityNetServer.Services.Identity.Domain.Entities;
 using InfinityNetServer.Services.Identity.Application;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Commands;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Identity.Domain.Repositories;
-using InfinityNetServer.BuildingBlocks.Application.Bus;
 using InfinityNetServer.BuildingBlocks.Application.Services;
+using InfinityNetServer.BuildingBlocks.Application.Contracts;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 {

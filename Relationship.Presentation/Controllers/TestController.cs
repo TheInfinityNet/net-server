@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using InfinityNetServer.BuildingBlocks.Application.Bus;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.Relationship.Application;
@@ -11,6 +10,7 @@ using System.Linq;
 using InfinityNetServer.Services.Relationship.Application.GrpcClients;
 using InfinityNetServer.Services.Relationship.Application.Services;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
+using InfinityNetServer.BuildingBlocks.Application.Contracts;
 
 namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
 {

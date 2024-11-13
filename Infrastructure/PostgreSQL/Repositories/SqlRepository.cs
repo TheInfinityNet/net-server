@@ -24,16 +24,16 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
             return await DbSet.FindAsync(id);
         }
 
-        public async Task CreateAsync(IEnumerable<TEntity> items)
+        public virtual async Task CreateAsync(IEnumerable<TEntity> items)
         {
-            if (items == null) throw new ArgumentNullException(nameof(items));
+            ArgumentNullException.ThrowIfNull(items);
             await DbSet.AddRangeAsync(items);
             await context.SaveChangesAsync();
         }
 
         public async Task<TEntity> CreateAsync(TEntity item)
         {
-            if (item == null) throw new ArgumentNullException(nameof(item));
+            ArgumentNullException.ThrowIfNull(item);
             await DbSet.AddAsync(item);
             await context.SaveChangesAsync();
             return item;
@@ -41,7 +41,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
 
         public async Task UpdateAsync(TEntity item)
         {
-            if (item == null) throw new ArgumentNullException(nameof(item));
+            ArgumentNullException.ThrowIfNull(item);
             DbSet.Attach(item);
             context.Entry(item).State = EntityState.Modified;
             await context.SaveChangesAsync();
@@ -49,15 +49,14 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
 
         public async Task DeleteAsync(TId id)
         {
-            var entity = await GetByIdAsync(id);
-            if (entity == null) throw new KeyNotFoundException($"Entity with id {id} not found.");
+            var entity = await GetByIdAsync(id) ?? throw new KeyNotFoundException($"Entity with id {id} not found.");
             DbSet.Remove(entity);
             await context.SaveChangesAsync();
         }
 
         public async Task<List<TEntity>> FindAsync(Func<TEntity, bool> predicate)
         {
-            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+            ArgumentNullException.ThrowIfNull(predicate);
             return await Task.FromResult(DbSet.AsEnumerable().Where(predicate).ToList());
         }
 
@@ -74,7 +73,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
 
         public async Task<PagedResult<TEntity>> GetPagedAsync(ISqlSpecification<TEntity> spec)
         {
-            if (spec == null) throw new ArgumentNullException(nameof(spec));
+            ArgumentNullException.ThrowIfNull(spec);
 
             IQueryable<TEntity> query = ApplySpecification(spec);
 

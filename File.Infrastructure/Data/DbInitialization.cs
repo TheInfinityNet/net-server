@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using InfinityNetServer.Services.File.Domain.Repositories;
 using InfinityNetServer.Services.File.Domain.Entities;
 using System.Linq;
+using InfinityNetServer.Services.File.Application.GrpcClients;
 
 namespace InfinityNetServer.Services.File.Infrastructure.Data;
 
@@ -17,7 +18,7 @@ public static class DbInitialization
     {
         using var serviceScope = serviceProvider.CreateScope();
 
-        var dbContext = serviceScope.ServiceProvider.GetService<FileDbContext>();
+        //var dbContext = serviceScope.ServiceProvider.GetService<FileDbContext>();
 
         //dbContext.Database.EnsureDeleted();
     }
@@ -25,8 +26,8 @@ public static class DbInitialization
     public static async void SeedEssentialData(this IServiceProvider serviceProvider)
     {
         using var serviceScope = serviceProvider.CreateScope();
-        var dbContext = serviceScope.ServiceProvider.GetService<FileDbContext>();
-        var fileMetadataRepository = serviceScope.ServiceProvider.GetService<IFileMetadataRepository>();
+        //var dbContext = serviceScope.ServiceProvider.GetService<FileDbContext>();
+        var fileMetadataRepository = serviceScope.ServiceProvider.GetService<IPhotoMetadataRepository>();
         var identityClient = serviceScope.ServiceProvider.GetService<CommonIdentityClient>();
         var profileClient = serviceScope.ServiceProvider.GetService<CommonProfileClient>();
         var postClient = serviceScope.ServiceProvider.GetService<CommonPostClient>();
