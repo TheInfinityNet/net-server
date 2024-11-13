@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using InfinityNetServer.BuildingBlocks.Domain.Repositories;
 using InfinityNetServer.Services.Post.Domain.Entities;
 
