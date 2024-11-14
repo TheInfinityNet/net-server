@@ -17,6 +17,7 @@ using InfinityNetServer.Services.Notification.Application.Consumers;
 using InfinityNetServer.Services.Notification.Application.Usecases;
 using InfinityNetServer.Services.Notification.Infrastructure.DependencyInjection;
 using InfinityNetServer.Services.Notification.Presentation.Exceptions;
+using InfinityNetServer.Services.Notification.Presentation.Mappers;
 using InfinityNetServer.Services.Notification.Presentation.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -57,7 +58,7 @@ internal static class HostingExtensions
 
         builder.Services.AddRepositories();
 
-        builder.Services.AddMappers();
+        builder.Services.AddMappers(typeof(NotificationMapper));
 
         builder.Services.AddGrpc();
 

@@ -3,6 +3,7 @@ using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL;
 using InfinityNetServer.Services.Relationship.Domain.Entities;
+using InfinityNetServer.Services.Relationship.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -63,7 +64,7 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data
             {
                 foreach (var entry in friendshipEntries)
                 {
-                    if (entry.Entity.UpdatedAt == null && entry.Entity.DeletedAt == null)
+                    if (entry.Entity.Status.Equals(FriendshipStatus.Pending))
                     {
                         Guid id = entry.Entity.Id;
                         Guid senderId = entry.Entity.SenderId;
@@ -86,7 +87,7 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data
 
                 foreach (var entry in profileFollowEntries)
                 {
-                    if (entry.State == EntityState.Added)
+                    if (entry.Entity.UpdatedAt == null && entry.Entity.DeletedAt == null)
                     {
                         Guid id = entry.Entity.Id;
                         Guid followerId = entry.Entity.FollowerId;

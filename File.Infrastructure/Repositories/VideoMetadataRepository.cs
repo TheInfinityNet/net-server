@@ -17,19 +17,19 @@ namespace InfinityNetServer.Services.File.Infrastructure.Repositories
 
         public override async Task CreateAsync(VideoMetadata entity)
         {
-            if (entity.CreatedBy == null) entity.CreatedBy = authenticatedUserService.GetAuthenticatedUserId();
+            if (entity.CreatedBy == null) entity.CreatedBy = authenticatedUserService.GetAuthenticatedProfileId();
             await base.CreateAsync(entity);
         }
 
         public override async Task UpdateAsync(VideoMetadata entity)
         {
-            if (entity.UpdatedBy == null) entity.UpdatedBy = authenticatedUserService.GetAuthenticatedUserId();
+            if (entity.UpdatedBy == null) entity.UpdatedBy = authenticatedUserService.GetAuthenticatedProfileId();
             await base.UpdateAsync(entity);
         }
 
         public async Task SoftDeleteAsync(VideoMetadata entity)
         {
-            if (entity.DeletedBy == null) entity.DeletedBy = authenticatedUserService.GetAuthenticatedUserId();
+            if (entity.DeletedBy == null) entity.DeletedBy = authenticatedUserService.GetAuthenticatedProfileId();
             if (entity.DeletedAt == null) entity.DeletedAt = DateTime.Now;
             entity.IsDeleted = true;
             await _collection.ReplaceOneAsync(e => e.Id == entity.Id, entity, new ReplaceOptions { IsUpsert = false });

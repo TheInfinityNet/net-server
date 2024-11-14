@@ -45,7 +45,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
 
             foreach (var entry in entries)
             {
-                var authenticationName = _authenticatedUserService.GetAuthenticatedUserId();
+                var authenticationName = _authenticatedUserService.GetAuthenticatedProfileId();
 
                 if (entry.State == EntityState.Added)
                 {

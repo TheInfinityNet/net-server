@@ -1,17 +1,15 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
-using InfinityNetServer.Services.Notification.Application;
 using InfinityNetServer.Services.Notification.Application.DTOs;
-using Microsoft.Extensions.Localization;
 using System;
 
 namespace InfinityNetServer.Services.Notification.Presentation.Mappers;
 
 public class NotificationMapper : AutoMapper.Profile
 {
-    public NotificationMapper(IStringLocalizer<NotificationSharedResource> localizer)
-    {
 
+    public NotificationMapper()
+    {
         CreateMap<Domain.Entities.Notification, NotificationResponse>()
             .AfterMap((src, dest) =>
             {
@@ -34,8 +32,6 @@ public class NotificationMapper : AutoMapper.Profile
                     };
 
                 dest.Type = src.Type.ToString();
-                dest.Title = localizer["TaggedInCommentNotification.Title", src.Title];
-                dest.Content = localizer["TaggedInCommentNotification.Content", src.Content];
             });
     }
 }

@@ -1,4 +1,5 @@
 ﻿using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
+using InfinityNetServer.Services.Notification.Application.DTOs;
 using System;
 using System.Threading.Tasks;
 

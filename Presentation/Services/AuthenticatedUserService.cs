@@ -15,7 +15,7 @@ public class AuthenticatedUserService
         return httpContextAccessor!.HttpContext!.User!.Identity!.IsAuthenticated;
     }
 
-    public Guid? GetAuthenticatedUserId()
+    public Guid? GetAuthenticatedProfileId()
     {
         try
         {
@@ -30,7 +30,27 @@ public class AuthenticatedUserService
         }
         catch (Exception)
         {
-            logger.LogError("Error getting authenticated user id");
+            logger.LogError("Error getting authenticated profile id");
+            return null;
+        }
+    }
+
+    public Guid? GetAuthenticatedAccountId()
+    {
+        try
+        {
+            var user = httpContextAccessor.HttpContext?.User;
+
+            if (user == null) return null;
+
+            if (user.Identity != null & user.Identity!.IsAuthenticated)
+                return Guid.Parse(user.FindFirstValue("sub")!);
+
+            return null;
+        }
+        catch (Exception)
+        {
+            logger.LogError("Error getting authenticated account id");
             return null;
         }
     }
