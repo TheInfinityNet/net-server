@@ -123,6 +123,42 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
             return query;
         }
 
+        public async Task<PagedCursorResult<TEntity>> GetPagedCursorAsync(ISqlSpecification<TEntity> spec, int pageSize, Guid? cursor = null)
+        {
+            ArgumentNullException.ThrowIfNull(spec);
+            IQueryable<TEntity> query = ApplySpecification(spec);
+
+            if (cursor.HasValue)
+            {
+                query = query.Where(e => EF.Property<Guid>(e, "Id").CompareTo(cursor.Value) > 0);
+            }
+
+            query = query.OrderBy(e => EF.Property<Guid>(e, "Id"));
+
+            // Lấy pageSize + 1 item để kiểm tra xem có trang tiếp theo hay không
+            var results = await query.Take(pageSize + 1).ToListAsync();
+
+            // Xác định HasNext và HasPrevious
+            bool hasNext = results.Count > pageSize;
+            bool hasPrevious = cursor != null;
+
+            // Cắt bớt phần tử thừa nếu có
+            if (hasNext) results.RemoveAt(results.Count - 1);
+
+            // Thiết lập các giá trị cursor
+            string nextCursor = hasNext ? results.LastOrDefault()?.GetType().GetProperty("Id")?.GetValue(results.LastOrDefault()).ToString() : null;
+            string previousCursor = hasPrevious ? cursor?.ToString() : null;
+
+            // Trả về kết quả phân trang
+            return new PagedCursorResult<TEntity>
+            {
+                Results = results,
+                NextCursor = nextCursor,
+                PreviousCursor = previousCursor,
+                HasNext = hasNext,
+                HasPrevious = hasPrevious
+            };
+        }
     }
 
 }

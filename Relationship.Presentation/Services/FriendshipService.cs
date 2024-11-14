@@ -9,6 +9,8 @@ using System.Linq;
 using InfinityNetServer.Services.Relationship.Domain.Entities;
 using InfinityNetServer.Services.Relationship.Application.Services;
 using InfinityNetServer.Services.Relationship.Domain.Enums;
+using InfinityNetServer.Services.Relationship.Application.DTOs.Responses;
+using InfinityNetServer.BuildingBlocks.Domain.Repositories;
 
 namespace InfinityNetServer.Services.Relationship.Presentation.Services
 {
@@ -36,6 +38,30 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
                 f.SenderId.ToString() == profileId 
                     ? f.ReceiverId.ToString() : f.SenderId.ToString()).ToList();
         }
-        
+
+        public async Task<PagedCursorResult<Guid>> GetPagedCommonFriendsAsync(Guid? currentUserId, Guid? cursor, int pageSize)
+        {
+            var friendsOfCurrentUser = await friendshipRepository.GetFriendsOfCurrentUserAsync(currentUserId);
+
+            IQueryable<Friendship> query = await friendshipRepository.GetMutualFriendsQueryAsync(currentUserId, friendsOfCurrentUser, cursor);
+
+            var results = await friendshipRepository.GetPagedResultsAsync(query, pageSize);
+
+            var (hasNext, hasPrevious, pagedResults) = friendshipRepository.ProcessPagedResults(results, pageSize, cursor);
+
+            var commonFriendsIds = friendshipRepository.GetCommonFriendsIds(pagedResults, currentUserId);
+
+            string nextCursor = hasNext ? pagedResults.LastOrDefault()?.GetType().GetProperty("Id")?.GetValue(pagedResults.LastOrDefault()).ToString() : null;
+            string previousCursor = hasPrevious ? cursor?.ToString() : null;
+
+            return new PagedCursorResult<Guid>
+            {
+                Results = commonFriendsIds,
+                NextCursor = nextCursor,
+                PreviousCursor = previousCursor,
+                HasNext = hasNext,
+                HasPrevious = hasPrevious
+            };
+        }
     }
 }
