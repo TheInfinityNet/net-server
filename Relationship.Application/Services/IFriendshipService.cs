@@ -11,7 +11,7 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
     public interface IFriendshipService
     {
 
-        Task<bool> HasFriendship(string senderId, string receiverId);
+        Task<bool> HasFriendship(string senderId, string receiverId, FriendshipStatus status);
 
         Task<Friendship> GetByStatus(FriendshipStatus status, string senderId, string receiverId);
 

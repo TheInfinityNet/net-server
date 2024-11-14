@@ -92,26 +92,29 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
             {
                 foreach (var entry in entries)
                 {
-                    Guid id = entry.Entity.Id;
-                    Guid ownerId = entry.Entity.OwnerId;
-                    DateTime createdAt = entry.Entity.CreatedAt;
-
-                    // tagged in comment
-                    PostContent content = entry.Entity.Content;
-                    if (content.TagFacets.Count > 0)
+                    if (entry.State == EntityState.Added || (entry.State == EntityState.Modified && entry.Entity.IsDeleted))
                     {
-                        foreach (var tag in content.TagFacets)
+                        Guid id = entry.Entity.Id;
+                        Guid ownerId = entry.Entity.OwnerId;
+                        DateTime createdAt = entry.Entity.CreatedAt;
+
+                        // tagged in comment
+                        PostContent content = entry.Entity.Content;
+                        if (content.TagFacets.Count > 0)
                         {
-                            Guid taggedProfileId = tag.ProfileId;
-                            await messageBus.Publish(new DomainCommand.PostNotificationCommand
+                            foreach (var tag in content.TagFacets)
                             {
-                                Id = Guid.NewGuid(),
-                                TriggeredBy = ownerId.ToString(),
-                                RelatedProfileId = taggedProfileId,
-                                PostId = id,
-                                Type = BuildingBlocks.Domain.Enums.NotificationType.TaggedInPost,
-                                CreatedAt = createdAt
-                            });
+                                Guid taggedProfileId = tag.ProfileId;
+                                await messageBus.Publish(new DomainCommand.PostNotificationCommand
+                                {
+                                    Id = Guid.NewGuid(),
+                                    TriggeredBy = ownerId.ToString(),
+                                    RelatedProfileId = taggedProfileId,
+                                    PostId = id,
+                                    Type = BuildingBlocks.Domain.Enums.NotificationType.TaggedInPost,
+                                    CreatedAt = createdAt
+                                });
+                            }
                         }
                     }
 

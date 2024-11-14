@@ -18,15 +18,15 @@ message GetProfilesRelationshipResponse {
 
 }
 
-message GetFollowersRequest {
+message GetProfileInteractionIdsRequest {
 
   string profileId = 1;
 
 }
 
-message GetFollowersResponse {
+message ProfileInteractionIdsResponse {
 	
-  repeated string followerIds = 1;
+  repeated string profileInteractionIds = 1;
 
 }
 
@@ -38,10 +38,8 @@ service RelationshipService {
 
   rpc hasFollowed(GetProfilesRelationshipRequest) returns (GetProfilesRelationshipResponse) {}
 
-  rpc hasMuted(GetProfilesRelationshipRequest) returns (GetProfilesRelationshipResponse) {}
-
   rpc hasFriendRequest(GetProfilesRelationshipRequest) returns (GetProfilesRelationshipResponse) {}
 
-  rpc getFollowers(GetFollowersRequest) returns (GetFollowersResponse) {}
+  rpc getFollowerIds(GetProfileInteractionIdsRequest) returns (ProfileInteractionIdsResponse) {}
 
 }

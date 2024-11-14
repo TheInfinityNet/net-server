@@ -41,5 +41,39 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Commands
 
         }
 
+        public sealed record FriendshipNotificationCommand : INotificationCommand
+        {
+
+            public Guid Id { get; set; }
+
+            public NotificationType Type { get; set; }
+
+            public Guid RelatedProfileId { get; set; }
+
+            public string TriggeredBy { get; set; }
+
+            public Guid FriendshipId { get; set; }
+
+            public DateTime CreatedAt { get; set; }
+
+        }
+
+        public sealed record ProfileFollowNotificationCommand : INotificationCommand
+        {
+
+            public Guid Id { get; set; }
+
+            public NotificationType Type { get; set; }
+
+            public Guid RelatedProfileId { get; set; }
+
+            public string TriggeredBy { get; set; }
+
+            public Guid ProfileFollowId { get; set; }
+
+            public DateTime CreatedAt { get; set; }
+
+        }
+
     }
 }

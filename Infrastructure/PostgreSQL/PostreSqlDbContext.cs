@@ -33,12 +33,6 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
                 .LogTo(Console.WriteLine, LogLevel.Information); ;
         }
 
-        public override int SaveChanges()
-        {
-            UpdateAuditFields();
-            return base.SaveChanges();
-        }
-
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             UpdateAuditFields();

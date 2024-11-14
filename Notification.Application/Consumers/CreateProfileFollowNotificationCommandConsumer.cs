@@ -4,8 +4,8 @@ using MediatR;
 
 namespace InfinityNetServer.Services.Notification.Application.Consumers
 {
-    public class CreatePostNotificationCommandConsumer
-        (ISender sender) : BaseConsumer<DomainCommand.PostNotificationCommand>(sender)
+    public class CreateProfileFollowNotificationCommandConsumer
+        (ISender sender) : BaseConsumer<DomainCommand.ProfileFollowNotificationCommand>(sender)
     {
 
     }

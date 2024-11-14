@@ -24,6 +24,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                     IsMobileNumberVerified = table.Column<bool>(type: "boolean", nullable: false),
                     type = table.Column<int>(type: "integer", nullable: false),
                     status = table.Column<int>(type: "integer", nullable: false),
+                    last_online_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),

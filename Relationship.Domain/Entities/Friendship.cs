@@ -1,8 +1,8 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Entities;
 using InfinityNetServer.Services.Relationship.Domain.Enums;
-using InfinityNetServer.BuildingBlocks.Domain.Entities;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InfinityNetServer.Services.Relationship.Domain.Entities
 {
@@ -25,8 +25,6 @@ namespace InfinityNetServer.Services.Relationship.Domain.Entities
         [Required]
         public Guid ReceiverId { get; set; } // Linked to Profile service
 
-        // Optional: For handling the relationship with the Interaction entity
-        public virtual Interaction Interaction { get; set; }
     }
 
 }

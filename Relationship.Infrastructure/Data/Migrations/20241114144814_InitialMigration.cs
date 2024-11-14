@@ -33,14 +33,12 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "interactions",
+                name: "profile_blocks",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    type = table.Column<int>(type: "integer", nullable: false),
-                    profile_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    relate_profile_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    friendship_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    blocker_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    blockee_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
@@ -51,13 +49,27 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_interactions", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_interactions_friendships_friendship_id",
-                        column: x => x.friendship_id,
-                        principalTable: "friendships",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_profile_blocks", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "profile_follows",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    follower_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    followee_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
+                    created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    deleted_by = table.Column<Guid>(type: "uuid", maxLength: 255, nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_profile_follows", x => x.id);
                 });
 
             migrationBuilder.CreateIndex(
@@ -77,36 +89,39 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
                 column: "status");
 
             migrationBuilder.CreateIndex(
-                name: "IX_interactions_created_at",
-                table: "interactions",
+                name: "IX_profile_blocks_blocker_id_blockee_id",
+                table: "profile_blocks",
+                columns: new[] { "blocker_id", "blockee_id" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_profile_blocks_created_at",
+                table: "profile_blocks",
                 column: "created_at");
 
             migrationBuilder.CreateIndex(
-                name: "IX_interactions_friendship_id",
-                table: "interactions",
-                column: "friendship_id",
-                unique: true);
+                name: "IX_profile_follows_created_at",
+                table: "profile_follows",
+                column: "created_at");
 
             migrationBuilder.CreateIndex(
-                name: "IX_interactions_profile_id_relate_profile_id",
-                table: "interactions",
-                columns: new[] { "profile_id", "relate_profile_id" },
+                name: "IX_profile_follows_follower_id_followee_id",
+                table: "profile_follows",
+                columns: new[] { "follower_id", "followee_id" },
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_interactions_type",
-                table: "interactions",
-                column: "type");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "interactions");
+                name: "friendships");
 
             migrationBuilder.DropTable(
-                name: "friendships");
+                name: "profile_blocks");
+
+            migrationBuilder.DropTable(
+                name: "profile_follows");
         }
     }
 }

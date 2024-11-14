@@ -71,26 +71,6 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
-        public async Task<bool> HasMuted(string currentProfileId, string targetProfileId)
-        {
-            try
-            {
-                logger.LogInformation("Starting has muted");
-                var response = await client.hasMutedAsync(new GetProfilesRelationshipRequest
-                {
-                    CurrentProfileId = currentProfileId,
-                    TargetProfileId = targetProfileId
-                });
-                // Call the gRPC server to introspect the token
-                return response.Result;
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
-            }
-        }
-
         public async Task<bool> HasFriendRequest(string currentProfileId, string targetProfileId)
         {
             try
@@ -116,12 +96,12 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting get followers");
-                var response = await client.getFollowersAsync(new GetFollowersRequest
+                var response = await client.getFollowerIdsAsync(new GetProfileInteractionIdsRequest
                 {
                     ProfileId = profileId
                 });
                 // Call the gRPC server to introspect the token
-                return response.FollowerIds;
+                return response.ProfileInteractionIds;
             }
             catch (Exception e)
             {

@@ -11,8 +11,4 @@
     <ProjectReference Include="..\Notification.Infrastructure\Notification.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Mappers\" />
-  </ItemGroup>
-
 </Project>

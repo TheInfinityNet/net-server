@@ -7,6 +7,8 @@
 
         FriendInvitation,
 
+        NewProfileFollower,
+
         NewFollowerPost,
 
         NewGroupPost,

@@ -42,6 +42,9 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         [Column("status")] 
         public ProfileStatus Status { get; set; } = ProfileStatus.Active;
 
+        [Column("last_online_at")]
+        public DateTime? LastOnlineAt { get; set; } = null;
+
         public virtual UserProfile UserProfile { get; set; }
 
         public virtual PageProfile PageProfile { get; set; }
