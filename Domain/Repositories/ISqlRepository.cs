@@ -29,7 +29,7 @@ namespace InfinityNetServer.BuildingBlocks.Domain.Repositories
 
         // Phương thức sử dụng Specification
         Task<PagedResult<TEntity>> GetPagedAsync(ISqlSpecification<TEntity> spec);
-
+        Task<PagedCursorResult<TEntity>> GetPagedCursorAsync(ISqlSpecification<TEntity> spec, int pageSize, Guid? cursor = null);
     }
 
 }

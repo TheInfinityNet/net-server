@@ -11,20 +11,21 @@ using InfinityNetServer.Services.Relationship.Application.GrpcClients;
 using InfinityNetServer.Services.Relationship.Application.Services;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using Microsoft.AspNetCore.Authorization;
+using System;
 
 namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
 {
     [ApiController]
-    [Route("friendship")]
-    public class TestController(
+    [Route("friends")]
+    public class FriendsController(
         IAuthenticatedUserService authenticatedUserService,
-        ILogger<TestController> logger,
+        ILogger<FriendsController> logger,
         IStringLocalizer<RelationshipSharedResource> Localizer,
         IMessageBus messageBus,
         IFriendshipService friendshipService,
         ProfileClient profileClient) : BaseApiController(authenticatedUserService)
     {
-
         [HttpGet("count/{profileId}")]
         public async Task<IActionResult> CountFriendships(string profileId)
         {
@@ -32,7 +33,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
             return Ok(count);
         }
 
-        [HttpGet("friends/preview/{profileId}")]
+        [HttpGet("preview/{profileId}")]
         public async Task<IActionResult> GetFriends(string profileId)
         {
             IList<string> friendIds = await friendshipService.GetPreviewFriendIds(profileId);
@@ -44,6 +45,18 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
                 totalFriends
             });
         }
-
+        [HttpGet("suggestions")]
+        [Authorize]
+        public async Task<IActionResult> GetFriendSuggestions([FromQuery] Guid? nextCursor, [FromQuery] int limit = 10)
+        {
+            Guid? currentUserId = GetCurrentUserId();
+            
+            var suggestions = await friendshipService.GetPagedCommonFriendsAsync(currentUserId, nextCursor, limit);
+            var result = profileClient.GetPreviewFriendsOfProfile(suggestions.Results.Select(guid => guid.ToString()).ToList());
+            return Ok(new
+            {
+                result
+            });
+        }
     }
 }

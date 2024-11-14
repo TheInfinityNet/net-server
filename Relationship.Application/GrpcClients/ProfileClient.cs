@@ -43,6 +43,5 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcClients
                 throw new RelationshipException(RelationshipErrorCode.FRIENDS_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
-
     }
 }
