@@ -22,7 +22,7 @@ namespace InfinityNetServer.Services.Notification.Domain.Entities
 
         [BsonElement("thumbnail_id")]
         [BsonRepresentation(BsonType.String)]
-        public Guid ThumbnailId { get; set; }
+        public Guid? ThumbnailId { get; set; }
 
         [BsonElement("title")]
         public string Title { get; set; }

@@ -30,11 +30,11 @@ namespace InfinityNetServer.Services.Notification.Application.Usecases
                     await notificationService.Create(new Domain.Entities.Notification
                     {
                         AccountId = profile.AccountId,
-                        ThumbnailId = profile.Avatar.Id,
+                        ThumbnailId = !profile.Avatar.Id.Equals(Guid.Empty.ToString()) ? profile.Avatar.Id : null,
                         EntityId = request.CommentId.ToString(),
                         Type = BuildingBlocks.Domain.Enums.NotificationType.TaggedInComment,
-                        Title = $"Post: {post.PreviewContent}",
-                        Content = $"{triggerProfile.Name} tagged you in a comment",
+                        Title = post.PreviewContent,
+                        Content = triggerProfile.Name,
                         CreatedAt = request.CreatedAt
                     });
                     break;
@@ -43,11 +43,11 @@ namespace InfinityNetServer.Services.Notification.Application.Usecases
                     await notificationService.Create(new Domain.Entities.Notification
                     {
                         AccountId = profile.AccountId,
-                        ThumbnailId = profile.Avatar.Id,
+                        ThumbnailId = !profile.Avatar.Id.Equals(Guid.Empty.ToString()) ? profile.Avatar.Id : null,
                         EntityId = request.CommentId.ToString(),
                         Type = BuildingBlocks.Domain.Enums.NotificationType.ReplyToComment,
-                        Title = $"Post: {post.PreviewContent}",
-                        Content = $"{triggerProfile.Name} replied to your comment",
+                        Title = post.PreviewContent,
+                        Content = triggerProfile.Name,
                         CreatedAt = request.CreatedAt
                     });
                     break;

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(RelationshipDbContext))]
-    [Migration("20241101013714_InitialMigration")]
+    [Migration("20241114144814_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -90,7 +90,63 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
                     b.ToTable("friendships");
                 });
 
-            modelBuilder.Entity("InfinityNetServer.Services.Relationship.Domain.Entities.Interaction", b =>
+            modelBuilder.Entity("InfinityNetServer.Services.Relationship.Domain.Entities.ProfileBlock", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BlockeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("blockee_id");
+
+                    b.Property<Guid>("BlockerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("blocker_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("BlockerId", "BlockeeId")
+                        .IsUnique();
+
+                    b.ToTable("profile_blocks");
+                });
+
+            modelBuilder.Entity("InfinityNetServer.Services.Relationship.Domain.Entities.ProfileFollow", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -115,25 +171,17 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("deleted_by");
 
-                    b.Property<Guid?>("FriendshipId")
+                    b.Property<Guid>("FolloweeId")
                         .HasColumnType("uuid")
-                        .HasColumnName("friendship_id");
+                        .HasColumnName("followee_id");
+
+                    b.Property<Guid>("FollowerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("follower_id");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
-
-                    b.Property<Guid>("ProfileId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("profile_id");
-
-                    b.Property<Guid>("RelateProfileId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("relate_profile_id");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer")
-                        .HasColumnName("type");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
@@ -148,30 +196,10 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data.Migrations
 
                     b.HasIndex("CreatedAt");
 
-                    b.HasIndex("FriendshipId")
+                    b.HasIndex("FollowerId", "FolloweeId")
                         .IsUnique();
 
-                    b.HasIndex("Type");
-
-                    b.HasIndex("ProfileId", "RelateProfileId")
-                        .IsUnique();
-
-                    b.ToTable("interactions");
-                });
-
-            modelBuilder.Entity("InfinityNetServer.Services.Relationship.Domain.Entities.Interaction", b =>
-                {
-                    b.HasOne("InfinityNetServer.Services.Relationship.Domain.Entities.Friendship", "Friendship")
-                        .WithOne("Interaction")
-                        .HasForeignKey("InfinityNetServer.Services.Relationship.Domain.Entities.Interaction", "FriendshipId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Friendship");
-                });
-
-            modelBuilder.Entity("InfinityNetServer.Services.Relationship.Domain.Entities.Friendship", b =>
-                {
-                    b.Navigation("Interaction");
+                    b.ToTable("profile_follows");
                 });
 #pragma warning restore 612, 618
         }

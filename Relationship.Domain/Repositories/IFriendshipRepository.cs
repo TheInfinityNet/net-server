@@ -11,7 +11,7 @@ namespace InfinityNetServer.Services.Relationship.Domain.Repositories
     public interface IFriendshipRepository : ISqlRepository<Friendship, Guid>
     {
 
-        Task<bool> HasFriendship(Guid senderId, Guid receiverId);
+        Task<bool> HasFriendship(Guid senderId, Guid receiverId, FriendshipStatus status);
 
         Task<Friendship> GetByStatus(FriendshipStatus status, Guid senderId, Guid receiverId);
 

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ProfileDbContext))]
-    [Migration("20241113142742_InitialMigration")]
+    [Migration("20241114143046_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -71,6 +71,10 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
 
                     b.Property<bool>("IsMobileNumberVerified")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastOnlineAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("last_online_at");
 
                     b.Property<string>("Location")
                         .HasColumnType("text")

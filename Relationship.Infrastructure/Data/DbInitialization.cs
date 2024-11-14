@@ -4,10 +4,10 @@ using InfinityNetServer.Services.Relationship.Domain.Entities;
 using InfinityNetServer.Services.Relationship.Domain.Enums;
 using InfinityNetServer.Services.Relationship.Domain.Repositories;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 
 namespace InfinityNetServer.Services.Relationship.Infrastructure.Data;
 
@@ -40,7 +40,8 @@ public static class DbInitialization
         using var serviceScope = serviceProvider.CreateScope();
         serviceScope.ServiceProvider.GetService<RelationshipDbContext>();
         var friendshipRepository = serviceScope.ServiceProvider.GetService<IFriendshipRepository>();
-        var interactionRepository = serviceScope.ServiceProvider.GetService<IInteractionRepository>();
+        var profileFollowRepository = serviceScope.ServiceProvider.GetService<IProfileFollowRepository>();
+        var profileBlockRepository = serviceScope.ServiceProvider.GetService<IProfileBlockRepository>();
         var profileClient = serviceScope.ServiceProvider.GetService<CommonProfileClient>();
 
         var existingFriendshipCount = await friendshipRepository.GetAllAsync();
@@ -50,13 +51,12 @@ public static class DbInitialization
             var newFriendships = GenerateFriendships(userProfileIds);
             await friendshipRepository.CreateAsync(newFriendships);
 
-            IList<Friendship> friendships = await friendshipRepository.GetAllAsync();
-            var userInteractions = GenerateUserInteractions(friendships);
-            await interactionRepository.CreateAsync(userInteractions);
+            IList<string> profileIds = await profileClient.GetProfileIds();
+            var userFollows = GenerateProfileFollows(profileIds);
+            await profileFollowRepository.CreateAsync(userFollows);
 
-            IList<string> pageProfileIds = await profileClient.GetPageProfileIds();
-            var pageInteractions = GeneratePageInteractions(userProfileIds, pageProfileIds);
-            await interactionRepository.CreateAsync(pageInteractions);
+            var userBlocks = GenerateProfileBlocks(profileIds);
+            await profileBlockRepository.CreateAsync(userBlocks);
         }
     }
 
@@ -106,35 +106,38 @@ public static class DbInitialization
         return friendships;
     }
 
-    private static IList<Interaction> GenerateUserInteractions(IList<Friendship> friendships)
+    private static IList<ProfileFollow> GenerateProfileFollows(IList<string> profileIds)
     {
         var uniqueInteractions = new HashSet<(Guid ProfileId, Guid RelateProfileId)>();
-        IList<Interaction> interactions = [];
+        IList<ProfileFollow> interactions = [];
 
-        var faker = new Faker<Interaction>()
+        var faker = new Faker<ProfileFollow>()
             .CustomInstantiator(f =>
             {
-                Friendship randomFriendship;
-                do randomFriendship = f.PickRandom(friendships);
+                Guid randomProfileId;
+                Guid randomRelateProfileId;
+                do
+                {
+                    randomProfileId = Guid.Parse(f.PickRandom(profileIds));
+                    randomRelateProfileId = Guid.Parse(f.PickRandom(profileIds));
+                }
 
                 while (uniqueInteractions
-                .Contains((randomFriendship.SenderId, randomFriendship.ReceiverId)) ||
-                       randomFriendship.SenderId == randomFriendship.ReceiverId);
+                .Contains((randomProfileId, randomRelateProfileId)) ||
+                       randomProfileId == randomRelateProfileId);
 
-                uniqueInteractions.Add((randomFriendship.SenderId, randomFriendship.ReceiverId));
+                uniqueInteractions.Add((randomProfileId, randomRelateProfileId));
 
-                return new Interaction
+                return new ProfileFollow
                 {
-                    Type = InteractionType.Follow,
-                    Friendship = randomFriendship,
-                    ProfileId = randomFriendship.SenderId,
-                    RelateProfileId = randomFriendship.ReceiverId,
-                    CreatedBy = randomFriendship.CreatedBy,
+                    FollowerId = randomProfileId,
+                    FolloweeId = randomRelateProfileId,
+                    CreatedBy = randomProfileId,
                     CreatedAt = f.Date.Recent(f.Random.Int(1, 365))
                 };
             });
 
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i < 1500; i++)
         {
             var interaction = faker.Generate();
             interactions.Add(interaction);
@@ -143,38 +146,33 @@ public static class DbInitialization
         return interactions;
     }
 
-    private static IList<Interaction> GeneratePageInteractions(
-        IList<string> userProfileIds, IList<string> pageProfileIds)
+    private static IList<ProfileBlock> GenerateProfileBlocks(IList<string> profileIds)
     {
-        var uniqueInteractions = new HashSet<(Guid UserProfileId, Guid PageProfileId)>();
-        IList<Interaction> interactions = [];
+        var uniqueInteractions = new HashSet<(Guid ProfileId, Guid RelateProfileId)>();
+        IList<ProfileBlock> interactions = [];
 
-        var faker = new Faker<Interaction>()
+        var faker = new Faker<ProfileBlock>()
             .CustomInstantiator(f =>
             {
-                Guid userProfileId;
-                Guid pageProfileId;
-                int attempts = 0;
-                const int maxAttempts = 10;
-
+                Guid randomProfileId;
+                Guid randomRelateProfileId;
                 do
                 {
-                    userProfileId = Guid.Parse(f.PickRandom(userProfileIds));
-                    pageProfileId = Guid.Parse(f.PickRandom(pageProfileIds));
-                    attempts++;
+                    randomProfileId = Guid.Parse(f.PickRandom(profileIds));
+                    randomRelateProfileId = Guid.Parse(f.PickRandom(profileIds));
                 }
-                while ((userProfileId == pageProfileId 
-                        || uniqueInteractions.Contains((userProfileId, pageProfileId))) 
-                        && attempts < maxAttempts);
 
-                uniqueInteractions.Add((userProfileId, pageProfileId));
+                while (uniqueInteractions
+                .Contains((randomProfileId, randomRelateProfileId)) ||
+                       randomProfileId == randomRelateProfileId);
 
-                return new Interaction
+                uniqueInteractions.Add((randomProfileId, randomRelateProfileId));
+
+                return new ProfileBlock
                 {
-                    Type = InteractionType.Follow,
-                    ProfileId = userProfileId,
-                    RelateProfileId = pageProfileId,
-                    CreatedBy = userProfileId,
+                    BlockerId = randomProfileId,
+                    BlockeeId = randomRelateProfileId,
+                    CreatedBy = randomProfileId,
                     CreatedAt = f.Date.Recent(f.Random.Int(1, 365))
                 };
             });

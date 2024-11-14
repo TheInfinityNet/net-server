@@ -69,6 +69,10 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                     b.Property<bool>("IsMobileNumberVerified")
                         .HasColumnType("boolean");
 
+                    b.Property<DateTime?>("LastOnlineAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("last_online_at");
+
                     b.Property<string>("Location")
                         .HasColumnType("text")
                         .HasColumnName("location");

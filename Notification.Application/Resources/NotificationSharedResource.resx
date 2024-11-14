@@ -117,4 +117,35 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ProfileFollowNotification.Title" xml:space="preserve">
+    <value />
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="ProfileFollowNotification.Content" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="TaggedInPostNotification.Title" xml:space="preserve">
+    <value />
+  </data>
+  <data name="TaggedInPostNotification.Content" xml:space="preserve">
+    <value />
+  </data>
+  <data name="TaggedInCommentNotification.Title" xml:space="preserve">
+    <value />
+  </data>
+  <data name="TaggedInCommentNotification.Content" xml:space="preserve">
+    <value />
+  </data>
+  <data name="ReplyCommentNotification.Title" xml:space="preserve">
+    <value />
+  </data>
+  <data name="ReplyCommentNotification.Content" xml:space="preserve">
+    <value />
+  </data>
+  <data name="FriendInvitationNotification.Title" xml:space="preserve">
+    <value />
+  </data>
+  <data name="FriendInvitationNotification.Content" xml:space="preserve">
+    <value />
+  </data>
 </root>

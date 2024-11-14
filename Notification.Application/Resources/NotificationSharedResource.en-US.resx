@@ -117,34 +117,34 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="bucket_creation_failed" xml:space="preserve">
-    <value>Fail to create bucket {0}</value>
+  <data name="ProfileFollowNotification.Title" xml:space="preserve">
+    <value>New follower</value>
   </data>
-  <data name="can_not_delete_file" xml:space="preserve">
-    <value>Fail to delete file</value>
+  <data name="ProfileFollowNotification.Content" xml:space="preserve">
+    <value>{0} followed you</value>
   </data>
-  <data name="can_not_store_file" xml:space="preserve">
-    <value>Fail to store file</value>
+  <data name="TaggedInPostNotification.Title" xml:space="preserve">
+    <value>Post: {0}</value>
   </data>
-  <data name="Hello" xml:space="preserve">
-    <value>Hello {0}</value>
+  <data name="TaggedInPostNotification.Content" xml:space="preserve">
+    <value>{0} tagged you in a post</value>
   </data>
-  <data name="invalid_thumbnail_height" xml:space="preserve">
-    <value>Thumbnail height must between {0} and {1}</value>
+  <data name="TaggedInCommentNotification.Title" xml:space="preserve">
+    <value>Post: {0}</value>
   </data>
-  <data name="invalid_thumbnail_width" xml:space="preserve">
-    <value>Thumbnail width must between {0} and {1}</value>
+  <data name="TaggedInCommentNotification.Content" xml:space="preserve">
+    <value>{0} tagged you in a comment</value>
   </data>
-  <data name="null_content_type" xml:space="preserve">
-    <value>Content type is required</value>
+  <data name="ReplyCommentNotification.Title" xml:space="preserve">
+    <value>Post: {0}</value>
   </data>
-  <data name="null_file_name" xml:space="preserve">
-    <value>File name is required</value>
+  <data name="ReplyCommentNotification.Content" xml:space="preserve">
+    <value>{0} replied to your comment</value>
   </data>
-  <data name="null_thumbnail_height" xml:space="preserve">
-    <value>Thumbnail height is required</value>
+  <data name="FriendInvitationNotification.Title" xml:space="preserve">
+    <value>New friend invitation</value>
   </data>
-  <data name="null_thumbnail_width" xml:space="preserve">
-    <value>Thumbnail width is required</value>
+  <data name="FriendInvitationNotification.Content" xml:space="preserve">
+    <value>{0} sent you a friend invitation</value>
   </data>
 </root>

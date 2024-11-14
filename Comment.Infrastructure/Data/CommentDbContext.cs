@@ -56,43 +56,46 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data
             {
                 foreach (var entry in entries)
                 {
-                    Guid id = entry.Entity.Id;
-                    Guid profileId = entry.Entity.ProfileId;
-                    DateTime createdAt = entry.Entity.CreatedAt;
-
-                    // tagged in comment
-                    CommentContent content = entry.Entity.Content;
-                    if (content.TagFacets.Count > 0)
+                    if (entry.State == EntityState.Added || (entry.State == EntityState.Modified && entry.Entity.IsDeleted))
                     {
-                        foreach (var tag in content.TagFacets)
+                        Guid id = entry.Entity.Id;
+                        Guid profileId = entry.Entity.ProfileId;
+                        DateTime createdAt = entry.Entity.CreatedAt;
+
+                        // tagged in comment
+                        CommentContent content = entry.Entity.Content;
+                        if (content.TagFacets.Count > 0)
                         {
-                            Guid taggedProfileId = tag.ProfileId;
+                            foreach (var tag in content.TagFacets)
+                            {
+                                Guid taggedProfileId = tag.ProfileId;
+                                await messageBus.Publish(new DomainCommand.CommentNotificationCommand
+                                {
+                                    Id = Guid.NewGuid(),
+                                    TriggeredBy = profileId.ToString(),
+                                    RelatedProfileId = taggedProfileId,
+                                    CommentId = id,
+                                    Type = BuildingBlocks.Domain.Enums.NotificationType.TaggedInComment,
+                                    CreatedAt = createdAt
+                                });
+                            }
+                        }
+
+                        // reply to comment
+                        if (entry.Entity.ParentId != null)
+                        {
+                            Guid parentCommentId = entry.Entity.ParentId.Value;
+                            Domain.Entities.Comment parentComment = await Comments.FindAsync(parentCommentId);
                             await messageBus.Publish(new DomainCommand.CommentNotificationCommand
                             {
                                 Id = Guid.NewGuid(),
                                 TriggeredBy = profileId.ToString(),
-                                RelatedProfileId = taggedProfileId,
+                                RelatedProfileId = parentComment.ProfileId,
                                 CommentId = id,
-                                Type = BuildingBlocks.Domain.Enums.NotificationType.TaggedInComment,
+                                Type = BuildingBlocks.Domain.Enums.NotificationType.ReplyToComment,
                                 CreatedAt = createdAt
                             });
                         }
-                    }
-
-                    // reply to comment
-                    if (entry.Entity.ParentId != null)
-                    {
-                        Guid parentCommentId = entry.Entity.ParentId.Value;
-                        Domain.Entities.Comment parentComment = await Comments.FindAsync(parentCommentId);
-                        await messageBus.Publish(new DomainCommand.CommentNotificationCommand
-                        {
-                            Id = Guid.NewGuid(),
-                            TriggeredBy = profileId.ToString(),
-                            RelatedProfileId = parentComment.ProfileId,
-                            CommentId = id,
-                            Type = BuildingBlocks.Domain.Enums.NotificationType.ReplyToComment,
-                            CreatedAt = createdAt
-                        });
                     }
                 }
             }

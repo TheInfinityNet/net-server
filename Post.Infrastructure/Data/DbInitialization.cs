@@ -54,7 +54,7 @@ public static class DbInitialization
         
         if (existingPostCount.Count == 0)
         {
-            IList<string> profileIds = await profileClient.GetProfileIds();
+            //IList<string> profileIds = await profileClient.GetProfileIds();
             IList<ProfileIdWithName> profileIdsWithNames = await profileClient.GetProfileIdsWithNames();
             //IList<GroupMemberWithGroup> groupMemberWithGroups = await groupClient.GetGroupMemberWithGroup();
             
