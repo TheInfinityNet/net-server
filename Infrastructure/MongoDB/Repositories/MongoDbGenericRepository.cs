@@ -1,9 +1,11 @@
 ﻿using InfinityNetServer.BuildingBlocks.Domain.Entities;
 using InfinityNetServer.BuildingBlocks.Domain.Repositories;
+using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB.Repositories
@@ -36,7 +38,75 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB.Repositories
 
         public virtual async Task<long> CountAsync()
             => await _collection.CountDocumentsAsync(e => true);
+
+        public async Task<BCursorPagedResult<TEntity>> GetPagedDataAsync(
+            string? cursor,
+            MongoSpecificationWithCursor<TEntity> specification)
+        {
+            var filterBuilder = Builders<TEntity>.Filter;
+            var filters = new List<FilterDefinition<TEntity>>();
+
+            // Apply Criteria filter if specified
+            if (specification.Criteria != null)
+            {
+                var criteriaFilter = new ExpressionFilterDefinition<TEntity>(specification.Criteria);
+                filters.Add(criteriaFilter);
+            }
+
+            // Apply Cursor-based filter for pagination
+            // If cursor is null, don't add any filter, it means it's the first page
+            if (cursor != null) filters.Add(filterBuilder.Gt("_id", cursor));
+
+            var filter = filters.Count > 0 ? filterBuilder.And(filters) : filterBuilder.Empty;
+
+            // Define Sorting based on OrderFields
+            var sortBuilder = Builders<TEntity>.Sort;
+            SortDefinition<TEntity> sortDefinition;
+
+            if (specification.OrderFields != null && specification.OrderFields.Any())
+            {
+                var sortDefinitions = new List<SortDefinition<TEntity>>();
+
+                foreach (var orderField in specification.OrderFields)
+                {
+                    var sort = orderField.Direction.Equals(SortDirection.Ascending)
+                        ? sortBuilder.Ascending(orderField.Field)
+                        : sortBuilder.Descending(orderField.Field);
+                    sortDefinitions.Add(sort);
+                }
+
+                sortDefinition = sortBuilder.Combine(sortDefinitions);
+            }
+            else
+            {
+                // Default sort: prioritize `is_read` true first, then `created_at` descending
+                sortDefinition = sortBuilder.Combine(
+                    sortBuilder.Descending("created_at")
+                );
+            }
+
+            // Execute query with filter and sorting, apply pagination
+            var query = _collection.Find(filter)
+                .Sort(sortDefinition)
+                .Limit(specification.PageSize + 1); // Fetch one extra to check if there's a next page
+
+            var items = await query.ToListAsync();
+
+            // Determine if there's a next page
+            var hasNext = items.Count > specification.PageSize;
+            if (hasNext) items = items.Take(specification.PageSize).ToList(); // Remove extra item if there is a next page
+
+            // Determine the next and previous cursors
+            var nextCursor = hasNext ? items.Last().Id.ToString() : null;
+            var prevCursor = items.Count > 1 ? items.First().Id.ToString() : null; // The first item in the current page is the prevCursor
+
+            return new BCursorPagedResult<TEntity>
+            {
+                Items = items,
+                NextCursor = nextCursor,
+                PrevCursor = prevCursor, // Include prevCursor in the result
+            };
+        }
+
     }
-
-
 }

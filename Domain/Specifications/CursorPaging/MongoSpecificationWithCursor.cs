@@ -1,20 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging
 {
-    public class MongoSpecificationWithCursor<TEntity, TCursor>
+    public class MongoSpecificationWithCursor<TEntity>
     {
 
         public Expression<Func<TEntity, bool>> Criteria { get; set; }
 
-        public Expression<Func<TEntity, object>> OrderBy { get; set; }
+        // List các điều kiện sắp xếp theo nhiều trường
+        public IList<OrderField<TEntity>> OrderFields { get; set; } = [];
 
-        public Expression<Func<TEntity, object>> OrderByDescending { get; set; }
+        public string? Cursor { get; set; }
 
-        public TCursor Cursor { get; set; }
-
-        public int PageSize { get; set; } = 10;
+        public int PageSize { get; set; }
 
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
+using System;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Notification.Application.Services
 {
@@ -12,6 +14,8 @@ namespace InfinityNetServer.Services.Notification.Application.Services
         Task Delete(string id);
 
         Task<Domain.Entities.Notification> GetById(string id);
+
+        Task<BCursorPagedResult<Domain.Entities.Notification>> GetNewestNotifications(string accountId, string? cursor, int pageSize = 10);
 
     }
 }
