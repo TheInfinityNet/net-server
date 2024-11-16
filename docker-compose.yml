@@ -96,6 +96,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: Password@123
     volumes:
       - infinity-net-mongodb-data:/data/db
+      - ./Docker/mongodb/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
+      - ./Docker/mongodb/data:/backup
     ports:
       - "27017:27017"
     networks:

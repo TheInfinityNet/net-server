@@ -55,10 +55,9 @@ public static class DbInitialization
         if (existingPostCount.Count == 0)
         {
             //IList<string> profileIds = await profileClient.GetProfileIds();
-            IList<ProfileIdWithName> profileIdsWithNames = await profileClient.GetProfileIdsWithNames();
             //IList<GroupMemberWithGroup> groupMemberWithGroups = await groupClient.GetGroupMemberWithGroup();
             
-            var posts = GeneratePresentationPosts(numberOfPosts / 2, profileIdsWithNames);
+            var posts = await GeneratePresentationPosts(numberOfPosts / 2, profileClient, relationshipClient);
             await postRepository.CreateAsync(posts);
 
             //var groupPosts = GeneratePresentationPosts(numberOfPosts / 2, groupMemberWithGroups);
@@ -78,13 +77,14 @@ public static class DbInitialization
         }
     }
 
-    private static List<Domain.Entities.Post> GeneratePresentationPosts(
-    int count, IList<ProfileIdWithName> profileIdsWithNames)
+    private static async Task<IList<Domain.Entities.Post>> GeneratePresentationPosts(
+        int count, CommonProfileClient profileClient, CommonRelationshipClient relationshipClient)
     {
+        IList<string> profileIds = await profileClient.GetProfileIds();
         var faker = new Faker<Domain.Entities.Post>()
             .CustomInstantiator(f =>
             {
-                var randomProfileId = Guid.Parse(f.PickRandom(profileIdsWithNames).Id);
+                var randomProfileId = Guid.Parse(f.PickRandom(profileIds));
                 return new Domain.Entities.Post
                 {
                     Type = PostType.Text,
@@ -92,10 +92,20 @@ public static class DbInitialization
                     CreatedBy = randomProfileId,
                     CreatedAt = f.Date.Recent(f.Random.Int(1, 365))
                 };
-            })
-            .RuleFor(ap => ap.Content, f => GeneratePostContent(profileIdsWithNames)); // Chuyển GeneratePostContent vào lambda
+            });
 
-        return faker.Generate(count);
+        IList<Domain.Entities.Post> posts = [];
+        for (int i = 0; i < count; i++)
+        {
+            var post = faker.Generate();
+            var friendIds = await relationshipClient.GetFriendIds(post.OwnerId.ToString());
+            var folowerIds = await relationshipClient.GetFollowerIds(post.OwnerId.ToString());
+            var combinedIds = friendIds.Concat(folowerIds).Distinct().ToList();
+            var profileIdsWithNames = await profileClient.GetProfileIdsWithNames(combinedIds);
+            post.Content = GeneratePostContent(profileIdsWithNames);
+            posts.Add(post);
+        }
+        return posts;
     }
 
     private static List<Domain.Entities.Post> GeneratePresentationPosts(
@@ -137,14 +147,14 @@ public static class DbInitialization
                     Type = type,
                     Content = new()
                     {
-                        Text = f.Lorem.Sentence(100)
+                        Text = f.Lorem.Sentence(10)
                     },
                     GroupId = randomPresentationPost.GroupId,
                     Presentation = randomPresentationPost,
                     OwnerId = randomPresentationPost.OwnerId,
                     FileMetadataId = mediaId,
                     CreatedBy = randomPresentationPost.CreatedBy,
-                    CreatedAt = f.Date.Recent(f.Random.Int(1, 365))
+                    CreatedAt = randomPresentationPost.CreatedAt
                 };
             });
 
@@ -171,7 +181,7 @@ public static class DbInitialization
                     Parent = randomParentPost,
                     Content = new()
                     {
-                        Text = f.Lorem.Sentence(100)
+                        Text = f.Lorem.Sentence(10)
                     },
                     OwnerId = Guid.Parse(randomProfileId),
                     CreatedBy = Guid.Parse(randomProfileId),
@@ -183,73 +193,73 @@ public static class DbInitialization
     }
 
     private static async Task<IList<PostPrivacy>> GeneratePostPrivacies(
-    IList<Domain.Entities.Post> presentationPosts, CommonRelationshipClient relationshipClient)
+        IList<Domain.Entities.Post> presentationPosts, CommonRelationshipClient relationshipClient)
     {
-        IList<PostPrivacy> postPrivacies = [];
+        var faker = new Faker();
+        var postPrivacies = new List<PostPrivacy>();
 
         foreach (var post in presentationPosts)
         {
-            Faker faker = new();
-
-            int privacyCount = faker.Random.Int(1, 3);
-            for (int i = 0; i < privacyCount; i++)
+            var type = faker.PickRandom<PostPrivacyType>();
+            var createdBy = post.CreatedBy.Value;
+            var createdAt = post.CreatedAt;
+            var postPrivacy = new PostPrivacy
             {
-                PostPrivacyType type = faker.PickRandom<PostPrivacyType>();
-                PostPrivacy postPrivacy = new()
+                PostId = post.Id,
+                Type = type,
+                CreatedBy = createdBy,
+                CreatedAt = createdAt
+            };
+
+            if (type is PostPrivacyType.Exclude or PostPrivacyType.Include or PostPrivacyType.Custom)
+            {
+                var followerIds = await relationshipClient.GetFollowerIds(post.OwnerId.ToString());
+                var followeeIds = await relationshipClient.GetFolloweeIds(post.OwnerId.ToString());
+                var friendIds = await relationshipClient.GetFriendIds(post.OwnerId.ToString());
+
+                var combinedIds = followerIds.Concat(followeeIds).Concat(friendIds).Distinct().ToList();
+
+                if (combinedIds.Count > 0)
                 {
-                    PostId = post.Id,
-                    Type = type,
-                    CreatedBy = post.CreatedBy,
-                    CreatedAt = faker.Date.Recent(faker.Random.Int(1, 365))
-                };
+                    int totalCount = faker.Random.Int(1, Math.Min(combinedIds.Count, 5));
+                    var selectedIds = faker.PickRandom(combinedIds, Math.Min(combinedIds.Count, totalCount)).Distinct();
 
-                if (type == PostPrivacyType.Exclude || type == PostPrivacyType.Include)
-                {
-                    IList<string> followerIds = await relationshipClient.GetFollowers(post.OwnerId.ToString());
-
-                    if (followerIds.Any()) // Kiểm tra nếu danh sách followerIds không rỗng
-                    {
-                        int followerCount = faker.Random.Int(1, Math.Min(followerIds.Count, 5));
-                        for (int j = 0; j < followerCount; j++)
-                        {
-                            string selectedFollowerId = faker.PickRandom(followerIds);
-                            Guid profileId = Guid.Parse(selectedFollowerId);
-
-                            switch (type)
-                            {
-                                case PostPrivacyType.Exclude:
-                                    postPrivacy.PostPrivacyExcludes.Add(new PostPrivacyExclude
-                                    {
-                                        PostPrivacyId = postPrivacy.Id,
-                                        ProfileId = profileId,
-                                        CreatedBy = post.CreatedBy,
-                                        CreatedAt = faker.Date.Recent(faker.Random.Int(1, 365))
-                                    });
-                                    break;
-
-                                case PostPrivacyType.Include:
-                                    postPrivacy.PostPrivacyIncludes.Add(new PostPrivacyInclude
-                                    {
-                                        PostPrivacyId = postPrivacy.Id,
-                                        ProfileId = profileId,
-                                        CreatedBy = post.CreatedBy,
-                                        CreatedAt = faker.Date.Recent(faker.Random.Int(1, 365))
-                                    });
-                                    break;
-                            }
-
-                            followerIds.Remove(selectedFollowerId); // Loại bỏ follower đã chọn để tránh trùng lặp
-                        }
-                    }
+                    foreach (var profileId in selectedIds)
+                        AddPrivacyDetail(postPrivacy, Guid.Parse(profileId), type, createdBy, createdAt);
                 }
-
-                postPrivacies.Add(postPrivacy);
             }
-        }
 
+            postPrivacies.Add(postPrivacy);
+        }
         return postPrivacies;
     }
 
+    private static void AddPrivacyDetail(
+        PostPrivacy postPrivacy, Guid profileId, PostPrivacyType type, Guid createdBy, DateTime createdAt)
+    {
+
+        if (type == PostPrivacyType.Exclude || type == PostPrivacyType.Custom)
+        {
+            postPrivacy.PostPrivacyExcludes.Add(new PostPrivacyExclude
+            {
+                PostPrivacyId = postPrivacy.Id,
+                ProfileId = profileId,
+                CreatedBy = createdBy,
+                CreatedAt = createdAt
+            });
+        }
+
+        if (type == PostPrivacyType.Include || type == PostPrivacyType.Custom)
+        {
+            postPrivacy.PostPrivacyIncludes.Add(new PostPrivacyInclude
+            {
+                PostPrivacyId = postPrivacy.Id,
+                ProfileId = profileId,
+                CreatedBy = createdBy,
+                CreatedAt = createdAt
+            });
+        }
+    }
 
     private static PostContent GeneratePostContent(IList<ProfileIdWithName> profileIdsWithNames)
     {
@@ -265,7 +275,42 @@ public static class DbInitialization
         {
             FacetType facetType = faker.PickRandom<FacetType>();
 
-            if (facetType == FacetType.Tag)
+            if (facetType == FacetType.Hashtag)
+            {
+                var randomHashTag = faker.Lorem.Word();
+                int hashtagLength = randomHashTag.Length;
+
+                // Đảm bảo minStart không vượt qua minContentLength - hashtagLength
+                if (minStart > minContentLength - hashtagLength)
+                {
+                    minContentLength = minStart + hashtagLength + 1;
+
+                    // Đảm bảo chuỗi hiện tại đủ dài
+                    while (text[^1].Length < minContentLength)
+                        text[^1] += faker.Lorem.Sentence(10);
+                }
+
+                int start = faker.Random.Int(minStart, minContentLength - hashtagLength);
+                int end = start + hashtagLength;
+
+                postContent.HashtagFacets.Add(new HashtagFacet
+                {
+                    Type = FacetType.Hashtag,
+                    Start = start,
+                    End = end,
+                    Tag = randomHashTag
+                });
+
+                text[^1] = text[^1].Insert(start, $" #{randomHashTag}");
+
+                minContentLength += 20;
+                minStart = end;
+
+                // Thêm một câu mới để đảm bảo nội dung tiếp theo có chỗ chèn
+                text.Add(faker.Lorem.Sentence(20));
+            }
+
+            else if (facetType == FacetType.Tag)
             {
                 var randomProfileIdWithName = faker.PickRandom(profileIdsWithNames);
                 while (usedProfileIdsWithNames.Contains(randomProfileIdWithName))
@@ -273,11 +318,12 @@ public static class DbInitialization
 
                 int tagLength = randomProfileIdWithName.Name.Length;
 
-                // Đảm bảo minStart không vượt qua minContentLength - tagLength
                 if (minStart > minContentLength - tagLength)
                 {
                     minContentLength = minStart + tagLength + 1;
-                    text[^1] = text[^1] + faker.Lorem.Sentence(tagLength + 1);
+
+                    while (text[^1].Length < minContentLength)
+                        text[^1] += faker.Lorem.Sentence(10);
                 }
 
                 int start = faker.Random.Int(minStart, minContentLength - tagLength);
@@ -298,35 +344,7 @@ public static class DbInitialization
                 minStart = end;
                 text.Add(faker.Lorem.Sentence(50));
             }
-            else if (facetType == FacetType.Hashtag)
-            {
-                var randomHashTag = faker.Lorem.Word();
-                int hashtagLength = randomHashTag.Length;
 
-                // Đảm bảo minStart không vượt qua minContentLength - hashtagLength
-                if (minStart > minContentLength - hashtagLength)
-                {
-                    minContentLength = minStart + hashtagLength + 1;
-                    text[^1] = text[^1] + faker.Lorem.Sentence(hashtagLength + 1);
-                }
-
-                int start = faker.Random.Int(minStart, minContentLength - hashtagLength);
-                int end = start + hashtagLength;
-
-                postContent.HashtagFacets.Add(new HashtagFacet
-                {
-                    Type = FacetType.Hashtag,
-                    Start = start,
-                    End = end,
-                    Tag = randomHashTag
-                });
-
-                text[^1] = text[^1].Insert(start, $" #{randomHashTag}");
-
-                minContentLength += 20;
-                minStart = end;
-                text.Add(faker.Lorem.Sentence(20));
-            }
         }
 
         postContent.Text = string.Join(" ", text);

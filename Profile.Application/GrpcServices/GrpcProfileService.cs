@@ -19,46 +19,46 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
         IProfileRepository profileRepository, IMapper mapper) : ProfileService.ProfileServiceBase
     {
 
-        public override async Task<PreviewFriendsOfProfileResponse> getPreviewFriendsOfProfile(GetPreviewFriendsOfProfileRequest request, ServerCallContext context)
+        public override async Task<PreviewFriendsResponse> getPreviewFriends(ProfilesRequest request, ServerCallContext context)
         {
             logger.LogInformation("GetFriendsOfProfile");
-            var source = await userProfileService.GetUserProfilesByIds(request.FriendIds);
-            var response = new PreviewFriendsOfProfileResponse();
+            var source = await userProfileService.GetUserProfilesByIds(request.Ids);
+            var response = new PreviewFriendsResponse();
             response.Friends.AddRange(source.Select(mapper.Map<UserProfileResponse>).ToList());
             return response;
         }
 
-        public override async Task<GetProfileIdsResponse> getProfileIds(Empty request, ServerCallContext context)
+        public override async Task<ProfileIdsResponse> getProfileIds(Empty request, ServerCallContext context)
         {
             logger.LogInformation("Received get profile ids request");
-            var response = new GetProfileIdsResponse();
+            var response = new ProfileIdsResponse();
             var profiles = await profileRepository.GetAllAsync();
             response.Ids.AddRange(profiles.Select(p => p.Id.ToString()).ToList());
 
             return await Task.FromResult(response);
         }
 
-        public override async Task<GetUserProfileIdsResponse> getUserProfileIds(Empty request, ServerCallContext context)
+        public override async Task<ProfileIdsResponse> getUserProfileIds(Empty request, ServerCallContext context)
         {
             logger.LogInformation("Received get user profile ids request");
-            var response = new GetUserProfileIdsResponse();
+            var response = new ProfileIdsResponse();
             var userProfiles = await profileRepository.GetByType(BuildingBlocks.Domain.Enums.ProfileType.User);
             response.Ids.AddRange(userProfiles.Select(p => p.Id.ToString()).ToList());
 
             return await Task.FromResult(response);
         }
 
-        public override async Task<GetPageProfileIdsResponse> getPageProfileIds(Empty request, ServerCallContext context)
+        public override async Task<ProfileIdsResponse> getPageProfileIds(Empty request, ServerCallContext context)
         {
             logger.LogInformation("Received get page profile ids request");
-            var response = new GetPageProfileIdsResponse();
+            var response = new ProfileIdsResponse();
             var pageProfiles = await profileRepository.GetByType(BuildingBlocks.Domain.Enums.ProfileType.Page);
             response.Ids.AddRange(pageProfiles.Select(p => p.Id.ToString()).ToList());
 
             return await Task.FromResult(response);
         }
 
-        public override async Task<ProfileResponse> getProfile(GetProfileRequest request, ServerCallContext context)
+        public override async Task<ProfileResponse> getProfile(ProfileRequest request, ServerCallContext context)
         {
             logger.LogInformation("GetProfile called with ProfileId: {ProfileId}", request.Id);
             var source = await profileRepository.GetByIdAsync(Guid.Parse(request.Id));
@@ -75,7 +75,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
             return response;
         }
 
-        public override async Task<UserProfileResponse> getUserProfile(GetProfileRequest request, ServerCallContext context)
+        public override async Task<UserProfileResponse> getUserProfile(ProfileRequest request, ServerCallContext context)
         {
             logger.LogInformation("GetUserProfile called with ProfileId: {ProfileId}", request.Id);
             var source = await userProfileService.GetUserProfileById(request.Id);
@@ -84,11 +84,11 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
             return mapper.Map<UserProfileResponse>(source);
         }
 
-        public override async Task<GetProfileIdsWithNamesResponse> getProfileIdsWithNames(Empty request, ServerCallContext context)
+        public override async Task<ProfileIdsWithNamesResponse> getProfileIdsWithNames(ProfilesRequest request, ServerCallContext context)
         {
             logger.LogInformation("Received get profile ids with name request");
-            var response = new GetProfileIdsWithNamesResponse();
-            var profiles = await profileRepository.GetAllAsync();
+            var response = new ProfileIdsWithNamesResponse();
+            var profiles = await profileRepository.GetByIdsAsync(request.Ids.Select(Guid.Parse).ToList());
             response.ProfileIdsWithNames.AddRange(profiles.Select(p => new ProfileIdWithName
             {
                 Id = p.Id.ToString(),

@@ -11,6 +11,7 @@ namespace InfinityNetServer.Services.Profile.Domain.Repositories
 
         Task<List<Entities.Profile>> GetByType(ProfileType type);
 
+        Task<List<Entities.Profile>> GetByIdsAsync(IEnumerable<Guid> ids);
 
     }
 }

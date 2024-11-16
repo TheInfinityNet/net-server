@@ -58,7 +58,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                         OwnerId = Guid.Parse(request.OwnerId),
                         OwnerType = FileOwnerType.Post,
                         UpdatedAt = DateTime.Now,
-                        UpdatedBy = GetCurrentUserId().Value
+                        UpdatedBy = GetCurrentProfileId().Value
                     });
                     break;
 
@@ -70,7 +70,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                         OwnerId = Guid.Parse(request.OwnerId),
                         OwnerType = FileOwnerType.Post,
                         UpdatedAt = DateTime.Now,
-                        UpdatedBy = GetCurrentUserId().Value
+                        UpdatedBy = GetCurrentProfileId().Value
                     });
                     break;
                 default:

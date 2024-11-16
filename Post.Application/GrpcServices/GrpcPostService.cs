@@ -19,7 +19,7 @@ namespace InfinityNetServer.Services.Post.Application.GrpcServices
 
         public override async Task<GetPostIdsResponse> getPostIds(Empty request, ServerCallContext context)
         {
-            logger.LogInformation("Received getAccountIds request");
+            logger.LogInformation("Received getPostIds request");
             var response = new GetPostIdsResponse();
             var posts = await postRepository.GetAllAsync();
             response.Ids.AddRange(posts.Select(p => p.Id.ToString()).ToList());

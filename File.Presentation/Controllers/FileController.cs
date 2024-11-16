@@ -256,7 +256,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                             Width = width,
                             Height = height,
                             Size = size,
-                            CreatedBy = GetCurrentUserId(),
+                            CreatedBy = GetCurrentProfileId(),
                         }, TimeSpan.FromMinutes(30));
             }
 
@@ -332,7 +332,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                         Height = height,
                         Size = size,
                         Duration = duration.Seconds,
-                        CreatedBy = GetCurrentUserId(),
+                        CreatedBy = GetCurrentProfileId(),
                         Thumbnail = new PhotoMetadata
                         {
                             Type = FileMetadataType.Photo,
@@ -340,7 +340,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                             Width = width,
                             Height = height,
                             Size = thumbnailSize,
-                            CreatedBy = GetCurrentUserId()
+                            CreatedBy = GetCurrentProfileId()
                         }
                     }, TimeSpan.FromMinutes(30));
 
