@@ -11,4 +11,9 @@
     <ProjectReference Include="..\Comment.Domain\Comment.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="GrpcClients\" />
+    <Folder Include="Helpers\" />
+  </ItemGroup>
+
 </Project>
