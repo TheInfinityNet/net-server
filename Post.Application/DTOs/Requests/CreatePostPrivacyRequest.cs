@@ -10,6 +10,6 @@ namespace InfinityNetServer.Services.Post.Application.DTOs.Requests
     public class CreatePostPrivacyRequest
     {
         public Guid PostId { get; set; }
-        public PostPrivacyType Type { get; set; } = PostPrivacyType.Public;
+        public PostAudienceType Type { get; set; } = PostAudienceType.Public;
     }
 }

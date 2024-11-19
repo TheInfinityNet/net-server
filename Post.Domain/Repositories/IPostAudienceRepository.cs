@@ -5,10 +5,10 @@ using InfinityNetServer.Services.Post.Domain.Entities;
 
 namespace InfinityNetServer.Services.Post.Domain.Repositories
 {
-    public interface IPostPrivacyRepository : ISqlRepository<PostPrivacy, Guid>
+    public interface IPostAudienceRepository : ISqlRepository<PostAudience, Guid>
     {
 
-        public Task<PostPrivacy> GetByPostIdAsync(Guid postId);
+        public Task<PostAudience> GetByPostIdAsync(Guid postId);
 
     }
 }

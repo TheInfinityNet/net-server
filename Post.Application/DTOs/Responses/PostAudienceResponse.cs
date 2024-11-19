@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Post.Application.DTOs.Responses
 {
-    public class PostPrivacyResponse
+    public class PostAudienceResponse
     {
         public Guid Id { get; set; }
         public Guid PostId { get; set; }
-        public PostPrivacyType Type { get; set; }
+        public PostAudienceType Type { get; set; }
 
         public List<Guid> PostPrivacyIncludes { get; set; } = new List<Guid>();
         public List<Guid> PostPrivacyExcludes { get; set; } = new List<Guid>();

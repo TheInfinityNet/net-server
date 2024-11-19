@@ -28,9 +28,9 @@ public static class InfrastructureModule
     {
         services.AddScoped(typeof(ISqlRepository<,>), typeof(SqlRepository<,>));
         services.AddScoped<IPostRepository, PostRepository>();
-        services.AddScoped<IPostPrivacyRepository, PostPrivacyRepository>();
-        services.AddScoped<IPostPrivacyIncludeRepository, PostPrivacyIncludeRepository>();
-        services.AddScoped<IPostPrivacyExcludeRepository, PostPrivacyExcludeRepository>();
+        services.AddScoped<IPostAudienceRepository, PostAudienceRepository>();
+        services.AddScoped<IPostAudienceIncludeRepository, PostAudienceIncludeRepository>();
+        services.AddScoped<IPostAudienceExcludeRepository, PostAudienceExcludeRepository>();
 
         services.AddScoped(typeof(IMongoDbGenericRepository<,>), typeof(MongoDbGenericRepository<,>));
         services.AddScoped<IUserTimelineRepository, UserTimelineRepository>();

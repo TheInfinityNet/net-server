@@ -126,10 +126,16 @@ public class CommonMappers : Profile
                 dest.Name = dest.GenerateName();
             });
 
+        CreateMap<BaseProfileResponse, PreviewProfileResponse>();
+
         CreateMap<Application.Protos.PhotoMetadataResponse, PhotoMetadataResponse>()
             .AfterMap((src, dest) =>
             {
                 dest.Type = src.Type.ToString(); // Chuyển enum sang string
+                dest.CreatedAt = dest.CreatedAt.ToLocalTime();
+                dest.UpdatedAt = dest.UpdatedAt?.ToLocalTime();
+                dest.DeletedAt = dest.DeletedAt?.ToLocalTime();
+
             });
 
         CreateMap<Application.Protos.VideoMetadataResponse, VideoMetadataResponse>()

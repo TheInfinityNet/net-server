@@ -52,7 +52,7 @@ namespace InfinityNetServer.Services.Post.Application.Helpers
                 FileMetadataId = post.FileMetadataId,
                 SharedPosts = MapSharedPosts(post.SharedPosts),
                 SubPosts = MapSubPosts(post.SubPosts),
-                PostPrivacy = post.Privacy
+                PostPrivacy = post.Audience
             };
         }
 
@@ -82,14 +82,14 @@ namespace InfinityNetServer.Services.Post.Application.Helpers
             return result;
         }
 
-        private static ICollection<PostPrivacyResponse> MapPostPrivacies(ICollection<PostPrivacy> postPrivacies)
+        private static ICollection<PostAudienceResponse> MapPostPrivacies(ICollection<PostAudience> postPrivacies)
         {
-            var result = new List<PostPrivacyResponse>();
+            var result = new List<PostAudienceResponse>();
             if (postPrivacies == null) return result;
 
             foreach (var privacy in postPrivacies)
             {
-                result.Add(new PostPrivacyResponse
+                result.Add(new PostAudienceResponse
                 {
                     Id = privacy.Id,
                     PostId = privacy.PostId,

@@ -3,7 +3,7 @@ using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Post;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
@@ -11,6 +11,7 @@ using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.Post.Application;
+using InfinityNetServer.Services.Post.Application.DTOs.Responses;
 using InfinityNetServer.Services.Post.Application.Services;
 using InfinityNetServer.Services.Post.Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -33,6 +34,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             IStringLocalizer<PostSharedResource> Localizer,
             IPostRepository postRepository,
             IPostService postService,
+            CommonProfileClient profileClient,
             CommonFileClient fileClient,
             IMessageBus messageBus) : BaseApiController(authenticatedUserService)
     {
@@ -94,7 +96,6 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         {
             PhotoMetadataResponse file = await fileClient.GetPhotoMetadata(fileMetadataId);
             file ??= new VideoMetadataResponse();
-            file.SetTimeToLocal();
             return Ok(file);
         }
 
@@ -105,8 +106,6 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         {
             VideoMetadataResponse file = await fileClient.GetVideoMetadata(fileMetadataId);
             file ??= new VideoMetadataResponse();
-            file.SetTimeToLocal();
-            file.Thumbnail.SetTimeToLocal();
             return Ok(file);
         }
 
@@ -119,9 +118,32 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             var profileId = GetCurrentProfileId().Value;
             var result = await postService.GetNewsFeed(profileId.ToString(), cursor, pageSize);
 
-            CursorPagedResult<PreviewPostResponse> response = new ()
+            CursorPagedResult<BasePostResponse> response = new()
             {
-                Items = result.Items.Select(mapper.Map<PreviewPostResponse>).ToList(),
+                Items = await Task.WhenAll(result.Items.Select(async item =>
+                {
+                    // Map the base response
+                    var postResponse = mapper.Map<BasePostResponse>(item);
+
+                    // Process each tag facet asynchronously
+                    var tagFacets = postResponse.Content.TagFacets;
+                    var updatedFacets = await Task.WhenAll(tagFacets.Select(async t =>
+                    {
+                        var profile = await profileClient.GetProfile(t.Profile.Id.ToString());
+                        t.Profile = mapper.Map<PreviewProfileResponse>(profile);
+                        return t; // Return the updated TagFacet
+                    }));
+
+                    // Update the TagFacets
+                    postResponse.Content.TagFacets = [.. updatedFacets];
+
+                    var owner = await profileClient.GetProfile(postResponse.Owner.Id.ToString());
+                    var avatar = await fileClient.GetPhotoMetadata(owner.Avatar.Id.ToString());
+                    var cover = await fileClient.GetPhotoMetadata(owner.Cover.Id.ToString());
+                    postResponse.Owner = owner;
+
+                    return postResponse;
+                })),
                 NextCursor = result.NextCursor
             };
 

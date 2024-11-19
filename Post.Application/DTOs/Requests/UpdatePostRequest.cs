@@ -28,6 +28,6 @@ namespace InfinityNetServer.Services.Post.Application.DTOs.Requests
 
         public Guid? FileMetadataId { get; set; }
 
-        public List<PostPrivacy> PostPrivacies { get; set; }
+        public List<PostAudience> PostPrivacies { get; set; }
     }
 }

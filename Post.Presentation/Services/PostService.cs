@@ -19,7 +19,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
 {
     public class PostService(
             IPostRepository postRepository,
-            IPostPrivacyRepository postPrivacyRepository,
+            IPostAudienceRepository postAudienceRepository,
             CommonProfileClient profileClient,
             CommonRelationshipClient relationshipClient,
             IStringLocalizer<PostSharedResource> localizer,
@@ -67,35 +67,35 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
         public async Task<IList<string>> WhoCanSee(string id)
         {
             var post = await GetById(id);
-            var postPrivacy = await postPrivacyRepository.GetByPostIdAsync(post.Id);
+            var postAudience = await postAudienceRepository.GetByPostIdAsync(post.Id);
             IList<string> followerIds = await relationshipClient.GetFollowerIds(post.OwnerId.ToString());
             IList<string> friendIds = await relationshipClient.GetFriendIds(post.OwnerId.ToString());
             IList<string> blockerIds = await relationshipClient.GetBlockerIds(post.OwnerId.ToString());
             IList<string> blockeeIds = await relationshipClient.GetBlockeeIds(post.OwnerId.ToString());
-            IList<string> includeIds = postPrivacy.PostPrivacyIncludes.Select(i => i.ProfileId.ToString()).ToList();
-            IList<string> excludeIds = postPrivacy.PostPrivacyExcludes.Select(i => i.ProfileId.ToString()).ToList();
+            IList<string> includeIds = postAudience.Includes.Select(i => i.ProfileId.ToString()).ToList();
+            IList<string> excludeIds = postAudience.Excludes.Select(i => i.ProfileId.ToString()).ToList();
 
             IList<string> whoCanSee = [];
 
-            switch (postPrivacy.Type)
+            switch (postAudience.Type)
             {
-                case PostPrivacyType.Include:
+                case PostAudienceType.Include:
                     whoCanSee = includeIds;
                     break;
 
-                case PostPrivacyType.Exclude:
+                case PostAudienceType.Exclude:
                     whoCanSee = friendIds.Except(excludeIds).ToList();
                     break;
 
-                case PostPrivacyType.Custom:
+                case PostAudienceType.Custom:
                     whoCanSee = friendIds.Concat(includeIds).Except(excludeIds).ToList();
                     break;
 
-                case PostPrivacyType.Friends:
+                case PostAudienceType.Friends:
                     whoCanSee = friendIds;
                     break;
 
-                case PostPrivacyType.OnlyMe:
+                case PostAudienceType.OnlyMe:
                     whoCanSee = [ post.OwnerId.ToString() ];
                     break; 
             }
@@ -110,7 +110,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
             var post = await GetById(id);
             IList<string> blockerIds = await relationshipClient.GetBlockerIds(post.OwnerId.ToString());
             IList<string> blockeeIds = await relationshipClient.GetBlockeeIds(post.OwnerId.ToString());
-            IList<string> excludeIds = post.Privacy.PostPrivacyExcludes.Select(i => i.ProfileId.ToString()).ToList();
+            IList<string> excludeIds = post.Audience.Excludes.Select(i => i.ProfileId.ToString()).ToList();
 
             return excludeIds.Concat(blockerIds).Concat(blockeeIds).Distinct().ToList();
         }
@@ -128,7 +128,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
                 Criteria = x => 
                             x.PresentationId == null 
                             && followeeIds.Concat(friendIds).Concat(potentialProfileIds).Take(200).Contains(x.OwnerId.ToString()) 
-                            && x.Privacy.PostPrivacyExcludes.All(i => i.ProfileId.ToString() != profileId) == true,
+                            && x.Audience.Excludes.All(i => i.ProfileId.ToString() != profileId) == true,
                 OrderFields = [
                         new OrderField<Domain.Entities.Post>
                         {

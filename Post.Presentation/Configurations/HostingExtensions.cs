@@ -27,7 +27,6 @@ using InfinityNetServer.Services.Post.Presentation.Exceptions;
 using InfinityNetServer.Services.Post.Presentation.Mappers;
 using InfinityNetServer.Services.Post.Application.Usecases;
 using InfinityNetServer.Services.Post.Application.Consumers;
-using InfinityNetServer.BuildingBlocks.Infrastructure.Redis;
 
 namespace InfinityNetServer.Services.Post.Presentation.Configurations;
 

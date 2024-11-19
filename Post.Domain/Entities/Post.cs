@@ -47,7 +47,7 @@ namespace InfinityNetServer.Services.Post.Domain.Entities
 
         public virtual ICollection<Post> SubPosts { get; set; } = [];
 
-        public virtual PostPrivacy Privacy { get; set; }
+        public virtual PostAudience Audience { get; set; }
 
     }
 

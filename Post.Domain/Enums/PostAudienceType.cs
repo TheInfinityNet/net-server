@@ -1,6 +1,6 @@
 ﻿namespace InfinityNetServer.Services.Post.Domain.Enums
 {
-    public enum PostPrivacyType
+    public enum PostAudienceType
     {
 
         OnlyMe,
