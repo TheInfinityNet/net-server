@@ -6,12 +6,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace InfinityNetServer.Services.Relationship.Domain.Entities
 {
     [Table("profile_follows")]
-    public class ProfileFollow : AuditEntity
+    public class ProfileFollow : AuditEntity<Guid>
     {
 
-        [Key]
-        [Column("id")]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public ProfileFollow() => Id = Guid.NewGuid();
 
         [Column("follower_id")]
         [Required]

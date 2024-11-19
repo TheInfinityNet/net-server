@@ -17,24 +17,11 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
         public async Task<ProfileFollow> GetByFollowerIdAndFolloweeIdAsync(Guid followerId, Guid followeeId)
             => await context.ProfileFollows.FirstOrDefaultAsync(i => i.FollowerId == followerId && i.FolloweeId == followeeId);
 
+        public async Task<IList<Guid>> GetAllFolloweeIdsAsync(Guid profileId)
+           => await context.ProfileFollows.Where(i => i.FollowerId == profileId).Select(i => i.FolloweeId).ToListAsync();
 
-        public async Task<IList<Guid>> GetAllFolloweeIdsAsync(Guid profileId, int? limit)
-        {
-            var query = context.ProfileFollows.Where(i => i.FollowerId == profileId).Select(i => i.FolloweeId);
-
-            if (limit.HasValue) query = query.Take(limit.Value);
-
-            return await query.ToListAsync();
-        }
-
-        public async Task<IList<Guid>> GetAllFollowerIdsAsync(Guid profileId, int? limit)
-        {
-            var query = context.ProfileFollows.Where(i => i.FolloweeId == profileId).Select(i => i.FollowerId);
-
-            if (limit.HasValue) query = query.Take(limit.Value);
-
-            return await query.ToListAsync();
-        }
+        public async Task<IList<Guid>> GetAllFollowerIdsAsync(Guid profileId)
+            => await context.ProfileFollows.Where(i => i.FolloweeId == profileId).Select(i => i.FollowerId).ToListAsync();
 
     }
 }

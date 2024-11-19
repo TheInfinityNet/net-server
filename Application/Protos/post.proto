@@ -6,40 +6,24 @@ option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
 
 import "google/protobuf/empty.proto";
 
-message GetPostIdsResponse {
-  repeated string ids = 1;
+import "Protos/base.proto";
+
+message PostRequest {
+
+	string id = 1;
+
 }
 
-message GetFileMetadataIdsWithTypesRequest {
+message PreviewFileMetadatasRequest {
+
 	string type = 1;
-}
-
-message FileMetadataIdWithType {
-
-	string id = 1;
-
-	string ownerId = 2;
-
-	string fileMetadataId = 3;
-
-	string type = 4;
 
 }
 
-message GetFileMetadataIdsWithTypesResponse {
-	repeated FileMetadataIdWithType fileMetadataIdsWithTypes = 1;
-}
+message PostIdsResponse {
 
-message GetFileMetadataIdOfPostRequest {
-	string id = 1;
-}
+  repeated string ids = 1;
 
-message GetFileMetadataIdOfPostResponse {
-	string fileMetadataId = 1;
-}
-
-message PreviewPostRequest {
-	string id = 1;
 }
 
 message PreviewPostResponse {
@@ -50,16 +34,18 @@ message PreviewPostResponse {
 
 	string previewContent = 3;
 
+	string fileMetadataId = 4;
+
 }
 
 service PostService {
 
-  rpc getPostIds (google.protobuf.Empty) returns (GetPostIdsResponse) {}
+  rpc getPostIds (google.protobuf.Empty) returns (PostIdsResponse) {}
 
-  rpc getFileMetadataIdsWithTypes (GetFileMetadataIdsWithTypesRequest) returns (GetFileMetadataIdsWithTypesResponse) {}
+  rpc getPreviewFileMetadatas (PreviewFileMetadatasRequest) returns (PreviewFileMetadatasResponse) {}
 
-  rpc getFileMetadataIdOfPost (GetFileMetadataIdOfPostRequest) returns (GetFileMetadataIdOfPostResponse) {}
+  rpc getPreviewPost (PostRequest) returns (PreviewPostResponse) {}
 
-  rpc getPreviewPost (PreviewPostRequest) returns (PreviewPostResponse) {}
+  rpc whoCantSee (PostRequest) returns (ProfileIdsResponse) {}
 
 }

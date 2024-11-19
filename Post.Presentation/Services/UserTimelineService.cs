@@ -12,11 +12,11 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
         ILogger<UserTimelineService> logger, 
         IUserTimelineRepository userTimelineRepository) : IUserTimelineService
     {
-        public async Task<BCursorPagedResult<TimelinePost>> GetUserTimeline(string profileId, string cursor, int pageSize)
+        public async Task<CursorPagedResult<TimelinePost>> GetUserTimeline(string profileId, string cursor, int pageSize)
             => await userTimelineRepository.GetUserTimelineAsync(Guid.Parse(profileId), cursor, pageSize);
 
         public async Task UpdateUserTimeline(string profileId, TimelinePost post)
-            => await userTimelineRepository.UpdateUserTimelineAsync(Guid.Parse(profileId), post);
+            => await userTimelineRepository.PushPostToTimelineAsync(Guid.Parse(profileId), post);
 
         public async Task CreateIfNotExists(string profileId)
         {

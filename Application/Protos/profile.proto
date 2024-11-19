@@ -18,9 +18,11 @@ message ProfileIdWithName {
 
 }
 
-message ProfileRequest {
+message PotentialProfilesRequest {
 
-	string id = 1;
+	string location = 1;
+
+	int32 limit = 2;
 
 }
 
@@ -51,6 +53,8 @@ message ProfileResponse {
 	string coverId = 9;
 
 	ProfileType type = 10;
+
+	string location = 11;
 
 }
 
@@ -90,10 +94,8 @@ message UserProfileResponse {
 
 	string coverId = 17;
 
-}
+	string location = 18;
 
-message ProfileIdsResponse {
-  repeated string ids = 1;
 }
 
 message ProfileIdsWithNamesResponse {
@@ -115,5 +117,7 @@ service ProfileService {
 	rpc getPageProfileIds(google.protobuf.Empty) returns (ProfileIdsResponse) {}
 
 	rpc getProfileIdsWithNames(ProfilesRequest) returns (ProfileIdsWithNamesResponse) {}
+
+	rpc getPotentialProfileIds(PotentialProfilesRequest) returns (ProfileIdsResponse) {}
 
 }

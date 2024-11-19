@@ -24,10 +24,16 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
             IConfiguration configuration,
             IAuthenticatedUserService authenticatedUserService,
             CommonRelationshipClient relationshipClient,
-            IMessageBus messageBus) : PostreSqlDbContext<PostDbContext>(options, configuration, authenticatedUserService)
+            IMessageBus messageBus) : PostreSqlDbContext<PostDbContext, Guid>(options, configuration, authenticatedUserService)
     {
 
         public DbSet<Domain.Entities.Post> Posts { get; set; }
+
+        public DbSet<PostPrivacy> PostPrivacies { get; set; }
+
+        public DbSet<PostPrivacyInclude> PostPrivacyIncludes { get; set; }
+
+        public DbSet<PostPrivacyExclude> PostPrivacyExcludes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -98,15 +104,13 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
             if (result > 0)
             {
                 foreach (var entry in postEntries)
-                {
                     await PublishPostNotificationCommands(entry.Entity);
-                }
 
-                foreach (var entry in postPrivacyEntries)
-                {
-                    var post = await Posts.FindAsync(entry.Entity.PostId);
-                    await PublishUserTimelineCommand(post);
-                }
+                //foreach (var entry in postPrivacyEntries)
+                //{
+                //    var post = await Posts.FindAsync(entry.Entity.PostId);
+                //    await PublishUserTimelineCommand(post);
+                //}
             }
             return result;
         }
@@ -158,36 +162,40 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
             //    Console.WriteLine(profileId);
             //}
 
-            IList<Guid> profileIds = [];
+            IList<Guid> whoCanSee = [];
 
             switch (privacy.Type)
             {
-                case PostPrivacyType.Public:
-                    profileIds = (followerIds.Any() ? followerIds.Select(Guid.Parse) : [])
-                        .Concat(friendIds.Any() ? friendIds.Select(Guid.Parse) : [])
-                        .ToList();
+                case PostPrivacyType.Include:
+                    whoCanSee = includeIds.Select(Guid.Parse).ToList();
+                    break;
+
+                case PostPrivacyType.Exclude:
+                    whoCanSee = friendIds.Except(excludeIds).Select(Guid.Parse).ToList();
+                    break;
+
+                case PostPrivacyType.Custom:
+                    whoCanSee = friendIds.Concat(includeIds).Except(excludeIds).Select(Guid.Parse).ToList();
                     break;
 
                 case PostPrivacyType.Friends:
-                    profileIds = friendIds.Any() ? friendIds.Select(Guid.Parse).ToList() : [];
+                    whoCanSee = friendIds.Select(Guid.Parse).ToList();
                     break;
 
                 case PostPrivacyType.OnlyMe:
-                    profileIds = [ ownerId ];
+                    whoCanSee = [ ownerId ];
                     break;
             }
 
-            profileIds = profileIds
-             .Concat(includeIds.Any() ? includeIds.Select(Guid.Parse) : [])
-             .Except(excludeIds.Any() ? excludeIds.Select(Guid.Parse) : [])
-             .Except(blockerIds.Any() ? blockerIds.Select(Guid.Parse) : [])
-             .Except(blockeeIds.Any() ? blockeeIds.Select(Guid.Parse) : [])
+            whoCanSee = whoCanSee
+             .Except(blockerIds.Select(Guid.Parse))
+             .Except(blockeeIds.Select(Guid.Parse))
              .Distinct()
              .ToList();
 
-            foreach (var profileId in profileIds)
+            foreach (var profileId in whoCanSee)
             {
-                var timelineCommand = new DomainCommand.UpdateUserTimelineCommand
+                var timelineCommand = new DomainCommand.PushPostToTimelineCommand
                 {
                     ProfileId = profileId,
                     PostId = id,

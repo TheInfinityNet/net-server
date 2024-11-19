@@ -19,15 +19,15 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
         public async Task<bool> HasBlocked(string currentProfileId, string targetProfileId)
             => await profileBlockRepository.GetByBlockerIdAndBlockeeId(Guid.Parse(currentProfileId), Guid.Parse(targetProfileId)) != null;
 
-        public async Task<IList<string>> GetBlockerIds(string profileId, int? limit)
+        public async Task<IList<string>> GetBlockerIds(string profileId)
         {
-            var blockerIds = await profileBlockRepository.GetAllBlockerIdsAsync(Guid.Parse(profileId), limit);
+            var blockerIds = await profileBlockRepository.GetAllBlockerIdsAsync(Guid.Parse(profileId));
             return blockerIds.Select(i => i.ToString()).ToList();
         }
 
-        public async Task<IList<string>> GetBlockeeIds(string profileId, int? limit)
+        public async Task<IList<string>> GetBlockeeIds(string profileId)
         {
-            var blockerIds = await profileBlockRepository.GetAllBlockeeIdsAsync(Guid.Parse(profileId), limit);
+            var blockerIds = await profileBlockRepository.GetAllBlockeeIdsAsync(Guid.Parse(profileId));
             return blockerIds.Select(i => i.ToString()).ToList();
         }
 

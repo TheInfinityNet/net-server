@@ -1,12 +1,13 @@
 ﻿using InfinityNetServer.BuildingBlocks.Domain.Entities;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications;
+using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace InfinityNetServer.BuildingBlocks.Domain.Repositories
 {
-    public interface ISqlRepository<TEntity, TId> where TEntity : AuditEntity
+    public interface ISqlRepository<TEntity, TId> where TEntity : AuditEntity<TId>
     {
 
         Task<List<TEntity>> GetAllAsync();
@@ -27,8 +28,11 @@ namespace InfinityNetServer.BuildingBlocks.Domain.Repositories
 
         Task<int> CountAsync();
 
+        public Task<CursorPagedResult<TEntity>> GetPagedAsync(SpecificationWithCursor<TEntity> spec);
+
         // Phương thức sử dụng Specification
         Task<PagedResult<TEntity>> GetPagedAsync(ISqlSpecification<TEntity> spec);
+
         Task<PagedCursorResult<TEntity>> GetPagedCursorAsync(ISqlSpecification<TEntity> spec, int pageSize, Guid? cursor = null);
     }
 

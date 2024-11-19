@@ -1,22 +1,26 @@
+﻿using AutoMapper;
 using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Post;
+using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
+using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.Post.Application;
+using InfinityNetServer.Services.Post.Application.Services;
+using InfinityNetServer.Services.Post.Domain.Repositories;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
-using InfinityNetServer.BuildingBlocks.Domain.Enums;
-using Microsoft.AspNetCore.Authorization;
-using InfinityNetServer.Services.Post.Application.Services;
-using InfinityNetServer.Services.Post.Application.Exceptions;
-using InfinityNetServer.BuildingBlocks.Application.Exceptions;
-using Microsoft.AspNetCore.Http;
-using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 
 namespace InfinityNetServer.Services.Post.Presentation.Controllers
 {
@@ -25,7 +29,9 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
     public class TestController(
             IAuthenticatedUserService authenticatedUserService,
             ILogger<TestController> logger,
+            IMapper mapper,
             IStringLocalizer<PostSharedResource> Localizer,
+            IPostRepository postRepository,
             IPostService postService,
             CommonFileClient fileClient,
             IMessageBus messageBus) : BaseApiController(authenticatedUserService)
@@ -76,7 +82,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                 default:
                     throw new CommonException(BaseErrorCode.POST_NOT_FOUND, StatusCodes.Status400BadRequest);
             }
-            
+
 
             return Ok(new { Message = "Save file successfully" });
         }
@@ -87,6 +93,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         public async Task<IActionResult> GetPhoto(string fileMetadataId)
         {
             PhotoMetadataResponse file = await fileClient.GetPhotoMetadata(fileMetadataId);
+            file ??= new VideoMetadataResponse();
             file.SetTimeToLocal();
             return Ok(file);
         }
@@ -97,10 +104,29 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         public async Task<IActionResult> GetVideo(string fileMetadataId)
         {
             VideoMetadataResponse file = await fileClient.GetVideoMetadata(fileMetadataId);
+            file ??= new VideoMetadataResponse();
             file.SetTimeToLocal();
             file.Thumbnail.SetTimeToLocal();
             return Ok(file);
         }
 
+        [EndpointDescription("Get news feed")]
+        [Authorize]
+        [HttpGet("news-feed")]
+        [ProducesResponseType(typeof(CursorPagedResult<>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetNewsFeed([FromQuery] string cursor = null, [FromQuery] int pageSize = 10)
+        {
+            var profileId = GetCurrentProfileId().Value;
+            var result = await postService.GetNewsFeed(profileId.ToString(), cursor, pageSize);
+
+            CursorPagedResult<PreviewPostResponse> response = new ()
+            {
+                Items = result.Items.Select(mapper.Map<PreviewPostResponse>).ToList(),
+                NextCursor = result.NextCursor
+            };
+
+            return Ok(response);
+
+        }
     }
 }

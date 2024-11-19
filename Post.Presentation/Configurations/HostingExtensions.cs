@@ -27,6 +27,7 @@ using InfinityNetServer.Services.Post.Presentation.Exceptions;
 using InfinityNetServer.Services.Post.Presentation.Mappers;
 using InfinityNetServer.Services.Post.Application.Usecases;
 using InfinityNetServer.Services.Post.Application.Consumers;
+using InfinityNetServer.BuildingBlocks.Infrastructure.Redis;
 
 namespace InfinityNetServer.Services.Post.Presentation.Configurations;
 
@@ -50,6 +51,8 @@ internal static class HostingExtensions
         {
             cfg.RegisterServicesFromAssembly(typeof(UpdateUserTimelineHandler).Assembly);
         });
+
+        //builder.Services.AddRedisConnection(builder.Configuration);
 
         builder.Services.AddRepositories();
 

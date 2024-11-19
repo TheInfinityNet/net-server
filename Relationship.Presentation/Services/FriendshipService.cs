@@ -25,9 +25,9 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
         public async Task<Friendship> GetByStatus(FriendshipStatus status, string senderId, string receiverId)
             => await friendshipRepository.GetByStatus(status, Guid.Parse(senderId), Guid.Parse(receiverId));
 
-        public async Task<IList<string>> GetFriendIds(string profile, int? limit)
+        public async Task<IList<string>> GetFriendIds(string profile)
         {
-            var list = await friendshipRepository.GetAllFriendIdsAsync(Guid.Parse(profile), limit);
+            var list = await friendshipRepository.GetAllFriendIdsAsync(Guid.Parse(profile));
             return list.Select(x => x.ToString()).ToList();
         }
 

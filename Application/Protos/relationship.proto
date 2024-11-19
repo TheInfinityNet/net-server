@@ -4,6 +4,8 @@ package InfinityNetServer.BuildingBlocks.Application.Protos;
 
 option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
 
+import "Protos/base.proto";
+
 message ProfilesRelationshipRequest {
 
   string currentProfileId = 1;
@@ -15,12 +17,6 @@ message ProfilesRelationshipRequest {
 message ProfileRelationshipResponse {
 
   bool result = 1;
-
-}
-
-message ProfileInteractionIdRequest {
-
-  string profileId = 1;
 
 }
 
@@ -40,14 +36,14 @@ service RelationshipService {
 
   rpc hasFriendRequest(ProfilesRelationshipRequest) returns (ProfileRelationshipResponse) {}
 
-  rpc getFriendIds(ProfileInteractionIdRequest) returns (ProfileInteractionIdsResponse) {}
+  rpc getFriendIds(ProfileRequest) returns (ProfileIdsResponse) {}
 
-  rpc getFollowerIds(ProfileInteractionIdRequest) returns (ProfileInteractionIdsResponse) {}
+  rpc getFollowerIds(ProfileRequest) returns (ProfileIdsResponse) {}
 
-  rpc getFolloweeIds(ProfileInteractionIdRequest) returns (ProfileInteractionIdsResponse) {}
+  rpc getFolloweeIds(ProfileRequest) returns (ProfileIdsResponse) {}
 
-  rpc getBlockerIds(ProfileInteractionIdRequest) returns (ProfileInteractionIdsResponse) {}
+  rpc getBlockerIds(ProfileRequest) returns (ProfileIdsResponse) {}
 
-  rpc getBlockeeIds(ProfileInteractionIdRequest) returns (ProfileInteractionIdsResponse) {}
+  rpc getBlockeeIds(ProfileRequest) returns (ProfileIdsResponse) {}
 
 }

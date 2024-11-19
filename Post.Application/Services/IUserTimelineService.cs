@@ -7,7 +7,7 @@ namespace InfinityNetServer.Services.Post.Application.Services
     public interface IUserTimelineService
     {
 
-        public Task<BCursorPagedResult<TimelinePost>> GetUserTimeline(string profileId, string? cursor, int pageSize);
+        public Task<CursorPagedResult<TimelinePost>> GetUserTimeline(string profileId, string? cursor, int pageSize);
 
         public Task UpdateUserTimeline(string profileId, TimelinePost post);
 

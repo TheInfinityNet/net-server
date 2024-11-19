@@ -1,17 +1,16 @@
-﻿using InfinityNetServer.Services.Reaction.Domain.Enums;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Entities;
+using InfinityNetServer.Services.Reaction.Domain.Enums;
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using InfinityNetServer.BuildingBlocks.Domain.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InfinityNetServer.Services.Reaction.Domain.Entities
 {
     [Table("comment_reactions")]
-    public class CommentReaction : AuditEntity
+    public class CommentReaction : AuditEntity<Guid>
     {
-        [Key]
-        [Column("id")]
-        public Guid Id { get; set; } = Guid.NewGuid();
+
+        public CommentReaction() => Id = Guid.NewGuid();
 
         [Required]
         [Column("profile_id")]

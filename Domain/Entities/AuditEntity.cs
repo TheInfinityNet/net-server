@@ -4,8 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InfinityNetServer.BuildingBlocks.Domain.Entities
 {
-    public abstract class AuditEntity
+    public abstract class AuditEntity<TId>
     {
+
+        [Key]
+        [Column("id")]
+        public TId Id { get; set; }
+
         [Column("created_by")]
         [MaxLength(255)]
         public Guid? CreatedBy { get; set; } = null;

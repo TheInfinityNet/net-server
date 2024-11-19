@@ -10,10 +10,10 @@ namespace InfinityNetServer.Services.Post.Application.Usecases
 {
     public class UpdateUserTimelineHandler
         (ILogger<UpdateUserTimelineHandler> logger,
-        IUserTimelineService userTimelineService) : IRequestHandler<DomainCommand.UpdateUserTimelineCommand>
+        IUserTimelineService userTimelineService) : IRequestHandler<DomainCommand.PushPostToTimelineCommand>
     {
 
-        public async Task Handle(DomainCommand.UpdateUserTimelineCommand request, CancellationToken cancellationToken)
+        public async Task Handle(DomainCommand.PushPostToTimelineCommand request, CancellationToken cancellationToken)
         {
             logger.LogInformation("Starting create post timeline command handler");
 
@@ -21,7 +21,7 @@ namespace InfinityNetServer.Services.Post.Application.Usecases
 
             var postTimeline = new TimelinePost
             {
-                PostId = request.PostId,
+                Id = request.PostId,
                 CreatedAt = request.CreatedAt
             };
 

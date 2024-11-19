@@ -9,7 +9,5 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Messages
 
         public Guid PostId { get; set; }
 
-        public DateTime CreatedAt { get; set; }
-
     }
 }

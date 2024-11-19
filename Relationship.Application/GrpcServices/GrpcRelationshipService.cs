@@ -61,48 +61,48 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcServices
             return response;
         }
 
-        public override async Task<ProfileInteractionIdsResponse> getFriendIds(ProfileInteractionIdRequest request, ServerCallContext context)
+        public override async Task<ProfileIdsResponse> getFriendIds(ProfileRequest request, ServerCallContext context)
         {
-            logger.LogInformation("Get friends for ProfileId: {ProfileId}", request.ProfileId);
-            var source = await friendshipService.GetFriendIds(request.ProfileId, null);
-            var response = new ProfileInteractionIdsResponse();
-            response.ProfileInteractionIds.AddRange(source);
+            logger.LogInformation("Get friends for ProfileId: {ProfileId}", request.Id);
+            var source = await friendshipService.GetFriendIds(request.Id);
+            var response = new ProfileIdsResponse();
+            response.Ids.AddRange(source);
             return response;
         }
 
-        public override async Task<ProfileInteractionIdsResponse> getFollowerIds(ProfileInteractionIdRequest request, ServerCallContext context)
+        public override async Task<ProfileIdsResponse> getFollowerIds(ProfileRequest request, ServerCallContext context)
         {
-            logger.LogInformation("Get followers for ProfileId: {ProfileId}", request.ProfileId);
-            var source = await profileFollowService.GetAllFollowerIds(request.ProfileId, null);
-            var response = new ProfileInteractionIdsResponse();
-            response.ProfileInteractionIds.AddRange(source);
+            logger.LogInformation("Get followers for ProfileId: {ProfileId}", request.Id);
+            var source = await profileFollowService.GetAllFollowerIds(request.Id);
+            var response = new ProfileIdsResponse();
+            response.Ids.AddRange(source);
             return response;
         }
 
-        public override async Task<ProfileInteractionIdsResponse> getFolloweeIds(ProfileInteractionIdRequest request, ServerCallContext context)
+        public override async Task<ProfileIdsResponse> getFolloweeIds(ProfileRequest request, ServerCallContext context)
         {
-            logger.LogInformation("Get followers for ProfileId: {ProfileId}", request.ProfileId);
-            var source = await profileFollowService.GetAllFolloweeIds(request.ProfileId, null);
-            var response = new ProfileInteractionIdsResponse();
-            response.ProfileInteractionIds.AddRange(source);
+            logger.LogInformation("Get followers for ProfileId: {ProfileId}", request.Id);
+            var source = await profileFollowService.GetAllFolloweeIds(request.Id);
+            var response = new ProfileIdsResponse();
+            response.Ids.AddRange(source);
             return response;
         }
 
-        public override async Task<ProfileInteractionIdsResponse> getBlockerIds(ProfileInteractionIdRequest request, ServerCallContext context)
+        public override async Task<ProfileIdsResponse> getBlockerIds(ProfileRequest request, ServerCallContext context)
         {
-            logger.LogInformation("Get blockers for ProfileId: {ProfileId}", request.ProfileId);
-            var source = await profileBlockService.GetBlockerIds(request.ProfileId, null);
-            var response = new ProfileInteractionIdsResponse();
-            response.ProfileInteractionIds.AddRange(source);
+            logger.LogInformation("Get blockers for ProfileId: {ProfileId}", request.Id);
+            var source = await profileBlockService.GetBlockerIds(request.Id);
+            var response = new ProfileIdsResponse();
+            response.Ids.AddRange(source);
             return response;
         }
 
-        public override async Task<ProfileInteractionIdsResponse> getBlockeeIds(ProfileInteractionIdRequest request, ServerCallContext context)
+        public override async Task<ProfileIdsResponse> getBlockeeIds(ProfileRequest request, ServerCallContext context)
         {
-            logger.LogInformation("Get blockees for ProfileId: {ProfileId}", request.ProfileId);
-            var source = await profileBlockService.GetBlockeeIds(request.ProfileId, null);
-            var response = new ProfileInteractionIdsResponse();
-            response.ProfileInteractionIds.AddRange(source);
+            logger.LogInformation("Get blockees for ProfileId: {ProfileId}", request.Id);
+            var source = await profileBlockService.GetBlockeeIds(request.Id);
+            var response = new ProfileIdsResponse();
+            response.Ids.AddRange(source);
             return response;
         }
 

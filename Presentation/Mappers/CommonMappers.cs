@@ -138,9 +138,17 @@ public class CommonMappers : Profile
                 dest.Type = src.Type.ToString(); // Chuyển enum sang string
             });
 
-        CreateMap<Application.Protos.PreviewPostResponse, Application.DTOs.Responses.Post.PreviewPostResponse>();
+        CreateMap<Application.Protos.PreviewPostResponse, Application.DTOs.Responses.Post.PreviewPostResponse>()
+            .AfterMap((src, dest) =>
+            {
+                if (src.FileMetadataId.Equals(Guid.Empty)) dest.FileMetadataId = null;
+            });
 
-        CreateMap<Application.Protos.PreviewCommentResponse, Application.DTOs.Responses.Comment.PreviewCommentResponse>();
+        CreateMap<Application.Protos.PreviewCommentResponse, Application.DTOs.Responses.Comment.PreviewCommentResponse>()
+            .AfterMap((src, dest) =>
+            {
+                if (src.FileMetadataId.Equals(Guid.Empty)) dest.FileMetadataId = null;
+            });
 
         CreateMap<Application.Protos.AccountWithDefaultProfile, Application.DTOs.Others.AccountWithDefaultProfile>();
 
@@ -148,8 +156,6 @@ public class CommonMappers : Profile
 
         CreateMap<Application.Protos.ProfileIdWithName, Application.DTOs.Others.ProfileIdWithName>();
 
-        CreateMap<Application.Protos.FileMetadataIdWithType, Application.DTOs.Others.FileMetadataIdWithType>();
-
-        CreateMap<Application.Protos.FileMetadataIdWithOwnerId, Application.DTOs.Others.FileMetadataIdWithOwnerId>();
+        CreateMap<Application.Protos.PreviewFileMetadata, Application.DTOs.Others.PreviewFileMetadata>();
     }
 }
