@@ -1,16 +1,15 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Entities;
+using System;
 using System.ComponentModel.DataAnnotations;
-using InfinityNetServer.BuildingBlocks.Domain.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InfinityNetServer.Services.Tag.Domain.Entities
 {
     [Table("commentTags")]
-    public class CommentTag : AuditEntity
+    public class CommentTag : AuditEntity<Guid>
     {
-        [Key]
-        [Column("id")]
-        public Guid Id { get; set; } = Guid.NewGuid();
+
+        public CommentTag() => Id = Guid.NewGuid();
 
         [Required]
         [Column("profile_id")]

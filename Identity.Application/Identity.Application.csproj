@@ -7,6 +7,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="GrpcClients\**" />
+	  <EmbeddedResource Remove="GrpcClients\**" />
+	  <None Remove="GrpcClients\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
 		<PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.2" />
 	</ItemGroup>
@@ -14,10 +20,6 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Application\Application.csproj" />
 	  <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="GrpcClients\" />
 	</ItemGroup>
 
 </Project>

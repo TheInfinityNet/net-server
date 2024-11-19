@@ -117,22 +117,40 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="bucket_creation_failed" xml:space="preserve">
-    <value>Tạo bucket {0} thất bại</value>
+  <data name="ProfileFollowNotification.Title" xml:space="preserve">
+    <value>Người theo dõi mới</value>
   </data>
-  <data name="can_not_delete_file" xml:space="preserve">
-    <value>Không thể xóa tệp</value>
+  <data name="ProfileFollowNotification.Content" xml:space="preserve">
+    <value>{0} đã theo dõi bạn</value>
   </data>
-  <data name="can_not_store_file" xml:space="preserve">
-    <value>Không thể lưu trữ tệp</value>
+  <data name="TaggedInPost.Title" xml:space="preserve">
+    <value>Bài viết: {0}</value>
   </data>
-  <data name="Hello" xml:space="preserve">
-    <value>Xin chao {0}</value>
+  <data name="TaggedInPost.Content" xml:space="preserve">
+    <value>{0} đã gắn thẻ bạn trong một bài viết</value>
   </data>
-  <data name="null_file_name" xml:space="preserve">
-    <value>Tên tệp không để trống</value>
+  <data name="TaggedInCommentNotification.Title" xml:space="preserve">
+    <value>Bài viết: {0}</value>
   </data>
-  <data name="null_thumbnail_width" xml:space="preserve">
-    <value />
+  <data name="TaggedInCommentNotification.Content" xml:space="preserve">
+    <value>{0} đã gắn thẻ bạn trong một bình luận</value>
+  </data>
+  <data name="ReplyCommentNotification.Title" xml:space="preserve">
+    <value>Bài viết: {0}</value>
+  </data>
+  <data name="ReplyCommentNotification.Content" xml:space="preserve">
+    <value>{0} đã phản hồi bình luận của bạn</value>
+  </data>
+  <data name="FriendInvitation.Title" xml:space="preserve">
+    <value>Lời mời kết bạn mới</value>
+  </data>
+  <data name="FriendInvitation.Content" xml:space="preserve">
+    <value>{0} đã gửi lời mời kết bạn</value>
+  </data>
+  <data name="FriendInvitationAccepted.Title" xml:space="preserve">
+    <value>Bạn mới</value>
+  </data>
+  <data name="FriendInvitationAccepted.Content" xml:space="preserve">
+    <value>{0} đã chấp nhận lời mời kết bạn</value>
   </data>
 </root>

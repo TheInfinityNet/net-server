@@ -7,6 +7,10 @@
 
         FriendInvitation,
 
+        FriendInvitationAccepted,
+
+        NewProfileFollower,
+
         NewFollowerPost,
 
         NewGroupPost,
@@ -15,7 +19,7 @@
 
         CommentReaction,
 
-        ReplyToPost,
+        CommentToPost,
 
         ReplyToComment,
 

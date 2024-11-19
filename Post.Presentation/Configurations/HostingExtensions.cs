@@ -25,6 +25,9 @@ using InfinityNetServer.BuildingBlocks.Presentation.Services;
 using InfinityNetServer.Services.Post.Presentation.Services;
 using InfinityNetServer.Services.Post.Presentation.Exceptions;
 using InfinityNetServer.Services.Post.Presentation.Mappers;
+using InfinityNetServer.Services.Post.Application.Usecases;
+using InfinityNetServer.Services.Post.Application.Consumers;
+using InfinityNetServer.BuildingBlocks.Infrastructure.Redis;
 
 namespace InfinityNetServer.Services.Post.Presentation.Configurations;
 
@@ -33,15 +36,23 @@ internal static class HostingExtensions
 
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
-        if (builder == null) throw new ArgumentNullException(nameof(builder));
+        ArgumentNullException.ThrowIfNull(builder);
 
         builder.AddSettings();
 
         builder.Services.AddHttpContextAccessor();
 
-        builder.Services.AddDbContext();
+        builder.Services.AddDbContext(builder.Configuration);
 
-        builder.Services.AddMessageBus(builder.Configuration);
+        builder.Services.AddMessageBus(builder.Configuration, 
+            typeof(UpdateUserTimelineConsumer));
+
+        builder.Services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(typeof(UpdateUserTimelineHandler).Assembly);
+        });
+
+        //builder.Services.AddRedisConnection(builder.Configuration);
 
         builder.Services.AddRepositories();
 
@@ -95,7 +106,7 @@ internal static class HostingExtensions
 
     public static WebApplication ConfigurePipeline(this WebApplication app, IConfiguration configuration)
     {
-        if (app == null) throw new ArgumentNullException(nameof(app));
+        ArgumentNullException.ThrowIfNull(app);
 
         app.UseSerilogRequestLogging();
 

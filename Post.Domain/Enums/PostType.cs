@@ -11,7 +11,7 @@
 
         Photo,
 
-        Audio
+        //Audio
 
     }
 

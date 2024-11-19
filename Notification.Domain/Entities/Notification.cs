@@ -22,13 +22,13 @@ namespace InfinityNetServer.Services.Notification.Domain.Entities
 
         [BsonElement("thumbnail_id")]
         [BsonRepresentation(BsonType.String)]
-        public Guid ThumbnailId { get; set; }
+        public Guid? ThumbnailId { get; set; }
 
-        [BsonElement("title")]
-        public string Title { get; set; }
+        [BsonElement("title_params")]
+        public string[] TitleParams { get; set; }
 
-        [BsonElement("content")]
-        public string Content { get; set; }
+        [BsonElement("content_params")]
+        public string[] ContentParams { get; set; }
 
         [BsonElement("is_read")]
         public bool IsRead { get; set; } = false;

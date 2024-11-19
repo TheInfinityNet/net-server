@@ -3,10 +3,15 @@ using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL;
 using InfinityNetServer.Services.Profile.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System;
 
 namespace InfinityNetServer.Services.Profile.Infrastructure.Data
 {
-    public class ProfileDbContext : PostreSqlDbContext<ProfileDbContext>
+    public class ProfileDbContext(
+            DbContextOptions<ProfileDbContext> options,
+            IConfiguration configuration,
+            IAuthenticatedUserService authenticatedUserService) 
+        : PostreSqlDbContext<ProfileDbContext, Guid>(options, configuration, authenticatedUserService)
     {
 
         public DbSet<Domain.Entities.Profile> Profiles { get; set; }
@@ -14,15 +19,6 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data
         public DbSet<UserProfile> UserProfiles { get; set; }
 
         public DbSet<PageProfile> PageProfiles { get; set; }
-
-
-        public ProfileDbContext(
-            DbContextOptions<ProfileDbContext> options,
-            IConfiguration configuration,
-            IAuthenticatedUserService authenticatedUserService) : base(options, configuration, authenticatedUserService)
-        {
-
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,7 +32,6 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data
             profile.HasIndex(p => p.Status);
 
             userProfile.HasIndex(p => p.Username).IsUnique();
-            //userProfile.HasIndex(p => new { p.Username, p.MobileNumber }).IsUnique();
 
             userProfile
                 .HasOne(p => p.Profile)

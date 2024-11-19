@@ -157,7 +157,8 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PostId");
+                    b.HasIndex("PostId")
+                        .IsUnique();
 
                     b.HasIndex("Type");
 
@@ -279,7 +280,7 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
                     b.HasOne("InfinityNetServer.Services.Post.Domain.Entities.Post", "Parent")
                         .WithMany("SharedPosts")
                         .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("InfinityNetServer.Services.Post.Domain.Entities.Post", "Presentation")
                         .WithMany("SubPosts")
@@ -294,8 +295,8 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
             modelBuilder.Entity("InfinityNetServer.Services.Post.Domain.Entities.PostPrivacy", b =>
                 {
                     b.HasOne("InfinityNetServer.Services.Post.Domain.Entities.Post", "Post")
-                        .WithMany("PostPrivacies")
-                        .HasForeignKey("PostId")
+                        .WithOne("Privacy")
+                        .HasForeignKey("InfinityNetServer.Services.Post.Domain.Entities.PostPrivacy", "PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -326,7 +327,7 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("InfinityNetServer.Services.Post.Domain.Entities.Post", b =>
                 {
-                    b.Navigation("PostPrivacies");
+                    b.Navigation("Privacy");
 
                     b.Navigation("SharedPosts");
 

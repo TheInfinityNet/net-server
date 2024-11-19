@@ -3,9 +3,11 @@
     public enum FriendshipStatus
     {
 
+        NotConnected,
+
         Pending,
 
-        Accepted
+        Connected
 
     }
 

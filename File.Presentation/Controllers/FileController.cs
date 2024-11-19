@@ -42,7 +42,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         public async Task<IActionResult> SeedDataForPostPhoto()
         {
             //await minioClientService.DeleteAllObjectsInBucket(MAIN_BUCKET_NAME);
-            var fileMetadataIdsWithTypes = await postClient.GetFileMetadataIdsWithTypes(BuildingBlocks.Application.Protos.PostType.Photo);
+            var fileMetadataIdsWithTypes = await postClient.GetPreviewFileMetadatas(BuildingBlocks.Application.Protos.PostType.Photo);
 
             foreach (var fileMetadataIdWithType in fileMetadataIdsWithTypes)
             {
@@ -88,7 +88,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         public async Task<IActionResult> SeedDataForPostVideo()
         {
             await minioClientService.DeleteAllObjectsInBucket(MAIN_BUCKET_NAME);
-            var fileMetadataIdsWithTypes = await postClient.GetFileMetadataIdsWithTypes(BuildingBlocks.Application.Protos.PostType.Video);
+            var fileMetadataIdsWithTypes = await postClient.GetPreviewFileMetadatas(BuildingBlocks.Application.Protos.PostType.Video);
 
             foreach (var fileMetadataIdWithType in fileMetadataIdsWithTypes)
             {
@@ -159,7 +159,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         public async Task<IActionResult> SeedDataForCommentFile()
         {
             //await minioClientService.DeleteAllObjectsInBucket(MAIN_BUCKET_NAME);
-            var fileMetadataIdsWithOwnerIds = await commentClient.GetFileMetadataIdsWithOwnerIds();
+            var fileMetadataIdsWithOwnerIds = await commentClient.GetPreviewFileMetadatas();
 
             foreach (var fileMetadataIdWithOwnerId in fileMetadataIdsWithOwnerIds)
             {
@@ -256,7 +256,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                             Width = width,
                             Height = height,
                             Size = size,
-                            CreatedBy = GetCurrentUserId(),
+                            CreatedBy = GetCurrentProfileId(),
                         }, TimeSpan.FromMinutes(30));
             }
 
@@ -332,7 +332,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                         Height = height,
                         Size = size,
                         Duration = duration.Seconds,
-                        CreatedBy = GetCurrentUserId(),
+                        CreatedBy = GetCurrentProfileId(),
                         Thumbnail = new PhotoMetadata
                         {
                             Type = FileMetadataType.Photo,
@@ -340,7 +340,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                             Width = width,
                             Height = height,
                             Size = thumbnailSize,
-                            CreatedBy = GetCurrentUserId()
+                            CreatedBy = GetCurrentProfileId()
                         }
                     }, TimeSpan.FromMinutes(30));
 

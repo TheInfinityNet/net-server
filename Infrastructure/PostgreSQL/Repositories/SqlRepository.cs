@@ -1,15 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Entities;
 using InfinityNetServer.BuildingBlocks.Domain.Repositories;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications;
-using InfinityNetServer.BuildingBlocks.Domain.Entities;
+using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositories
 {
-    public class SqlRepository<TEntity, TId>(DbContext context) : ISqlRepository<TEntity, TId> where TEntity : AuditEntity
+    public class SqlRepository<TEntity, TId>(DbContext context) : ISqlRepository<TEntity, TId> where TEntity : AuditEntity<TId>
     {
 
         protected readonly DbSet<TEntity> DbSet = context.Set<TEntity>();
@@ -97,6 +98,55 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
             };
         }
 
+        public async Task<CursorPagedResult<TEntity>> GetPagedAsync(SpecificationWithCursor<TEntity> spec)
+        {
+            // Giả sử _dbContext là DbContext để truy vấn dữ liệu.
+            var query = context.Set<TEntity>().AsQueryable();
+
+            // Áp dụng các điều kiện lọc nếu có
+            if (spec.Criteria != null) query = query.Where(spec.Criteria);
+
+            // Kiểm tra nếu không có điều kiện sắp xếp nào được truyền vào
+            if (spec.OrderFields == null || !spec.OrderFields.Any())
+                query = query.OrderByDescending(x => x.CreatedAt);
+            else
+                // Nếu có OrderFields, áp dụng các điều kiện sắp xếp đã truyền vào
+                foreach (var orderField in spec.OrderFields)
+                    query = orderField.Direction == SortDirection.Descending
+                        ? query.OrderByDescending(orderField.Field)
+                        : query.OrderBy(orderField.Field);
+
+            // Áp dụng phân trang với cursor, giả sử Cursor là ID của item
+            if (!string.IsNullOrEmpty(spec.Cursor))
+                query = query.Where(x => x.Id.ToString().CompareTo(spec.Cursor) > 0);
+
+            // Lấy dữ liệu phân trang
+            var items = await query.Take(spec.PageSize).ToListAsync();
+
+            // Xác định cursor tiếp theo và cursor trước
+            string nextCursor = null;
+            string prevCursor = null;
+
+            if (items.Count > 0)
+            {
+                var firstItem = items.First();
+                var lastItem = items.Last();
+
+                // Sinh cursor tiếp theo từ ID của item cuối cùng
+                nextCursor = lastItem.Id.ToString();
+
+                // Sinh cursor trước từ ID của item đầu tiên
+                prevCursor = firstItem.Id.ToString();
+            }
+
+            return new CursorPagedResult<TEntity>
+            {
+                Items = items,
+                NextCursor = nextCursor,
+                PrevCursor = prevCursor
+            };
+        }
+
         private IQueryable<TEntity> ApplySpecification(ISqlSpecification<TEntity> spec)
         {
             IQueryable<TEntity> query = DbSet;
@@ -123,6 +173,42 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
             return query;
         }
 
+        public async Task<PagedCursorResult<TEntity>> GetPagedCursorAsync(ISqlSpecification<TEntity> spec, int pageSize, Guid? cursor = null)
+        {
+            ArgumentNullException.ThrowIfNull(spec);
+            IQueryable<TEntity> query = ApplySpecification(spec);
+
+            if (cursor.HasValue)
+            {
+                query = query.Where(e => EF.Property<Guid>(e, "Id").CompareTo(cursor.Value) > 0);
+            }
+
+            query = query.OrderBy(e => EF.Property<Guid>(e, "Id"));
+
+            // Lấy pageSize + 1 item để kiểm tra xem có trang tiếp theo hay không
+            var results = await query.Take(pageSize + 1).ToListAsync();
+
+            // Xác định HasNext và HasPrevious
+            bool hasNext = results.Count > pageSize;
+            bool hasPrevious = cursor != null;
+
+            // Cắt bớt phần tử thừa nếu có
+            if (hasNext) results.RemoveAt(results.Count - 1);
+
+            // Thiết lập các giá trị cursor
+            string nextCursor = hasNext ? results.LastOrDefault()?.GetType().GetProperty("Id")?.GetValue(results.LastOrDefault()).ToString() : null;
+            string previousCursor = hasPrevious ? cursor?.ToString() : null;
+
+            // Trả về kết quả phân trang
+            return new PagedCursorResult<TEntity>
+            {
+                Results = results,
+                NextCursor = nextCursor,
+                PreviousCursor = previousCursor,
+                HasNext = hasNext,
+                HasPrevious = hasPrevious
+            };
+        }
     }
 
 }

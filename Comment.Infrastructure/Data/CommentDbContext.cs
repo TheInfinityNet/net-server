@@ -18,7 +18,7 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data
         IConfiguration configuration,
         IAuthenticatedUserService authenticatedUserService,
         IMessageBus messageBus) 
-        : PostreSqlDbContext<CommentDbContext>(options, configuration, authenticatedUserService)
+        : PostreSqlDbContext<CommentDbContext, Guid>(options, configuration, authenticatedUserService)
     {
 
         public DbSet<Domain.Entities.Comment> Comments { get; set; }
@@ -67,11 +67,10 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data
                         foreach (var tag in content.TagFacets)
                         {
                             Guid taggedProfileId = tag.ProfileId;
-                            await messageBus.Publish(new DomainCommand.CommentNotificationCommand
+                            await messageBus.Publish(new DomainCommand.CreateCommentNotificationCommand
                             {
-                                Id = Guid.NewGuid(),
                                 TriggeredBy = profileId.ToString(),
-                                RelatedProfileId = taggedProfileId,
+                                TargetProfileId = taggedProfileId,
                                 CommentId = id,
                                 Type = BuildingBlocks.Domain.Enums.NotificationType.TaggedInComment,
                                 CreatedAt = createdAt
@@ -84,11 +83,10 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data
                     {
                         Guid parentCommentId = entry.Entity.ParentId.Value;
                         Domain.Entities.Comment parentComment = await Comments.FindAsync(parentCommentId);
-                        await messageBus.Publish(new DomainCommand.CommentNotificationCommand
+                        await messageBus.Publish(new DomainCommand.CreateCommentNotificationCommand
                         {
-                            Id = Guid.NewGuid(),
                             TriggeredBy = profileId.ToString(),
-                            RelatedProfileId = parentComment.ProfileId,
+                            TargetProfileId = parentComment.ProfileId,
                             CommentId = id,
                             Type = BuildingBlocks.Domain.Enums.NotificationType.ReplyToComment,
                             CreatedAt = createdAt

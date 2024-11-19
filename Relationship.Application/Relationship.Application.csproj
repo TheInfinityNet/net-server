@@ -11,4 +11,8 @@
     <ProjectReference Include="..\Relationship.Domain\Relationship.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTOs\Requests\" />
+  </ItemGroup>
+
 </Project>

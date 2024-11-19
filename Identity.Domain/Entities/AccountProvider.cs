@@ -1,18 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using InfinityNetServer.BuildingBlocks.Domain.Entities;
-using System;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Entities;
 using InfinityNetServer.Services.Identity.Domain.Enums;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InfinityNetServer.Services.Identity.Domain.Entities
 {
     [Table("account_providers")]
-    public class AccountProvider : AuditEntity
+    public class AccountProvider : AuditEntity<Guid>
     {
 
-        [Key]
-        [Column("id")]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public AccountProvider() => Id = Guid.NewGuid();
 
         [Required]
         [Column("type")]

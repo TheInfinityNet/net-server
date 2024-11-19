@@ -7,11 +7,9 @@ using System.Collections.Generic;
 namespace InfinityNetServer.Services.Comment.Domain.Entities
 {
     [Table("comments")]
-    public class Comment : AuditEntity
+    public class Comment : AuditEntity<Guid>
     {
-        [Key]
-        [Column("id")]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Comment() => Id = Guid.NewGuid();
 
         [Required]
         [Column("profile_id")]

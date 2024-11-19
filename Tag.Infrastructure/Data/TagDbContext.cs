@@ -3,6 +3,7 @@ using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL;
 using InfinityNetServer.Services.Tag.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System;
 
 namespace InfinityNetServer.Services.Tag.Infrastructure.Data
 {
@@ -10,12 +11,12 @@ namespace InfinityNetServer.Services.Tag.Infrastructure.Data
         DbContextOptions<TagDbContext> options,
         IConfiguration configuration,
         IAuthenticatedUserService authenticatedUserService) 
-        : PostreSqlDbContext<TagDbContext>(options, configuration, authenticatedUserService)
+        : PostreSqlDbContext<TagDbContext, Guid>(options, configuration, authenticatedUserService)
     {
 
-        DbSet<PostTag> PostTags { get; set; }
+        public DbSet<PostTag> PostTags { get; set; }
 
-        DbSet<CommentTag> CommentTags { get; set; }
+        public DbSet<CommentTag> CommentTags { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

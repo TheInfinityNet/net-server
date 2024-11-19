@@ -7,21 +7,19 @@ using InfinityNetServer.BuildingBlocks.Domain.Entities;
 namespace InfinityNetServer.Services.Identity.Domain.Entities
 {
     [Table("accounts")]
-    public class Account : AuditEntity
+    public class Account : AuditEntity<Guid>
     {
 
-        [Key]
-        [Column("id")]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Account() => Id = Guid.NewGuid();
 
         [Required]
         [Column("default_user_profile_id")]
         public Guid DefaultUserProfileId { get; set; }
 
         // Navigation Properties
-        public virtual ICollection<AccountProvider> AccountProviders { get; set; } = new List<AccountProvider>();
+        public virtual ICollection<AccountProvider> AccountProviders { get; set; } = [];
 
-        public virtual ICollection<Verification> Verifications { get; set; } = new List<Verification>();
+        public virtual ICollection<Verification> Verifications { get; set; } = [];
 
     }
 

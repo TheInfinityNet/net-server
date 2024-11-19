@@ -57,3 +57,31 @@ enum PostType {
 	Audio = 4;
 
 }
+
+message ProfileRequest {
+
+	string id = 1;
+
+}
+
+message ProfileIdsResponse {
+
+  repeated string ids = 1;
+
+}
+
+message PreviewFileMetadata {
+
+	string id = 1;
+
+	string ownerId = 2;
+
+	string fileMetadataId = 3;
+
+	string type = 4;
+
+}
+
+message PreviewFileMetadatasResponse {
+	repeated PreviewFileMetadata previewFileMetadatas = 1;
+}

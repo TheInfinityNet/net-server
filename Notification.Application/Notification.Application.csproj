@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\" />
     <Folder Include="GrpcClients\" />
     <Folder Include="GrpcServices\" />
     <Folder Include="Helper\" />

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
 {
-    public class PostreSqlDbContext<IDbContext> : DbContext where IDbContext : DbContext
+    public class PostreSqlDbContext<IDbContext, TId> : DbContext where IDbContext : DbContext
     {
 
         private readonly IConfiguration _configuration;
@@ -33,12 +33,6 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
                 .LogTo(Console.WriteLine, LogLevel.Information); ;
         }
 
-        public override int SaveChanges()
-        {
-            UpdateAuditFields();
-            return base.SaveChanges();
-        }
-
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             UpdateAuditFields();
@@ -47,11 +41,11 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
 
         private void UpdateAuditFields()
         {
-            var entries = ChangeTracker.Entries<AuditEntity>();
+            var entries = ChangeTracker.Entries<AuditEntity<TId>>();
 
             foreach (var entry in entries)
             {
-                var authenticationName = _authenticatedUserService.GetAuthenticatedUserId();
+                var authenticationName = _authenticatedUserService.GetAuthenticatedProfileId();
 
                 if (entry.State == EntityState.Added)
                 {

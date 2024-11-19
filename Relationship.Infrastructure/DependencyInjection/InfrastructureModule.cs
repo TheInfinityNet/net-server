@@ -19,7 +19,8 @@ public static class InfrastructureModule
     {
         services.AddScoped(typeof(ISqlRepository<,>), typeof(SqlRepository<,>));
         services.AddScoped<IFriendshipRepository, FriendshipRepository>();
-        services.AddScoped<IInteractionRepository, InteractionRepository>();
+        services.AddScoped<IProfileFollowRepository, ProfileFollowRepository>();
+        services.AddScoped<IProfileBlockRepository, ProfileBlockRepository>();
     }
 
 }

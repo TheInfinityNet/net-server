@@ -7,9 +7,13 @@
 
         Public,
 
+        Friends,
+
         Include,
 
-        Exclude
+        Exclude,
+
+        Custom
 
     }
 }

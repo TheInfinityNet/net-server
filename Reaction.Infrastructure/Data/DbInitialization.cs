@@ -82,7 +82,7 @@ public static class DbInitialization
         foreach (var profileId in selectedProfileIds)
         {
             // Ngẫu nhiên chọn số lượng post cho mỗi account
-            var randomPostsForProfile = faker.PickRandom(selectedPostIds, faker.Random.Int(1, selectedPostIds.Count()));
+            var randomPostsForProfile = faker.PickRandom(selectedPostIds, faker.Random.Int(1, selectedPostIds.Count));
 
             foreach (var postId in randomPostsForProfile)
             {
@@ -130,7 +130,7 @@ public static class DbInitialization
         {
             // Ngẫu nhiên chọn số lượng comment cho mỗi account
             var randomCommentsForProfile = 
-                faker.PickRandom(selectedCommentIds, faker.Random.Int(1, selectedCommentIds.Count()));
+                faker.PickRandom(selectedCommentIds, faker.Random.Int(1, selectedCommentIds.Count));
 
             foreach (var commentId in randomCommentsForProfile)
             {

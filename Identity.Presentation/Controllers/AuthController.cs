@@ -86,7 +86,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
                 AcceptLanguage = CultureInfo.CurrentCulture.ToString(),
                 Code = "123456",
                 CreatedAt = DateTime.UtcNow,
-                CreatedBy = GetCurrentUserId()
+                CreatedBy = GetCurrentProfileId()
             });
 
             return Ok(new SendMailResponse

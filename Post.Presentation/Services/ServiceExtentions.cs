@@ -9,6 +9,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
         public static void AddServices(this IServiceCollection services)
         {
             services.AddScoped<IPostService, PostService>();
+            services.AddScoped<IUserTimelineService, UserTimelineService>();
         }
 
     }

@@ -1,11 +1,7 @@
-﻿using InfinityNetServer.Services.Post.Domain.Entities;
-using InfinityNetServer.Services.Post.Application.DTOs.Requests;
+﻿using InfinityNetServer.Services.Post.Application.DTOs.Requests;
 using InfinityNetServer.Services.Post.Application.DTOs.Responses;
-using System;
+using InfinityNetServer.Services.Post.Domain.Entities;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Post.Application.Helpers
 {
@@ -56,7 +52,7 @@ namespace InfinityNetServer.Services.Post.Application.Helpers
                 FileMetadataId = post.FileMetadataId,
                 SharedPosts = MapSharedPosts(post.SharedPosts),
                 SubPosts = MapSubPosts(post.SubPosts),
-                PostPrivacies = post.PostPrivacies
+                PostPrivacy = post.Privacy
             };
         }
 

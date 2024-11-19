@@ -31,15 +31,15 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
-        public async Task<List<DTOs.Others.FileMetadataIdWithOwnerId>> GetFileMetadataIdsWithOwnerIds()
+        public async Task<List<DTOs.Others.FileMetadataIdWithOwnerId>> GetPreviewFileMetadatas()
         {
             try
             {
                 logger.LogInformation("Starting get file metadata ids with types");
-                var response = await client.getFileMetadataIdsWithOwnerIdsAsync(new Empty());
+                var response = await client.getPreviewFileMetadatasAsync(new Empty());
                 // Call the gRPC server to introspect the token
-                return new List<DTOs.Others.FileMetadataIdWithOwnerId>(response.FileMetadataIdsWithOwnerIds
-                    .Select(_ => mapper.Map<DTOs.Others.FileMetadataIdWithOwnerId>(_)).ToList());
+                return new List<DTOs.Others.FileMetadataIdWithOwnerId>(response.PreviewFileMetadatas
+                    .Select(mapper.Map<DTOs.Others.FileMetadataIdWithOwnerId>).ToList());
             }
             catch (Exception e)
             {

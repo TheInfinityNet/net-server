@@ -1,38 +1,38 @@
-﻿using Grpc.Core;
-using Microsoft.Extensions.Logging;
-using InfinityNetServer.BuildingBlocks.Application.Protos;
-using System.Threading.Tasks;
+﻿using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
-using System.Linq;
-using InfinityNetServer.Services.Post.Domain.Repositories;
+using Grpc.Core;
+using InfinityNetServer.BuildingBlocks.Application.Protos;
 using InfinityNetServer.Services.Post.Application.Services;
-using AutoMapper;
+using InfinityNetServer.Services.Post.Domain.Repositories;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Post.Application.GrpcServices
 {
     public class GrpcPostService(
         ILogger<GrpcPostService> logger,
         IMapper mapper,
-        IPostRepository postRepository, 
         IPostService postService) : PostService.PostServiceBase
     {
 
-        public override async Task<GetPostIdsResponse> getPostIds(Empty request, ServerCallContext context)
+        public override async Task<PostIdsResponse> getPostIds(Empty request, ServerCallContext context)
         {
-            logger.LogInformation("Received getAccountIds request");
-            var response = new GetPostIdsResponse();
-            var posts = await postRepository.GetAllAsync();
-            response.Ids.AddRange(posts.Select(p => p.Id.ToString()).ToList());
+            logger.LogInformation("Received getPostIds request");
+            var response = new PostIdsResponse();
+            var postIds = await postService.GetAllPresentationIds();
+            response.Ids.AddRange(postIds);
 
             return await Task.FromResult(response);
         }
 
-        public override async Task<GetFileMetadataIdsWithTypesResponse> getFileMetadataIdsWithTypes(GetFileMetadataIdsWithTypesRequest request, ServerCallContext context)
+        public override async Task<PreviewFileMetadatasResponse> getPreviewFileMetadatas(PreviewFileMetadatasRequest request, ServerCallContext context)
         {
             logger.LogInformation("Received getFileMetadataIdsWithTypes request");
-            var response = new GetFileMetadataIdsWithTypesResponse();
+            var response = new PreviewFileMetadatasResponse();
             var fileMetadataIdsWithTypes = await postService.GetByType(request.Type.ToString());
-            response.FileMetadataIdsWithTypes.AddRange(fileMetadataIdsWithTypes.Select(p => new FileMetadataIdWithType
+            response.PreviewFileMetadatas.AddRange(fileMetadataIdsWithTypes.Select(p => new PreviewFileMetadata
             {
                 Id = p.Id.ToString(),
                 OwnerId = p.OwnerId.ToString(),
@@ -43,20 +43,21 @@ namespace InfinityNetServer.Services.Post.Application.GrpcServices
             return await Task.FromResult(response);
         }
 
-        public override async Task<GetFileMetadataIdOfPostResponse> getFileMetadataIdOfPost(GetFileMetadataIdOfPostRequest request, ServerCallContext context)
-        {
-            logger.LogInformation("Received getFileMetadataIdOfPost request");
-            var response = new GetFileMetadataIdOfPostResponse();
-            var post = await postService.GetById(request.Id);
-            response.FileMetadataId = post != null ? post.FileMetadataId.ToString() : string.Empty;
-            return await Task.FromResult(response);
-        }
-
-        public override async Task<PreviewPostResponse> getPreviewPost(PreviewPostRequest request, ServerCallContext context)
+        public override async Task<PreviewPostResponse> getPreviewPost(PostRequest request, ServerCallContext context)
         {
             logger.LogInformation("Received previewPost request");
             var post = await postService.GetById(request.Id);
+            post.FileMetadataId ??= Guid.Empty;
             return mapper.Map<PreviewPostResponse>(post);
+        }
+
+        public override async Task<ProfileIdsResponse> whoCantSee(PostRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Received whoCantSee request");
+            var response = new ProfileIdsResponse();
+            var profileIds = await postService.WhoCantSee(request.Id);
+            response.Ids.AddRange(profileIds);
+            return await Task.FromResult(response);
         }
 
     }

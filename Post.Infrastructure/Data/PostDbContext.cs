@@ -1,12 +1,18 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL;
 using InfinityNetServer.Services.Post.Domain.Entities;
+using InfinityNetServer.Services.Post.Domain.Enums;
+using MassTransit.Initializers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,10 +23,17 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
             DbContextOptions<PostDbContext> options,
             IConfiguration configuration,
             IAuthenticatedUserService authenticatedUserService,
-            IMessageBus messageBus) : PostreSqlDbContext<PostDbContext>(options, configuration, authenticatedUserService)
+            CommonRelationshipClient relationshipClient,
+            IMessageBus messageBus) : PostreSqlDbContext<PostDbContext, Guid>(options, configuration, authenticatedUserService)
     {
 
         public DbSet<Domain.Entities.Post> Posts { get; set; }
+
+        public DbSet<PostPrivacy> PostPrivacies { get; set; }
+
+        public DbSet<PostPrivacyInclude> PostPrivacyIncludes { get; set; }
+
+        public DbSet<PostPrivacyExclude> PostPrivacyExcludes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,7 +46,7 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
                 .HasOne(p => p.Parent)
                 .WithMany(post => post.SharedPosts)
                 .HasForeignKey(p => p.ParentId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.SetNull);
 
             post
                 .HasOne(p => p.Presentation)
@@ -55,8 +68,7 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
 
             postPrivacy
                 .HasOne(p => p.Post)
-                .WithMany(post => post.PostPrivacies)
-                .HasForeignKey(p => p.PostId)
+                .WithOne(post => post.Privacy)
                 .OnDelete(DeleteBehavior.Cascade);
 
             postPrivacy.HasIndex(pp => pp.PostId);
@@ -84,41 +96,116 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            var entries = ChangeTracker.Entries<Domain.Entities.Post>();
+            var postEntries = ChangeTracker.Entries<Domain.Entities.Post>();
+            var postPrivacyEntries = ChangeTracker.Entries<PostPrivacy>();
 
             int result = await base.SaveChangesAsync(cancellationToken);
 
             if (result > 0)
             {
-                foreach (var entry in entries)
-                {
-                    Guid id = entry.Entity.Id;
-                    Guid ownerId = entry.Entity.OwnerId;
-                    DateTime createdAt = entry.Entity.CreatedAt;
+                foreach (var entry in postEntries)
+                    await PublishPostNotificationCommands(entry.Entity);
 
-                    // tagged in comment
-                    PostContent content = entry.Entity.Content;
-                    if (content.TagFacets.Count > 0)
-                    {
-                        foreach (var tag in content.TagFacets)
-                        {
-                            Guid taggedProfileId = tag.ProfileId;
-                            await messageBus.Publish(new DomainCommand.PostNotificationCommand
-                            {
-                                Id = Guid.NewGuid(),
-                                TriggeredBy = ownerId.ToString(),
-                                RelatedProfileId = taggedProfileId,
-                                PostId = id,
-                                Type = BuildingBlocks.Domain.Enums.NotificationType.TaggedInPost,
-                                CreatedAt = createdAt
-                            });
-                        }
-                    }
-
-                }
+                //foreach (var entry in postPrivacyEntries)
+                //{
+                //    var post = await Posts.FindAsync(entry.Entity.PostId);
+                //    await PublishUserTimelineCommand(post);
+                //}
             }
             return result;
         }
+
+        private async Task PublishPostNotificationCommands(Domain.Entities.Post entity)
+        {
+            Guid id = entity.Id;
+            Guid ownerId = entity.OwnerId;
+            DateTime createdAt = entity.CreatedAt;
+            PostContent content = entity.Content;
+
+            if (content.TagFacets.Count > 0)
+            {
+                foreach (var tag in content.TagFacets)
+                {
+                    Guid taggedProfileId = tag.ProfileId;
+
+                    var notificationCommand = new DomainCommand.CreatePostNotificationCommand
+                    {
+                        Id = Guid.NewGuid(),
+                        TriggeredBy = ownerId.ToString(),
+                        TargetProfileId = taggedProfileId,
+                        PostId = id,
+                        Type = BuildingBlocks.Domain.Enums.NotificationType.TaggedInPost,
+                        CreatedAt = createdAt
+                    };
+
+                    await messageBus.Publish(notificationCommand);
+                }
+            }
+        }
+
+        private async Task PublishUserTimelineCommand(Domain.Entities.Post entity)
+        {
+            Guid id = entity.Id;
+            Guid ownerId = entity.OwnerId;
+            PostPrivacy privacy = entity.Privacy;
+            DateTime createdAt = entity.CreatedAt;
+
+            IList<string> followerIds = await relationshipClient.GetFollowerIds(ownerId.ToString());
+            IList<string> friendIds = await relationshipClient.GetFriendIds(ownerId.ToString());
+            IList<string> blockerIds = await relationshipClient.GetBlockerIds(ownerId.ToString());
+            IList<string> blockeeIds = await relationshipClient.GetBlockeeIds(ownerId.ToString());
+            IList<string> includeIds = privacy.PostPrivacyIncludes.Select(i => i.ProfileId.ToString()).ToList();
+            IList<string> excludeIds = privacy.PostPrivacyExcludes.Select(i => i.ProfileId.ToString()).ToList();
+
+            //foreach (var profileId in followerIds.Concat(friendIds).Concat(includeIds).Concat(excludeIds).Concat(blockerIds).Concat(blockeeIds).Distinct())
+            //{
+            //    Console.WriteLine(profileId);
+            //}
+
+            IList<Guid> whoCanSee = [];
+
+            switch (privacy.Type)
+            {
+                case PostPrivacyType.Include:
+                    whoCanSee = includeIds.Select(Guid.Parse).ToList();
+                    break;
+
+                case PostPrivacyType.Exclude:
+                    whoCanSee = friendIds.Except(excludeIds).Select(Guid.Parse).ToList();
+                    break;
+
+                case PostPrivacyType.Custom:
+                    whoCanSee = friendIds.Concat(includeIds).Except(excludeIds).Select(Guid.Parse).ToList();
+                    break;
+
+                case PostPrivacyType.Friends:
+                    whoCanSee = friendIds.Select(Guid.Parse).ToList();
+                    break;
+
+                case PostPrivacyType.OnlyMe:
+                    whoCanSee = [ ownerId ];
+                    break;
+            }
+
+            whoCanSee = whoCanSee
+             .Except(blockerIds.Select(Guid.Parse))
+             .Except(blockeeIds.Select(Guid.Parse))
+             .Distinct()
+             .ToList();
+
+            foreach (var profileId in whoCanSee)
+            {
+                var timelineCommand = new DomainCommand.PushPostToTimelineCommand
+                {
+                    ProfileId = profileId,
+                    PostId = id,
+                    CreatedAt = createdAt
+                };
+
+                await messageBus.Publish(timelineCommand);
+            }
+        }
+
     }
 
 }
