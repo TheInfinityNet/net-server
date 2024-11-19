@@ -68,7 +68,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 
             _logger.LogInformation(CultureInfo.CurrentCulture.ToString());
             return Ok(new { Message = _localizer["msg_test", "Ben"].ToString() });*/
-            return Ok(new { Message = GetCurrentUserId().ToString() });
+            return Ok(new { Message = GetCurrentProfileId().ToString() });
         }
 
         /*[HttpGet("seed-data")]

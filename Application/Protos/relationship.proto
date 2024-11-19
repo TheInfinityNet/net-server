@@ -4,7 +4,7 @@ package InfinityNetServer.BuildingBlocks.Application.Protos;
 
 option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
 
-message GetProfilesRelationshipRequest {
+message ProfilesRelationshipRequest {
 
   string currentProfileId = 1;
 
@@ -12,13 +12,13 @@ message GetProfilesRelationshipRequest {
 
 }
 
-message GetProfilesRelationshipResponse {
+message ProfileRelationshipResponse {
 
   bool result = 1;
 
 }
 
-message GetProfileInteractionIdsRequest {
+message ProfileInteractionIdRequest {
 
   string profileId = 1;
 
@@ -32,14 +32,22 @@ message ProfileInteractionIdsResponse {
 
 service RelationshipService {
 
-  rpc hasFriendship(GetProfilesRelationshipRequest) returns (GetProfilesRelationshipResponse) {}
+  rpc hasFriendship(ProfilesRelationshipRequest) returns (ProfileRelationshipResponse) {}
 
-  rpc hasBlocked(GetProfilesRelationshipRequest) returns (GetProfilesRelationshipResponse) {}
+  rpc hasBlocked(ProfilesRelationshipRequest) returns (ProfileRelationshipResponse) {}
 
-  rpc hasFollowed(GetProfilesRelationshipRequest) returns (GetProfilesRelationshipResponse) {}
+  rpc hasFollowed(ProfilesRelationshipRequest) returns (ProfileRelationshipResponse) {}
 
-  rpc hasFriendRequest(GetProfilesRelationshipRequest) returns (GetProfilesRelationshipResponse) {}
+  rpc hasFriendRequest(ProfilesRelationshipRequest) returns (ProfileRelationshipResponse) {}
 
-  rpc getFollowerIds(GetProfileInteractionIdsRequest) returns (ProfileInteractionIdsResponse) {}
+  rpc getFriendIds(ProfileInteractionIdRequest) returns (ProfileInteractionIdsResponse) {}
+
+  rpc getFollowerIds(ProfileInteractionIdRequest) returns (ProfileInteractionIdsResponse) {}
+
+  rpc getFolloweeIds(ProfileInteractionIdRequest) returns (ProfileInteractionIdsResponse) {}
+
+  rpc getBlockerIds(ProfileInteractionIdRequest) returns (ProfileInteractionIdsResponse) {}
+
+  rpc getBlockeeIds(ProfileInteractionIdRequest) returns (ProfileInteractionIdsResponse) {}
 
 }

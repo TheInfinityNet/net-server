@@ -6,9 +6,9 @@ namespace InfinityNetServer.Services.Post.Application.Services
     public interface IPostService
     {
 
-        Task<Domain.Entities.Post> GetById(string id);
+        public Task<Domain.Entities.Post> GetById(string id);
 
-        Task<IList<Domain.Entities.Post>> GetByType(string type);
+        public Task<IList<Domain.Entities.Post>> GetByType(string type);
 
     }
 }

@@ -7,14 +7,14 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Commands
     public static class DomainCommand
     {
 
-        public sealed record PostNotificationCommand : INotificationCommand
+        public sealed record CreatePostNotificationCommand : INotificationCommand
         {
 
-            public Guid Id { get; set; }
+            public Guid Id { get; set; } = Guid.NewGuid();
 
             public NotificationType Type { get; set; }
 
-            public Guid RelatedProfileId { get; set; }
+            public Guid TargetProfileId { get; set; }
 
             public string TriggeredBy { get; set; }
 
@@ -24,14 +24,14 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Commands
 
         }
 
-        public sealed record CommentNotificationCommand : INotificationCommand
+        public sealed record CreateCommentNotificationCommand : INotificationCommand
         {
 
-            public Guid Id { get; set; }
+            public Guid Id { get; set; } = Guid.NewGuid();
 
             public NotificationType Type { get; set; }
 
-            public Guid RelatedProfileId { get; set; }
+            public Guid TargetProfileId { get; set; }
 
             public string TriggeredBy { get; set; }
 
@@ -41,14 +41,14 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Commands
 
         }
 
-        public sealed record FriendshipNotificationCommand : INotificationCommand
+        public sealed record CreateFriendshipNotificationCommand : INotificationCommand
         {
 
-            public Guid Id { get; set; }
+            public Guid Id { get; set; } = Guid.NewGuid();
 
             public NotificationType Type { get; set; }
 
-            public Guid RelatedProfileId { get; set; }
+            public Guid TargetProfileId { get; set; }
 
             public string TriggeredBy { get; set; }
 
@@ -58,18 +58,31 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Commands
 
         }
 
-        public sealed record ProfileFollowNotificationCommand : INotificationCommand
+        public sealed record CreateProfileFollowNotificationCommand : INotificationCommand
         {
 
-            public Guid Id { get; set; }
+            public Guid Id { get; set; } = Guid.NewGuid();
 
             public NotificationType Type { get; set; }
 
-            public Guid RelatedProfileId { get; set; }
+            public Guid TargetProfileId { get; set; }
 
             public string TriggeredBy { get; set; }
 
             public Guid ProfileFollowId { get; set; }
+
+            public DateTime CreatedAt { get; set; }
+
+        }
+
+        public sealed record UpdateUserTimelineCommand : IUserTimelineCommand
+        {
+
+            public Guid ProfileId { get; set; }
+
+            public Guid Id { get; set; } = Guid.NewGuid();
+
+            public Guid PostId { get; set; }
 
             public DateTime CreatedAt { get; set; }
 

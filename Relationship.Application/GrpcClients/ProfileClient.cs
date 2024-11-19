@@ -18,9 +18,9 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting get friends of profile");
-                var response = await client.getPreviewFriendsOfProfileAsync(new GetPreviewFriendsOfProfileRequest
+                var response = await client.getPreviewFriendsAsync(new ProfilesRequest
                 {
-                    FriendIds = { friendIds }
+                    Ids = { friendIds }
                 });
                 return response.Friends.Select(mapper.Map<BuildingBlocks.Application.DTOs.Responses.Profile.UserProfileResponse>).ToList();
             }

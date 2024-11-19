@@ -11,13 +11,19 @@ namespace InfinityNetServer.Services.Relationship.Domain.Repositories
     public interface IFriendshipRepository : ISqlRepository<Friendship, Guid>
     {
 
-        Task<bool> HasFriendship(Guid senderId, Guid receiverId, FriendshipStatus status);
+        Task<bool> HasFriendship(Guid currentProfileId, Guid targetProfileId, FriendshipStatus status);
 
         Task<Friendship> GetByStatus(FriendshipStatus status, Guid senderId, Guid receiverId);
 
+        Task<IList<Friendship>> GetAllMyFriendInvitationsAsync(Guid profile, int? limit);
+
+        Task<IList<Friendship>> GetAllSentFriendInvitationsAsync(Guid profile, int? limit);
+
+        Task<IList<Guid>> GetAllFriendIdsAsync(Guid profile, int? limit);
+
         Task<int> CountFriendshipsAsync(Guid profileId);
 
-        Task<IList<Friendship>> GetFriendshipsWithLimitAsync(Guid profileId, int? limit);
+        Task<IList<Friendship>> GetAllFriendshipsAsync(Guid profileId, int? limit);
         Task<int> GetMutualFriendsCount(Guid profileId, Guid currentProfile);
         Task<IList<Guid>> GetFriendsOfCurrentUserAsync(Guid? currentUserId);
         Task<IList<Guid>> GetMutualFriendsAsync(Guid? currentUserId, IList<Guid> friendsOfCurrentUser);

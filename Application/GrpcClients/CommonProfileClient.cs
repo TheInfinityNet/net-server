@@ -68,7 +68,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting get user profile");
-                var response = await client.getProfileAsync(new GetProfileRequest { Id = id });
+                var response = await client.getProfileAsync(new ProfileRequest { Id = id });
                 return mapper.Map<DTOs.Responses.Profile.BaseProfileResponse>(response);
             }
             catch (Exception e)
@@ -83,7 +83,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting get user profile");
-                var response = await client.getUserProfileAsync(new GetProfileRequest { Id = id });
+                var response = await client.getUserProfileAsync(new ProfileRequest { Id = id });
                 return mapper.Map<DTOs.Responses.Profile.UserProfileResponse>(response);
             }
             catch (Exception e)
@@ -93,12 +93,14 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
-        public async Task<IList<DTOs.Others.ProfileIdWithName>> GetProfileIdsWithNames()
+        public async Task<IList<DTOs.Others.ProfileIdWithName>> GetProfileIdsWithNames(IList<string> ids)
         {
             try
             {
                 logger.LogInformation("Starting get profile ids with name");
-                var response = await client.getProfileIdsWithNamesAsync(new Empty());
+                var request = new ProfilesRequest();
+                request.Ids.AddRange(ids);
+                var response = await client.getProfileIdsWithNamesAsync(request);
                 // Call the gRPC server to introspect the token
                 return new List<DTOs.Others.ProfileIdWithName>(response.ProfileIdsWithNames
                     .Select(mapper.Map<DTOs.Others.ProfileIdWithName>).ToList());

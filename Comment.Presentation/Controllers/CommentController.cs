@@ -10,7 +10,6 @@ using InfinityNetServer.Services.Comment.Application.DTOs.Requests;
 namespace InfinityNetServer.Services.Comment.Presentation.Controllers
 {
     [ApiController]
-    [Route("api/comments")]
     public class CommentController : ControllerBase
     {
         private readonly ICommentService _commentService;
