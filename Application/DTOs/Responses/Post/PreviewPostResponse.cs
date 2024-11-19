@@ -9,6 +9,8 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Post
 
         public Guid OwnerId { get; set; }
 
+        public Guid? FileMetadataId { get; set; }
+
         public string PreviewContent { get; set; }
 
     }

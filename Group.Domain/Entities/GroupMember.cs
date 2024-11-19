@@ -7,11 +7,9 @@ using InfinityNetServer.BuildingBlocks.Domain.Entities;
 namespace InfinityNetServer.Services.Group.Domain.Entities
 {
     [Table("groups_members")]
-    public class GroupMember : AuditEntity
+    public class GroupMember : AuditEntity<Guid>
     {
-        [Key]
-        [Column("id")]
-        public Guid Id { get; set; }
+        public GroupMember() => Id = Guid.NewGuid();
 
         [Column("role")]
         [Required]

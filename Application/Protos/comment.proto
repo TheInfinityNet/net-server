@@ -6,28 +6,14 @@ option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
 
 import "google/protobuf/empty.proto";
 
-message GetCommentIdsResponse {
-  repeated string ids = 1;
-}
-
-message FileMetadataIdWithOwnerId {
-
-	string id = 1;
-
-	string ownerId = 2;
-
-	string fileMetadataId = 3;
-
-}
-
-message GetFileMetadataIdsWithOwnerIdsResponse {
-
-	repeated FileMetadataIdWithOwnerId fileMetadataIdsWithOwnerIds = 1;
-
-}
+import "Protos/base.proto";
 
 message PreviewCommentRequest {
 	string id = 1;
+}
+
+message CommentIdsResponse {
+  repeated string ids = 1;
 }
 
 message PreviewCommentResponse {
@@ -40,13 +26,15 @@ message PreviewCommentResponse {
 
 	string previewContent = 4;
 
+	string fileMetadataId = 5;
+
 }
 
 service CommentService {
 
-	rpc getCommentIds (google.protobuf.Empty) returns (GetCommentIdsResponse) {}
+	rpc getCommentIds (google.protobuf.Empty) returns (CommentIdsResponse) {}
 
-	rpc getFileMetadataIdsWithOwnerIds (google.protobuf.Empty) returns (GetFileMetadataIdsWithOwnerIdsResponse) {}
+	rpc getPreviewFileMetadatas (google.protobuf.Empty) returns (PreviewFileMetadatasResponse) {}
 
 	rpc getPreviewComment (PreviewCommentRequest) returns (PreviewCommentResponse) {}
 

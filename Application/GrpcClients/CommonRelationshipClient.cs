@@ -96,12 +96,12 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting get followers");
-                var response = await client.getFriendIdsAsync(new ProfileInteractionIdRequest
+                var response = await client.getFriendIdsAsync(new ProfileRequest
                 {
-                    ProfileId = profileId
+                    Id = profileId
                 });
                 // Call the gRPC server to introspect the token
-                return response.ProfileInteractionIds;
+                return response.Ids;
             }
             catch (Exception e)
             {
@@ -115,12 +115,12 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting get followers");
-                var response = await client.getFollowerIdsAsync(new ProfileInteractionIdRequest
+                var response = await client.getFollowerIdsAsync(new ProfileRequest
                 {
-                    ProfileId = profileId
+                    Id = profileId
                 });
                 // Call the gRPC server to introspect the token
-                return response.ProfileInteractionIds;
+                return response.Ids;
             }
             catch (Exception e)
             {
@@ -134,12 +134,12 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting get followers");
-                var response = await client.getFolloweeIdsAsync(new ProfileInteractionIdRequest
+                var response = await client.getFolloweeIdsAsync(new ProfileRequest
                 {
-                    ProfileId = profileId
+                    Id = profileId
                 });
                 // Call the gRPC server to introspect the token
-                return response.ProfileInteractionIds;
+                return response.Ids;
             }
             catch (Exception e)
             {
@@ -153,12 +153,12 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting get followers");
-                var response = await client.getBlockerIdsAsync(new ProfileInteractionIdRequest
+                var response = await client.getBlockerIdsAsync(new ProfileRequest
                 {
-                    ProfileId = profileId
+                    Id = profileId
                 });
                 // Call the gRPC server to introspect the token
-                return response.ProfileInteractionIds;
+                return response.Ids;
             }
             catch (Exception e)
             {
@@ -172,12 +172,12 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting get followers");
-                var response = await client.getBlockeeIdsAsync(new ProfileInteractionIdRequest
+                var response = await client.getBlockeeIdsAsync(new ProfileRequest
                 {
-                    ProfileId = profileId
+                    Id = profileId
                 });
                 // Call the gRPC server to introspect the token
-                return response.ProfileInteractionIds;
+                return response.Ids;
             }
             catch (Exception e)
             {

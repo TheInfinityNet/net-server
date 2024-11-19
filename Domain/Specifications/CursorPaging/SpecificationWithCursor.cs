@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging
 {
-    public class MongoSpecificationWithCursor<TEntity>
+    public class SpecificationWithCursor<TEntity>
     {
 
         public Expression<Func<TEntity, bool>> Criteria { get; set; }
@@ -12,7 +12,7 @@ namespace InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging
         // List các điều kiện sắp xếp theo nhiều trường
         public IList<OrderField<TEntity>> OrderFields { get; set; } = [];
 
-        public string? Cursor { get; set; }
+        public string Cursor { get; set; }
 
         public int PageSize { get; set; }
 

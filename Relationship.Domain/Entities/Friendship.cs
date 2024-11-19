@@ -7,11 +7,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace InfinityNetServer.Services.Relationship.Domain.Entities
 {
     [Table("friendships")]
-    public class Friendship : AuditEntity
+    public class Friendship : AuditEntity<Guid>
     {
-        [Key]
-        [Column("id")]
-        public Guid Id { get; set; } = Guid.NewGuid();
+
+        public Friendship() => Id = Guid.NewGuid();
 
         [Column("status")]
         [Required]

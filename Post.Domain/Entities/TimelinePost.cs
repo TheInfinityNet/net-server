@@ -1,5 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 
 namespace InfinityNetServer.Services.Post.Domain.Entities
@@ -7,9 +7,13 @@ namespace InfinityNetServer.Services.Post.Domain.Entities
     public class TimelinePost
     {
 
-        [BsonElement("post_id")]
+        [BsonElement("id")]
         [BsonRepresentation(BsonType.String)]
-        public Guid PostId { get; set; }
+        public Guid Id { get; set; }
+
+        [BsonElement("parent_id")]
+        [BsonRepresentation(BsonType.String)]
+        public Guid? ParentId { get; set; }
 
         [BsonElement("created_at")]
         [BsonRepresentation(BsonType.String)]

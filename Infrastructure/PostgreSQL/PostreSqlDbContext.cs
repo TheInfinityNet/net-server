@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
 {
-    public class PostreSqlDbContext<IDbContext> : DbContext where IDbContext : DbContext
+    public class PostreSqlDbContext<IDbContext, TId> : DbContext where IDbContext : DbContext
     {
 
         private readonly IConfiguration _configuration;
@@ -41,7 +41,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL
 
         private void UpdateAuditFields()
         {
-            var entries = ChangeTracker.Entries<AuditEntity>();
+            var entries = ChangeTracker.Entries<AuditEntity<TId>>();
 
             foreach (var entry in entries)
             {

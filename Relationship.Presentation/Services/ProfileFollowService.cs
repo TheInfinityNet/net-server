@@ -6,8 +6,8 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Relationship.Presentation.Services
 {
@@ -20,15 +20,15 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
         public async Task<bool> HasFollowed(string currentProfileId, string targetProfileId)
             => await profileFollowRepository.GetByFollowerIdAndFolloweeIdAsync(Guid.Parse(currentProfileId), Guid.Parse(targetProfileId)) != null;
 
-        public async Task<IList<string>> GetAllFolloweeIds(string currentProfileId, int? limit)
+        public async Task<IList<string>> GetAllFolloweeIds(string currentProfileId)
         {
-            var followeeIds = await profileFollowRepository.GetAllFolloweeIdsAsync(Guid.Parse(currentProfileId), limit);
+            var followeeIds = await profileFollowRepository.GetAllFolloweeIdsAsync(Guid.Parse(currentProfileId));
             return followeeIds.Select(i => i.ToString()).ToList();
         }
 
-        public async Task<IList<string>> GetAllFollowerIds(string currentProfileId, int? limit)
+        public async Task<IList<string>> GetAllFollowerIds(string currentProfileId)
         {
-            var followerIds = await profileFollowRepository.GetAllFollowerIdsAsync(Guid.Parse(currentProfileId), limit);
+            var followerIds = await profileFollowRepository.GetAllFollowerIdsAsync(Guid.Parse(currentProfileId));
             return followerIds.Select(i => i.ToString()).ToList();
         }
 

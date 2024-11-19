@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
 using Microsoft.AspNetCore.Http;
@@ -104,6 +103,22 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
                 // Call the gRPC server to introspect the token
                 return new List<DTOs.Others.ProfileIdWithName>(response.ProfileIdsWithNames
                     .Select(mapper.Map<DTOs.Others.ProfileIdWithName>).ToList());
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+            }
+        }
+
+        public async Task<IList<string>> GetPotentialProfileIds(string location)
+        {
+            try
+            {
+                logger.LogInformation("Starting get page profile ids");
+                var response = await client.getPotentialProfileIdsAsync(new PotentialProfilesRequest { Location = location });
+                // Call the gRPC server to introspect the token
+                return new List<string>(response.Ids);
             }
             catch (Exception e)
             {

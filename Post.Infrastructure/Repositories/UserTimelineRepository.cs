@@ -5,6 +5,7 @@ using InfinityNetServer.Services.Post.Domain.Repositories;
 using InfinityNetServer.Services.Post.Infrastructure.Data;
 using MongoDB.Driver;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,7 +14,7 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Repositories
     public class UserTimelineRepository(TimelineDbContext dbContext)
         : MongoDbGenericRepository<UserTimeline, Guid>(dbContext), IUserTimelineRepository
     {
-        public async Task<BCursorPagedResult<TimelinePost>> GetUserTimelineAsync(Guid profileId, string? cursor, int pageSize)
+        public async Task<CursorPagedResult<TimelinePost>> GetUserTimelineAsync(Guid profileId, string cursor, int pageSize)
         {
             var filter = Builders<UserTimeline>.Filter.Eq(ut => ut.ProfileId, profileId);
 
@@ -23,7 +24,7 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Repositories
                     Timeline = cursor == null
                         ? userTimeline.Posts.Take(pageSize)
                         : userTimeline.Posts
-                            .Where(post => string.Compare(post.PostId.ToString(), cursor) < 0)
+                            .Where(post => string.Compare(post.Id.ToString(), cursor) < 0)
                             .Take(pageSize)
                 });
 
@@ -33,30 +34,62 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Repositories
                 .FirstOrDefaultAsync();
 
             if (result == null || !result.Timeline.Any())
-                return new BCursorPagedResult<TimelinePost>();
+                return new CursorPagedResult<TimelinePost>();
 
             var posts = result.Timeline.ToList();
-            var nextCursor = posts.Count < pageSize ? null : posts.Last().PostId.ToString();
+            var nextCursor = posts.Count < pageSize ? null : posts.Last().Id.ToString();
 
-            return new BCursorPagedResult<TimelinePost>
+            return new CursorPagedResult<TimelinePost>
             {
                 Items = posts,
                 NextCursor = nextCursor
             };
         }
 
-        public async Task UpdateUserTimelineAsync(Guid profileId, TimelinePost post)
+        public async Task PushPostToTimelineAsync(Guid profileId, TimelinePost post)
         {
-            // Filter to find the user timeline by profileId
+            // Lấy document hiện tại theo profileId
             var filter = Builders<UserTimeline>.Filter.Eq(ut => ut.ProfileId, profileId);
+            var userTimeline = await _collection.Find(filter).FirstOrDefaultAsync();
 
-            // Update to add the new post and keep only the latest 100 posts
+            // Nếu không tồn tại thì khởi tạo
+            var posts = userTimeline?.Posts ?? [];
+
+            // Thêm post mới và sắp xếp theo created_at
+            posts.Add(post);
+            posts = posts.OrderBy(p => p.CreatedAt).Take(100).ToList(); // Giữ tối đa 100 bài mới nhất
+
+            // Update document
             var update = Builders<UserTimeline>.Update
-                .PushEach(ut => ut.Posts,[ post ], slice: -100) // Push new post, keep last 100
+                .Set(ut => ut.Posts, posts) // Cập nhật danh sách bài viết đã sắp xếp
                 .Set(ut => ut.UpdatedAt, DateTime.UtcNow);
 
-            // Perform the update
             await _collection.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
+        }
+
+        public async Task UpdateParentIdAsync(Guid profileId, Guid postId, Guid? parentId)
+        {
+            // Tìm bài đăng theo postId và cập nhật parentId
+            var filter = Builders<UserTimeline>.Filter.And(
+                Builders<UserTimeline>.Filter.Eq(ut => ut.ProfileId, profileId),
+                Builders<UserTimeline>.Filter.ElemMatch(ut => ut.Posts, p => p.Id == postId)
+            );
+
+            var update = Builders<UserTimeline>.Update.Set(p => p.Posts[-1].ParentId, parentId);
+
+            await _collection.UpdateOneAsync(filter, update);
+        }
+
+        public async Task DeletePostFromTimelineAsync(Guid profileId, Guid postId)
+        {
+            // Tìm document theo profileId và xóa bài đăng
+            var filter = Builders<UserTimeline>.Filter.Eq(ut => ut.ProfileId, profileId);
+            var update = Builders<UserTimeline>.Update.PullFilter(
+                ut => ut.Posts,
+                Builders<TimelinePost>.Filter.Eq(p => p.Id, postId)
+            );
+
+            await _collection.UpdateOneAsync(filter, update);
         }
 
         public async Task<bool> IsExists(Guid profileId)

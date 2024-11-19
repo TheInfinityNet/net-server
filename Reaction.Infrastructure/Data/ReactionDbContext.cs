@@ -3,6 +3,7 @@ using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL;
 using InfinityNetServer.Services.Reaction.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System;
 
 namespace InfinityNetServer.Services.Reaction.Infrastructure.Data
 {
@@ -10,12 +11,12 @@ namespace InfinityNetServer.Services.Reaction.Infrastructure.Data
         DbContextOptions<ReactionDbContext> options,
         IConfiguration configuration,
         IAuthenticatedUserService authenticatedUserService) 
-        : PostreSqlDbContext<ReactionDbContext>(options, configuration, authenticatedUserService)
+        : PostreSqlDbContext<ReactionDbContext, Guid>(options, configuration, authenticatedUserService)
     {
 
-        DbSet<PostReaction> PostReactions { get; set; }
+        public DbSet<PostReaction> PostReactions { get; set; }
 
-        DbSet<CommentReaction> CommentReactions { get; set; }
+        public DbSet<CommentReaction> CommentReactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

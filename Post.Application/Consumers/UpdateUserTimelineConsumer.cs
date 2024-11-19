@@ -5,7 +5,7 @@ using MediatR;
 namespace InfinityNetServer.Services.Post.Application.Consumers
 {
     public class UpdateUserTimelineConsumer
-        (ISender sender) : BaseConsumer<DomainCommand.UpdateUserTimelineCommand>(sender)
+        (ISender sender) : BaseConsumer<DomainCommand.PushPostToTimelineCommand>(sender)
     {
 
     }

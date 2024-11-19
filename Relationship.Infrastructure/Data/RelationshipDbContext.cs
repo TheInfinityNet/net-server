@@ -18,7 +18,7 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data
         IConfiguration configuration,
         IAuthenticatedUserService authenticatedUserService,
         IMessageBus messageBus) 
-        : PostreSqlDbContext<RelationshipDbContext>(options, configuration, authenticatedUserService)
+        : PostreSqlDbContext<RelationshipDbContext, Guid>(options, configuration, authenticatedUserService)
     {
 
         public DbSet<Friendship> Friendships { get; set; }

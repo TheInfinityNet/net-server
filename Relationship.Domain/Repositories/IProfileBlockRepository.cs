@@ -11,9 +11,9 @@ namespace InfinityNetServer.Services.Relationship.Domain.Repositories
 
         Task<ProfileBlock> GetByBlockerIdAndBlockeeId(Guid blockerId, Guid blockeeId);
 
-        Task<IList<Guid>> GetAllBlockeeIdsAsync(Guid profileId, int? limit); // get all profiles that was blocked by profileId
+        Task<IList<Guid>> GetAllBlockeeIdsAsync(Guid profileId); // get all profiles that was blocked by profileId
 
-        Task<IList<Guid>> GetAllBlockerIdsAsync(Guid profileId, int? limit); // get all profiles that was blocked by profileId
+        Task<IList<Guid>> GetAllBlockerIdsAsync(Guid profileId); // get all profiles that was blocked by profileId
 
     }
 }

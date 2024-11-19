@@ -4,7 +4,6 @@ using Grpc.Core;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
 using InfinityNetServer.Services.Profile.Application.Exceptions;
 using InfinityNetServer.Services.Profile.Application.Services;
-using InfinityNetServer.Services.Profile.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
@@ -15,8 +14,8 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
 {
     public class GrpcProfileService
         (ILogger<GrpcProfileService> logger, 
-        IUserProfileService userProfileService, 
-        IProfileRepository profileRepository, IMapper mapper) : ProfileService.ProfileServiceBase
+        IUserProfileService userProfileService,
+        IProfileService profileService, IMapper mapper) : ProfileService.ProfileServiceBase
     {
 
         public override async Task<PreviewFriendsResponse> getPreviewFriends(ProfilesRequest request, ServerCallContext context)
@@ -32,7 +31,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
         {
             logger.LogInformation("Received get profile ids request");
             var response = new ProfileIdsResponse();
-            var profiles = await profileRepository.GetAllAsync();
+            var profiles = await profileService.GetAll();
             response.Ids.AddRange(profiles.Select(p => p.Id.ToString()).ToList());
 
             return await Task.FromResult(response);
@@ -42,7 +41,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
         {
             logger.LogInformation("Received get user profile ids request");
             var response = new ProfileIdsResponse();
-            var userProfiles = await profileRepository.GetByType(BuildingBlocks.Domain.Enums.ProfileType.User);
+            var userProfiles = await profileService.GetAllByType(BuildingBlocks.Domain.Enums.ProfileType.User);
             response.Ids.AddRange(userProfiles.Select(p => p.Id.ToString()).ToList());
 
             return await Task.FromResult(response);
@@ -52,7 +51,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
         {
             logger.LogInformation("Received get page profile ids request");
             var response = new ProfileIdsResponse();
-            var pageProfiles = await profileRepository.GetByType(BuildingBlocks.Domain.Enums.ProfileType.Page);
+            var pageProfiles = await profileService.GetAllByType(BuildingBlocks.Domain.Enums.ProfileType.Page);
             response.Ids.AddRange(pageProfiles.Select(p => p.Id.ToString()).ToList());
 
             return await Task.FromResult(response);
@@ -61,7 +60,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
         public override async Task<ProfileResponse> getProfile(ProfileRequest request, ServerCallContext context)
         {
             logger.LogInformation("GetProfile called with ProfileId: {ProfileId}", request.Id);
-            var source = await profileRepository.GetByIdAsync(Guid.Parse(request.Id));
+            var source = await profileService.GetById(request.Id);
             string name = source.Type switch
             {
                 BuildingBlocks.Domain.Enums.ProfileType.User => source.UserProfile.FirstName + " " + (source.UserProfile.MiddleName != null ? source.UserProfile.MiddleName + " " : "") + source.UserProfile.LastName,
@@ -88,7 +87,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
         {
             logger.LogInformation("Received get profile ids with name request");
             var response = new ProfileIdsWithNamesResponse();
-            var profiles = await profileRepository.GetByIdsAsync(request.Ids.Select(Guid.Parse).ToList());
+            var profiles = await profileService.GetByIds(request.Ids);
             response.ProfileIdsWithNames.AddRange(profiles.Select(p => new ProfileIdWithName
             {
                 Id = p.Id.ToString(),
@@ -96,6 +95,16 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
                 ? p.UserProfile.FirstName + " " + (p.UserProfile.MiddleName != null ? p.UserProfile.MiddleName + " " : "") + p.UserProfile.LastName
                 : p.PageProfile.Name
             }).ToList());
+
+            return await Task.FromResult(response);
+        }
+
+        public override async Task<ProfileIdsResponse> getPotentialProfileIds(PotentialProfilesRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Received get potential profiles request");
+            var response = new ProfileIdsResponse();
+            var profiles = await profileService.GetPotentialByLocation(request.Location, request.Limit);
+            response.Ids.AddRange(profiles.Select(p => p.Id.ToString()).ToList());
 
             return await Task.FromResult(response);
         }

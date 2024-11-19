@@ -10,9 +10,9 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
 
         Task<bool> HasFollowed(string currentProfileId, string targetProfileId);
 
-        Task<IList<string>> GetAllFollowerIds(string currentProfileId, int? limit);
+        Task<IList<string>> GetAllFollowerIds(string currentProfileId);
 
-        Task<IList<string>> GetAllFolloweeIds(string currentProfileId, int? limit);
+        Task<IList<string>> GetAllFolloweeIds(string currentProfileId);
 
     }
 }

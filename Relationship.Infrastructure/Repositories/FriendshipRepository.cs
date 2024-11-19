@@ -29,28 +29,24 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
             => await context.Friendships.FirstOrDefaultAsync(f =>
                     f.SenderId.Equals(senderId) && f.ReceiverId.Equals(receiverId) && f.Status == status);
 
-        public async Task<IList<Friendship>> GetAllMyFriendInvitationsAsync(Guid profile, int? limit)
-        {
-            var query = context.Friendships.Where(f => f.ReceiverId == profile && f.Status == FriendshipStatus.Pending);
-            if (limit.HasValue) query = query.Take(limit.Value);
-            return await query.ToListAsync();
-        }
+        //public async Task<IList<Friendship>> GetAllMyFriendInvitationsAsync(Guid profile, int? limit)
+        //{
+        //    var query = context.Friendships.Where(f => f.ReceiverId == profile && f.Status == FriendshipStatus.Pending);
+        //    if (limit.HasValue) query = query.Take(limit.Value);
+        //    return await query.ToListAsync();
+        //}
 
-        public async Task<IList<Friendship>> GetAllSentFriendInvitationsAsync(Guid profile, int? limit)
-        {
-            var query = context.Friendships.Where(f => f.SenderId == profile && f.Status == FriendshipStatus.Pending);
-            if (limit.HasValue) query = query.Take(limit.Value);
-            return await query.ToListAsync();
-        }
+        //public async Task<IList<Friendship>> GetAllSentFriendInvitationsAsync(Guid profile, int? limit)
+        //{
+        //    var query = context.Friendships.Where(f => f.SenderId == profile && f.Status == FriendshipStatus.Pending);
+        //    if (limit.HasValue) query = query.Take(limit.Value);
+        //    return await query.ToListAsync();
+        //}
 
-        public async Task<IList<Guid>> GetAllFriendIdsAsync(Guid profile, int? limit)
-        {
-            var query = context.Friendships
+        public async Task<IList<Guid>> GetAllFriendIdsAsync(Guid profile)
+            => await context.Friendships
                 .Where(f => (f.SenderId == profile || f.ReceiverId == profile) && f.Status == FriendshipStatus.Connected)
-                .Select(f => f.SenderId == profile ? f.ReceiverId : f.SenderId);
-            if (limit.HasValue) query = query.Take(limit.Value);
-            return await query.ToListAsync();
-        }
+                .Select(f => f.SenderId == profile ? f.ReceiverId : f.SenderId).ToListAsync();
 
         public async Task<IList<Friendship>> GetAllFriendshipsAsync(Guid profileId, int? limit)
             => await context.Friendships

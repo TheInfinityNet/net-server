@@ -16,7 +16,7 @@ namespace InfinityNetServer.Services.Notification.Application.Services
 
         Task<Domain.Entities.Notification> GetById(string id);
 
-        Task<BCursorPagedResult<Domain.Entities.Notification>> GetNewestNotifications(string accountId, string? cursor, int pageSize = 10);
+        Task<CursorPagedResult<Domain.Entities.Notification>> GetNewestNotifications(string accountId, string? cursor, int pageSize = 10);
 
     }
 }

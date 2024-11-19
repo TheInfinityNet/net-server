@@ -1,18 +1,17 @@
-﻿using InfinityNetServer.Services.Post.Domain.Enums;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Entities;
+using InfinityNetServer.Services.Post.Domain.Enums;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using InfinityNetServer.BuildingBlocks.Domain.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InfinityNetServer.Services.Post.Domain.Entities
 {
     [Table("post_privacies")]
-    public class PostPrivacy : AuditEntity
+    public class PostPrivacy : AuditEntity<Guid>
     {
-        [Key]
-        [Column("id")]
-        public Guid Id { get; set; } = Guid.NewGuid();
+
+        public PostPrivacy() => Id = Guid.NewGuid();
 
         [Column("post_id")]
         public Guid PostId { get; set; }

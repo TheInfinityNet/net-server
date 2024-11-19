@@ -8,9 +8,9 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
 
         public Task<bool> HasBlocked(string currentProfileId, string targetProfileId);
 
-        public Task<IList<string>> GetBlockerIds(string profileId, int? limit);
+        public Task<IList<string>> GetBlockerIds(string profileId);
 
-        public Task<IList<string>> GetBlockeeIds(string profileId, int? limit);
+        public Task<IList<string>> GetBlockeeIds(string profileId);
 
     }
 }

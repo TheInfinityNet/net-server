@@ -1,13 +1,12 @@
 ﻿
 using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
-using InfinityNetServer.Services.File.Application.GrpcClients;
 using InfinityNetServer.Services.File.Application.Services;
 using InfinityNetServer.Services.File.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,7 +16,7 @@ namespace InfinityNetServer.Services.File.Application.Usecases
         (ILogger<CreateVideoMetadataEventHandler> logger,
         IBaseRedisService<string, VideoMetadata> baseRedisService,
         IMinioClientService minioClientService,
-        PostClient postClient,
+        CommonPostClient postClient,
         IVideoMetadataService videoMetadataService) : IRequestHandler<DomainEvent.VideoMetadataEvent>
     {
 
@@ -29,10 +28,10 @@ namespace InfinityNetServer.Services.File.Application.Usecases
 
             VideoMetadata videoMetadata = await baseRedisService.GetAsync(tempId);
 
-            Guid fileMetadataId = await postClient.GetFileMetadataIdOfPost(request.OwnerId.ToString());
-            logger.LogInformation("File metadata id: {fileMetadataId}", fileMetadataId);
+            var previewPostResponse = await postClient.GetPreviewPost(request.OwnerId.ToString());
+            logger.LogInformation("File metadata id: {fileMetadataId}", previewPostResponse.FileMetadataId.Value);
 
-            if (fileMetadataId.Equals(string.Empty))
+            if (previewPostResponse.FileMetadataId == null)
             {
                 await videoMetadataService.Create(new VideoMetadata
                 {
@@ -55,7 +54,7 @@ namespace InfinityNetServer.Services.File.Application.Usecases
             }
             else
             {
-                VideoMetadata existedVideoMetadata = await videoMetadataService.GetById(fileMetadataId.ToString());
+                VideoMetadata existedVideoMetadata = await videoMetadataService.GetById(previewPostResponse.FileMetadataId.Value.ToString());
                 await minioClientService.DeleteObject("infinity-net-bucket", existedVideoMetadata.Name);
                 await minioClientService.DeleteObject("infinity-net-bucket", existedVideoMetadata.Thumbnail.Name);
 

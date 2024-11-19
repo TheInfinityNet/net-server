@@ -57,8 +57,7 @@ public static class DbInitialization
                 var accountProviders = GenerateAccountProviders(account, 1); 
                 await accountProviderRepository.CreateAsync(accountProviders);
             }
-            var verifications = GenerateVerifications(
-                (new Faker()).PickRandom(accounts), 50);
+            var verifications = GenerateVerifications(new Faker().PickRandom(accounts), 50);
             await verificationRepository.CreateAsync(verifications);
         }
     }

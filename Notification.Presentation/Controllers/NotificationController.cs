@@ -35,7 +35,7 @@ namespace InfinityNetServer.Services.Notification.Presentation.Controllers
             var notifications = await notificationService
                 .GetNewestNotifications(GetCurrentAccountId().Value.ToString(), cursor);
 
-            BCursorPagedResult<NotificationResponse> response = new()
+            CursorPagedResult<NotificationResponse> response = new()
             {
                 Items = notifications.Items.Select(n => {
                     var response = mapper.Map<NotificationResponse>(n);

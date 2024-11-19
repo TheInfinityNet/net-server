@@ -11,9 +11,9 @@ namespace InfinityNetServer.Services.Relationship.Domain.Repositories
 
         Task<ProfileFollow> GetByFollowerIdAndFolloweeIdAsync(Guid followerId, Guid followeeId);
 
-        Task<IList<Guid>> GetAllFolloweeIdsAsync(Guid profileId, int? limit);
+        Task<IList<Guid>> GetAllFolloweeIdsAsync(Guid profileId);
 
-        Task<IList<Guid>> GetAllFollowerIdsAsync(Guid profileId, int? limit);
+        Task<IList<Guid>> GetAllFollowerIdsAsync(Guid profileId);
 
     }
 }

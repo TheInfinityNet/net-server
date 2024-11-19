@@ -1,6 +1,6 @@
 ﻿namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Others
 {
-    public class FileMetadataIdWithType
+    public class PreviewFileMetadata
     {
 
         public string Id { get; set; }

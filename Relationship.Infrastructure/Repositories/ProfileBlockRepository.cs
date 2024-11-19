@@ -17,23 +17,11 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
         public async Task<ProfileBlock> GetByBlockerIdAndBlockeeId(Guid blockerId, Guid blockeeId)
             => await context.ProfileBlocks.FirstOrDefaultAsync(i => i.BlockerId == blockerId && i.BlockeeId == blockeeId);
 
-        public async Task<IList<Guid>> GetAllBlockeeIdsAsync(Guid profileId, int? limit)
-        {
-            var query = context.ProfileBlocks.Where(i => i.BlockerId == profileId).Select(i => i.BlockeeId);
+        public async Task<IList<Guid>> GetAllBlockeeIdsAsync(Guid profileId)
+            => await context.ProfileBlocks.Where(i => i.BlockerId == profileId).Select(i => i.BlockeeId).ToListAsync();
 
-            if (limit.HasValue) query = query.Take(limit.Value);
-
-            return await query.ToListAsync();
-        }
-
-        public async Task<IList<Guid>> GetAllBlockerIdsAsync(Guid profileId, int? limit)
-        {
-            var query = context.ProfileBlocks.Where(i => i.BlockeeId == profileId).Select(i => i.BlockerId);
-
-            if (limit.HasValue) query = query.Take(limit.Value);
-
-            return await query.ToListAsync();
-        }
+        public async Task<IList<Guid>> GetAllBlockerIdsAsync(Guid profileId)
+            => await context.ProfileBlocks.Where(i => i.BlockeeId == profileId).Select(i => i.BlockerId).ToListAsync();
 
     }
 }

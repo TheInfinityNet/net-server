@@ -14,7 +14,7 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
 
         public Task<Friendship> GetByStatus(FriendshipStatus status, string senderId, string receiverId);
 
-        public Task<IList<string>> GetFriendIds(string profile, int? limit);
+        public Task<IList<string>> GetFriendIds(string profile);
 
         public Task<int> CountFriendships(string profileId);
 

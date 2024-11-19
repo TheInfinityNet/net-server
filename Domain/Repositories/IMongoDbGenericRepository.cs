@@ -20,7 +20,7 @@ namespace InfinityNetServer.BuildingBlocks.Domain.Repositories
 
         public Task<long> CountAsync();
 
-        public Task<BCursorPagedResult<TEntity>> GetPagedDataAsync(string? cursor, MongoSpecificationWithCursor<TEntity> specification); 
+        public Task<CursorPagedResult<TEntity>> GetPagedDataAsync(string cursor, SpecificationWithCursor<TEntity> specification); 
 
     }
 }
