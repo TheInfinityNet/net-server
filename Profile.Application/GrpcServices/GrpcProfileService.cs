@@ -109,5 +109,34 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
             return await Task.FromResult(response);
         }
 
+        public override async Task<PreviewFileMetadatasResponse> getPreviewFileMetadatas(Empty request, ServerCallContext context)
+        {
+            logger.LogInformation("Received getFileMetadataIdsWithTypes request");
+            var response = new PreviewFileMetadatasResponse();
+            var comments = await profileService.GetAll();
+            response.PreviewFileMetadatas.AddRange(
+                 comments.SelectMany(p =>
+                 {
+                     var avatar = new PreviewFileMetadata
+                     {
+                         Id = p.Id.ToString(),
+                         OwnerId = p.Id.ToString(),
+                         FileMetadataId = p.AvatarId.ToString()
+                     };
+                     var cover = new PreviewFileMetadata
+                     {
+                         Id = p.Id.ToString(),
+                         OwnerId = p.Id.ToString(),
+                         FileMetadataId = p.CoverId.ToString()
+                     };
+
+                     // Trả về danh sách gồm avatar và cover
+                     return new[] { avatar, cover };
+                 })
+             );
+
+            return await Task.FromResult(response);
+        }
+
     }
 }

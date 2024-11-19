@@ -32,6 +32,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         IVideoMetadataService videoMetadataService,
         IBaseRedisService<string, PhotoMetadata> redisServiceForPhoto,
         IBaseRedisService<string, VideoMetadata> redisServiceForVideo,
+        CommonProfileClient profileClient,
         CommonPostClient postClient,
         CommonCommentClient commentClient,
         IMinioClientService minioClientService) : BaseApiController(authenticatedUserService) 
@@ -87,7 +88,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         [HttpGet("seed/posts/videos")]
         public async Task<IActionResult> SeedDataForPostVideo()
         {
-            await minioClientService.DeleteAllObjectsInBucket(MAIN_BUCKET_NAME);
+            //await minioClientService.DeleteAllObjectsInBucket(MAIN_BUCKET_NAME);
             var fileMetadataIdsWithTypes = await postClient.GetPreviewFileMetadatas(BuildingBlocks.Application.Protos.PostType.Video);
 
             foreach (var fileMetadataIdWithType in fileMetadataIdsWithTypes)
@@ -160,6 +161,51 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         {
             //await minioClientService.DeleteAllObjectsInBucket(MAIN_BUCKET_NAME);
             var fileMetadataIdsWithOwnerIds = await commentClient.GetPreviewFileMetadatas();
+
+            foreach (var fileMetadataIdWithOwnerId in fileMetadataIdsWithOwnerIds)
+            {
+                int ramdomIndex = new Random().Next(1, 9);
+                string filePath = FAKE_PHOTOS_FOLDER_PATH + $"\\photo{ramdomIndex}.jpg";
+                string fileName = GenerateFileName("image", "jpg");
+                string contentType = GetContentType(filePath);
+
+                int width;
+                int height;
+                long size;
+                using (FileStream stream = System.IO.File.OpenRead(filePath))
+                {
+                    (width, height) = await GetImageDimensionsAsync(stream);
+                    size = stream.Length;
+                    stream.Position = 0;
+
+                    await minioClientService.StoreObject(MAIN_BUCKET_NAME, stream, fileName, contentType);
+                }
+
+                await photoMetadataService.Create(new PhotoMetadata
+                {
+                    Id = Guid.Parse(fileMetadataIdWithOwnerId.FileMetadataId),
+                    Type = FileMetadataType.Photo,
+                    Name = fileName,
+                    Width = width,
+                    Height = height,
+                    Size = size,
+                    OwnerId = Guid.Parse(fileMetadataIdWithOwnerId.Id),
+                    CreatedBy = Guid.Parse(fileMetadataIdWithOwnerId.OwnerId),
+                });
+            }
+
+            return Ok(new
+            {
+                Message = "Data seeded successfully"
+            });
+        }
+
+        [EndpointDescription("Seed data for profile")]
+        [HttpGet("seed/profiles")]
+        public async Task<IActionResult> SeedDataForProfiles()
+        {
+            //await minioClientService.DeleteAllObjectsInBucket(MAIN_BUCKET_NAME);
+            var fileMetadataIdsWithOwnerIds = await profileClient.GetPreviewFileMetadatas();
 
             foreach (var fileMetadataIdWithOwnerId in fileMetadataIdsWithOwnerIds)
             {

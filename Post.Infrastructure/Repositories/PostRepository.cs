@@ -16,7 +16,7 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Repositories
             => await context.Posts.Where(p => p.PresentationId == null).Select(p => p.Id).ToListAsync();
 
         public async Task<IList<Domain.Entities.Post>> GetAllPresentationPostsAsync()
-            => await context.Posts.Where(p => p.PresentationId == null).ToListAsync();
+            => await context.Posts.Where(p => p.PresentationId == null && p.ParentId == null).ToListAsync();
 
         public async Task<IList<Domain.Entities.Post>> GetAllSharePostsAsync()
             => await context.Posts.Where(p => p.ParentId != null).ToListAsync();

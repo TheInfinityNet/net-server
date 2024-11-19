@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
+using System.Collections.Generic;
 
 namespace InfinityNetServer.Services.Post.Application.DTOs.Orther
 {

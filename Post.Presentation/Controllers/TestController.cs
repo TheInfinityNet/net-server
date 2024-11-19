@@ -13,6 +13,7 @@ using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.Post.Application;
 using InfinityNetServer.Services.Post.Application.DTOs.Responses;
 using InfinityNetServer.Services.Post.Application.Services;
+using InfinityNetServer.Services.Post.Domain.Enums;
 using InfinityNetServer.Services.Post.Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -127,25 +128,29 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
 
                     // Process each tag facet asynchronously
                     var tagFacets = postResponse.Content.TagFacets;
-                    var updatedFacets = await Task.WhenAll(tagFacets.Select(async t =>
+                    postResponse.Content.TagFacets = [.. (await Task.WhenAll(tagFacets.Select(async t =>
                     {
                         var profile = await profileClient.GetProfile(t.Profile.Id.ToString());
                         t.Profile = mapper.Map<PreviewProfileResponse>(profile);
                         return t; // Return the updated TagFacet
-                    }));
+                    })))];
 
-                    // Update the TagFacets
-                    postResponse.Content.TagFacets = [.. updatedFacets];
-
+                    // Process the owner
                     var owner = await profileClient.GetProfile(postResponse.Owner.Id.ToString());
+                    postResponse.Owner = owner;
+
+                    // Fetch avatar and cover
                     var avatar = await fileClient.GetPhotoMetadata(owner.Avatar.Id.ToString());
                     var cover = await fileClient.GetPhotoMetadata(owner.Cover.Id.ToString());
-                    postResponse.Owner = owner;
+
+                    postResponse.Owner.Avatar = avatar;
+                    postResponse.Owner.Cover = cover;
 
                     return postResponse;
                 })),
                 NextCursor = result.NextCursor
             };
+
 
             return Ok(response);
 

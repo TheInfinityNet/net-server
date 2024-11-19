@@ -56,6 +56,11 @@ message ProfileResponse {
 
 	string location = 11;
 
+	google.protobuf.Timestamp createdAt = 12;
+
+	google.protobuf.Timestamp updatedAt = 13;
+
+	google.protobuf.Timestamp deletedAt = 14;
 }
 
 message UserProfileResponse {
@@ -119,5 +124,7 @@ service ProfileService {
 	rpc getProfileIdsWithNames(ProfilesRequest) returns (ProfileIdsWithNamesResponse) {}
 
 	rpc getPotentialProfileIds(PotentialProfilesRequest) returns (ProfileIdsResponse) {}
+
+	rpc getPreviewFileMetadatas (google.protobuf.Empty) returns (PreviewFileMetadatasResponse) {}
 
 }

@@ -127,5 +127,22 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
+        public async Task<List<DTOs.Others.PreviewFileMetadata>> GetPreviewFileMetadatas()
+        {
+            try
+            {
+                logger.LogInformation("Starting get file metadata ids with types");
+                var response = await client.getPreviewFileMetadatasAsync(new Empty());
+                // Call the gRPC server to introspect the token
+                return new List<DTOs.Others.PreviewFileMetadata>(response.PreviewFileMetadatas
+                    .Select(mapper.Map<DTOs.Others.PreviewFileMetadata>).ToList());
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+            }
+        }
+
     }
 }

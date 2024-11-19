@@ -1,4 +1,4 @@
-﻿namespace InfinityNetServer.Services.Post.Application.DTOs.Orther
+﻿namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Others
 {
     public record BaseFacet
     {

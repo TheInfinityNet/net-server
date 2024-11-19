@@ -5,6 +5,7 @@ using InfinityNetServer.Services.Post.Application;
 using InfinityNetServer.Services.Post.Application.DTOs.Requests;
 using InfinityNetServer.Services.Post.Application.Helpers;
 using InfinityNetServer.Services.Post.Application.Services;
+using InfinityNetServer.Services.Post.Domain.Entities;
 using InfinityNetServer.Services.Post.Domain.Enums;
 using InfinityNetServer.Services.Post.Domain.Repositories;
 using MassTransit.Initializers;
@@ -120,15 +121,36 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
             var profile = await profileClient.GetProfile(profileId);
             IList<string> followeeIds = await relationshipClient.GetFolloweeIds(profileId);
             IList<string> friendIds = await relationshipClient.GetFriendIds(profileId);
-            IList<string> potentialProfileIds = await profileClient.GetPotentialProfileIds(profile.Location);
-            potentialProfileIds.Add(profileId);
+            IList<string> blockerIds = await relationshipClient.GetBlockerIds(profileId.ToString());
+            IList<string> blockeeIds = await relationshipClient.GetBlockeeIds(profileId.ToString());
 
+            Guid profileUuid = Guid.Parse(profileId);
             var specification = new SpecificationWithCursor<Domain.Entities.Post>
             {
-                Criteria = x => 
-                            x.PresentationId == null 
-                            && followeeIds.Concat(friendIds).Concat(potentialProfileIds).Take(200).Contains(x.OwnerId.ToString()) 
-                            && x.Audience.Excludes.All(i => i.ProfileId.ToString() != profileId) == true,
+                Criteria = post =>
+                        post.Presentation == null
+
+                        && (post.Audience.Type == PostAudienceType.Public 
+
+                            || (post.Audience.Type == PostAudienceType.OnlyMe && post.OwnerId.Equals(profileUuid))
+
+                            || (post.Audience.Type == PostAudienceType.Include 
+                                && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid)) 
+                                && friendIds.Contains(post.OwnerId.ToString()))
+
+                            || (post.Audience.Type == PostAudienceType.Exclude 
+                                && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid)) 
+                                && friendIds.Contains(post.OwnerId.ToString()))
+
+                            || (post.Audience.Type == PostAudienceType.Custom 
+                                && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid)) 
+                                && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))))
+
+                        && (post.OwnerId.Equals(profileId) 
+                            || friendIds.Contains(post.OwnerId.ToString()) || followeeIds.Contains(post.OwnerId.ToString()))
+
+                        && !blockerIds.Concat(blockeeIds).Contains(post.OwnerId.ToString()),
+
                 OrderFields = [
                         new OrderField<Domain.Entities.Post>
                         {

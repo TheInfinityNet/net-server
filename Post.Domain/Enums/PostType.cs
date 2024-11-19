@@ -11,7 +11,11 @@
 
         Photo,
 
-        //Audio
+        Audio,
+
+        File,
+
+        MultiMedia
 
     }
 

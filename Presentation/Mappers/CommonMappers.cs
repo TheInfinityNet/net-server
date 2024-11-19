@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
@@ -144,6 +145,13 @@ public class CommonMappers : Profile
                 dest.Type = src.Type.ToString(); // Chuyển enum sang string
             });
 
+        CreateMap<Domain.Entities.TagFacet, TagFacet>()
+            .AfterMap((src, dest) => {
+                dest.Type = src.Type.ToString();
+                dest.Profile = new PreviewProfileResponse { Id = src.ProfileId };
+                dest.Index = new FacetIndex { Start = src.Start, End = src.End };
+            });
+
         CreateMap<Application.Protos.PreviewPostResponse, Application.DTOs.Responses.Post.PreviewPostResponse>()
             .AfterMap((src, dest) =>
             {
@@ -156,12 +164,12 @@ public class CommonMappers : Profile
                 if (src.FileMetadataId.Equals(Guid.Empty)) dest.FileMetadataId = null;
             });
 
-        CreateMap<Application.Protos.AccountWithDefaultProfile, Application.DTOs.Others.AccountWithDefaultProfile>();
+        CreateMap<Application.Protos.AccountWithDefaultProfile, AccountWithDefaultProfile>();
 
-        CreateMap<Application.Protos.GroupMemberWithGroup, Application.DTOs.Others.GroupMemberWithGroup>();
+        CreateMap<Application.Protos.GroupMemberWithGroup, GroupMemberWithGroup>();
 
-        CreateMap<Application.Protos.ProfileIdWithName, Application.DTOs.Others.ProfileIdWithName>();
+        CreateMap<Application.Protos.ProfileIdWithName, ProfileIdWithName>();
 
-        CreateMap<Application.Protos.PreviewFileMetadata, Application.DTOs.Others.PreviewFileMetadata>();
+        CreateMap<Application.Protos.PreviewFileMetadata, PreviewFileMetadata>();
     }
 }
