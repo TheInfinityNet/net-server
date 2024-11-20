@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(PostDbContext))]
-    [Migration("20241119073532_InitialMigration")]
+    [Migration("20241120043637_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -84,7 +84,7 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
 
                     b.Property<int>("Type")
                         .HasColumnType("integer")
-                        .HasColumnName("post_type");
+                        .HasColumnName("type");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")

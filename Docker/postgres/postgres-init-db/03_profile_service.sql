@@ -6,7 +6,7 @@
 -- Dumped from database version 12.20 (Debian 12.20-1.pgdg110+1)
 -- Dumped by pg_dump version 12.20
 
--- Started on 2024-11-14 15:09:22 UTC
+-- Started on 2024-11-20 15:28:01 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -856,7 +856,7 @@ ALTER TABLE ONLY public.user_profiles
     ADD CONSTRAINT "FK_user_profiles_profiles_id" FOREIGN KEY (id) REFERENCES public.profiles(id) ON DELETE CASCADE;
 
 
--- Completed on 2024-11-14 15:09:22 UTC
+-- Completed on 2024-11-20 15:28:01 UTC
 
 --
 -- PostgreSQL database dump complete

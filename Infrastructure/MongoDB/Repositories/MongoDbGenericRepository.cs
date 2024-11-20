@@ -17,7 +17,6 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB.Repositories
 
         public virtual async Task CreateAsync(TEntity entity)
         {
-            if (entity.CreatedAt == null) entity.CreatedAt = DateTime.Now;
             await _collection.InsertOneAsync(entity);
         }
 

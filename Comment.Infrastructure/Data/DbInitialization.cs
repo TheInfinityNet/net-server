@@ -1,7 +1,6 @@
 ﻿using Bogus;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
-using InfinityNetServer.BuildingBlocks.Domain.Entities;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Comment.Domain.Entities;
 using InfinityNetServer.Services.Comment.Domain.Repositories;
@@ -14,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TagFacet = InfinityNetServer.BuildingBlocks.Domain.Entities.TagFacet;
 
 namespace InfinityNetServer.Services.Comment.Infrastructure.Data;
 
@@ -41,7 +41,7 @@ public static class DbInitialization
 
     }
 
-    public static async void SeedEssentialData(this IServiceProvider serviceProvider, int numberOfComments)
+    public static async void SeedEssentialData(this IServiceProvider serviceProvider)
     {
         using var serviceScope = serviceProvider.CreateScope();
         serviceScope.ServiceProvider.GetService<CommentDbContext>();
@@ -54,19 +54,16 @@ public static class DbInitialization
         if (existingCommentCount.Count == 0)
         {
             IList<string> postIds = await postClient.GetPostIds();
-            Console.WriteLine("PostIds: " + postIds.Count);
-            var comments = await GenerateComments(numberOfComments, postIds, postClient, profileClient, relationshipClient);
+            var comments = await GenerateComments(postIds, postClient, profileClient, relationshipClient);
             await commentRepository.CreateAsync(comments);
 
             var parentComments = await commentRepository.GetAllAsync();
-            var repliedComments = await GenerateRepliedComments(numberOfComments, 
-                parentComments, postClient, profileClient, relationshipClient);
+            var repliedComments = await GenerateRepliedComments(parentComments, postClient, profileClient, relationshipClient);
             await commentRepository.CreateAsync(repliedComments);
         }
     }
 
     private static async Task<IList<Domain.Entities.Comment>> GenerateComments(
-        int count,
         IList<string> postIds,
         CommonPostClient postClient,
         CommonProfileClient profileClient,
@@ -78,117 +75,130 @@ public static class DbInitialization
         // Gọi API một lần để lấy tất cả các người không thể xem các bài đăng
         var whoCantSeeDict = await GetWhoCantSeeForAllPosts(postIds, postClient);
 
+        // Danh sách comment sẽ được trả về
         var comments = new List<Domain.Entities.Comment>();
-        var faker = new Faker<Domain.Entities.Comment>()
-            .RuleFor(c => c.PostId, f => Guid.Parse(f.PickRandom(postIds)))
+
+        // Faker cho comment
+        var commentsFaker = new Faker<Domain.Entities.Comment>()
             .CustomInstantiator(f => new Domain.Entities.Comment
             {
                 FileMetadataId = f.Random.Bool() ? Guid.NewGuid() : null,
                 CreatedAt = f.Date.Recent(f.Random.Int(1, 365))
             });
 
-        // Sinh ra các comment cho mỗi bài đăng
-        foreach (var _ in Enumerable.Range(0, count))
+        // Faker để chọn ngẫu nhiên 70% bài post
+        var faker = new Faker();
+        var selectedPostIds = faker.PickRandom(postIds, (int)(postIds.Count * 0.7)).ToList();
+
+        // Sinh comment cho từng bài post được chọn
+        foreach (var postId in selectedPostIds)
         {
-            var comment = faker.Generate();
+            // Random số lượng comment cho bài post này
+            int numComments = faker.Random.Int(10, 20);
 
             // Lấy danh sách người không thể xem bài đăng
-            if (!whoCantSeeDict.TryGetValue(comment.PostId.ToString(), out var whoCantSeeIds))
-            {
+            if (!whoCantSeeDict.TryGetValue(postId, out var whoCantSeeIds))
                 whoCantSeeIds = []; // Nếu không có thông tin, mặc định là không có ai bị cấm
-            }
 
             // Loại bỏ các profile không thể xem bài đăng này
             var validProfileIds = profileIds.Select(Guid.Parse).Except(whoCantSeeIds).ToList();
 
-            if (validProfileIds.Count == 0) break;
+            // Bỏ qua nếu không có profile hợp lệ
+            if (validProfileIds.Count == 0) continue;
 
-            Faker mFaker = new();
-            // Gán profile cho comment
-            comment.ProfileId = mFaker.PickRandom(validProfileIds);
-            comment.CreatedBy = comment.ProfileId;
+            // Tạo comment
+            foreach (var _ in Enumerable.Range(0, numComments))
+            {
+                var comment = commentsFaker.Generate();
 
-            // Lấy danh sách bạn bè và người theo dõi
-            var friendIds = await relationshipClient.GetFriendIds(comment.ProfileId.ToString());
-            var followerIds = await relationshipClient.GetFollowerIds(comment.ProfileId.ToString());
-            var combinedIds = friendIds.Concat(followerIds).Distinct().ToList();
+                // Gán thông tin cho comment
+                comment.PostId = Guid.Parse(postId);
+                comment.ProfileId = faker.PickRandom(validProfileIds);
+                comment.CreatedBy = comment.ProfileId;
 
-            // Lấy thông tin profileId và tên
-            var profileIdsWithNames = await profileClient.GetProfileIdsWithNames(combinedIds);
+                // Lấy danh sách bạn bè và người theo dõi (nếu cần tạo content phụ thuộc)
+                var friendIds = await relationshipClient.GetFriendIds(comment.ProfileId.ToString());
+                var followerIds = await relationshipClient.GetFollowerIds(comment.ProfileId.ToString());
+                var combinedIds = friendIds.Concat(followerIds).Distinct().ToList();
 
-            // Tạo nội dung comment
-            comment.Content = GenerateCommentContent(profileIdsWithNames);
+                // Lấy thông tin profileId và tên
+                var profileIdsWithNames = await profileClient.GetProfileIdsWithNames(combinedIds);
 
-            comments.Add(comment);
+                // Tạo nội dung comment
+                comment.Content = GenerateCommentContent(profileIdsWithNames);
+
+                comments.Add(comment);
+            }
         }
 
         return comments;
     }
 
     private static async Task<IList<Domain.Entities.Comment>> GenerateRepliedComments(
-        int count,
         IList<Domain.Entities.Comment> parentComments,
         CommonPostClient postClient,
         CommonProfileClient profileClient,
         CommonRelationshipClient relationshipClient)
     {
-
+        // Lấy danh sách postIds và profileIds
         var postIds = parentComments.Select(c => c.PostId.ToString()).Distinct().ToList();
         var profileIds = await profileClient.GetProfileIds();
 
-        // Lấy thông tin ai không thể xem cho tất cả bài đăng một lần
+        // Lấy thông tin ai không thể xem bài đăng
         var whoCantSeeDict = await GetWhoCantSeeForAllPosts(postIds, postClient);
 
         var comments = new List<Domain.Entities.Comment>();
 
         // Faker để tạo bình luận trả lời
-        var faker = new Faker<Domain.Entities.Comment>()
-            .CustomInstantiator(f =>
+        var commentsFaker = new Faker<Domain.Entities.Comment>()
+            .CustomInstantiator(f => new Domain.Entities.Comment
             {
-                var parentComment = f.PickRandom(parentComments);
-                return new Domain.Entities.Comment
-                {
-                    PostId = parentComment.PostId,
-                    ParentId = parentComment.Id,
-                    FileMetadataId = f.Random.Bool() ? Guid.NewGuid() : null,
-                    CreatedAt = f.Date.Recent(f.Random.Int(1, 365))
-                };
+                FileMetadataId = f.Random.Bool() ? Guid.NewGuid() : null,
+                CreatedAt = f.Date.Recent(f.Random.Int(1, 365))
             });
 
-        // Sinh ra các comment trả lời
-        foreach (var _ in Enumerable.Range(0, count))
-        {
-            var comment = faker.Generate();
+        var faker = new Faker();
 
-            // Lấy danh sách những người không thể xem bài đăng này
-            // Lấy danh sách người không thể xem bài đăng
-            if (!whoCantSeeDict.TryGetValue(comment.PostId.ToString(), out var whoCantSeeIds))
-            {
-                whoCantSeeIds = []; // Nếu không có thông tin, mặc định là không có ai bị cấm
-            }
+        // Chọn ngẫu nhiên 60% comment để tạo reply comments
+        var selectedParentComments = faker.PickRandom(parentComments, (int)(parentComments.Count * 0.6)).ToList();
+
+        // Sinh reply comments cho từng comment cha
+        foreach (var parentComment in selectedParentComments)
+        {
+            // Random số lượng reply comments cho mỗi comment cha
+            int numReplies = faker.Random.Int(2, 5);
+
+            // Lấy danh sách những người không thể xem bài đăng
+            if (!whoCantSeeDict.TryGetValue(parentComment.PostId.ToString(), out var whoCantSeeIds))
+                whoCantSeeIds = [];
 
             // Loại bỏ các profile không thể xem bài đăng này
             var validProfileIds = profileIds.Select(Guid.Parse).Except(whoCantSeeIds).ToList();
+            if (validProfileIds.Count == 0) continue;
 
-            if (validProfileIds.Count == 0) break;
+            for (int i = 0; i < numReplies; i++)
+            {
+                var comment = commentsFaker.Generate();
 
-            Faker mFaker = new();
-            // Gán profile cho comment
-            comment.ProfileId = mFaker.PickRandom(validProfileIds);
-            comment.CreatedBy = comment.ProfileId;
+                // Gán thông tin cho comment
+                comment.PostId = parentComment.PostId;
+                comment.ParentId = parentComment.Id;
+                comment.ProfileId = faker.PickRandom(validProfileIds);
+                comment.CreatedBy = comment.ProfileId;
 
-            // Lấy danh sách bạn bè và người theo dõi của comment's profile
-            var friendIds = await relationshipClient.GetFriendIds(comment.ProfileId.ToString());
-            var followerIds = await relationshipClient.GetFollowerIds(comment.ProfileId.ToString());
-            var combinedIds = friendIds.Concat(followerIds).Distinct().ToList();
+                // Lấy danh sách bạn bè và người theo dõi
+                var friendIds = await relationshipClient.GetFriendIds(comment.ProfileId.ToString());
+                var followerIds = await relationshipClient.GetFollowerIds(comment.ProfileId.ToString());
+                var combinedIds = friendIds.Concat(followerIds).Distinct().ToList();
 
-            // Lấy danh sách profile với tên từ combinedIds
-            var profileIdsWithNames = await profileClient.GetProfileIdsWithNames(combinedIds);
+                // Lấy danh sách profile với tên từ combinedIds
+                var profileIdsWithNames = await profileClient.GetProfileIdsWithNames(combinedIds);
 
-            // Tạo nội dung comment
-            comment.Content = GenerateCommentContent(profileIdsWithNames);
+                // Tạo nội dung comment
+                comment.Content = GenerateCommentContent(profileIdsWithNames);
 
-            comments.Add(comment);
+                comments.Add(comment);
+            }
         }
 
         return comments;
@@ -247,150 +257,5 @@ public static class DbInitialization
         commentContent.Text = textBuilder.ToString();
         return commentContent;
     }
-
-
-
-    //private static async Task<IList<Domain.Entities.Comment>> GenerateComments(
-    //    int count,
-    //    IList<string> postIds,
-    //    CommonPostClient postClient,
-    //    CommonProfileClient profileClient,
-    //    CommonRelationshipClient relationshipClient)
-    //{
-    //    var profileIds = await profileClient.GetProfileIds();
-    //    var faker = new Faker<Domain.Entities.Comment>()
-    //        .RuleFor(ap => ap.PostId, f => Guid.Parse(f.PickRandom(postIds)))
-    //        .CustomInstantiator(f =>
-    //        {
-    //            var fileMetadataId = f.Random.Bool() ? Guid.NewGuid() : (Guid?)null;
-    //            return new Domain.Entities.Comment
-    //            {
-    //                FileMetadataId = fileMetadataId,
-    //                CreatedAt = f.Date.Recent(f.Random.Int(1, 365))
-    //            };
-    //        });
-
-    //    IList<Domain.Entities.Comment> comments = [];
-    //    Faker faker1 = new();
-    //    for (int i = 0; i < count; i++)
-    //    {
-    //        var comment = faker.Generate();
-    //        var friendIds = await relationshipClient.GetFriendIds(comment.ProfileId.ToString());
-    //        var folowerIds = await relationshipClient.GetFollowerIds(comment.ProfileId.ToString());
-    //        var combinedIds = friendIds.Concat(folowerIds).Distinct().ToList();
-    //        var profileIdsWithNames = await profileClient.GetProfileIdsWithNames(combinedIds);
-    //        var whoCantSeeIds = await postClient.WhoCantSee(comment.PostId.ToString());
-
-    //        Guid randomProfileId = Guid.Parse(faker1.PickRandom(profileIds));
-    //        while (!whoCantSeeIds.Contains(randomProfileId.ToString()))
-    //            randomProfileId = Guid.Parse(faker1.PickRandom(profileIds));
-
-    //        comment.ProfileId = randomProfileId;
-    //        comment.CreatedBy = randomProfileId;
-    //        comment.Content = GenerateCommentContent(profileIdsWithNames);
-    //        comments.Add(comment);
-    //    }
-    //    return comments;
-    //}
-
-    //private static async Task<IList<Domain.Entities.Comment>> GenerateRepliedComments(
-    //    int count,
-    //    IList<Domain.Entities.Comment> parentComments,
-    //    CommonPostClient postClient,
-    //    CommonProfileClient profileClient,
-    //    CommonRelationshipClient relationshipClient)
-    //{
-    //    var profileIds = await profileClient.GetProfileIds();
-    //    var faker = new Faker<Domain.Entities.Comment>()
-    //        .CustomInstantiator(f => {
-    //            var parentComment = f.PickRandom(parentComments);
-    //            var createdBy = Guid.Parse(f.PickRandom(profileIds));
-    //            var profileId = createdBy;
-    //            var fileMetadataId = f.Random.Bool() ? Guid.NewGuid() : (Guid?)null;
-    //            return new Domain.Entities.Comment
-    //            {
-    //                PostId = parentComment.PostId,
-    //                ParentId = parentComment.Id,
-    //                FileMetadataId = fileMetadataId,
-    //                CreatedAt = f.Date.Recent(f.Random.Int(1, 365))
-    //            };
-    //        });
-
-    //    IList<Domain.Entities.Comment> comments = [];
-    //    Faker faker1 = new();
-    //    for (int i = 0; i < count; i++)
-    //    {
-    //        var comment = faker.Generate();
-    //        var friendIds = await relationshipClient.GetFriendIds(comment.ProfileId.ToString());
-    //        var folowerIds = await relationshipClient.GetFollowerIds(comment.ProfileId.ToString());
-    //        var combinedIds = friendIds.Concat(folowerIds).Distinct().ToList();
-    //        var profileIdsWithNames = await profileClient.GetProfileIdsWithNames(combinedIds);
-
-    //        var whoCantSeeIds = await postClient.WhoCantSee(comment.PostId.ToString());
-
-    //        Guid randomProfileId = Guid.Parse(faker1.PickRandom(profileIds));
-    //        while (!whoCantSeeIds.Contains(randomProfileId.ToString()))
-    //            randomProfileId = Guid.Parse(faker1.PickRandom(profileIds));
-
-    //        comment.ProfileId = randomProfileId;
-    //        comment.CreatedBy = randomProfileId;
-    //        comment.Content = GenerateCommentContent(profileIdsWithNames);
-    //        comments.Add(comment);
-    //    }
-    //    return comments;
-    //}
-
-    //private static CommentContent GenerateCommentContent(IList<ProfileIdWithName> profileIdsWithNames)
-    //{
-    //    Faker faker = new();
-    //    CommentContent commentContent = new();
-    //    int facetCount = faker.Random.Int(1, profileIdsWithNames.Count < 3 ? profileIdsWithNames.Count : 3);
-    //    int minContentLength = 50;
-    //    int minStart = 0;
-    //    IList<string> text = [faker.Lorem.Sentence(minContentLength)];
-    //    IList<ProfileIdWithName> usedProfileIdsWithNames = [];
-
-    //    for (int i = 0; i < facetCount; i++)
-    //    {
-    //        if (profileIdsWithNames == null || profileIdsWithNames.Count == 0) continue;
-
-    //        var randomProfileIdWithName = faker.PickRandom(profileIdsWithNames);
-    //        while (usedProfileIdsWithNames.Contains(randomProfileIdWithName))
-    //            randomProfileIdWithName = faker.PickRandom(profileIdsWithNames);
-
-    //        int tagLength = randomProfileIdWithName.Name.Length;
-
-    //        if (minStart > minContentLength - tagLength)
-    //        {
-    //            minContentLength = minStart + tagLength + 1;
-
-    //            while (text[^1].Length < minContentLength)
-    //                text[^1] += faker.Lorem.Sentence(10);
-    //        }
-
-    //        int start = faker.Random.Int(minStart, minContentLength - tagLength);
-    //        int end = start + tagLength;
-
-    //        commentContent.TagFacets.Add(new TagFacet
-    //        {
-    //            Type = FacetType.Tag,
-    //            ProfileId = Guid.Parse(randomProfileIdWithName.Id),
-    //            Start = start,
-    //            End = end
-    //        });
-
-    //        text[^1] = text[^1].Insert(start, $" @{randomProfileIdWithName.Name}");
-    //        usedProfileIdsWithNames.Add(randomProfileIdWithName);
-
-    //        minContentLength += 50;
-    //        minStart = end;
-    //        text.Add(faker.Lorem.Sentence(50));
-
-    //    }
-
-    //    commentContent.Text = string.Join(" ", text);
-
-    //    return commentContent;
-    //}
 
 }

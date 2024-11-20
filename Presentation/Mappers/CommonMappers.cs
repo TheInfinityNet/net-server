@@ -143,6 +143,9 @@ public class CommonMappers : Profile
             .AfterMap((src, dest) =>
             {
                 dest.Type = src.Type.ToString(); // Chuyển enum sang string
+                dest.CreatedAt = dest.CreatedAt.ToLocalTime();
+                dest.UpdatedAt = dest.UpdatedAt?.ToLocalTime();
+                dest.DeletedAt = dest.DeletedAt?.ToLocalTime();
             });
 
         CreateMap<Domain.Entities.TagFacet, TagFacet>()

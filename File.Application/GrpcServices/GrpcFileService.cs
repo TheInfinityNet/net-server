@@ -25,7 +25,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
 
         public override async Task<VideoMetadataResponse> getVideoMetadata(GetFileMetadataRequest request, ServerCallContext context)
         {
-            logger.LogInformation("GetPhotoMetadata called for {Id}", request.Id);
+            logger.LogInformation("GetVideoMetadata called for {Id}", request.Id);
             var source = await videoMetadataService.GetById(request.Id);
             VideoMetadataResponse response = mapper.Map<VideoMetadataResponse>(source);
             response.Url = await minioClientService.GetObjectUrl("infinity-net-bucket", response.Name);

@@ -12,6 +12,8 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
 {
     public class CommentRepository(CommentDbContext context) : SqlRepository<Domain.Entities.Comment, Guid>(context), ICommentRepository
     {
+        public async Task<IList<Domain.Entities.Comment>> GetAllByPostIdAsync(Guid postId)
+            => await context.Comments.Where(c => c.PostId == postId).ToListAsync();
 
         public async Task<IList<Domain.Entities.Comment>> GetAllMediaCommentAsync()
             => await context.Comments.Where(c => c.FileMetadataId != null).ToListAsync();

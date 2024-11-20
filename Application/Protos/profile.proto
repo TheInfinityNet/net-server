@@ -107,6 +107,10 @@ message ProfileIdsWithNamesResponse {
   repeated ProfileIdWithName profileIdsWithNames = 1;
 }
 
+message ProfilesResponse {
+  repeated ProfileResponse profiles = 1;
+}
+
 service ProfileService {
 
 	rpc getProfile(ProfileRequest) returns (ProfileResponse) {}
@@ -126,5 +130,7 @@ service ProfileService {
 	rpc getPotentialProfileIds(PotentialProfilesRequest) returns (ProfileIdsResponse) {}
 
 	rpc getPreviewFileMetadatas (google.protobuf.Empty) returns (PreviewFileMetadatasResponse) {}
+
+	rpc getProfiles (ProfilesRequest) returns (ProfilesResponse) {}
 
 }

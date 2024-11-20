@@ -69,7 +69,10 @@ internal static class HostingExtensions
 
         //builder.Services.AddHealthChecks(builder.Configuration);
 
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        });
 
         builder.Services.AddEndpointsApiExplorer();
 

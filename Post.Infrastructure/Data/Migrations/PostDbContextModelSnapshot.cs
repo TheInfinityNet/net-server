@@ -81,7 +81,7 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
 
                     b.Property<int>("Type")
                         .HasColumnType("integer")
-                        .HasColumnName("post_type");
+                        .HasColumnName("type");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")

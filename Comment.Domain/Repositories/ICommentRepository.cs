@@ -10,5 +10,7 @@ namespace InfinityNetServer.Services.Comment.Domain.Repositories
 
         public Task<IList<Entities.Comment>> GetAllMediaCommentAsync();
 
+        public Task<IList<Entities.Comment>> GetAllByPostIdAsync(Guid postId);
+
     }
 }

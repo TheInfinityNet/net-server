@@ -64,5 +64,21 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
+        public async Task<List<string>> GetCommentIdsByPostId(string postId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get comment ids by post id");
+                var response = await client.getCommentIdsByPostIdAsync(new CommentByPostIdRequest { PostId = postId });
+                // Call the gRPC server to introspect the token
+                return new List<string>(response.Ids);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+            }
+        }
+
     }
 }

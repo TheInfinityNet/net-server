@@ -18,7 +18,7 @@ namespace InfinityNetServer.Services.Post.Domain.Entities
         public PostContent Content { get; set; } = new ();
 
         [Required]
-        [Column("post_type")]
+        [Column("type")]
         public PostType Type { get; set; } = PostType.Text;
 
         [Column("presentation_id")]

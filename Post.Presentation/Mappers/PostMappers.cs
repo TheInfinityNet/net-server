@@ -31,7 +31,7 @@ public class PostMappers : Profile
 
         CreateMap<Domain.Entities.Post, BasePostResponse>()
             .AfterMap((src, dest) => {
-                dest.Owner = new BaseProfileResponse { Id = src.OwnerId };
+                dest.Owner = new PreviewProfileResponse { Id = src.OwnerId };
             });
 
         CreateMap<PostContent, TextContent>();

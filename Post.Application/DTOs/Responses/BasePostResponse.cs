@@ -1,6 +1,8 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
+﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.Services.Post.Application.DTOs.Orther;
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace InfinityNetServer.Services.Post.Application.DTOs.Responses
@@ -20,29 +22,21 @@ namespace InfinityNetServer.Services.Post.Application.DTOs.Responses
 
         public DateTime? DeletedAt { get; set; }
 
-        public BaseProfileResponse Owner { get; set; }
+        public PreviewProfileResponse Owner { get; set; }
 
         public BasePostAudience Audience { get; set; }
 
-        //[JsonPropertyName("audience")]
-        //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        //public BasePostAudience AudienceFriend { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public PhotoMetadataResponse Photo { get; set; }
 
-        //[JsonPropertyName("audience")]
-        //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        //public BasePostAudience AudienceOnlyMe { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public VideoMetadataResponse Video { get; set; }
 
-        //[JsonPropertyName("audience")]
-        //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        //public PostAudienceInclude AudienceInclude { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public IList<BasePostResponse> Aggregates { get; set; }
 
-        //[JsonPropertyName("audience")]
-        //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        //public PostAudienceExclude AudienceExclude { get; set; }
-
-        //[JsonPropertyName("audience")]
-        //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        //public PostAudienceCustom AudienceCustom { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public BasePostResponse Share { get; set; }
 
     }
 }

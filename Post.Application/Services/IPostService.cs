@@ -16,13 +16,13 @@ namespace InfinityNetServer.Services.Post.Application.Services
 
         public Task<IEnumerable<Domain.Entities.Post>> GetAll();
 
+        public Task<IList<Domain.Entities.Post>> GetAllByPresentationId(string presentationId);
+
         public Task<Domain.Entities.Post> DeletePost(string id);
 
         public Task<IList<Domain.Entities.Post>> GetByType(string type);
 
         public Task<IList<string>> GetAllPresentationIds();
-
-        public Task<IList<string>> WhoCanSee(string id);
 
         public Task<IList<string>> WhoCantSee(string id);
 

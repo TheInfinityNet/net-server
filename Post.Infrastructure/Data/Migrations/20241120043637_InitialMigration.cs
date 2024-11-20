@@ -17,7 +17,7 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     content = table.Column<string>(type: "jsonb", nullable: false),
-                    post_type = table.Column<int>(type: "integer", nullable: false),
+                    type = table.Column<int>(type: "integer", nullable: false),
                     presentation_id = table.Column<Guid>(type: "uuid", nullable: true),
                     parent_id = table.Column<Guid>(type: "uuid", nullable: true),
                     owner_id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -178,14 +178,14 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data.Migrations
                 column: "parent_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_posts_post_type",
-                table: "posts",
-                column: "post_type");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_posts_presentation_id",
                 table: "posts",
                 column: "presentation_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_posts_type",
+                table: "posts",
+                column: "type");
         }
 
         /// <inheritdoc />

@@ -185,6 +185,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                 {
                     Id = Guid.Parse(fileMetadataIdWithOwnerId.FileMetadataId),
                     Type = FileMetadataType.Photo,
+                    OwnerType = FileOwnerType.Comment,
                     Name = fileName,
                     Width = width,
                     Height = height,
@@ -230,6 +231,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                 {
                     Id = Guid.Parse(fileMetadataIdWithOwnerId.FileMetadataId),
                     Type = FileMetadataType.Photo,
+                    OwnerType = FileOwnerType.Profile,
                     Name = fileName,
                     Width = width,
                     Height = height,

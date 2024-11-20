@@ -13,7 +13,7 @@ namespace InfinityNetServer.BuildingBlocks.Domain.Entities
         public TId Id { get; set; }
 
         [BsonElement("created_at")]
-        public DateTime? CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         [BsonElement("updated_at")]
         public DateTime? UpdatedAt { get; set; }

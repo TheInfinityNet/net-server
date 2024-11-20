@@ -49,5 +49,15 @@ namespace InfinityNetServer.Services.Comment.Application.GrpcServices
             return mapper.Map<PreviewCommentResponse>(comment);
         }
 
+        public override async Task<CommentIdsResponse> getCommentIdsByPostId(CommentByPostIdRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Received getCommentIds by postId request");
+            var response = new CommentIdsResponse();
+            var comments = await commentRepository.GetAllByPostIdAsync(Guid.Parse(request.PostId));
+            response.Ids.AddRange(comments.Select(p => p.Id.ToString()).ToList());
+
+            return await Task.FromResult(response);
+        }
+
     }
 }

@@ -12,6 +12,10 @@ message PreviewCommentRequest {
 	string id = 1;
 }
 
+message CommentByPostIdRequest {
+	string postId = 1;
+}
+
 message CommentIdsResponse {
   repeated string ids = 1;
 }
@@ -37,5 +41,7 @@ service CommentService {
 	rpc getPreviewFileMetadatas (google.protobuf.Empty) returns (PreviewFileMetadatasResponse) {}
 
 	rpc getPreviewComment (PreviewCommentRequest) returns (PreviewCommentResponse) {}
+
+	rpc getCommentIdsByPostId (CommentByPostIdRequest) returns (CommentIdsResponse) {}
 
 }

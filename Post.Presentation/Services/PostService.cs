@@ -5,7 +5,6 @@ using InfinityNetServer.Services.Post.Application;
 using InfinityNetServer.Services.Post.Application.DTOs.Requests;
 using InfinityNetServer.Services.Post.Application.Helpers;
 using InfinityNetServer.Services.Post.Application.Services;
-using InfinityNetServer.Services.Post.Domain.Entities;
 using InfinityNetServer.Services.Post.Domain.Enums;
 using InfinityNetServer.Services.Post.Domain.Repositories;
 using MassTransit.Initializers;
@@ -20,7 +19,6 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
 {
     public class PostService(
             IPostRepository postRepository,
-            IPostAudienceRepository postAudienceRepository,
             CommonProfileClient profileClient,
             CommonRelationshipClient relationshipClient,
             IStringLocalizer<PostSharedResource> localizer,
@@ -40,9 +38,10 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
         }
 
         public async Task<IEnumerable<Domain.Entities.Post>> GetAll()
-        {
-            return await postRepository.GetAllAsync();
-        }
+            => await postRepository.GetAllAsync();
+
+        public async Task<IList<Domain.Entities.Post>> GetAllByPresentationId(string presentationId)
+            => await postRepository.GetAllByPresentationIdAsync(Guid.Parse(presentationId));
 
         public async Task<IList<string>> GetAllPresentationIds()
         {
@@ -64,47 +63,6 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
 
         public async Task<IList<Domain.Entities.Post>> GetByType(string type)
             => await postRepository.GetByTypeAsync(Enum.Parse<PostType>(type));
-
-        public async Task<IList<string>> WhoCanSee(string id)
-        {
-            var post = await GetById(id);
-            var postAudience = await postAudienceRepository.GetByPostIdAsync(post.Id);
-            IList<string> followerIds = await relationshipClient.GetFollowerIds(post.OwnerId.ToString());
-            IList<string> friendIds = await relationshipClient.GetFriendIds(post.OwnerId.ToString());
-            IList<string> blockerIds = await relationshipClient.GetBlockerIds(post.OwnerId.ToString());
-            IList<string> blockeeIds = await relationshipClient.GetBlockeeIds(post.OwnerId.ToString());
-            IList<string> includeIds = postAudience.Includes.Select(i => i.ProfileId.ToString()).ToList();
-            IList<string> excludeIds = postAudience.Excludes.Select(i => i.ProfileId.ToString()).ToList();
-
-            IList<string> whoCanSee = [];
-
-            switch (postAudience.Type)
-            {
-                case PostAudienceType.Include:
-                    whoCanSee = includeIds;
-                    break;
-
-                case PostAudienceType.Exclude:
-                    whoCanSee = friendIds.Except(excludeIds).ToList();
-                    break;
-
-                case PostAudienceType.Custom:
-                    whoCanSee = friendIds.Concat(includeIds).Except(excludeIds).ToList();
-                    break;
-
-                case PostAudienceType.Friends:
-                    whoCanSee = friendIds;
-                    break;
-
-                case PostAudienceType.OnlyMe:
-                    whoCanSee = [ post.OwnerId.ToString() ];
-                    break; 
-            }
-
-            whoCanSee = whoCanSee.Except(blockerIds).Except(blockeeIds).Distinct().ToList();
-
-            return whoCanSee;
-        }
 
         public async Task<IList<string>> WhoCantSee(string id)
         {

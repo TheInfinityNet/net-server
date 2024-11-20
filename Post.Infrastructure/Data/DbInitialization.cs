@@ -30,7 +30,7 @@ public static class DbInitialization
         dbContext.Database.EnsureDeleted();
     }
 
-    public static void AutoMigration(this WebApplication webApplication)
+    public static async void AutoMigration(this WebApplication webApplication)
     {
         using var serviceScope = webApplication.Services.CreateScope();
 
@@ -38,7 +38,7 @@ public static class DbInitialization
 
         if (!dbContext.Database.EnsureCreated()) return;
 
-        dbContext.Database.MigrateAsync().Wait(); //generate all in folder Migration
+        await dbContext.Database.MigrateAsync(); //generate all in folder Migration
 
     }
 
@@ -57,29 +57,6 @@ public static class DbInitialization
         
         if (existingPostCount.Count == 0)
         {
-            //IList<string> profileIds = await profileClient.GetProfileIds();
-            //IList<GroupMemberWithGroup> groupMemberWithGroups = await groupClient.GetGroupMemberWithGroup();
-            //var groupPosts = GeneratePresentationPosts(numberOfPosts / 2, groupMemberWithGroups);
-            //await postRepository.CreateAsync(groupPosts);
-
-            //var posts = await GeneratePresentationPosts(numberOfPosts, profileClient, relationshipClient);
-            //await postRepository.CreateAsync(posts);
-
-            //IList<Domain.Entities.Post> presentationPosts = await postRepository.GetAllAsync();
-            //IList<PostAudience> postAudiences = await GeneratePostAudiences(presentationPosts, relationshipClient);
-            //await postPrivacyRepository.CreateAsync(postAudiences);
-
-            //var sharedPosts = await GenerateSharedPosts(numberOfPosts / 4, profileClient, postService);
-            //await postRepository.CreateAsync(sharedPosts);
-
-            //presentationPosts = await postRepository.GetAllSharePostsAsync();
-            //postAudiences = await GeneratePostAudiences(presentationPosts, relationshipClient);
-            //await postPrivacyRepository.CreateAsync(postAudiences);
-
-            //var subPosts = await GenerateSubPosts(numberOfPosts, postRepository);
-            //await postRepository.CreateAsync(subPosts);
-
-            // Tải trước dữ liệu profile và relationship
             var profileIds = await profileClient.GetProfileIds();
 
             var textPosts = await GenerateTextPosts(100, profileClient, relationshipClient);
@@ -197,12 +174,14 @@ public static class DbInitialization
             .RuleFor(p => p.OwnerId, f => Guid.Parse(f.PickRandom(profileIds)))
             .RuleFor(p => p.CreatedAt, f => f.Date.Recent(365))
             .RuleFor(p => p.CreatedBy, (f, p) => p.OwnerId)
-            .RuleFor(p => p.SubPosts, []);
+            .RuleFor(p => p.SubPosts, []); // Khởi tạo danh sách rỗng
 
+        // Tạo danh sách presentation posts
         IList<Domain.Entities.Post> presentationPosts = postFaker.Generate(count);
 
         foreach (var presentationPost in presentationPosts)
         {
+            // Faker cho các subPosts
             var subPostFaker = new Faker<Domain.Entities.Post>()
                 .RuleFor(p => p.Id, f => Guid.NewGuid()) // Đảm bảo GUID duy nhất
                 .RuleFor(p => p.Type, f => f.Random.Bool(0.8f) ? PostType.Photo : PostType.Video)
@@ -215,14 +194,12 @@ public static class DbInitialization
                 .RuleFor(p => p.CreatedAt, f => presentationPost.CreatedAt)
                 .RuleFor(p => p.GroupId, f => presentationPost.GroupId);
 
-            int randomSubPostCount = random.Next(2, 5);
-            var subPosts = subPostFaker.Generate(randomSubPostCount);
+            // Số lượng ngẫu nhiên từ 2 đến 5 subPosts
+            int randomSubPostCount = random.Next(2, 6);
 
-            // Thêm subposts vào danh sách SubPosts của presentationPost
-            foreach (var subPost in subPosts)
-            {
-                presentationPost.SubPosts.Add(subPost);
-            }
+            // Tạo danh sách subPosts và thêm vào presentationPost
+            var subPosts = subPostFaker.Generate(randomSubPostCount);
+            presentationPost.SubPosts = [.. presentationPost.SubPosts, .. subPosts];
         }
 
         return presentationPosts;
@@ -248,51 +225,6 @@ public static class DbInitialization
         }).ToDictionary(x => x.id, x => x.combined);
     }
 
-    //private static async Task<IList<Domain.Entities.Post>> GeneratePresentationPosts(
-    //    int count, CommonProfileClient profileClient, CommonRelationshipClient relationshipClient)
-    //{
-    //    // Tải trước dữ liệu profile và relationship
-    //    var profileIds = await profileClient.GetProfileIds();
-    //    var relationshipData = await LoadRelationships(profileIds, relationshipClient);
-
-    //    // Sử dụng Faker để sinh dữ liệu
-    //    var postFaker = new Faker<Domain.Entities.Post>()
-    //        .RuleFor(p => p.Type, PostType.Text)
-    //        .RuleFor(p => p.OwnerId, f => Guid.Parse(f.PickRandom(profileIds)))
-    //        .RuleFor(p => p.CreatedAt, f => f.Date.Recent(365))
-    //        .RuleFor(p => p.CreatedBy, (f, p) => p.OwnerId);
-
-    //    var posts = new List<Domain.Entities.Post>();
-    //    await Parallel.ForEachAsync(Enumerable.Range(0, count), async (_, _) =>
-    //    {
-    //        var post = postFaker.Generate();
-    //        var profileIdsWithNames = await profileClient.GetProfileIdsWithNames(relationshipData[post.OwnerId.ToString()]);
-    //        post.Content = GeneratePostContent(profileIdsWithNames);
-
-    //        lock (posts) posts.Add(post);
-    //    });
-
-    //    return posts;
-    //}
-
-    //private static async Task<List<Domain.Entities.Post>> GenerateSubPosts(
-    //int count, IPostRepository postRepository)
-    //{
-    //    var presentationPosts = await postRepository.GetAllPresentationPostsAsync();
-
-    //    var subPostFaker = new Faker<Domain.Entities.Post>()
-    //        .RuleFor(p => p.Type, f => f.Random.Bool(0.8f) ? PostType.Photo : PostType.Video)
-    //        .RuleFor(p => p.Presentation, f => f.PickRandom(presentationPosts))
-    //        .RuleFor(p => p.Content, f => new PostContent { Text = f.Lorem.Sentence(10) })
-    //        .RuleFor(p => p.OwnerId, (f, p) => p.Presentation.OwnerId)
-    //        .RuleFor(p => p.CreatedBy, (f, p) => p.Presentation.CreatedBy)
-    //        .RuleFor(p => p.CreatedAt, (f, p) => p.Presentation.CreatedAt)
-    //        .RuleFor(p => p.GroupId, (f, p) => p.Presentation.GroupId)
-    //        .RuleFor(p => p.FileMetadataId, Guid.NewGuid());
-
-    //    return subPostFaker.Generate(count);
-    //}
-
     private static async Task<IList<PostAudience>> GeneratePostAudiences(
         IList<Domain.Entities.Post> presentationPosts, CommonRelationshipClient relationshipClient)
     {
@@ -302,7 +234,13 @@ public static class DbInitialization
         foreach (var post in presentationPosts)
         {
             var type = GetRandomAudienceType();
-            var audience = CreatePostAudience(post, type);
+            var audience = new PostAudience
+            {
+                PostId = post.Id,
+                Type = type,
+                CreatedBy = post.CreatedBy.Value,
+                CreatedAt = post.CreatedAt
+            };
 
             if (type is PostAudienceType.Exclude or PostAudienceType.Include or PostAudienceType.Custom)
             {
@@ -376,28 +314,16 @@ public static class DbInitialization
             });
     }
 
-    // Hàm phụ tạo PostAudience
-    private static PostAudience CreatePostAudience(Domain.Entities.Post post, PostAudienceType type)
-    {
-        return new PostAudience
-        {
-            PostId = post.Id,
-            Type = type,
-            CreatedBy = post.CreatedBy.Value,
-            CreatedAt = post.CreatedAt
-        };
-    }
-
     // Hàm phụ lấy combined IDs
     private static async Task<List<string>> GetCombinedIds(
         string ownerId, CommonRelationshipClient relationshipClient)
     {
         var tasks = new[]
         {
-        relationshipClient.GetFollowerIds(ownerId),
-        relationshipClient.GetFolloweeIds(ownerId),
-        relationshipClient.GetFriendIds(ownerId)
-    };
+            relationshipClient.GetFollowerIds(ownerId),
+            relationshipClient.GetFolloweeIds(ownerId),
+            relationshipClient.GetFriendIds(ownerId)
+        };
 
         var results = await Task.WhenAll(tasks);
         return results.SelectMany(r => r).Distinct().ToList();

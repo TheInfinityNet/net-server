@@ -127,7 +127,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
-        public async Task<List<DTOs.Others.PreviewFileMetadata>> GetPreviewFileMetadatas()
+        public async Task<IList<DTOs.Others.PreviewFileMetadata>> GetPreviewFileMetadatas()
         {
             try
             {
@@ -141,6 +141,23 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             {
                 logger.LogError(e.Message);
                 throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+            }
+        }
+
+        public async Task<IList<DTOs.Responses.Profile.BaseProfileResponse>> GetProfiles(IList<string> ids)
+        {
+            try
+            {
+                logger.LogInformation("Starting get user profile");
+                var request = new ProfilesRequest();
+                request.Ids.AddRange(ids);
+                var response = await client.getProfilesAsync(request);
+                return response.Profiles.Select(mapper.Map<DTOs.Responses.Profile.BaseProfileResponse>).ToList();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new CommonException(BaseErrorCode.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
