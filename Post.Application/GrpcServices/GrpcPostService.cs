@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 namespace InfinityNetServer.Services.Post.Application.GrpcServices
 {
     public class GrpcPostService(
-        ILogger<GrpcPostService> logger,
-        IMapper mapper,
-        IPostService postService) : PostService.PostServiceBase
+            ILogger<GrpcPostService> logger,
+            IMapper mapper,
+            IPostService postService) : PostService.PostServiceBase
     {
 
         public override async Task<PostIdsResponse> getPostIds(Empty request, ServerCallContext context)
@@ -60,5 +60,27 @@ namespace InfinityNetServer.Services.Post.Application.GrpcServices
             return await Task.FromResult(response);
         }
 
+        public override async Task<GetByOwnerIdResponse> GetAllByOwnerId(GetByOwnerIdRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Received GetAllByOwnerId request");
+            var posts = await postService.GetAllByOwnerId(request.OwnerId);
+            var response = mapper.Map<GetByOwnerIdResponse>(posts);
+            return response;
+        }
+
+        public override async Task<GetByGroupIdResponse> GetAllByGroupId(GetByGroupIdRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Received GetAllByGroupId request");
+            var posts = await postService.GetAllByGroupId(request.GroupId);
+            var response = mapper.Map<GetByGroupIdResponse>(posts);
+            return response;
+        }
+        public override async Task<GetByParentIdResponse> GetAllByParentId(GetByParentIdRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Received GetAllByParentId request");
+            var posts = await postService.GetAllByParentId(request.ParentId);
+            var response = mapper.Map<GetByParentIdResponse>(posts);
+            return response;
+        }
     }
 }

@@ -26,10 +26,5 @@ namespace InfinityNetServer.Services.Post.Application.DTOs.Responses
 
         public Guid? FileMetadataId { get; set; }
 
-        public PostAudience PostPrivacy { get; set; }
-
-        public ICollection<PostResponse> SharedPosts { get; set; }
-
-        public ICollection<PostResponse> SubPosts { get; set; }
     }
 }
