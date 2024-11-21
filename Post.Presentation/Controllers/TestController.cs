@@ -34,6 +34,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             IPostRepository postRepository,
             IPostService postService,
             CommonFileClient fileClient,
+            CommonCommentClient commentClient,
             IMessageBus messageBus) : BaseApiController(authenticatedUserService)
     {
 
@@ -119,7 +120,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             var profileId = GetCurrentProfileId().Value;
             var result = await postService.GetNewsFeed(profileId.ToString(), cursor, pageSize);
 
-            CursorPagedResult<PreviewPostResponse> response = new ()
+            CursorPagedResult<PreviewPostResponse> response = new()
             {
                 Items = result.Items.Select(mapper.Map<PreviewPostResponse>).ToList(),
                 NextCursor = result.NextCursor
@@ -128,5 +129,18 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             return Ok(response);
 
         }
+
+        // post/sfhakjsfhaskjf
+        [EndpointDescription("Get post by id")]
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetCommentCountById(string id)
+        {
+            int commentCount = await commentClient.GetCommentCount(id);
+            return Ok(commentCount);
+        }
+        /*
+         2
+         */
     }
 }

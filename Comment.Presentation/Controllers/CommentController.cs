@@ -19,24 +19,29 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
             _commentService = commentService;
         }
 
-        [HttpGet("count/{postId}")]
-        public async Task<ActionResult<CommentCountResponse>> GetCommentCountByPostId(Guid postId)
+        [HttpPost("comment-count")]
+        public async Task<IActionResult> GetCommentCount([FromBody] GetPostIdRequest request)
         {
-            var count = await _commentService.CountCommentsByPostIdAsync(postId);
-
-            if (count < 0)
+            try
             {
-                return NotFound(new { Message = "No comments found for this post." });
+                var response = await _commentService.GetCommentCountAsync(request);
+                return Ok(new { postId = response.PostId, commentCount = response.CommentCount });
             }
-
-            var response = new CommentCountResponse(postId, count);
-            return Ok(response);
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while processing your request.", details = ex.Message });
+            }
         }
 
-        [HttpPost("top-replied")]
-        public async Task<IActionResult> GetTopCommentWithMostReplies([FromBody] Application.DTOs.Requests.TopRepliedCommentRequest request)
+
+        [HttpPost("preview-comment")]
+        public async Task<IActionResult> GetTopCommentWithMostReplies([FromBody] GetPostIdRequest request)
         {
-            var response = await _commentService.GetTopCommentWithMostRepliesAsync(request.PostId);
+            var response = await _commentService.GetTopCommentWithMostRepliesAsync(request);
 
             if (response == null)
                 return NotFound(new { message = "No comments found for the given post ID." });
@@ -44,7 +49,7 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
             return Ok(response);
         }
 
-        [HttpPost("get-comments")]
+        [HttpPost("comments-loading")]
         public async Task<IActionResult> GetCommentsForPost([FromBody] GetCommentsRequest request)
         {
             var response = await _commentService.GetCommentsForPostAsync(request);
@@ -54,23 +59,24 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
 
             return Ok(response);
         }
-        //[HttpPost("get-child-comments")]
-        //public async Task<ActionResult<GetChildCommentsResponse>> GetChildComments([FromBody] GetChildCommentsRequest request)
-        //{
-        //    if (request == null || request.Id == Guid.Empty)
-        //    {
-        //        return BadRequest("Invalid comment ID.");
-        //    }
+        [HttpPost("get-child-comments")]
+        public async Task<IActionResult> GetChildComments([FromBody] GetChildCommentsRequest request)
+        {
+            if (request.ParentCommentId == Guid.Empty)
+            {
+                return BadRequest("Parent Comment ID is required.");
+            }
 
-        //    var result = await _commentService.GetChildCommentsAsync(request.Id);
+            var childComments = await _commentService.GetChildCommentsAsync(request.ParentCommentId);
 
-        //    if (result.ChildCommentIds.Count == 0)
-        //    {
-        //        return NotFound("No child comments found.");
-        //    }
+            if (childComments == null || !childComments.Any())
+            {
+                return NotFound("No child comments found.");
+            }
 
-        //    return Ok(result);
-        //}
+            return Ok(childComments);
+        }
+
         [HttpPost("add-comment")]
         public async Task<ActionResult<AddCommentResponse>> AddComment([FromBody] AddCommentRequest request)
         {

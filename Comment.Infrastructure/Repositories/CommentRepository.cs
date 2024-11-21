@@ -15,7 +15,7 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
 
         public async Task<IList<Domain.Entities.Comment>> GetAllMediaCommentAsync()
             => await context.Comments.Where(c => c.FileMetadataId != null).ToListAsync();
-        public async Task<int> CountByPostIdAsync(Guid postId)
+        public async Task<int> CountCommentsByPostIdAsync(Guid postId)
         {
             try
             {
@@ -23,7 +23,7 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in CountByPostIdAsync: {ex.Message}");
+                Console.WriteLine($"Error in CountCommentsByPostIdAsync: {ex.Message}");
                 throw;
             }
         }
@@ -95,5 +95,21 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
             await context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<Domain.Entities.Comment?>> GetChildComments(Guid parentCommentId)
+        {
+            return await context.Comments
+                .Where(c => c.ParentId == parentCommentId)
+                .ToListAsync();
+        }
+
+        public async Task<int> GetRepliesCommentAsync(Guid commentId)
+        {
+            // Truy vấn số lượng replies của comment với ID cho trước
+            return await context.Comments
+                .Where(c => c.ParentId == commentId)
+                .CountAsync();
+        }
+
     }
 }

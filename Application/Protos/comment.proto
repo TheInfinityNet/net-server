@@ -8,8 +8,20 @@ import "google/protobuf/empty.proto";
 
 import "Protos/base.proto";
 
+import "google/protobuf/timestamp.proto";
+
 message PreviewCommentRequest {
 	string id = 1;
+}
+
+// giờ định nghĩa cái input với out put cho hàm grpc
+// request: truyền vào post id đế biết đếm comment
+message CommentCountRequest {
+	string postId = 1;
+}
+
+message CommentPreviewRequest {
+	string postId = 1;
 }
 
 message CommentIdsResponse {
@@ -18,7 +30,7 @@ message CommentIdsResponse {
 
 message PreviewCommentResponse {
 
-	string id = 1;
+	string commentId = 1;
 
 	string profileId = 2;
 
@@ -30,6 +42,20 @@ message PreviewCommentResponse {
 
 }
 
+// response
+// trong protobuf nó có các kiểu dữ liệu không giống bên code nên đôi khi phải ghi đúng mới map đc
+message CommentCountResponse {
+	int32 count = 1;
+}
+
+message CommentPreviewResponse {
+    string commentId = 1;
+	string profileId = 2;
+    string content = 3;
+    int32 replyCount = 4;
+    google.protobuf.Timestamp createAt = 5;
+}
+
 service CommentService {
 
 	rpc getCommentIds (google.protobuf.Empty) returns (CommentIdsResponse) {}
@@ -38,4 +64,11 @@ service CommentService {
 
 	rpc getPreviewComment (PreviewCommentRequest) returns (PreviewCommentResponse) {}
 
+	// định nghĩa hàm
+	rpc getCommentCount (CommentCountRequest) returns (CommentCountResponse) {}
+	rpc getCommentPreview (CommentPreviewRequest) returns (CommentPreviewResponse) {}
+
+
+	// ĐỊnh nghĩa xong thì rebuild lại cho chắc
+	// giờ viết implement cho cái hàm grpc ở phía server nha
 }

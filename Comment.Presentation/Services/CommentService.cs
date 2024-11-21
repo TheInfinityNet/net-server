@@ -20,14 +20,20 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
             _mapper = mapper;
         }
 
-        public async Task<int> CountCommentsByPostIdAsync(Guid postId)
+        public async Task<CommentCountResponse> GetCommentCountAsync(GetPostIdRequest request)
         {
-            return await _commentRepository.CountByPostIdAsync(postId);
+            if (request.PostId == Guid.Empty)
+                throw new ArgumentException("Invalid PostId.");
+
+            var commentCount = await _commentRepository.CountCommentsByPostIdAsync(request.PostId);
+
+            return new CommentCountResponse(request.PostId, commentCount);
         }
 
-        public async Task<CommentPreviewResponse?> GetTopCommentWithMostRepliesAsync(Guid postId)
+
+        public async Task<CommentPreviewResponse?> GetTopCommentWithMostRepliesAsync(GetPostIdRequest request)
         {
-            var comment = await _commentRepository.GetTopCommentWithMostRepliesAsync(postId);
+            var comment = await _commentRepository.GetTopCommentWithMostRepliesAsync(request.PostId);
             return comment != null ? _mapper.Map<CommentPreviewResponse>(comment) : null;
         }
         public async Task<GetCommentsResponse> GetCommentsForPostAsync(GetCommentsRequest request)
@@ -108,6 +114,39 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
                 return new UpdateCommentResponse(false, "Failed to update comment.");
 
             return new UpdateCommentResponse(true, "Comment updated successfully.");
+        }
+        public async Task<List<ChildCommentResponse>> GetChildCommentsAsync(Guid parentCommentId)
+        {
+            // Lấy danh sách các comment con từ repository
+            var childComments = await _commentRepository.GetChildCommentsAsync(parentCommentId);
+
+            var result = new List<ChildCommentResponse>();
+            foreach (var comment in childComments)
+            {
+                // Gọi GetRepliesCommentAsync để đếm số lượng comment con của comment này
+                var replyCount = await GetRepliesCommentAsync(comment.Id);
+
+                // Tạo response cho từng comment con và gán số lượng reply
+                var response = new ChildCommentResponse
+                {
+                    Id = comment.Id.ToString(),
+                    CreateAt = comment.CreatedAt,
+                    Content = comment.Content.Text,
+                    // Gán giá trị số lượng reply cho mỗi comment con
+                    ReplyCount = replyCount
+                };
+
+                result.Add(response);
+            }
+
+            return result;
+        }
+
+
+
+        public async Task<int> GetRepliesCommentAsync(Guid commentId)
+        {
+            return await _commentRepository.GetRepliesCommentAsync(commentId);
         }
 
 

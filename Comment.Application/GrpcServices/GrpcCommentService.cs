@@ -7,12 +7,15 @@ using System.Linq;
 using InfinityNetServer.Services.Comment.Domain.Repositories;
 using System;
 using AutoMapper;
+using InfinityNetServer.Services.Comment.Application.Services;
+using InfinityNetServer.Services.Comment.Application.DTOs.Requests;
 
 namespace InfinityNetServer.Services.Comment.Application.GrpcServices
 {
     public class GrpcCommentService(
         ILogger<GrpcCommentService> logger,
         IMapper mapper,
+        ICommentService commentService,
         ICommentRepository commentRepository) : CommentService.CommentServiceBase
     {
 
@@ -49,5 +52,35 @@ namespace InfinityNetServer.Services.Comment.Application.GrpcServices
             return mapper.Map<PreviewCommentResponse>(comment);
         }
 
+        public override async Task<CommentCountResponse> getCommentCount(CommentCountRequest request, ServerCallContext context)
+        {
+            var getPostIdRequest = new GetPostIdRequest
+            {
+                PostId = Guid.Parse(request.PostId)
+            };
+            logger.LogInformation("GetCommentCount");
+            var source = await commentService.GetCommentCountAsync(getPostIdRequest);
+            var response = new CommentCountResponse
+            {
+                Count = source.CommentCount
+            };
+            return response;
+        }
+
+        public override async Task<CommentPreviewResponse> getCommentPreview(CommentPreviewRequest request, ServerCallContext context)
+        {
+            var getPostIdRequest = new GetPostIdRequest
+            {
+                PostId = Guid.Parse(request.PostId)
+            };
+            logger.LogInformation("GetCommentPreview");
+            // Lấy dữ liệu từ service
+            var source = await commentService.GetTopCommentWithMostRepliesAsync(getPostIdRequest);
+
+            // Sử dụng AutoMapper để chuyển đổi
+            var response = mapper.Map<CommentPreviewResponse>(source);
+
+            return response;
+        }
     }
 }

@@ -43,6 +43,11 @@ public static class GrpcExtensions
             options.Address = new Uri(configuration["GrpcServers:FileService"]);
         });
 
+        services.AddGrpcClient<CommentService.CommentServiceClient>(options =>
+        {
+            options.Address = new Uri(configuration["GrpcServers:CommentService"]);
+        });
+
         services.AddScoped(typeof(CommonIdentityClient));
 
         services.AddScoped(typeof(CommonProfileClient));
@@ -52,6 +57,8 @@ public static class GrpcExtensions
         services.AddScoped(typeof(CommonRelationshipClient));
 
         services.AddScoped(typeof(CommonFileClient));
+
+        services.AddScoped(typeof(CommonCommentClient));
 
     }
 

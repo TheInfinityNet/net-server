@@ -10,12 +10,13 @@ namespace InfinityNetServer.Services.Comment.Application.Services
 {
     public interface ICommentService
     {
-        Task<int> CountCommentsByPostIdAsync(Guid postId);
-        Task<CommentPreviewResponse?> GetTopCommentWithMostRepliesAsync(Guid postId);
+        Task<DTOs.Responses.CommentCountResponse> GetCommentCountAsync(GetPostIdRequest request);
+        Task<DTOs.Responses.CommentPreviewResponse> GetTopCommentWithMostRepliesAsync(GetPostIdRequest request);
         Task<GetCommentsResponse> GetCommentsForPostAsync(Application.DTOs.Requests.GetCommentsRequest request);
         Task<AddCommentResponse> AddCommentAsync(AddCommentRequest request);
         Task<DeleteCommentResponse> DeleteCommentAsync(DeleteCommentRequest request);
         Task<UpdateCommentResponse> UpdateCommentAsync(UpdateCommentRequest request);
-
+        Task<List<ChildCommentResponse>> GetChildCommentsAsync(Guid parentCommentId);
+        Task<int> GetRepliesCommentAsync(Guid commentId);
     }
 }
