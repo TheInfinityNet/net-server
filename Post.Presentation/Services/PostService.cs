@@ -100,10 +100,10 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
 
             var specification = new SpecificationWithCursor<Domain.Entities.Post>
             {
-                Criteria = x => 
-                            x.PresentationId == null 
-                            && followeeIds.Concat(friendIds).Concat(potentialProfileIds).Take(200).Contains(x.OwnerId.ToString()) 
-                            && x.Privacy.PostPrivacyExcludes.All(i => i.ProfileId.ToString() != profileId) == true,
+                Criteria = post => 
+                            post.PresentationId == null 
+                            && followeeIds.Concat(friendIds).Concat(potentialProfileIds).Take(200).Contains(post.OwnerId.ToString()) 
+                            && post.Privacy.PostPrivacyExcludes.All(i => i.ProfileId.ToString() != profileId) == true,
                 OrderFields = [
                         new OrderField<Domain.Entities.Post>
                         {

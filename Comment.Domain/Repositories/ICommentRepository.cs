@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using InfinityNetServer.BuildingBlocks.Domain.Repositories;
+using InfinityNetServer.Services.Comment.Domain.Entities;
 
 namespace InfinityNetServer.Services.Comment.Domain.Repositories
 {
@@ -13,7 +14,7 @@ namespace InfinityNetServer.Services.Comment.Domain.Repositories
         Task<(List<Entities.Comment> Comments, int TotalCount)> GetCommentsByPostIdAsync(Guid postId, int pageSize, int pageNumber);
         Task<Entities.Comment> AddCommentAsync(Entities.Comment comment);
         Task<bool> DeleteCommentAsync(Guid commentId, Guid deletedBy);
-        Task<bool> UpdateCommentAsync(Guid commentId, string newContent);
+        Task<bool> UpdateCommentAsync(Guid commentId, CommentContent newContent);
         Task<Entities.Comment?> GetByIdAsync(Guid commentId);
         Task<List<Entities.Comment>> GetChildCommentsAsync(Guid parentCommentId);
         Task<int> GetRepliesCommentAsync(Guid commentId);

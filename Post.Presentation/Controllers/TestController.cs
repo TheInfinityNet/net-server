@@ -142,5 +142,16 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         /*
          2
          */
+
+        [HttpPost("preview-comment/{postId}")]
+        public async Task<IActionResult> GetTopCommentWithMostReplies(string postId)
+        {
+            var response = await commentClient.GetCommentPreview(postId);
+
+            if (response == null)
+                return NotFound(new { message = "No comments found for the given post ID." });
+
+            return Ok(response);
+        }
     }
 }

@@ -74,12 +74,9 @@ namespace InfinityNetServer.Services.Comment.Application.GrpcServices
                 PostId = Guid.Parse(request.PostId)
             };
             logger.LogInformation("GetCommentPreview");
-            // Lấy dữ liệu từ service
             var source = await commentService.GetTopCommentWithMostRepliesAsync(getPostIdRequest);
-
-            // Sử dụng AutoMapper để chuyển đổi
             var response = mapper.Map<CommentPreviewResponse>(source);
-
+            logger.LogInformation("GetCommentPreview");
             return response;
         }
     }

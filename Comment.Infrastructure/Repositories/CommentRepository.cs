@@ -1,4 +1,5 @@
 ﻿using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositories;
+using InfinityNetServer.Services.Comment.Domain.Entities;
 using InfinityNetServer.Services.Comment.Domain.Repositories;
 using InfinityNetServer.Services.Comment.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -67,7 +68,6 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
             if (comment == null || comment.IsDeleted)
                 return false;
 
-            // Đánh dấu comment là đã xóa
             comment.IsDeleted = true;
             comment.DeletedBy = deletedBy;
 
@@ -81,20 +81,21 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
             return await context.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
         }
 
-        public async Task<bool> UpdateCommentAsync(Guid commentId, string newContent)
+        public async Task<bool> UpdateCommentAsync(Guid commentId, CommentContent newContent)
         {
             var comment = await GetByIdAsync(commentId);
 
             if (comment == null || comment.IsDeleted)
                 return false;
 
-            // Cập nhật nội dung comment
-            comment.Content.Text = newContent;
+            comment.Content = newContent;
 
             context.Comments.Update(comment);
             await context.SaveChangesAsync();
             return true;
         }
+
+
 
         public async Task<List<Domain.Entities.Comment?>> GetChildComments(Guid parentCommentId)
         {
@@ -105,7 +106,6 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
 
         public async Task<int> GetRepliesCommentAsync(Guid commentId)
         {
-            // Truy vấn số lượng replies của comment với ID cho trước
             return await context.Comments
                 .Where(c => c.ParentId == commentId)
                 .CountAsync();

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
-using Grpc.Core;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
 using Microsoft.AspNetCore.Http;
@@ -81,5 +80,21 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
+        public async Task<DTOs.Responses.Comment.CommentPreviewResponse> GetCommentPreview(string postId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get preview comment");
+                var response = await client.getCommentPreviewAsync(new CommentPreviewRequest { PostId = postId });
+                // Call the gRPC server to introspect the token
+                return mapper.Map<DTOs.Responses.Comment.CommentPreviewResponse>(response);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new CommonException(BaseErrorCode.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
+        
     }
 }

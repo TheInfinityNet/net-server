@@ -42,19 +42,30 @@ message PreviewCommentResponse {
 
 }
 
-// response
-// trong protobuf nó có các kiểu dữ liệu không giống bên code nên đôi khi phải ghi đúng mới map đc
 message CommentCountResponse {
 	int32 count = 1;
 }
 
 message CommentPreviewResponse {
     string commentId = 1;
-	string profileId = 2;
-    string content = 3;
+    string profileId = 2;
+    ContentResponse content = 3;
     int32 replyCount = 4;
     google.protobuf.Timestamp createAt = 5;
 }
+
+message ContentResponse {
+    string text = 1;
+    repeated TagFacetResponse tagFacets = 2;
+}
+
+message TagFacetResponse {
+    string type = 1;
+    int32 start = 2;
+    int32 end = 3;
+    string profileId = 4;
+}
+
 
 service CommentService {
 

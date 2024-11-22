@@ -6,6 +6,10 @@ using AutoMapper;
 using InfinityNetServer.Services.Comment.Domain.Repositories;
 using InfinityNetServer.Services.Comment.Application.DTOs.Requests;
 using System.Collections.Generic;
+using System.Linq;
+using InfinityNetServer.Services.Comment.Domain.Entities;
+using Newtonsoft.Json;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Comment;
 
 namespace InfinityNetServer.Services.Comment.Presentation.Services
 {
@@ -31,11 +35,37 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
         }
 
 
-        public async Task<CommentPreviewResponse?> GetTopCommentWithMostRepliesAsync(GetPostIdRequest request)
+        public async Task<CommentPreviewResponse> GetTopCommentWithMostRepliesAsync(GetPostIdRequest request)
         {
             var comment = await _commentRepository.GetTopCommentWithMostRepliesAsync(request.PostId);
-            return comment != null ? _mapper.Map<CommentPreviewResponse>(comment) : null;
+
+            if (comment == null)
+                return null;
+
+            var commentPreviewResponse = new CommentPreviewResponse
+            {
+                CommentId = comment.Id,
+                ProfileId = comment.ProfileId,
+                Content = new CommentPreviewResponse.ContentResponse
+                {
+                    Text = comment.Content.Text,
+                    TagFacets = comment.Content.TagFacets.Select(tagFacet => new CommentPreviewResponse.TagFacetResponse
+                    {
+                        Type = tagFacet.Type.ToString(),
+                        Start = tagFacet.Start,
+                        End = tagFacet.End,
+                        ProfileId = tagFacet.ProfileId
+                    }).ToList()
+                },
+                ReplyCount = comment.RepliesComments.Count,
+                CreateAt = comment.CreatedAt
+            };
+
+            return commentPreviewResponse;
         }
+
+
+
         public async Task<GetCommentsResponse> GetCommentsForPostAsync(GetCommentsRequest request)
         {
             var (comments, totalCount) = await _commentRepository.GetCommentsByPostIdAsync(request.PostId, request.PageSize, request.PageNumber);
@@ -52,7 +82,6 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
         }
         public async Task<AddCommentResponse> AddCommentAsync(AddCommentRequest request)
         {
-            // Tạo comment entity từ request
             var comment = new Domain.Entities.Comment
             {
                 ProfileId = request.ProfileId,
@@ -63,10 +92,8 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
                 CreatedAt = DateTime.UtcNow
             };
 
-            // Lưu comment vào database
             var savedComment = await _commentRepository.AddCommentAsync(comment);
 
-            // Trả về response
             return new AddCommentResponse
             {
                 CommentId = savedComment.Id,
@@ -115,24 +142,34 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
 
             return new UpdateCommentResponse(true, "Comment updated successfully.");
         }
+
+
         public async Task<List<ChildCommentResponse>> GetChildCommentsAsync(Guid parentCommentId)
         {
-            // Lấy danh sách các comment con từ repository
             var childComments = await _commentRepository.GetChildCommentsAsync(parentCommentId);
 
             var result = new List<ChildCommentResponse>();
             foreach (var comment in childComments)
             {
-                // Gọi GetRepliesCommentAsync để đếm số lượng comment con của comment này
                 var replyCount = await GetRepliesCommentAsync(comment.Id);
 
-                // Tạo response cho từng comment con và gán số lượng reply
+                var tagFacets = comment.Content.TagFacets.Select(tag => new TagFacetResponse
+                {
+                    Type = tag.Type.ToString(),
+                    Start = tag.Start,
+                    End = tag.End,
+                    ProfileId = tag.ProfileId
+                }).ToList();
+
                 var response = new ChildCommentResponse
                 {
                     Id = comment.Id.ToString(),
                     CreateAt = comment.CreatedAt,
-                    Content = comment.Content.Text,
-                    // Gán giá trị số lượng reply cho mỗi comment con
+                    Content = new ContentResponse
+                    {
+                        Text = comment.Content.Text,
+                        TagFacets = tagFacets
+                    },
                     ReplyCount = replyCount
                 };
 
@@ -142,13 +179,10 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
             return result;
         }
 
-
-
         public async Task<int> GetRepliesCommentAsync(Guid commentId)
         {
             return await _commentRepository.GetRepliesCommentAsync(commentId);
         }
-
 
     }
 }

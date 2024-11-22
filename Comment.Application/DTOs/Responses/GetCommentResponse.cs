@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Comment;
+using System;
 using System.Collections.Generic;
 
 namespace InfinityNetServer.Services.Comment.Application.DTOs.Responses

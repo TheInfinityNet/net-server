@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using InfinityNetServer.Services.Comment.Application.DTOs.Requests;
+using Microsoft.AspNetCore.Authorization;
 
 namespace InfinityNetServer.Services.Comment.Presentation.Controllers
 {
@@ -37,7 +38,7 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
             }
         }
 
-
+        //[Authorize]
         [HttpPost("preview-comment")]
         public async Task<IActionResult> GetTopCommentWithMostReplies([FromBody] GetPostIdRequest request)
         {
