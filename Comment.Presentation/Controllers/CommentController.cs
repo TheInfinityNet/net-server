@@ -1,16 +1,15 @@
-﻿using InfinityNetServer.Services.Comment.Application.Services;
+﻿using InfinityNetServer.Services.Comment.Application.DTOs.Requests;
 using InfinityNetServer.Services.Comment.Application.DTOs.Responses;
+using InfinityNetServer.Services.Comment.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Linq;
-using InfinityNetServer.Services.Comment.Application.DTOs.Requests;
-using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Comment.Presentation.Controllers
 {
     [ApiController]
+    [Route("api/comments")]
     public class CommentController : ControllerBase
     {
         private readonly ICommentService _commentService;
@@ -20,12 +19,12 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
             _commentService = commentService;
         }
 
-        [HttpPost("comment-count")]
-        public async Task<IActionResult> GetCommentCount([FromBody] GetPostIdRequest request)
+        [HttpPost("comment-count/{postId}")]
+        public async Task<IActionResult> GetCommentCount(string postId)
         {
             try
             {
-                var response = await _commentService.GetCommentCountAsync(request);
+                var response = await _commentService.GetCommentCountAsync(postId);
                 return Ok(new { postId = response.PostId, commentCount = response.CommentCount });
             }
             catch (ArgumentException ex)
@@ -39,10 +38,10 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
         }
 
         //[Authorize]
-        [HttpPost("preview-comment")]
-        public async Task<IActionResult> GetTopCommentWithMostReplies([FromBody] GetPostIdRequest request)
+        [HttpPost("preview-comment/{postId}")]
+        public async Task<IActionResult> GetTopCommentWithMostReplies(string postId)
         {
-            var response = await _commentService.GetTopCommentWithMostRepliesAsync(request);
+            var response = await _commentService.GetTopCommentWithMostRepliesAsync(postId);
 
             if (response == null)
                 return NotFound(new { message = "No comments found for the given post ID." });
@@ -106,6 +105,20 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
                 return BadRequest(new { message = response.Message });
 
             return Ok(new { message = response.Message });
+        }
+
+        [HttpGet("count/{postId}")]
+        public async Task<ActionResult<CommentCountResponse>> GetCommentCountByPostId(Guid postId)
+        {
+            var count = await _commentService.CountCommentsByPostIdAsync(postId);
+
+            if (count < 0) // Kiểm tra nếu không có bình luận
+            {
+                return NotFound(new { Message = "No comments found for this post." });
+            }
+
+            var response = new CommentCountResponse(postId, count);
+            return Ok(response);
         }
     }
 }

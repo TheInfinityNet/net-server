@@ -1,21 +1,20 @@
-﻿using InfinityNetServer.Services.Comment.Application.Services;
-using InfinityNetServer.Services.Comment.Application.DTOs.Responses; 
-using System;
-using System.Threading.Tasks;
-using AutoMapper;
-using InfinityNetServer.Services.Comment.Domain.Repositories;
+﻿using AutoMapper;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Comment;
 using InfinityNetServer.Services.Comment.Application.DTOs.Requests;
+using InfinityNetServer.Services.Comment.Application.DTOs.Responses;
+using InfinityNetServer.Services.Comment.Application.Services;
+using InfinityNetServer.Services.Comment.Domain.Repositories;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using InfinityNetServer.Services.Comment.Domain.Entities;
-using Newtonsoft.Json;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Comment;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Comment.Presentation.Services
 {
     public class CommentService : ICommentService
     {
         private readonly ICommentRepository _commentRepository;
+
         private readonly IMapper _mapper;
 
         public CommentService(ICommentRepository commentRepository, IMapper mapper)
@@ -24,20 +23,20 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
             _mapper = mapper;
         }
 
-        public async Task<CommentCountResponse> GetCommentCountAsync(GetPostIdRequest request)
+        public async Task<CommentCountResponse> GetCommentCountAsync(string postId)
         {
-            if (request.PostId == Guid.Empty)
+            if ((Guid.Parse(postId).Equals(Guid.Empty)))
                 throw new ArgumentException("Invalid PostId.");
 
-            var commentCount = await _commentRepository.CountCommentsByPostIdAsync(request.PostId);
+            var commentCount = await _commentRepository.CountCommentsByPostIdAsync(Guid.Parse(postId));
 
-            return new CommentCountResponse(request.PostId, commentCount);
+            return new CommentCountResponse(Guid.Parse(postId), commentCount);
         }
 
 
-        public async Task<CommentPreviewResponse> GetTopCommentWithMostRepliesAsync(GetPostIdRequest request)
+        public async Task<CommentPreviewResponse> GetTopCommentWithMostRepliesAsync(string postId)
         {
-            var comment = await _commentRepository.GetTopCommentWithMostRepliesAsync(request.PostId);
+            var comment = await _commentRepository.GetTopCommentWithMostRepliesAsync((Guid.Parse(postId)));
 
             if (comment == null)
                 return null;
@@ -184,5 +183,15 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
             return await _commentRepository.GetRepliesCommentAsync(commentId);
         }
 
+
+        public CommentService(ICommentRepository commentRepository)
+        {
+            _commentRepository = commentRepository;
+        }
+
+        public async Task<int> CountCommentsByPostIdAsync(Guid postId)
+        {
+            return await _commentRepository.CountByPostIdAsync(postId);
+        }
     }
 }

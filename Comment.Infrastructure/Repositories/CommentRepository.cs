@@ -110,5 +110,9 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
                 .CountAsync();
         }
 
+        public async Task<int> CountByPostIdAsync(Guid postId)
+        {
+            return await context.Comments.CountAsync(c => c.PostId == postId && !c.IsDeleted);
+        }
     }
 }
