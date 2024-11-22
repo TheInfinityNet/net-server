@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InfinityNetServer.Services.Reaction.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ReactionDbContext))]
-    [Migration("20241101172546_InitialMigration")]
+    [Migration("20241120144756_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\Reaction.Domain\Reaction.Domain.csproj" />
   </ItemGroup>
 
 </Project>

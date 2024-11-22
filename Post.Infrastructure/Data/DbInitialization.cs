@@ -30,7 +30,7 @@ public static class DbInitialization
         dbContext.Database.EnsureDeleted();
     }
 
-    public static void AutoMigration(this WebApplication webApplication)
+    public static async void AutoMigration(this WebApplication webApplication)
     {
         using var serviceScope = webApplication.Services.CreateScope();
 
@@ -38,16 +38,16 @@ public static class DbInitialization
 
         if (!dbContext.Database.EnsureCreated()) return;
 
-        dbContext.Database.MigrateAsync().Wait(); //generate all in folder Migration
+        await dbContext.Database.MigrateAsync(); //generate all in folder Migration
 
     }
 
-    public static async void SeedEssentialData(this IServiceProvider serviceProvider, int numberOfPosts)
+    public static async void SeedEssentialData(this IServiceProvider serviceProvider)
     {
         using var serviceScope = serviceProvider.CreateScope();
         serviceScope.ServiceProvider.GetService<PostDbContext>();
         var postRepository = serviceScope.ServiceProvider.GetService<IPostRepository>();
-        var postPrivacyRepository = serviceScope.ServiceProvider.GetService<IPostPrivacyRepository>();
+        var postAudienceRepository = serviceScope.ServiceProvider.GetService<IPostAudienceRepository>();
         var profileClient = serviceScope.ServiceProvider.GetService<CommonProfileClient>();
         var groupClient = serviceScope.ServiceProvider.GetService<CommonGroupClient>();
         var relationshipClient = serviceScope.ServiceProvider.GetService<CommonRelationshipClient>();
@@ -57,55 +57,152 @@ public static class DbInitialization
         
         if (existingPostCount.Count == 0)
         {
-            //IList<string> profileIds = await profileClient.GetProfileIds();
-            //IList<GroupMemberWithGroup> groupMemberWithGroups = await groupClient.GetGroupMemberWithGroup();
-            //var groupPosts = GeneratePresentationPosts(numberOfPosts / 2, groupMemberWithGroups);
-            //await postRepository.CreateAsync(groupPosts);
+            var profileIds = await profileClient.GetProfileIds();
 
-            var posts = await GeneratePresentationPosts(numberOfPosts, profileClient, relationshipClient);
-            await postRepository.CreateAsync(posts);
+            var textPosts = await GenerateTextPosts(100, profileClient, relationshipClient);
+            var mediaPost = await GenerateMediaPosts(200, profileClient, relationshipClient);
+            var multiMediaPosts = GenerateMultiMediaPosts(300, profileIds);
 
-            IList<Domain.Entities.Post> presentationPosts = await postRepository.GetAllAsync();
-            IList<PostPrivacy> postPrivacies = await GeneratePostPrivacies(presentationPosts, relationshipClient);
-            await postPrivacyRepository.CreateAsync(postPrivacies);
+            var combinedPosts = textPosts.Concat(mediaPost).Concat(multiMediaPosts).ToList();
+            await postRepository.CreateAsync(combinedPosts);
 
-            var sharedPosts = await GenerateSharedPosts(numberOfPosts / 2, profileClient, postService);
+            var postAudiences = await GeneratePostAudiences(combinedPosts, relationshipClient);
+            await postAudienceRepository.CreateAsync(postAudiences);
+
+            var sharedPosts = await GenerateSharedPosts(100, profileClient, relationshipClient, postService);
             await postRepository.CreateAsync(sharedPosts);
 
-            presentationPosts = await postRepository.GetAllSharePostsAsync();
-            postPrivacies = await GeneratePostPrivacies(presentationPosts, relationshipClient);
-            await postPrivacyRepository.CreateAsync(postPrivacies);
-
-            var subPosts = await GenerateSubPosts(numberOfPosts * 2, postRepository);
-            await postRepository.CreateAsync(subPosts);
+            postAudiences = await GeneratePostAudiences(sharedPosts, relationshipClient);
+            await postAudienceRepository.CreateAsync(postAudiences);
         }
     }
 
-    private static async Task<IList<Domain.Entities.Post>> GeneratePresentationPosts(
-    int count, CommonProfileClient profileClient, CommonRelationshipClient relationshipClient)
+    private static async Task<IList<Domain.Entities.Post>> GenerateTextPosts(
+        int count, CommonProfileClient profileClient, CommonRelationshipClient relationshipClient)
     {
-        // Tải trước dữ liệu profile và relationship
         var profileIds = await profileClient.GetProfileIds();
         var relationshipData = await LoadRelationships(profileIds, relationshipClient);
 
-        // Sử dụng Faker để sinh dữ liệu
         var postFaker = new Faker<Domain.Entities.Post>()
+            .RuleFor(p => p.Id, _ => Guid.NewGuid())
             .RuleFor(p => p.Type, PostType.Text)
             .RuleFor(p => p.OwnerId, f => Guid.Parse(f.PickRandom(profileIds)))
             .RuleFor(p => p.CreatedAt, f => f.Date.Recent(365))
             .RuleFor(p => p.CreatedBy, (f, p) => p.OwnerId);
 
-        var posts = new List<Domain.Entities.Post>();
-        await Parallel.ForEachAsync(Enumerable.Range(0, count), async (_, _) =>
+        var tasks = Enumerable.Range(0, count).Select(async _ =>
         {
             var post = postFaker.Generate();
             var profileIdsWithNames = await profileClient.GetProfileIdsWithNames(relationshipData[post.OwnerId.ToString()]);
             post.Content = GeneratePostContent(profileIdsWithNames);
-
-            lock (posts) posts.Add(post);
+            return post;
         });
 
-        return posts;
+        return await Task.WhenAll(tasks);
+    }
+
+    private static async Task<IList<Domain.Entities.Post>> GenerateMediaPosts(
+        int count, CommonProfileClient profileClient, CommonRelationshipClient relationshipClient)
+    {
+        var profileIds = await profileClient.GetProfileIds();
+        var relationshipData = await LoadRelationships(profileIds, relationshipClient);
+
+        var postFaker = new Faker<Domain.Entities.Post>()
+            .RuleFor(p => p.Id, _ => Guid.NewGuid())
+            .RuleFor(p => p.Type, f => f.Random.Bool(0.5f) ? PostType.Photo : PostType.Video)
+            .RuleFor(p => p.FileMetadataId, _ => Guid.NewGuid())
+            .RuleFor(p => p.OwnerId, f => Guid.Parse(f.PickRandom(profileIds)))
+            .RuleFor(p => p.CreatedAt, f => f.Date.Recent(365))
+            .RuleFor(p => p.CreatedBy, (f, p) => p.OwnerId);
+
+        var tasks = Enumerable.Range(0, count).Select(async _ =>
+        {
+            var post = postFaker.Generate();
+            var profileIdsWithNames = await profileClient.GetProfileIdsWithNames(relationshipData[post.OwnerId.ToString()]);
+            post.Content = GeneratePostContent(profileIdsWithNames);
+            return post;
+        });
+
+        return await Task.WhenAll(tasks);
+    }
+
+    private static async Task<IList<Domain.Entities.Post>> GenerateSharedPosts(
+        int count, CommonProfileClient profileClient, CommonRelationshipClient relationshipClient, IPostService postService)
+    {
+        var profileIds = await profileClient.GetProfileIds() ?? throw new InvalidOperationException("No profile IDs found.");
+        var relationshipData = await LoadRelationships(profileIds, relationshipClient);
+        var parentPosts = await postService.GetAllPresentationIds() ?? throw new InvalidOperationException("No parent posts found.");
+
+        var sharedPostFaker = new Faker<Domain.Entities.Post>()
+            .RuleFor(p => p.Id, _ => Guid.NewGuid())
+            .RuleFor(p => p.Type, PostType.Share)
+            .RuleFor(p => p.ParentId, f => Guid.Parse(f.PickRandom(parentPosts)))
+            .RuleFor(p => p.Content, f => new PostContent { Text = f.Lorem.Sentence(10) })
+            .RuleFor(p => p.CreatedAt, f => f.Date.Recent(365));
+
+        var tasks = Enumerable.Range(0, count).Select(async _ =>
+        {
+            var sharedPost = sharedPostFaker.Generate();
+
+            var whoCantSeeIds = await postService.WhoCantSee(sharedPost.ParentId.ToString());
+            var filteredProfileIds = profileIds.Except(whoCantSeeIds).ToList();
+
+            if (filteredProfileIds.Count == 0) return null; // Bỏ qua nếu không còn profile nào
+
+            var randomProfileId = Guid.Parse(new Faker().PickRandom(filteredProfileIds));
+            sharedPost.OwnerId = randomProfileId;
+            sharedPost.CreatedBy = randomProfileId;
+
+            var profileIdsWithNames = await profileClient.GetProfileIdsWithNames(relationshipData[randomProfileId.ToString()]);
+            sharedPost.Content = GeneratePostContent(profileIdsWithNames);
+
+            return sharedPost;
+        });
+
+        return (await Task.WhenAll(tasks)).Where(p => p != null).ToList(); // Loại bỏ null
+    }
+
+    private static IList<Domain.Entities.Post> GenerateMultiMediaPosts(int count, IList<string> profileIds)
+    {
+        var random = new Random();
+
+        // Sử dụng Faker để sinh dữ liệu cho presentation posts
+        var postFaker = new Faker<Domain.Entities.Post>()
+            .RuleFor(p => p.Id, f => Guid.NewGuid()) // Đảm bảo GUID duy nhất
+            .RuleFor(p => p.Type, PostType.MultiMedia)
+            .RuleFor(p => p.Content, f => new PostContent { Text = f.Lorem.Sentence(10) })
+            .RuleFor(p => p.OwnerId, f => Guid.Parse(f.PickRandom(profileIds)))
+            .RuleFor(p => p.CreatedAt, f => f.Date.Recent(365))
+            .RuleFor(p => p.CreatedBy, (f, p) => p.OwnerId)
+            .RuleFor(p => p.SubPosts, []); // Khởi tạo danh sách rỗng
+
+        // Tạo danh sách presentation posts
+        IList<Domain.Entities.Post> presentationPosts = postFaker.Generate(count);
+
+        foreach (var presentationPost in presentationPosts)
+        {
+            // Faker cho các subPosts
+            var subPostFaker = new Faker<Domain.Entities.Post>()
+                .RuleFor(p => p.Id, f => Guid.NewGuid()) // Đảm bảo GUID duy nhất
+                .RuleFor(p => p.Type, f => f.Random.Bool(0.8f) ? PostType.Photo : PostType.Video)
+                .RuleFor(p => p.FileMetadataId, f => Guid.NewGuid())
+                .RuleFor(p => p.Parent, presentationPost) // Liên kết cha
+                .RuleFor(p => p.ParentId, f => presentationPost.Id)
+                .RuleFor(p => p.Content, f => new PostContent { Text = f.Lorem.Sentence(10) })
+                .RuleFor(p => p.OwnerId, f => presentationPost.OwnerId)
+                .RuleFor(p => p.CreatedBy, f => presentationPost.CreatedBy)
+                .RuleFor(p => p.CreatedAt, f => presentationPost.CreatedAt)
+                .RuleFor(p => p.GroupId, f => presentationPost.GroupId);
+
+            // Số lượng ngẫu nhiên từ 2 đến 5 subPosts
+            int randomSubPostCount = random.Next(2, 6);
+
+            // Tạo danh sách subPosts và thêm vào presentationPost
+            var subPosts = subPostFaker.Generate(randomSubPostCount);
+            presentationPost.SubPosts = [.. presentationPost.SubPosts, .. subPosts];
+        }
+
+        return presentationPosts;
     }
 
     // Hàm phụ để tải relationship data
@@ -128,73 +225,24 @@ public static class DbInitialization
         }).ToDictionary(x => x.id, x => x.combined);
     }
 
-    private static async Task<List<Domain.Entities.Post>> GenerateSubPosts(
-    int count, IPostRepository postRepository)
-    {
-        var presentationPosts = await postRepository.GetAllPresentationPostsAsync();
-
-        var subPostFaker = new Faker<Domain.Entities.Post>()
-            .RuleFor(p => p.Type, f => f.Random.Bool(0.8f) ? PostType.Photo : PostType.Video)
-            .RuleFor(p => p.Presentation, f => f.PickRandom(presentationPosts))
-            .RuleFor(p => p.Content, f => new PostContent { Text = f.Lorem.Sentence(10) })
-            .RuleFor(p => p.OwnerId, (f, p) => p.Presentation.OwnerId)
-            .RuleFor(p => p.CreatedBy, (f, p) => p.Presentation.CreatedBy)
-            .RuleFor(p => p.CreatedAt, (f, p) => p.Presentation.CreatedAt)
-            .RuleFor(p => p.GroupId, (f, p) => p.Presentation.GroupId)
-            .RuleFor(p => p.FileMetadataId, Guid.NewGuid());
-
-        return subPostFaker.Generate(count);
-    }
-
-    private static async Task<IList<Domain.Entities.Post>> GenerateSharedPosts(
-        int count, CommonProfileClient profileClient, IPostService postService)
-    {
-        // Lấy danh sách profileId và parentPostId
-        var profileIds = await profileClient.GetProfileIds();
-        var parentPosts = await postService.GetAllPresentationIds();
-
-        // Chuẩn bị Faker để tạo các Post
-        var sharedPostFaker = new Faker<Domain.Entities.Post>()
-            .RuleFor(p => p.Type, PostType.Share)
-            .RuleFor(p => p.ParentId, f => Guid.Parse(f.PickRandom(parentPosts)))
-            .RuleFor(p => p.Content, f => new PostContent { Text = f.Lorem.Sentence(10) })
-            .RuleFor(p => p.CreatedAt, f => f.Date.Recent(365));
-
-        IList<Domain.Entities.Post> sharedPosts = [];
-
-        foreach (var _ in Enumerable.Range(0, count))
-        {
-            var sharedPost = sharedPostFaker.Generate();
-
-            // Lấy danh sách những profile không thể xem
-            var whoCantSeeIds = await postService.WhoCantSee(sharedPost.ParentId.ToString());
-            var filteredProfileIds = profileIds.Except(whoCantSeeIds).ToList();
-
-            // Đảm bảo có profile hợp lệ
-            if (filteredProfileIds.Count == 0) break;
-
-            var randomProfileId = Guid.Parse(new Faker().PickRandom(filteredProfileIds));
-            sharedPost.OwnerId = randomProfileId;
-            sharedPost.CreatedBy = randomProfileId;
-
-            sharedPosts.Add(sharedPost);
-        }
-
-        return sharedPosts;
-    }
-
-    private static async Task<IList<PostPrivacy>> GeneratePostPrivacies(
+    private static async Task<IList<PostAudience>> GeneratePostAudiences(
         IList<Domain.Entities.Post> presentationPosts, CommonRelationshipClient relationshipClient)
     {
         var faker = new Faker();
-        var postPrivacies = new List<PostPrivacy>();
+        var postAudiences = new List<PostAudience>();
 
         foreach (var post in presentationPosts)
         {
-            var type = faker.PickRandom<PostPrivacyType>();
-            var privacy = CreatePostPrivacy(post, type);
+            var type = GetRandomAudienceType();
+            var audience = new PostAudience
+            {
+                PostId = post.Id,
+                Type = type,
+                CreatedBy = post.CreatedBy.Value,
+                CreatedAt = post.CreatedAt
+            };
 
-            if (type is PostPrivacyType.Exclude or PostPrivacyType.Include or PostPrivacyType.Custom)
+            if (type is PostAudienceType.Exclude or PostAudienceType.Include or PostAudienceType.Custom)
             {
                 var combinedIds = await GetCombinedIds(post.OwnerId.ToString(), relationshipClient);
 
@@ -203,49 +251,67 @@ public static class DbInitialization
                     var selectedIds = faker.PickRandom(combinedIds, faker.Random.Int(1, Math.Min(combinedIds.Count, 5)));
 
                     foreach (var profileId in selectedIds)
-                        AddPrivacyDetail(privacy, Guid.Parse(profileId), type, post.CreatedBy.Value, post.CreatedAt);
+                        AddAudienceDetail(audience, Guid.Parse(profileId), type, post.CreatedBy.Value, post.CreatedAt);
                 }
             }
 
-            postPrivacies.Add(privacy);
+            postAudiences.Add(audience);
         }
 
-        return postPrivacies;
+        return postAudiences;
     }
 
-    private static void AddPrivacyDetail(
-        PostPrivacy postPrivacy, Guid profileId, PostPrivacyType type, Guid createdBy, DateTime createdAt)
+    public static PostAudienceType GetRandomAudienceType()
     {
-
-        if (type == PostPrivacyType.Exclude || type == PostPrivacyType.Custom)
-            postPrivacy.PostPrivacyExcludes.Add(new PostPrivacyExclude
-            {
-                PostPrivacyId = postPrivacy.Id,
-                ProfileId = profileId,
-                CreatedBy = createdBy,
-                CreatedAt = createdAt
-            });
-
-        if (type == PostPrivacyType.Include || type == PostPrivacyType.Custom)
-            postPrivacy.PostPrivacyIncludes.Add(new PostPrivacyInclude
-            {
-                PostPrivacyId = postPrivacy.Id,
-                ProfileId = profileId,
-                CreatedBy = createdBy,
-                CreatedAt = createdAt
-            });
-    }
-
-    // Hàm phụ tạo PostPrivacy
-    private static PostPrivacy CreatePostPrivacy(Domain.Entities.Post post, PostPrivacyType type)
-    {
-        return new PostPrivacy
+        // Danh sách các giá trị với tần suất tương ứng
+        var audienceTypes = new List<PostAudienceType>
         {
-            PostId = post.Id,
-            Type = type,
-            CreatedBy = post.CreatedBy.Value,
-            CreatedAt = post.CreatedAt
+            PostAudienceType.Public, // 40%
+            PostAudienceType.Public,
+            PostAudienceType.Public,
+            PostAudienceType.Public,
+
+            PostAudienceType.Friends, // 20%
+            PostAudienceType.Friends,
+
+            PostAudienceType.Include, // 10%
+            PostAudienceType.Include,
+
+            PostAudienceType.Exclude, // 10%
+            PostAudienceType.Exclude,
+
+            PostAudienceType.Custom, // 10%
+            PostAudienceType.Custom,
+
+            PostAudienceType.OnlyMe // 10%
         };
+
+        // Chọn một giá trị ngẫu nhiên từ danh sách trên
+        var random = new Faker();
+        return random.PickRandom(audienceTypes);
+    }
+
+    private static void AddAudienceDetail(
+        PostAudience postAudience, Guid profileId, PostAudienceType type, Guid createdBy, DateTime createdAt)
+    {
+
+        if (type == PostAudienceType.Exclude || type == PostAudienceType.Custom)
+            postAudience.Excludes.Add(new PostAudienceExclude
+            {
+                AudienceId = postAudience.Id,
+                ProfileId = profileId,
+                CreatedBy = createdBy,
+                CreatedAt = createdAt
+            });
+
+        if (type == PostAudienceType.Include || type == PostAudienceType.Custom)
+            postAudience.Includes.Add(new PostAudienceInclude
+            {
+                AudienceId = postAudience.Id,
+                ProfileId = profileId,
+                CreatedBy = createdBy,
+                CreatedAt = createdAt
+            });
     }
 
     // Hàm phụ lấy combined IDs
@@ -254,10 +320,10 @@ public static class DbInitialization
     {
         var tasks = new[]
         {
-        relationshipClient.GetFollowerIds(ownerId),
-        relationshipClient.GetFolloweeIds(ownerId),
-        relationshipClient.GetFriendIds(ownerId)
-    };
+            relationshipClient.GetFollowerIds(ownerId),
+            relationshipClient.GetFolloweeIds(ownerId),
+            relationshipClient.GetFriendIds(ownerId)
+        };
 
         var results = await Task.WhenAll(tasks);
         return results.SelectMany(r => r).Distinct().ToList();
@@ -281,6 +347,7 @@ public static class DbInitialization
                 contentBuilder.Append($" #{hashtag}");
                 postContent.HashtagFacets.Add(new HashtagFacet
                 {
+                    Tag = hashtag,
                     Type = FacetType.Hashtag,
                     Start = start,
                     End = start + hashtag.Length
@@ -290,7 +357,7 @@ public static class DbInitialization
             {
                 var profile = faker.PickRandom(profileIdsWithNames.Where(p => !usedProfileIds.Contains(p)));
                 contentBuilder.Append($" @{profile.Name}");
-                postContent.TagFacets.Add(new TagFacet
+                postContent.TagFacets.Add(new BuildingBlocks.Domain.Entities.TagFacet
                 {
                     Type = FacetType.Tag,
                     ProfileId = Guid.Parse(profile.Id),
@@ -306,233 +373,6 @@ public static class DbInitialization
         postContent.Text = contentBuilder.ToString();
         return postContent;
     }
-
-
-
-    //private static async Task<IList<Domain.Entities.Post>> GeneratePresentationPosts(
-    //    int count, CommonProfileClient profileClient, CommonRelationshipClient relationshipClient)
-    //{
-    //    IList<string> profileIds = await profileClient.GetProfileIds();
-    //    var faker = new Faker<Domain.Entities.Post>()
-    //        .CustomInstantiator(f =>
-    //        {
-    //            var randomProfileId = Guid.Parse(f.PickRandom(profileIds));
-    //            return new Domain.Entities.Post
-    //            {
-    //                Type = PostType.Text,
-    //                OwnerId = randomProfileId,
-    //                CreatedBy = randomProfileId,
-    //                CreatedAt = f.Date.Recent(f.Random.Int(1, 365))
-    //            };
-    //        });
-
-    //    IList<Domain.Entities.Post> posts = [];
-    //    for (int i = 0; i < count; i++)
-    //    {
-    //        var post = faker.Generate();
-    //        var friendIds = await relationshipClient.GetFriendIds(post.OwnerId.ToString());
-    //        var folowerIds = await relationshipClient.GetFollowerIds(post.OwnerId.ToString());
-    //        var combinedIds = friendIds.Concat(folowerIds).Distinct().ToList();
-    //        var profileIdsWithNames = await profileClient.GetProfileIdsWithNames(combinedIds);
-    //        post.Content = GeneratePostContent(profileIdsWithNames);
-    //        posts.Add(post);
-    //    }
-    //    return posts;
-    //}
-
-    //private static async Task<List<Domain.Entities.Post>> GenerateSubPosts(
-    //    int count, IPostRepository postRepository)
-    //{
-    //    var presentationPosts = await postRepository.GetAllAsync();
-    //    var faker = new Faker<Domain.Entities.Post>()
-    //        .CustomInstantiator(f =>
-    //        {
-    //            var randomPresentationPost = f.PickRandom(presentationPosts);
-    //            var type = f.PickRandom<PostType>();
-    //            var mediaId = (type != PostType.Text) ? Guid.NewGuid() : (Guid?)null;
-
-    //            return new Domain.Entities.Post
-    //            {
-    //                Type = type,
-    //                Content = new()
-    //                {
-    //                    Text = f.Lorem.Sentence(10)
-    //                },
-    //                GroupId = randomPresentationPost.GroupId,
-    //                Presentation = randomPresentationPost,
-    //                OwnerId = randomPresentationPost.OwnerId,
-    //                FileMetadataId = mediaId,
-    //                CreatedBy = randomPresentationPost.CreatedBy,
-    //                CreatedAt = randomPresentationPost.CreatedAt
-    //            };
-    //        });
-
-    //    return faker.Generate(count);
-    //}
-
-    //private static async Task<List<Domain.Entities.Post>> GenerateSharedPosts(
-    //    int count,
-    //    CommonProfileClient profileClient,
-    //    IPostRepository postRepository)
-    //{
-    //    var profileIds = await profileClient.GetProfileIds();
-    //    var parentPosts = await postRepository.GetAllAsync();
-
-    //    var faker = new Faker<Domain.Entities.Post>()
-    //        .CustomInstantiator(f =>
-    //        {
-    //            var randomProfileId = f.PickRandom(profileIds);
-    //            var randomParentPost = f.PickRandom(parentPosts);
-
-    //            return new Domain.Entities.Post
-    //            {
-    //                Type = PostType.Share,
-    //                Parent = randomParentPost,
-    //                Content = new()
-    //                {
-    //                    Text = f.Lorem.Sentence(10)
-    //                },
-    //                OwnerId = Guid.Parse(randomProfileId),
-    //                CreatedBy = Guid.Parse(randomProfileId),
-    //                CreatedAt = f.Date.Recent(f.Random.Int(1, 365))
-    //            };
-    //        });
-
-    //    return faker.Generate(count);
-    //}
-
-    //private static async Task<IList<PostPrivacy>> GeneratePostPrivacies(
-    //    IList<Domain.Entities.Post> presentationPosts, CommonRelationshipClient relationshipClient)
-    //{
-    //    var faker = new Faker();
-    //    var postPrivacies = new List<PostPrivacy>();
-
-    //    foreach (var post in presentationPosts)
-    //    {
-    //        var type = faker.PickRandom<PostPrivacyType>();
-    //        var createdBy = post.CreatedBy.Value;
-    //        var createdAt = post.CreatedAt;
-    //        var postPrivacy = new PostPrivacy
-    //        {
-    //            PostId = post.Id,
-    //            Type = type,
-    //            CreatedBy = createdBy,
-    //            CreatedAt = createdAt
-    //        };
-
-    //        if (type is PostPrivacyType.Exclude or PostPrivacyType.Include or PostPrivacyType.Custom)
-    //        {
-    //            var followerIds = await relationshipClient.GetFollowerIds(post.OwnerId.ToString());
-    //            var followeeIds = await relationshipClient.GetFolloweeIds(post.OwnerId.ToString());
-    //            var friendIds = await relationshipClient.GetFriendIds(post.OwnerId.ToString());
-
-    //            var combinedIds = followerIds.Concat(followeeIds).Concat(friendIds).Distinct().ToList();
-
-    //            if (combinedIds.Count > 0)
-    //            {
-    //                int totalCount = faker.Random.Int(1, Math.Min(combinedIds.Count, 5));
-    //                var selectedIds = faker.PickRandom(combinedIds, Math.Min(combinedIds.Count, totalCount)).Distinct();
-
-    //                foreach (var profileId in selectedIds)
-    //                    AddPrivacyDetail(postPrivacy, Guid.Parse(profileId), type, createdBy, createdAt);
-    //            }
-    //        }
-
-    //        postPrivacies.Add(postPrivacy);
-    //    }
-    //    return postPrivacies;
-    //}
-
-    //private static PostContent GeneratePostContent(IList<ProfileIdWithName> profileIdsWithNames)
-    //{
-    //    Faker faker = new();
-    //    PostContent postContent = new();
-    //    int facetCount = faker.Random.Int(1, profileIdsWithNames.Count < 3 ? profileIdsWithNames.Count : 3);
-    //    int minContentLength = 50;
-    //    int minStart = 0;
-    //    IList<string> text = [faker.Lorem.Sentence(minContentLength)];
-    //    IList<ProfileIdWithName> usedProfileIdsWithNames = [];
-
-    //    for (int i = 0; i < facetCount; i++)
-    //    {
-    //        FacetType facetType = faker.PickRandom<FacetType>();
-
-    //        if (facetType == FacetType.Hashtag)
-    //        {
-    //            var randomHashTag = faker.Lorem.Word();
-    //            int hashtagLength = randomHashTag.Length;
-
-    //            // Đảm bảo minStart không vượt qua minContentLength - hashtagLength
-    //            if (minStart > minContentLength - hashtagLength)
-    //            {
-    //                minContentLength = minStart + hashtagLength + 1;
-
-    //                // Đảm bảo chuỗi hiện tại đủ dài
-    //                while (text[^1].Length < minContentLength)
-    //                    text[^1] += faker.Lorem.Sentence(10);
-    //            }
-
-    //            int start = faker.Random.Int(minStart, minContentLength - hashtagLength);
-    //            int end = start + hashtagLength;
-
-    //            postContent.HashtagFacets.Add(new HashtagFacet
-    //            {
-    //                Type = FacetType.Hashtag,
-    //                Start = start,
-    //                End = end,
-    //                Tag = randomHashTag
-    //            });
-
-    //            text[^1] = text[^1].Insert(start, $" #{randomHashTag}");
-
-    //            minContentLength += 20;
-    //            minStart = end;
-
-    //            // Thêm một câu mới để đảm bảo nội dung tiếp theo có chỗ chèn
-    //            text.Add(faker.Lorem.Sentence(20));
-    //        }
-
-    //        else if (facetType == FacetType.Tag)
-    //        {
-    //            var randomProfileIdWithName = faker.PickRandom(profileIdsWithNames);
-    //            while (usedProfileIdsWithNames.Contains(randomProfileIdWithName))
-    //                randomProfileIdWithName = faker.PickRandom(profileIdsWithNames);
-
-    //            int tagLength = randomProfileIdWithName.Name.Length;
-
-    //            if (minStart > minContentLength - tagLength)
-    //            {
-    //                minContentLength = minStart + tagLength + 1;
-
-    //                while (text[^1].Length < minContentLength)
-    //                    text[^1] += faker.Lorem.Sentence(10);
-    //            }
-
-    //            int start = faker.Random.Int(minStart, minContentLength - tagLength);
-    //            int end = start + tagLength;
-
-    //            postContent.TagFacets.Add(new TagFacet
-    //            {
-    //                Type = FacetType.Tag,
-    //                ProfileId = Guid.Parse(randomProfileIdWithName.Id),
-    //                Start = start,
-    //                End = end
-    //            });
-
-    //            text[^1] = text[^1].Insert(start, $" @{randomProfileIdWithName.Name}");
-    //            usedProfileIdsWithNames.Add(randomProfileIdWithName);
-
-    //            minContentLength += 50;
-    //            minStart = end;
-    //            text.Add(faker.Lorem.Sentence(50));
-    //        }
-
-    //    }
-
-    //    postContent.Text = string.Join(" ", text);
-
-    //    return postContent;
-    //}
 
     //private static List<Domain.Entities.Post> GeneratePresentationPosts(
     //int count, IList<GroupMemberWithGroup> groupMemberWithGroups)

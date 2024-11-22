@@ -4,7 +4,7 @@ using System;
 
 namespace InfinityNetServer.Services.Post.Domain.Repositories
 {
-    public interface IPostPrivacyIncludeRepository : ISqlRepository<PostPrivacyInclude, Guid>
+    public interface IPostAudienceIncludeRepository : ISqlRepository<PostAudienceInclude, Guid>
     {
 
 

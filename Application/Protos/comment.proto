@@ -14,13 +14,8 @@ message PreviewCommentRequest {
 	string id = 1;
 }
 
-// giờ định nghĩa cái input với out put cho hàm grpc
-// request: truyền vào post id đế biết đếm comment
-message CommentCountRequest {
-	string postId = 1;
-}
+message CommentByPostIdRequest {
 
-message CommentPreviewRequest {
 	string postId = 1;
 }
 
@@ -75,11 +70,10 @@ service CommentService {
 
 	rpc getPreviewComment (PreviewCommentRequest) returns (PreviewCommentResponse) {}
 
-	// định nghĩa hàm
-	rpc getCommentCount (CommentCountRequest) returns (CommentCountResponse) {}
-	rpc getCommentPreview (CommentPreviewRequest) returns (CommentPreviewResponse) {}
+	rpc getCommentCount (CommentByPostIdRequest) returns (CommentCountResponse) {}
 
+	rpc getCommentPreview (CommentByPostIdRequest) returns (CommentPreviewResponse) {}
 
-	// ĐỊnh nghĩa xong thì rebuild lại cho chắc
-	// giờ viết implement cho cái hàm grpc ở phía server nha
+	rpc getCommentIdsByPostId (CommentByPostIdRequest) returns (CommentIdsResponse) {}
+
 }

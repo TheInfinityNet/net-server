@@ -31,15 +31,15 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
-        public async Task<List<DTOs.Others.FileMetadataIdWithOwnerId>> GetPreviewFileMetadatas()
+        public async Task<List<DTOs.Others.PreviewFileMetadata>> GetPreviewFileMetadatas()
         {
             try
             {
                 logger.LogInformation("Starting get file metadata ids with types");
                 var response = await client.getPreviewFileMetadatasAsync(new Empty());
                 // Call the gRPC server to introspect the token
-                return new List<DTOs.Others.FileMetadataIdWithOwnerId>(response.PreviewFileMetadatas
-                    .Select(mapper.Map<DTOs.Others.FileMetadataIdWithOwnerId>).ToList());
+                return new List<DTOs.Others.PreviewFileMetadata>(response.PreviewFileMetadatas
+                    .Select(mapper.Map<DTOs.Others.PreviewFileMetadata>).ToList());
             }
             catch (Exception e)
             {
@@ -69,9 +69,25 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting get preview comment");
-                var response = await client.getCommentCountAsync(new CommentCountRequest { PostId = postId });
+                var response = await client.getCommentCountAsync(new CommentByPostIdRequest { PostId = postId });
                 // Call the gRPC server to introspect the token
                 return response.Count;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new CommonException(BaseErrorCode.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
+
+        public async Task<List<string>> GetCommentIdsByPostId(string postId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get comment ids by post id");
+                var response = await client.getCommentIdsByPostIdAsync(new CommentByPostIdRequest { PostId = postId });
+                // Call the gRPC server to introspect the token
+                return new List<string>(response.Ids);
             }
             catch (Exception e)
             {
@@ -85,7 +101,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting get preview comment");
-                var response = await client.getCommentPreviewAsync(new CommentPreviewRequest { PostId = postId });
+                var response = await client.getCommentPreviewAsync(new CommentByPostIdRequest { PostId = postId });
                 // Call the gRPC server to introspect the token
                 return mapper.Map<DTOs.Responses.Comment.CommentPreviewResponse>(response);
             }

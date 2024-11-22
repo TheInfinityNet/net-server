@@ -117,33 +117,48 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
                         : query.OrderBy(orderField.Field);
 
             // Áp dụng phân trang với cursor, giả sử Cursor là ID của item
+            //if (!string.IsNullOrEmpty(spec.Cursor))
+            //    query = query.Where(x => x.Id.ToString().CompareTo(spec.Cursor) > 0);
+
+            // Áp dụng điều kiện Cursor
             if (!string.IsNullOrEmpty(spec.Cursor))
-                query = query.Where(x => x.Id.ToString().CompareTo(spec.Cursor) > 0);
+            {
+                var cursorDateTime = DateTime.Parse(spec.Cursor);
+                if (spec.OrderFields == null || spec.OrderFields.First().Direction == SortDirection.Descending)
+                    query = query.Where(x => x.CreatedAt < cursorDateTime);
+                
+                else query = query.Where(x => x.CreatedAt > cursorDateTime);
+            }
 
             // Lấy dữ liệu phân trang
             var items = await query.Take(spec.PageSize).ToListAsync();
 
             // Xác định cursor tiếp theo và cursor trước
-            string nextCursor = null;
-            string prevCursor = null;
+            //string nextCursor = null;
+            //string prevCursor = null;
 
-            if (items.Count > 0)
-            {
-                var firstItem = items.First();
-                var lastItem = items.Last();
+            //if (items.Count > 0)
+            //{
+            //    var firstItem = items.First();
+            //    var lastItem = items.Last();
 
-                // Sinh cursor tiếp theo từ ID của item cuối cùng
-                nextCursor = lastItem.Id.ToString();
+            //    // Sinh cursor tiếp theo từ ID của item cuối cùng
+            //    nextCursor = lastItem.Id.ToString();
 
-                // Sinh cursor trước từ ID của item đầu tiên
-                prevCursor = firstItem.Id.ToString();
-            }
+            //    // Sinh cursor trước từ ID của item đầu tiên
+            //    prevCursor = firstItem.Id.ToString();
+            //}
+
+            // Xác định Cursor tiếp theo
+            string nextCursor = items.Count > 0
+                ? items.Last().CreatedAt.ToString("O")  // ISO 8601 format
+                : null;
 
             return new CursorPagedResult<TEntity>
             {
                 Items = items,
                 NextCursor = nextCursor,
-                PrevCursor = prevCursor
+                PrevCursor = spec.Cursor
             };
         }
 

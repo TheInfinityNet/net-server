@@ -19,5 +19,7 @@ namespace InfinityNetServer.Services.Comment.Domain.Repositories
         Task<List<Entities.Comment>> GetChildCommentsAsync(Guid parentCommentId);
         Task<int> GetRepliesCommentAsync(Guid commentId);
 
+        public Task<IList<Entities.Comment>> GetAllByPostIdAsync(Guid postId);
+
     }
 }

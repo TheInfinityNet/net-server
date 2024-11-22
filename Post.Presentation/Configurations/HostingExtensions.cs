@@ -27,7 +27,6 @@ using InfinityNetServer.Services.Post.Presentation.Exceptions;
 using InfinityNetServer.Services.Post.Presentation.Mappers;
 using InfinityNetServer.Services.Post.Application.Usecases;
 using InfinityNetServer.Services.Post.Application.Consumers;
-using InfinityNetServer.BuildingBlocks.Infrastructure.Redis;
 
 namespace InfinityNetServer.Services.Post.Presentation.Configurations;
 
@@ -70,7 +69,10 @@ internal static class HostingExtensions
 
         //builder.Services.AddHealthChecks(builder.Configuration);
 
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        });
 
         builder.Services.AddEndpointsApiExplorer();
 
@@ -138,7 +140,7 @@ internal static class HostingExtensions
 
         app.AutoMigration();
 
-        app.Services.SeedEssentialData(400);
+        app.Services.SeedEssentialData();
 
         app.MapGrpcServices();
 

@@ -4,7 +4,6 @@ using InfinityNetServer.Services.Comment.Domain.Repositories;
 using InfinityNetServer.Services.Comment.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,6 +12,8 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
 {
     public class CommentRepository(CommentDbContext context) : SqlRepository<Domain.Entities.Comment, Guid>(context), ICommentRepository
     {
+        public async Task<IList<Domain.Entities.Comment>> GetAllByPostIdAsync(Guid postId)
+            => await context.Comments.Where(c => c.PostId == postId).ToListAsync();
 
         public async Task<IList<Domain.Entities.Comment>> GetAllMediaCommentAsync()
             => await context.Comments.Where(c => c.FileMetadataId != null).ToListAsync();
@@ -28,7 +29,7 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
                 throw;
             }
         }
-        public async Task<Domain.Entities.Comment?> GetTopCommentWithMostRepliesAsync(Guid postId)
+        public async Task<Domain.Entities.Comment> GetTopCommentWithMostRepliesAsync(Guid postId)
         {
             return await context.Comments
                 .Where(c => c.PostId == postId && !c.IsDeleted && c.ParentId == null)
@@ -76,7 +77,7 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
 
             return true;
         }
-        public async Task<Domain.Entities.Comment?> GetByIdAsync(Guid commentId)
+        public async Task<Domain.Entities.Comment> GetByIdAsync(Guid commentId)
         {
             return await context.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
         }
@@ -94,8 +95,6 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
             await context.SaveChangesAsync();
             return true;
         }
-
-
 
         public async Task<List<Domain.Entities.Comment?>> GetChildComments(Guid parentCommentId)
         {

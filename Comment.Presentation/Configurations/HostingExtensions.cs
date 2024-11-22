@@ -127,7 +127,7 @@ internal static class HostingExtensions
 
         app.AutoMigration();
 
-        app.Services.SeedEssentialData(800);
+        app.Services.SeedEssentialData();
 
         app.MapGrpcServices();
 

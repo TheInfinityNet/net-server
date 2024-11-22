@@ -5,20 +5,20 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InfinityNetServer.Services.Post.Domain.Entities
 {
-    [Table("post_privacy_includes")]
-    public class PostPrivacyInclude : AuditEntity<Guid>
+    [Table("post_audience_includes")]
+    public class PostAudienceInclude : AuditEntity<Guid>
     {
 
-        public PostPrivacyInclude() => Id = Guid.NewGuid();
+        public PostAudienceInclude() => Id = Guid.NewGuid();
 
-        [Column("post_privacy_id")]
-        public Guid PostPrivacyId { get; set; }
+        [Column("audience_id")]
+        public Guid AudienceId { get; set; }
 
         [Required]
         [Column("profile_id")]
         public Guid ProfileId { get; set; }
 
-        [ForeignKey("PostPrivacyId")]
-        public virtual PostPrivacy PostPrivacy { get; set; }
+        [ForeignKey("AudienceId")]
+        public virtual PostAudience Audience { get; set; }
     }
 }

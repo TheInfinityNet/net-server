@@ -25,7 +25,8 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.FILE_NOT_FOUND, StatusCodes.Status404NotFound);
+                //throw new CommonException(BaseErrorCode.FILE_NOT_FOUND, StatusCodes.Status404NotFound);
+                return null;
             }
         }
 
@@ -43,7 +44,8 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.FILE_NOT_FOUND, StatusCodes.Status404NotFound);
+                //throw new CommonException(BaseErrorCode.FILE_NOT_FOUND, StatusCodes.Status404NotFound);
+                return null;
             }
         }
 

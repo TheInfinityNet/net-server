@@ -109,5 +109,57 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
             return await Task.FromResult(response);
         }
 
+        public override async Task<PreviewFileMetadatasResponse> getPreviewFileMetadatas(Empty request, ServerCallContext context)
+        {
+            logger.LogInformation("Received getFileMetadataIdsWithTypes request");
+            var response = new PreviewFileMetadatasResponse();
+            var comments = await profileService.GetAll();
+            response.PreviewFileMetadatas.AddRange(
+                 comments.SelectMany(p =>
+                 {
+                     var avatar = new PreviewFileMetadata
+                     {
+                         Id = p.Id.ToString(),
+                         OwnerId = p.Id.ToString(),
+                         FileMetadataId = p.AvatarId.ToString()
+                     };
+                     var cover = new PreviewFileMetadata
+                     {
+                         Id = p.Id.ToString(),
+                         OwnerId = p.Id.ToString(),
+                         FileMetadataId = p.CoverId.ToString()
+                     };
+
+                     // Trả về danh sách gồm avatar và cover
+                     return new[] { avatar, cover };
+                 })
+             );
+
+            return await Task.FromResult(response);
+        }
+
+        public override async Task<ProfilesResponse> getProfiles(ProfilesRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("GetProfile called with Profiles");
+            var source = await profileService.GetByIds(request.Ids);
+            var profiles = source.Select(profile => {
+                profile.AvatarId ??= Guid.Empty;
+                profile.CoverId ??= Guid.Empty;
+
+                var result = mapper.Map<ProfileResponse>(profile);
+                result.Name = profile.Type switch
+                {
+                    BuildingBlocks.Domain.Enums.ProfileType.User => profile.UserProfile.FirstName + " " + (profile.UserProfile.MiddleName != null ? profile.UserProfile.MiddleName + " " : "") + profile.UserProfile.LastName,
+                    BuildingBlocks.Domain.Enums.ProfileType.Page => profile.PageProfile.Name,
+                    _ => throw new ProfileException(ProfileErrorCode.PROFILE_TYPE_NOT_FOUND, StatusCodes.Status404NotFound),
+                }; ;
+                return result;
+            }).ToList();
+
+            var response = new ProfilesResponse();
+            response.Profiles.AddRange(profiles);
+            return response;
+        }
+
     }
 }

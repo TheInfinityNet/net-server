@@ -52,7 +52,7 @@ namespace InfinityNetServer.Services.Comment.Application.GrpcServices
             return mapper.Map<PreviewCommentResponse>(comment);
         }
 
-        public override async Task<CommentCountResponse> getCommentCount(CommentCountRequest request, ServerCallContext context)
+        public override async Task<CommentCountResponse> getCommentCount(CommentByPostIdRequest request, ServerCallContext context)
         {
             var getPostIdRequest = new GetPostIdRequest
             {
@@ -67,7 +67,7 @@ namespace InfinityNetServer.Services.Comment.Application.GrpcServices
             return response;
         }
 
-        public override async Task<CommentPreviewResponse> getCommentPreview(CommentPreviewRequest request, ServerCallContext context)
+        public override async Task<CommentPreviewResponse> getCommentPreview(CommentByPostIdRequest request, ServerCallContext context)
         {
             var getPostIdRequest = new GetPostIdRequest
             {
@@ -78,6 +78,16 @@ namespace InfinityNetServer.Services.Comment.Application.GrpcServices
             var response = mapper.Map<CommentPreviewResponse>(source);
             logger.LogInformation("GetCommentPreview");
             return response;
+        }
+
+        public override async Task<CommentIdsResponse> getCommentIdsByPostId(CommentByPostIdRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Received getCommentIds by postId request");
+            var response = new CommentIdsResponse();
+            var comments = await commentRepository.GetAllByPostIdAsync(Guid.Parse(request.PostId));
+            response.Ids.AddRange(comments.Select(p => p.Id.ToString()).ToList());
+
+            return await Task.FromResult(response);
         }
     }
 }

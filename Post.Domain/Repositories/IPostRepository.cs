@@ -9,11 +9,9 @@ namespace InfinityNetServer.Services.Post.Domain.Repositories
     public interface IPostRepository : ISqlRepository<Entities.Post, Guid>
     {
 
+        Task<IList<Entities.Post>> GetAllByPresentationIdAsync(Guid presentationId);
+
         Task<IList<Guid>> GetAllPresentationIdsAsync();
-
-        Task<IList<Entities.Post>> GetAllPresentationPostsAsync();
-
-        Task<IList<Entities.Post>> GetAllSharePostsAsync();
 
         Task<IList<Entities.Post>> GetByTypeAsync(PostType type);
 

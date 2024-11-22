@@ -6,8 +6,8 @@ using System;
 
 namespace InfinityNetServer.Services.Post.Infrastructure.Repositories
 {
-    public class PostPrivacyIncludeRepository(PostDbContext context)
-        : SqlRepository<PostPrivacyInclude, Guid>(context), IPostPrivacyIncludeRepository
+    public class PostAudienceExcludeRepository(PostDbContext context)
+        : SqlRepository<PostAudienceExclude, Guid>(context), IPostAudienceExcludeRepository
     {
 
 
