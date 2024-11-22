@@ -36,14 +36,13 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         IMessageBus messageBus) : BaseApiController(authenticatedUserService)
     {
 
-
+        [Authorize]
         [EndpointDescription("Update user profile")]
-        [HttpPut]
+        [HttpPut("{userId}")]
         [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
-        public IActionResult UpdateProfile([FromBody] UpdateUserProfileRequest request)
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileRequest request)
         {
-            // TODO: Call the service to update the user profile
-            // await _userProfileService.UpdateProfile(request);
+            await userProfileService.UpdateUserProfile(request);
 
             return Ok(new CommonMessageResponse
             (
@@ -57,13 +56,13 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         [ProducesResponseType(typeof(ViewProfileResponse<UserProfileResponse>), StatusCodes.Status200OK)]
         public async Task<IActionResult> RetrieveProfile(string userId)
         {
-            logger.LogInformation("Retrieve user profile");
+            logger.LogInformation("Retrieve user profile for userId: {userId}", userId);
 
             string currentUserId = authenticatedUserService.GetAuthenticatedUserId().ToString();
 
             UserProfile currentProfile = await userProfileService.GetUserProfileById(userId);
 
-            List<string> actions = [];
+            List<string> actions = new List<string>();
 
             if (currentUserId != userId)
             {
@@ -86,9 +85,14 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 if (await relationshipClient.HasFriendRequest(currentUserId, userId))
                     actions.Add(ProfileActions.AcceptOrRejectFriendRequest.ToString());
             }
-            else actions.AddRange(
-                [ProfileActions.ProfileCoverPhotoUpload.ToString(), 
-                    ProfileActions.ProfileCoverPhotoDelete.ToString()]);
+            else
+            {
+                actions.AddRange(new[]
+                {
+            ProfileActions.ProfileCoverPhotoUpload.ToString(),
+            ProfileActions.ProfileCoverPhotoDelete.ToString()
+        });
+            }
 
             return Ok(new ViewProfileResponse<UserProfileResponse>
             {
@@ -98,4 +102,3 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         }
 
     }
-}

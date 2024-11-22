@@ -17,5 +17,19 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Repositories
 
         public async Task<IList<UserProfile>> GetUserProfilesByIdsAsync(IEnumerable<Guid> ids)
             => await ((ProfileDbContext)context).UserProfiles.Where(profile => ids.Contains(profile.Id)).ToListAsync();
+
+        public async Task<UserProfile> UpdateUserProfileByAccountIdAsync(Guid accountId)
+        {
+            var userProfile = await ((ProfileDbContext)context).UserProfiles.FirstOrDefaultAsync(profile => profile.AccountId == accountId);
+
+            if (userProfile != null)
+            {
+                // Perform the necessary updates to the userProfile object
+
+                await context.SaveChangesAsync();
+            }
+
+            return userProfile;
+        }
     }
 }

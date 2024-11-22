@@ -17,7 +17,7 @@ namespace InfinityNetServer.Services.Profile.Domain.Repositories
         // tầng BLL(BUS) <==> service
         // tầng GUI <==> controller (ở đây là api thay vì view)
         Task<UserProfile> GetUserProfileByAccountIdAsync(Guid accountId);
-
+        Task<UserProfile> UpdateUserProfileByAccountIdAsync(Guid accountId);
         Task<IList<UserProfile>> GetUserProfilesByIdsAsync(IEnumerable<Guid> ids);
 
     }
