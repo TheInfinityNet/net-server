@@ -2,6 +2,7 @@
 using InfinityNetServer.Services.Post.Application.DTOs.Responses;
 using InfinityNetServer.Services.Post.Domain.Entities;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace InfinityNetServer.Services.Post.Application.Helpers
 {
@@ -50,54 +51,25 @@ namespace InfinityNetServer.Services.Post.Application.Helpers
                 OwnerId = post.OwnerId,
                 GroupId = post.GroupId,
                 FileMetadataId = post.FileMetadataId,
-                SharedPosts = MapSharedPosts(post.SharedPosts),
-                SubPosts = MapSubPosts(post.SubPosts),
-                PostPrivacy = post.Audience
             };
         }
 
-        private static ICollection<PostResponse> MapSharedPosts(ICollection<Domain.Entities.Post> sharedPosts)
+        public static IEnumerable<PostResponse> ToResponses(IEnumerable<Domain.Entities.Post> posts)
         {
-            var result = new List<PostResponse>();
-            if (sharedPosts == null) return result;
+            if (posts == null) return null;
 
-            foreach (var sharedPost in sharedPosts)
+            return posts.Select(post => new PostResponse
             {
-                result.Add(ToResponse(sharedPost));
-            }
-
-            return result;
+                Id = post.Id,
+                Content = post.Content,
+                Type = post.Type,
+                PresentationId = post.PresentationId,
+                ParentId = post.ParentId,
+                OwnerId = post.OwnerId,
+                GroupId = post.GroupId,
+                FileMetadataId = post.FileMetadataId,
+            });
         }
 
-        private static ICollection<PostResponse> MapSubPosts(ICollection<Domain.Entities.Post> subPosts)
-        {
-            var result = new List<PostResponse>();
-            if (subPosts == null) return result;
-
-            foreach (var subPost in subPosts)
-            {
-                result.Add(ToResponse(subPost));
-            }
-
-            return result;
-        }
-
-        private static ICollection<PostAudienceResponse> MapPostPrivacies(ICollection<PostAudience> postPrivacies)
-        {
-            var result = new List<PostAudienceResponse>();
-            if (postPrivacies == null) return result;
-
-            foreach (var privacy in postPrivacies)
-            {
-                result.Add(new PostAudienceResponse
-                {
-                    Id = privacy.Id,
-                    PostId = privacy.PostId,
-                    Type = privacy.Type
-                });
-            }
-
-            return result;
-        }
     }
 }

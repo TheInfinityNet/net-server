@@ -1,3 +1,4 @@
+
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
@@ -49,6 +50,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
             return ids.Select(id => id.ToString()).ToList();
         }
 
+
         public async Task<Domain.Entities.Post> GetById(string id)
             => await postRepository.GetByIdAsync(Guid.Parse(id));
 
@@ -87,23 +89,23 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
                 Criteria = post =>
                         post.Presentation == null
 
-                        && (post.Audience.Type == PostAudienceType.Public 
+                        && (post.Audience.Type == PostAudienceType.Public
 
                             || (post.Audience.Type == PostAudienceType.OnlyMe && post.OwnerId.Equals(profileUuid))
 
-                            || (post.Audience.Type == PostAudienceType.Include 
-                                && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid)) 
+                            || (post.Audience.Type == PostAudienceType.Include
+                                && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))
                                 && friendIds.Contains(post.OwnerId.ToString()))
 
-                            || (post.Audience.Type == PostAudienceType.Exclude 
-                                && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid)) 
+                            || (post.Audience.Type == PostAudienceType.Exclude
+                                && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))
                                 && friendIds.Contains(post.OwnerId.ToString()))
 
-                            || (post.Audience.Type == PostAudienceType.Custom 
-                                && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid)) 
+                            || (post.Audience.Type == PostAudienceType.Custom
+                                && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))
                                 && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))))
 
-                        && (post.OwnerId.Equals(profileId) 
+                        && (post.OwnerId.Equals(profileId)
                             || friendIds.Contains(post.OwnerId.ToString()) || followeeIds.Contains(post.OwnerId.ToString()))
 
                         && !blockerIds.Concat(blockeeIds).Contains(post.OwnerId.ToString()),
@@ -122,5 +124,18 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
             return await postRepository.GetPagedAsync(specification);
         }
 
+        public async Task<IList<Domain.Entities.Post>> GetAllByParentId(string id)
+        {
+            return await postRepository.GetAllByParentIdAsync(Guid.Parse(id));
+        }
+
+        public async Task<IList<Domain.Entities.Post>> GetAllByGroupId(string id)
+        {
+            return await postRepository.GetAllByGroupIdAsync(Guid.Parse(id));
+        }
+        public async Task<IList<Domain.Entities.Post>> GetAllByOwnerId(string id)
+        {
+            return await postRepository.GetAllByOwnerIdAsync(Guid.Parse(id));
+        }
     }
 }

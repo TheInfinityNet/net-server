@@ -7,16 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="GrpcClients\**" />
+    <Compile Remove="Helpers\**" />
+    <EmbeddedResource Remove="GrpcClients\**" />
+    <EmbeddedResource Remove="Helpers\**" />
+    <None Remove="GrpcClients\**" />
+    <None Remove="Helpers\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
     <ProjectReference Include="..\Comment.Domain\Comment.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="GrpcClients\" />
-    <Folder Include="Helpers\" />
     <Folder Include="DTOs\Requests\" />
-    <Folder Include="Helpers\" />
-    <Folder Include="GrpcClients\" />
   </ItemGroup>
 
 </Project>

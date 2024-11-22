@@ -4,6 +4,7 @@ using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.Services.Post.Application.DTOs.Orther;
 using InfinityNetServer.Services.Post.Application.DTOs.Responses;
 using InfinityNetServer.Services.Post.Domain.Entities;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace InfinityNetServer.Services.Post.Presentation.Mappers;
@@ -78,5 +79,69 @@ public class PostMappers : Profile
                 }
             });
 
+            CreateMap<Domain.Entities.Post, BuildingBlocks.Application.Protos.PostResponse>()
+                .AfterMap((src, dest) =>
+                {
+                    dest.Id = src.Id.ToString();
+                    dest.Content = src.Content.Text;
+                    dest.Type = src.Type.ToString();
+                    dest.PresentationId = src.PresentationId.ToString();
+                    dest.ParentId = src.ParentId.ToString();
+                    dest.OwnerId = src.OwnerId.ToString();
+                    dest.GroupId = src.GroupId.ToString();
+                    dest.FileMetadataId = src.FileMetadataId.ToString();
+                    dest.Audience = src.Audience.Type.ToString() ?? string.Empty;
+                });
+
+            CreateMap<IEnumerable<Domain.Entities.Post>, BuildingBlocks.Application.Protos.GetByOwnerIdResponse>()
+                .AfterMap((src, dest) =>
+                {
+                    dest.Posts.AddRange(src.Select(post => new BuildingBlocks.Application.Protos.PostResponse
+                    {
+                        Id = post.Id.ToString(),
+                        Content = post.Content.Text,
+                        Type = post.Type.ToString(),
+                        PresentationId = post.PresentationId.ToString(),
+                        ParentId = post.ParentId.ToString(),
+                        OwnerId = post.OwnerId.ToString(),
+                        GroupId = post.GroupId.ToString(),
+                        FileMetadataId = post.FileMetadataId.ToString(),
+                        Audience = post.Audience?.Type.ToString() ?? string.Empty
+                    }));
+                });
+
+                CreateMap<IEnumerable<Domain.Entities.Post>, BuildingBlocks.Application.Protos.GetByParentIdResponse>()
+                        .AfterMap((src, dest) =>
+                        {
+                            dest.Posts.AddRange(src.Select(post => new BuildingBlocks.Application.Protos.PostResponse
+                            {
+                                Id = post.Id.ToString(),
+                                Content = post.Content.Text,
+                                Type = post.Type.ToString(),
+                                PresentationId = post.PresentationId.ToString(),
+                                ParentId = post.ParentId.ToString(),
+                                OwnerId = post.OwnerId.ToString(),
+                                GroupId = post.GroupId.ToString(),
+                                FileMetadataId = post.FileMetadataId.ToString(),
+                                Audience = post.Audience?.Type.ToString() ?? string.Empty
+                            }));
+                        });
+
+                CreateMap<IEnumerable<Domain.Entities.Post>, BuildingBlocks.Application.Protos.GetByGroupIdResponse>()
+                        .AfterMap((src, dest) =>
+                        {
+                            dest.Posts.AddRange(src.Select(post => new BuildingBlocks.Application.Protos.PostResponse
+                            {
+                                Id = post.Id.ToString(),
+                                Content = post.Content.Text,
+                                Type = post.Type.ToString(),
+                                PresentationId = post.PresentationId.ToString(),
+                                ParentId = post.ParentId.ToString(),
+                                OwnerId = post.OwnerId.ToString(),
+                                GroupId = post.GroupId.ToString(),
+                                FileMetadataId = post.FileMetadataId.ToString(),
+                                Audience = post.Audience.Type.ToString() ?? string.Empty
+                            }));
+                        });
     }
 }
