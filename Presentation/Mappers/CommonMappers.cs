@@ -167,6 +167,16 @@ public class CommonMappers : Profile
                 if (src.FileMetadataId.Equals(Guid.Empty)) dest.FileMetadataId = null;
             });
 
+        CreateMap<Application.Protos.TagFacetResponse, Application.DTOs.Responses.Comment.CommentPreviewResponse.TagFacetResponse>()
+        .AfterMap((src, dest) =>
+        {
+            dest.Type = src.Type.ToString();
+        });
+
+        CreateMap<Application.Protos.ContentResponse, Application.DTOs.Responses.Comment.CommentPreviewResponse.ContentResponse>();
+
+        CreateMap<Application.Protos.CommentPreviewResponse, Application.DTOs.Responses.Comment.CommentPreviewResponse>();
+
         CreateMap<Application.Protos.AccountWithDefaultProfile, AccountWithDefaultProfile>();
 
         CreateMap<Application.Protos.GroupMemberWithGroup, GroupMemberWithGroup>();

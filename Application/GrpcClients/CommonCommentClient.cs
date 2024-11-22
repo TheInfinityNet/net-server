@@ -64,6 +64,22 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
+        public async Task<int> GetCommentCount(string postId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get preview comment");
+                var response = await client.getCommentCountAsync(new CommentByPostIdRequest { PostId = postId });
+                // Call the gRPC server to introspect the token
+                return response.Count;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new CommonException(BaseErrorCode.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
+
         public async Task<List<string>> GetCommentIdsByPostId(string postId)
         {
             try
@@ -76,9 +92,25 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new CommonException(BaseErrorCode.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
+        public async Task<DTOs.Responses.Comment.CommentPreviewResponse> GetCommentPreview(string postId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get preview comment");
+                var response = await client.getCommentPreviewAsync(new CommentByPostIdRequest { PostId = postId });
+                // Call the gRPC server to introspect the token
+                return mapper.Map<DTOs.Responses.Comment.CommentPreviewResponse>(response);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new CommonException(BaseErrorCode.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
+        
     }
 }

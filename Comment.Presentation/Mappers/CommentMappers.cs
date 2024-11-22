@@ -6,18 +6,10 @@ public class CommentMappers : Profile
 {
     public CommentMappers()
     {
+        CreateMap<BuildingBlocks.Application.DTOs.Responses.Comment.CommentPreviewResponse.TagFacetResponse, BuildingBlocks.Application.Protos.TagFacetResponse>();
 
-        CreateMap<Domain.Entities.Comment, BuildingBlocks.Application.Protos.PreviewCommentResponse>()
-            .AfterMap((src, dest) =>
-            {
-                dest.PreviewContent = src.Content.Text[..50];
-            });
+        CreateMap<BuildingBlocks.Application.DTOs.Responses.Comment.CommentPreviewResponse.ContentResponse, BuildingBlocks.Application.Protos.ContentResponse>();
 
-        CreateMap<Domain.Entities.Comment, BuildingBlocks.Application.DTOs.Responses.Comment.PreviewCommentResponse>()
-            .AfterMap((src, dest) =>
-            {
-                dest.PreviewContent = src.Content.Text[..50];
-            });
-
+        CreateMap<BuildingBlocks.Application.DTOs.Responses.Comment.CommentPreviewResponse, BuildingBlocks.Application.Protos.CommentPreviewResponse>();
     }
 }

@@ -83,6 +83,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
             Guid profileUuid = Guid.Parse(profileId);
             var specification = new SpecificationWithCursor<Domain.Entities.Post>
             {
+
                 Criteria = post =>
                         post.Presentation == null
 

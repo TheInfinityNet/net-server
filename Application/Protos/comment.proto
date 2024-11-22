@@ -8,11 +8,14 @@ import "google/protobuf/empty.proto";
 
 import "Protos/base.proto";
 
+import "google/protobuf/timestamp.proto";
+
 message PreviewCommentRequest {
 	string id = 1;
 }
 
 message CommentByPostIdRequest {
+
 	string postId = 1;
 }
 
@@ -22,7 +25,7 @@ message CommentIdsResponse {
 
 message PreviewCommentResponse {
 
-	string id = 1;
+	string commentId = 1;
 
 	string profileId = 2;
 
@@ -34,6 +37,31 @@ message PreviewCommentResponse {
 
 }
 
+message CommentCountResponse {
+	int32 count = 1;
+}
+
+message CommentPreviewResponse {
+    string commentId = 1;
+    string profileId = 2;
+    ContentResponse content = 3;
+    int32 replyCount = 4;
+    google.protobuf.Timestamp createAt = 5;
+}
+
+message ContentResponse {
+    string text = 1;
+    repeated TagFacetResponse tagFacets = 2;
+}
+
+message TagFacetResponse {
+    string type = 1;
+    int32 start = 2;
+    int32 end = 3;
+    string profileId = 4;
+}
+
+
 service CommentService {
 
 	rpc getCommentIds (google.protobuf.Empty) returns (CommentIdsResponse) {}
@@ -41,6 +69,10 @@ service CommentService {
 	rpc getPreviewFileMetadatas (google.protobuf.Empty) returns (PreviewFileMetadatasResponse) {}
 
 	rpc getPreviewComment (PreviewCommentRequest) returns (PreviewCommentResponse) {}
+
+	rpc getCommentCount (CommentByPostIdRequest) returns (CommentCountResponse) {}
+
+	rpc getCommentPreview (CommentByPostIdRequest) returns (CommentPreviewResponse) {}
 
 	rpc getCommentIdsByPostId (CommentByPostIdRequest) returns (CommentIdsResponse) {}
 

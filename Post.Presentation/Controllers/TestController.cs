@@ -4,6 +4,7 @@ using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Post;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
@@ -38,6 +39,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             IPostService postService,
             CommonProfileClient profileClient,
             CommonFileClient fileClient,
+            CommonCommentClient commentClient,
             IMessageBus messageBus) : BaseApiController(authenticatedUserService)
     {
 
@@ -591,6 +593,30 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
 
             return Ok(response);
 
+        }
+
+        // post/sfhakjsfhaskjf
+        [EndpointDescription("Get post by id")]
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetCommentCountById(string id)
+        {
+            int commentCount = await commentClient.GetCommentCount(id);
+            return Ok(commentCount);
+        }
+        /*
+         2
+         */
+
+        [HttpPost("preview-comment/{postId}")]
+        public async Task<IActionResult> GetTopCommentWithMostReplies(string postId)
+        {
+            var response = await commentClient.GetCommentPreview(postId);
+
+            if (response == null)
+                return NotFound(new { message = "No comments found for the given post ID." });
+
+            return Ok(response);
         }
     }
 

@@ -1,18 +1,20 @@
-﻿using Grpc.Core;
-using Microsoft.Extensions.Logging;
-using InfinityNetServer.BuildingBlocks.Application.Protos;
-using System.Threading.Tasks;
+﻿using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
-using System.Linq;
+using Grpc.Core;
+using InfinityNetServer.BuildingBlocks.Application.Protos;
+using InfinityNetServer.Services.Comment.Application.Services;
 using InfinityNetServer.Services.Comment.Domain.Repositories;
+using Microsoft.Extensions.Logging;
 using System;
-using AutoMapper;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Comment.Application.GrpcServices
 {
     public class GrpcCommentService(
         ILogger<GrpcCommentService> logger,
         IMapper mapper,
+        ICommentService commentService,
         ICommentRepository commentRepository) : CommentService.CommentServiceBase
     {
 
@@ -49,6 +51,34 @@ namespace InfinityNetServer.Services.Comment.Application.GrpcServices
             return mapper.Map<PreviewCommentResponse>(comment);
         }
 
+        public override async Task<CommentCountResponse> getCommentCount(CommentByPostIdRequest request, ServerCallContext context)
+        {
+            var getPostIdRequest = new CommentByPostIdRequest
+            {
+                PostId = request.PostId
+            };
+            logger.LogInformation("GetCommentCount");
+            var source = await commentService.GetCommentCountAsync(getPostIdRequest.PostId);
+            var response = new CommentCountResponse
+            {
+                Count = source.CommentCount
+            };
+            return response;
+        }
+
+        public override async Task<CommentPreviewResponse> getCommentPreview(CommentByPostIdRequest request, ServerCallContext context)
+        {
+            var getPostIdRequest = new CommentByPostIdRequest
+            {
+                PostId = request.PostId
+            };
+            logger.LogInformation("GetCommentPreview");
+            var source = await commentService.GetTopCommentWithMostRepliesAsync(getPostIdRequest.PostId);
+            var response = mapper.Map<CommentPreviewResponse>(source);
+            logger.LogInformation("GetCommentPreview");
+            return response;
+        }
+
         public override async Task<CommentIdsResponse> getCommentIdsByPostId(CommentByPostIdRequest request, ServerCallContext context)
         {
             logger.LogInformation("Received getCommentIds by postId request");
@@ -58,6 +88,5 @@ namespace InfinityNetServer.Services.Comment.Application.GrpcServices
 
             return await Task.FromResult(response);
         }
-
     }
 }
