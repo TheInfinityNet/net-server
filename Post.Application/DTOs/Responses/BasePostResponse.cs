@@ -14,7 +14,7 @@ namespace InfinityNetServer.Services.Post.Application.DTOs.Responses
 
         public string Type { get; set; }
 
-        public TextContent Content { get; set; }
+        public PostContent Content { get; set; }
 
         public DateTime CreatedAt { get; set; }
 

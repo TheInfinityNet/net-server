@@ -30,7 +30,7 @@ namespace InfinityNetServer.Services.File.Application.Helper
         public static async Task<(int Width, int Height, TimeSpan Duration)> GetVideoInfoAsync(string videoPath)
         {
             var videoInfo = await FFProbe.AnalyseAsync(videoPath);
-            var videoStream = videoInfo.PrimaryVideoStream ?? throw new FileException(FileErrorCode.FILE_EMPTY, StatusCodes.Status400BadRequest);
+            var videoStream = videoInfo.PrimaryVideoStream ?? throw new FileException(FileError.FILE_EMPTY, StatusCodes.Status400BadRequest);
 
             return (videoStream.Width, videoStream.Height, videoStream.Duration);
         }
@@ -56,53 +56,53 @@ namespace InfinityNetServer.Services.File.Application.Helper
         public static void ValidateVideo(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                throw new FileException(FileErrorCode.FILE_EMPTY, StatusCodes.Status400BadRequest);
+                throw new FileException(FileError.FILE_EMPTY, StatusCodes.Status400BadRequest);
 
             if (file.Length > 20971520) // 20MB = 20 * 1024 * 1024
-                throw new FileException(FileErrorCode.FILE_SIZE_EXCEEDED, StatusCodes.Status400BadRequest);
+                throw new FileException(FileError.FILE_SIZE_EXCEEDED, StatusCodes.Status400BadRequest);
 
             var allowedExtensions = new[] { ".mp4", ".avi", ".mov", ".mkv" };
             if (!allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
-                throw new FileException(FileErrorCode.INVALID_FILE_TYPE, StatusCodes.Status415UnsupportedMediaType);
+                throw new FileException(FileError.INVALID_FILE_TYPE, StatusCodes.Status415UnsupportedMediaType);
         }
 
         public static void ValidateImage(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                throw new FileException(FileErrorCode.FILE_EMPTY, StatusCodes.Status400BadRequest);
+                throw new FileException(FileError.FILE_EMPTY, StatusCodes.Status400BadRequest);
 
             if (file.Length > 20971520) // 20MB = 20 * 1024 * 1024
-                throw new FileException(FileErrorCode.FILE_SIZE_EXCEEDED, StatusCodes.Status400BadRequest);
+                throw new FileException(FileError.FILE_SIZE_EXCEEDED, StatusCodes.Status400BadRequest);
 
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
             if (!allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
-                throw new FileException(FileErrorCode.INVALID_FILE_TYPE, StatusCodes.Status415UnsupportedMediaType);
+                throw new FileException(FileError.INVALID_FILE_TYPE, StatusCodes.Status415UnsupportedMediaType);
         }
 
         public static void ValidateAudio(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                throw new FileException(FileErrorCode.FILE_EMPTY, StatusCodes.Status400BadRequest);
+                throw new FileException(FileError.FILE_EMPTY, StatusCodes.Status400BadRequest);
 
             if (file.Length > 20971520) // 20MB = 20 * 1024 * 1024
-                throw new FileException(FileErrorCode.FILE_SIZE_EXCEEDED, StatusCodes.Status400BadRequest);
+                throw new FileException(FileError.FILE_SIZE_EXCEEDED, StatusCodes.Status400BadRequest);
 
             var allowedExtensions = new[] { ".mp3", ".wav", ".flac", ".aac" };
             if (!allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
-                throw new FileException(FileErrorCode.INVALID_FILE_TYPE, StatusCodes.Status415UnsupportedMediaType);
+                throw new FileException(FileError.INVALID_FILE_TYPE, StatusCodes.Status415UnsupportedMediaType);
         }
 
         public static void ValidateFile(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                throw new FileException(FileErrorCode.FILE_EMPTY, StatusCodes.Status400BadRequest);
+                throw new FileException(FileError.FILE_EMPTY, StatusCodes.Status400BadRequest);
 
             if (file.Length > 20971520) // 20MB = 20 * 1024 * 1024
-                throw new FileException(FileErrorCode.FILE_SIZE_EXCEEDED, StatusCodes.Status400BadRequest);
+                throw new FileException(FileError.FILE_SIZE_EXCEEDED, StatusCodes.Status400BadRequest);
 
             var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".txt", ".zip", ".rar" }; // Add other file extensions if needed
             if (!allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
-                throw new FileException(FileErrorCode.INVALID_FILE_TYPE, StatusCodes.Status415UnsupportedMediaType);
+                throw new FileException(FileError.INVALID_FILE_TYPE, StatusCodes.Status415UnsupportedMediaType);
         }
 
 

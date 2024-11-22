@@ -27,7 +27,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -47,7 +47,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -67,7 +67,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -87,7 +87,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -106,7 +106,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -125,7 +125,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -144,7 +144,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -163,7 +163,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -182,7 +182,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 

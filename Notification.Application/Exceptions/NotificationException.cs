@@ -2,20 +2,13 @@
 
 namespace InfinityNetServer.Services.Notification.Application.Exceptions
 {
-    public class NotificationException : Exception
+    public class NotificationException(NotificationError error, int httpStatus, params object[] moreInfo) : Exception
     {
-        public NotificationErrorCode ErrorCode { get; }
+        public NotificationError Error { get; }
 
         public int HttpStatus { get; }
 
         public object[] MoreInfo { get; }
-
-        public NotificationException(NotificationErrorCode errorCode, int httpStatus, params object[] moreInfo) : base()
-        {
-            ErrorCode = errorCode;
-            HttpStatus = httpStatus;
-            MoreInfo = moreInfo;
-        }
 
     }
 }

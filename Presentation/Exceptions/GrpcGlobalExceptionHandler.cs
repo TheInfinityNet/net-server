@@ -1,20 +1,14 @@
 using Grpc.Core;
 using Grpc.Core.Interceptors;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System;
 
 namespace InfinityNetServer.BuildingBlocks.Presentation.Exceptions;
 
-public class GrpcGlobalExceptionHandler : Interceptor
+public class GrpcGlobalExceptionHandler(ILogger<GrpcGlobalExceptionHandler> logger) : Interceptor
 {
-    private readonly ILogger<GrpcGlobalExceptionHandler> _logger;
-
-    public GrpcGlobalExceptionHandler(ILogger<GrpcGlobalExceptionHandler> logger)
-    {
-        _logger = logger;
-    }
 
     public override async Task<TResponse> UnaryServerHandler<TRequest, TResponse>(
         TRequest request,
@@ -28,7 +22,7 @@ public class GrpcGlobalExceptionHandler : Interceptor
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"request : {JsonSerializer.Serialize(request)}");
+            logger.LogError(exception, $"request : {JsonSerializer.Serialize(request)}");
 
             throw new RpcException(new Status(StatusCode.Cancelled, exception.Message));
         }

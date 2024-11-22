@@ -36,7 +36,7 @@ namespace InfinityNetServer.Services.File.Presentation.Services
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "An error occurred while executing the background job.");
-                    throw new FileException(FileErrorCode.CAN_NOT_DELETE_FILE, StatusCodes.Status422UnprocessableEntity);
+                    throw new FileException(FileError.CAN_NOT_DELETE_FILE, StatusCodes.Status422UnprocessableEntity);
                 }
             }
         }

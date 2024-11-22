@@ -20,5 +20,6 @@ namespace InfinityNetServer.Services.Post.Domain.Entities
 
         [ForeignKey("AudienceId")]
         public virtual PostAudience Audience { get; set; }
+
     }
 }

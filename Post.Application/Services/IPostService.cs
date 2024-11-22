@@ -9,7 +9,7 @@ namespace InfinityNetServer.Services.Post.Application.Services
     {
         public Task<Domain.Entities.Post> GetById(string id);
 
-        public Task<Domain.Entities.Post> CreatePost(CreatePostRequest request);
+        public Task<Domain.Entities.Post> CreatePost(CreatePostBaseRequest request);
 
         public Task<Domain.Entities.Post> UpdatePost(UpdatePostRequest request);
 

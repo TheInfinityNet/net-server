@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
-using InfinityNetServer.Services.Profile.Domain.Enums;
+﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
+using System.Collections.Generic;
 
 namespace InfinityNetServer.Services.Profile.Application.DTOs.Responses
 {

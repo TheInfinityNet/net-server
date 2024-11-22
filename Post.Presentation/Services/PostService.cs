@@ -26,7 +26,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
             ILogger<PostService> logger) : IPostService
     {
 
-        public async Task<Domain.Entities.Post> CreatePost(CreatePostRequest request)
+        public async Task<Domain.Entities.Post> CreatePost(CreatePostBaseRequest request)
         {
             Domain.Entities.Post requestPost = PostHelper.FromCreateRequest(request);
             return await postRepository.CreateAsync(requestPost);

@@ -7,7 +7,6 @@ using Microsoft.Extensions.Localization;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace InfinityNetServer.BuildingBlocks.Presentation.Configuration.ValidationHandler;
 
@@ -31,9 +30,9 @@ public static class ValidationHandlerConfiguration
                                     return stringLocalizer[e.ErrorMessage].ToString();
                                 }).ToArray()
                         );
-                BaseErrorCode commonErrorCode = BaseErrorCode.VALIDATION_ERROR;
-                string type = commonErrorCode.Code;
-                string message = stringLocalizer[commonErrorCode.Message].ToString();
+                BaseError error = BaseError.VALIDATION_ERROR;
+                var type = error.Type;
+                string message = stringLocalizer[error.Code].ToString();
 
                 return new BadRequestObjectResult(new
                 {

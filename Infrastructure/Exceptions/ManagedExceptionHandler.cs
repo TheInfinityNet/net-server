@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace InfinityNetServer.BuildingBlocks.Infrastructure.Exceptions;
 
 public class ManagedExceptionHandler<TRequest, TResponse, TException, IErrorCode>
-    : IRequestExceptionHandler<TRequest, TResponse, TException> where TException : CommonException
+    : IRequestExceptionHandler<TRequest, TResponse, TException> where TException : BaseException
 {
 
     private readonly ILogger<ManagedExceptionHandler<TRequest, TResponse, TException, IErrorCode>> _logger;

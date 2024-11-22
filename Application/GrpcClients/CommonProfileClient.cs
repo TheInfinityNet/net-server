@@ -27,7 +27,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -43,7 +43,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
         public async Task<IList<string>> GetPageProfileIds()
@@ -58,7 +58,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -73,7 +73,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -88,7 +88,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -107,7 +107,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -123,7 +123,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -140,7 +140,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -157,7 +157,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 

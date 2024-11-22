@@ -117,22 +117,34 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="bucket_creation_failed" xml:space="preserve">
+  <data name="UnExpected.BucketCreationFailed" xml:space="preserve">
     <value>Tạo bucket {0} thất bại</value>
   </data>
-  <data name="can_not_delete_file" xml:space="preserve">
+  <data name="UnExpected.CanNotDeleteFile" xml:space="preserve">
     <value>Không thể xóa tệp</value>
   </data>
-  <data name="can_not_store_file" xml:space="preserve">
+  <data name="UnExpected.CanNotStoreFile" xml:space="preserve">
     <value>Không thể lưu trữ tệp</value>
   </data>
   <data name="Hello" xml:space="preserve">
     <value>Xin chao {0}</value>
   </data>
-  <data name="null_file_name" xml:space="preserve">
+  <data name="Range.ThumbnailHeight" xml:space="preserve">
+    <value>Chiều cao của thumnail phải trong khoảng 1 đến 1080</value>
+  </data>
+  <data name="Range.ThumbnailWidth" xml:space="preserve">
+    <value>Chiều rộng của thumnail phải trong khoảng 1 đến 1920</value>
+  </data>
+  <data name="Required.ContentType" xml:space="preserve">
+    <value>Loại nội dung là bắt buộc</value>
+  </data>
+  <data name="Required.FileName" xml:space="preserve">
     <value>Tên tệp không để trống</value>
   </data>
-  <data name="null_thumbnail_width" xml:space="preserve">
-    <value />
+  <data name="Required.ThumbnailHeight" xml:space="preserve">
+    <value>Chiều cao của thumnail là bắt buộc</value>
+  </data>
+  <data name="Required.ThumbnailWidth" xml:space="preserve">
+    <value>Chiều rộng của thumnail là bắt buộc</value>
   </data>
 </root>

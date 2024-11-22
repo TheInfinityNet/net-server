@@ -1,13 +1,13 @@
-﻿using Google.Protobuf.WellKnownTypes;
+﻿using AutoMapper;
+using Google.Protobuf.WellKnownTypes;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using static InfinityNetServer.BuildingBlocks.Application.Protos.GroupService;
-using AutoMapper;
 
 namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
 {
@@ -29,7 +29,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -45,7 +45,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 

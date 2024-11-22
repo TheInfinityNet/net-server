@@ -4,10 +4,10 @@ namespace InfinityNetServer.Services.File.Application.DTOs
 {
     public sealed record FileUploadRequest
     {
-        [Required(ErrorMessage = "null_file_name")]
+        [Required(ErrorMessage = "Required.FileName")]
         public string FileName { get; set; }
 
-        [Required(ErrorMessage = "null_content_type")]
+        [Required(ErrorMessage = "Required.ContentType")]
         public string ContentType { get; set; }
     }
 }

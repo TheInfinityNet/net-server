@@ -65,7 +65,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
             {
                 BuildingBlocks.Domain.Enums.ProfileType.User => source.UserProfile.FirstName + " " + (source.UserProfile.MiddleName != null ? source.UserProfile.MiddleName + " " : "") + source.UserProfile.LastName,
                 BuildingBlocks.Domain.Enums.ProfileType.Page => source.PageProfile.Name,
-                _ => throw new ProfileException(ProfileErrorCode.PROFILE_TYPE_NOT_FOUND, StatusCodes.Status404NotFound),
+                _ => throw new ProfileException(ProfileError.INVALID_PROFILE_TYPE, StatusCodes.Status404NotFound),
             };
             source.AvatarId ??= Guid.Empty;
             source.CoverId ??= Guid.Empty;
@@ -151,7 +151,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
                 {
                     BuildingBlocks.Domain.Enums.ProfileType.User => profile.UserProfile.FirstName + " " + (profile.UserProfile.MiddleName != null ? profile.UserProfile.MiddleName + " " : "") + profile.UserProfile.LastName,
                     BuildingBlocks.Domain.Enums.ProfileType.Page => profile.PageProfile.Name,
-                    _ => throw new ProfileException(ProfileErrorCode.PROFILE_TYPE_NOT_FOUND, StatusCodes.Status404NotFound),
+                    _ => throw new ProfileException(ProfileError.INVALID_PROFILE_TYPE, StatusCodes.Status404NotFound),
                 }; ;
                 return result;
             }).ToList();

@@ -2,20 +2,14 @@
 
 namespace InfinityNetServer.Services.Post.Application.Exceptions
 {
-    public class PostException : Exception
+    public class PostException(PostError error, int httpStatus, params object[] moreInfo) : Exception
     {
-        public PostErrorCode ErrorCode { get; }
+
+        public PostError Error { get; }
 
         public int HttpStatus { get; }
 
         public object[] MoreInfo { get; }
-
-        public PostException(PostErrorCode errorCode, int httpStatus, params object[] moreInfo) : base()
-        {
-            ErrorCode = errorCode;
-            HttpStatus = httpStatus;
-            MoreInfo = moreInfo;
-        }
 
     }
 }

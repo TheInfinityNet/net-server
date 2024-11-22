@@ -77,10 +77,6 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
 
             return true;
         }
-        public async Task<Domain.Entities.Comment> GetByIdAsync(Guid commentId)
-        {
-            return await context.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
-        }
 
         public async Task<bool> UpdateCommentAsync(Guid commentId, CommentContent newContent)
         {

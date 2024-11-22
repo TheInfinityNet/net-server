@@ -117,31 +117,34 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="uncategorized" xml:space="preserve">
+  <data name="UncategorizedError" xml:space="preserve">
     <value>Chưa phân loại</value>
   </data>
-  <data name="token_missing" xml:space="preserve">
+  <data name="Forbidden.NotHavePermission" xml:space="preserve">
+    <value>Bạn không có quyền thực hiện hành động này</value>
+  </data>
+  <data name="Unauthorized.TokenMissing" xml:space="preserve">
     <value>Thiếu token</value>
   </data>
-  <data name="token_invalid" xml:space="preserve">
+  <data name="Unauthorized.TokenInvalid" xml:space="preserve">
     <value>Token không hợp lệ</value>
   </data>
-  <data name="invalid_signature" xml:space="preserve">
+  <data name="Unauthorized.InvalidSignature" xml:space="preserve">
     <value>Chữ ký token không hợp lệ</value>
   </data>
-  <data name="too_many_requests" xml:space="preserve">
+  <data name="Forbidden.TooManyRequests" xml:space="preserve">
     <value>Quá nhiều yêu cầu</value>
   </data>
-  <data name="rate_limit_exceeded" xml:space="preserve">
+  <data name="Forbidden.RateLimitExceeded" xml:space="preserve">
     <value>Vượt quá giới hạn yêu cầu</value>
   </data>
-  <data name="redis_error" xml:space="preserve">
-    <value>Không thể kết nối đến Redis {0}</value>
-  </data>
-  <data name="seed_data_error" xml:space="preserve">
-    <value>Lỗi khi tạo dữ liệu</value>
-  </data>
-  <data name="validation_error" xml:space="preserve">
+  <data name="ValidationError" xml:space="preserve">
     <value>Đầu vào không hợp lệ</value>
+  </data>
+  <data name="StringLength.Username" xml:space="preserve">
+    <value>Tên đăng nhập phải có ít nhất 10 ký tự và tối đa 100 ký tự</value>
+  </data>
+  <data name="Required.Birthdate" xml:space="preserve">
+    <value>Sinh nhật là bắt buộc</value>
   </data>
 </root>

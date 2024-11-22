@@ -2,20 +2,13 @@
 
 namespace InfinityNetServer.Services.Group.Application.Exceptions
 {
-    public class GroupException : Exception
+    public class GroupException(GroupError error, int httpStatus, params object[] moreInfo) : Exception
     {
-        public GroupErrorCode ErrorCode { get; }
+        public GroupError Error { get; }
 
         public int HttpStatus { get; }
 
         public object[] MoreInfo { get; }
-
-        public GroupException(GroupErrorCode errorCode, int httpStatus, params object[] moreInfo) : base()
-        {
-            ErrorCode = errorCode;
-            HttpStatus = httpStatus;
-            MoreInfo = moreInfo;
-        }
 
     }
 }

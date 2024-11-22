@@ -1,12 +1,16 @@
-﻿using InfinityNetServer.Services.Post.Application.DTOs.Requests;
-using InfinityNetServer.Services.Post.Application.Services;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Localization;
+﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
 using InfinityNetServer.Services.Post.Application;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
+using InfinityNetServer.Services.Post.Application.DTOs.Requests;
+using InfinityNetServer.Services.Post.Application.Exceptions;
 using InfinityNetServer.Services.Post.Application.Helpers;
+using InfinityNetServer.Services.Post.Application.Services;
+using InfinityNetServer.Services.Post.Domain.Enums;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Post.Presentation.Controllers
 {
@@ -16,9 +20,18 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         IStringLocalizer<PostSharedResource> localizer) : ControllerBase
     {
 
-        [HttpPost("create-post")]
-        public async Task<IActionResult> CreatePost([FromBody] CreatePostRequest request)
+        [HttpPost("text")]
+        public async Task<IActionResult> CreateTextPost([FromBody] CreatePostBaseRequest request)
         {
+            var response = await _postService.CreatePost(request);
+            return CreatedAtAction(nameof(GetPostById), new { id = response.Id }, response);
+        }
+
+        [HttpPost("{type}")]
+        public async Task<IActionResult> CreatePhotoPost([FromBody] CreateMediaPostRequest request, string type)
+        {
+            if (string.IsNullOrEmpty(type)) throw new PostException(PostError.INVALID_POST_TYPE, StatusCodes.Status400BadRequest);
+            PostType postType = Enum.Parse<PostType>(char.ToUpper(type[0]) + type[1..]);
             var response = await _postService.CreatePost(request);
             return CreatedAtAction(nameof(GetPostById), new { id = response.Id }, response);
         }
@@ -26,21 +39,12 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         [HttpPut("update-post/{id}")]
         public async Task<IActionResult> UpdatePost(Guid id, [FromBody] UpdatePostRequest request)
         {
-<<<<<<< HEAD
             if (id != request.Id) return BadRequest("ID mismatch");
 
-            var response = await _postService.UpdatePost(request);
-            return Ok(response);
-=======
-            if (id != request.Id)
-            {
-                return BadRequest("ID mismatch");
-            }
             await _postService.UpdatePost(request);
             return Ok(new CommonMessageResponse(
                 localizer["post_updated_success", request.Id].ToString()
             ));
->>>>>>> 88f702cbae1aaa0fe95a72f508fe90f750c60d9e
         }
 
         [HttpDelete("delete-post/{id}")]

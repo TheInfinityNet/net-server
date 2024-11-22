@@ -8,6 +8,8 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Others
 
         public TagFacet() => Type = FacetType.Tag.ToString();
 
+        public string ProfileId { get; set; }
+
         public PreviewProfileResponse Profile { get; set; }
 
     }

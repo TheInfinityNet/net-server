@@ -27,7 +27,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -44,7 +44,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -60,7 +60,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -76,7 +76,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -92,7 +92,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -108,7 +108,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
         

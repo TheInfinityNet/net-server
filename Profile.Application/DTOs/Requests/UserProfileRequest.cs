@@ -8,21 +8,21 @@ namespace InfinityNetServer.Services.Profile.Application.DTOs.Requests
     public sealed class UserProfileRequest : BaseProfileRequest
     {
 
-        [Required(ErrorMessage = "null_username")]
-        [StringLength(100, MinimumLength = 1, ErrorMessage = "size_username")]
+        [Required(ErrorMessage = "Required.Username")]
+        [StringLength(100, MinimumLength = 10, ErrorMessage = "StringLength.Username")]
         public string Username { get; set; }
 
-        [Required(ErrorMessage = "null_first_name")]
-        [StringLength(100, MinimumLength = 1, ErrorMessage = "size_first_name")]
+        [Required(ErrorMessage = "Required.FirstName")]
+        [StringLength(100, MinimumLength = 1, ErrorMessage = "StringLength.FirstName")]
         public string FirstName { get; set; }
 
-        public string MiddleName { get; set; } = string.Empty;
+        public string MiddleName { get; set; }
 
-        [Required(ErrorMessage = "null_last_name")]
-        [StringLength(100, MinimumLength = 1, ErrorMessage = "size_last_name")]
+        [Required(ErrorMessage = "Required.LastName")]
+        [StringLength(100, MinimumLength = 1, ErrorMessage = "StringLength.LastName")]
         public string LastName { get; set; }
 
-        [Required(ErrorMessage = "null_birthdate")]
+        [Required(ErrorMessage = "Required.Birthdate")]
         public DateOnly Birthdate { get; set; }
 
         public string Gender { get; set; }

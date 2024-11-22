@@ -2,20 +2,13 @@
 
 namespace InfinityNetServer.Services.Profile.Application.Exceptions
 {
-    public class ProfileException : Exception
+    public class ProfileException(ProfileError error, int httpStatus, params object[] moreInfo) : Exception
     {
-        public ProfileErrorCode ErrorCode { get; }
+        public ProfileError Error { get; }
 
         public int HttpStatus { get; }
 
         public object[] MoreInfo { get; }
-
-        public ProfileException(ProfileErrorCode errorCode, int httpStatus, params object[] moreInfo) : base()
-        {
-            ErrorCode = errorCode;
-            HttpStatus = httpStatus;
-            MoreInfo = moreInfo;
-        }
 
     }
 }

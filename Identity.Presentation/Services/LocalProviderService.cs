@@ -1,4 +1,5 @@
-﻿using InfinityNetServer.Services.Identity.Application;
+﻿using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+using InfinityNetServer.Services.Identity.Application;
 using InfinityNetServer.Services.Identity.Application.Exceptions;
 using InfinityNetServer.Services.Identity.Application.Services;
 using InfinityNetServer.Services.Identity.Domain.Entities;
@@ -35,7 +36,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             if (localProvider == null)
             {
                 _logger.LogError(_localizer["user_not_found"].Value);
-                throw new IdentityException(IdentityErrorCode.USER_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status404NotFound);
             }
             return localProvider;
         }

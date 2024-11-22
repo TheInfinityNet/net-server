@@ -1,26 +1,15 @@
-﻿using Microsoft.Extensions.Localization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
+﻿using InfinityNetServer.BuildingBlocks.Application;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
-using InfinityNetServer.BuildingBlocks.Application;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.BuildingBlocks.Presentation.Exceptions
 {
-    public class HttpGlobalExceptionHandler : IMiddleware
+    public class HttpGlobalExceptionHandler(ILogger<HttpGlobalExceptionHandler> logger, IStringLocalizer<SharedResource> localizer) : IMiddleware
     {
-
-        private readonly ILogger<HttpGlobalExceptionHandler> _logger;
-
-        private readonly IStringLocalizer<SharedResource> _localizer;
-
-        public HttpGlobalExceptionHandler(ILogger<HttpGlobalExceptionHandler> logger, IStringLocalizer<SharedResource> localizer)
-        {
-            _logger = logger;
-            _localizer = localizer;
-        }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
@@ -37,40 +26,36 @@ namespace InfinityNetServer.BuildingBlocks.Presentation.Exceptions
         // Khi có lỗi xảy ra sẽ bay vô hàm này
         private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            /*
-            Đoạn này cấu hình trả về error response mặc định
-                nếu như exception không phải kiểu được liệt kê trong đoạn switch case
-            */
             context.Response.ContentType = "application/json";
-            string errorCode = "";
-            string message = _localizer["uncategorized"].ToString();
-            Dictionary<string, string> errors = [];
+            ErrorType type = ErrorType.UnExpected;
+            string message = localizer["UncategorizedError"].ToString();
 
             //Đoạn này chia trương hợp định nghĩa error response tùy theo kiểu exception
             switch (exception)
             {
-                case CommonException Ex:
-                    errorCode = Ex.ErrorCode.Code;
-                    message = _localizer[Ex.ErrorCode.Message].ToString();
+                case BaseException ex:
+                    type = ex.Error.Type;
+                    message = localizer[ex.Error.Code].ToString();
 
-                    _logger.LogError("App Exception: {Exception}", Ex);
-                    context.Response.StatusCode = Ex.HttpStatus;
+                    logger.LogError("Base Exception: {Exception}", ex);
+                    context.Response.StatusCode = ex.HttpStatus;
                     return context.Response.WriteAsJsonAsync(new
                     {
-                        errorCode,
+                        type,
                         message
                     });
 
                 default:
-                    _logger.LogError("Unexpected Exception: {Exception}", exception);
-                    break;
+                    logger.LogError("Unexpected Exception: {Exception}", exception);
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    return context.Response.WriteAsJsonAsync(new
+                    {
+                        type,
+                        message,
+                        details = exception.Message
+                    });
             }
 
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            return context.Response.WriteAsJsonAsync(new
-            {
-                message
-            });
         }
 
     }

@@ -326,20 +326,20 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         public async Task<IActionResult> UploadRawVideo(
             IFormFile video,
             [FromForm]
-            [Required(ErrorMessage = "null_thumbnail_width")]
-            [Range(1, 1920, ErrorMessage = "invalid_thumbnail_width")]
+            [Required(ErrorMessage = "Required.ThumbnailWidth")]
+            [Range(1, 1920, ErrorMessage = "Range.ThumbnailWidth")]
             int thumbnailWidth,
 
             [FromForm]
-            [Required(ErrorMessage = "null_thumbnail_height")]
-            [Range(1, 1080, ErrorMessage = "invalid_thumbnail_height")]
+            [Required(ErrorMessage = "Required.ThumbnailHeight")]
+            [Range(1, 1080, ErrorMessage = "Range.ThumbnailHeight")]
             int thumbnailHeight,
 
             [FromForm] 
             bool isTemporarily = false)
         {
             if (video == null || video.Length == 0)
-                throw new FileException(FileErrorCode.FILE_EMPTY, StatusCodes.Status400BadRequest);
+                throw new FileException(FileError.FILE_EMPTY, StatusCodes.Status400BadRequest);
 
             var filetype = video.ContentType.Split('/').First();
             var extension = video.ContentType.Split('/').Last();
@@ -412,7 +412,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
             catch (Exception ex)
             {
                 logger.LogError($"Can not save file caused by: {ex.Message}");
-                throw new FileException(FileErrorCode.CAN_NOT_STORE_FILE, StatusCodes.Status422UnprocessableEntity);
+                throw new FileException(FileError.CAN_NOT_STORE_FILE, StatusCodes.Status422UnprocessableEntity);
             }
             finally
             {

@@ -1,6 +1,5 @@
 ﻿using InfinityNetServer.Services.Post.Application.DTOs.Requests;
 using InfinityNetServer.Services.Post.Application.DTOs.Responses;
-using InfinityNetServer.Services.Post.Domain.Entities;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,17 +7,17 @@ namespace InfinityNetServer.Services.Post.Application.Helpers
 {
     public class PostHelper
     {
-        public static Domain.Entities.Post FromCreateRequest(CreatePostRequest dto)
+        public static Domain.Entities.Post FromCreateRequest(CreatePostBaseRequest dto)
         {
             return new Domain.Entities.Post
             {
-                Content = dto.Content,
-                Type = dto.Type,
-                PresentationId = dto.PresentationId,
-                ParentId = dto.ParentId,
-                OwnerId = dto.OwnerId,
-                GroupId = dto.GroupId,
-                FileMetadataId = dto.FileMetadataId
+                //Content = dto.Content,
+                //Type = dto.Type,
+                //PresentationId = dto.PresentationId,
+                //ParentId = dto.ParentId,
+                //OwnerId = dto.OwnerId,
+                //GroupId = dto.GroupId,
+                //FileMetadataId = dto.FileMetadataId
             };
         }
 

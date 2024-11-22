@@ -57,7 +57,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             catch
             {
                 logger.LogError("Post not found");
-                throw new CommonException(BaseErrorCode.POST_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status404NotFound);
             }
 
             switch (post.Type)
@@ -86,7 +86,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                     });
                     break;
                 default:
-                    throw new CommonException(BaseErrorCode.POST_NOT_FOUND, StatusCodes.Status400BadRequest);
+                    throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status400BadRequest);
             }
 
 
@@ -201,7 +201,6 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             {
                 Items = await Task.WhenAll(result.Items.Select(async postItem =>
                 {
-                    logger.LogError("Post ID: {PostId}", postItem.Id.ToString());
                     var postResponse = mapper.Map<BasePostResponse>(postItem);
 
                     // Map TagFacets

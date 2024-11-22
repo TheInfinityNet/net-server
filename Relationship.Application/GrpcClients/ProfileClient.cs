@@ -27,7 +27,7 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new RelationshipException(RelationshipErrorCode.FRIENDS_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new RelationshipException(RelationshipError.FRIENDS_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
     }

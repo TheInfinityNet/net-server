@@ -1,14 +1,13 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System.Linq;
-using System.Text.Json;
-using System.Text;
-using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using Microsoft.Extensions.Localization;
-using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Text.Json;
 
 namespace InfinityNetServer.BuildingBlocks.Presentation.Configuration.Jwt;
 
@@ -51,14 +50,14 @@ public static class JwtConfiguration
                             System.Console.WriteLine("Bearer token: " + bearerToken);
                             if (!await identityClient.Introspect(bearerToken!))
                             {
-                                BaseErrorCode errorCode = BaseErrorCode.TOKEN_INVALID;
+                                BaseError error = BaseError.TOKEN_INVALID;
                                 context.Response.ContentType = "application/json";
                                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                                 var result = JsonSerializer.Serialize(
                                     new
                                     {
-                                        errorCode = errorCode.Code,
-                                        message = stringLocalizer[errorCode.Message].ToString()
+                                        type = error.Type,
+                                        message = stringLocalizer[error.Code].ToString()
                                     });
                                 await context.Response.WriteAsync(result);
                             }
@@ -68,29 +67,29 @@ public static class JwtConfiguration
                     OnAuthenticationFailed = context =>
                     {
                         System.Console.WriteLine("OnAuthenticationFailed");
-                        BaseErrorCode errorCode = BaseErrorCode.TOKEN_INVALID;
+                        BaseError error = BaseError.TOKEN_INVALID;
                         context.Response.ContentType = "application/json";
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                         var result = JsonSerializer.Serialize(
                             new
                             {
-                                errorCode = errorCode.Code,
-                                message = stringLocalizer[errorCode.Message].ToString()
+                                type = error.Type,
+                                message = stringLocalizer[error.Code].ToString()
                             });
                         return context.Response.WriteAsync(result);
                     },
                     OnChallenge = context =>
                     {
                         System.Console.WriteLine("OnChallenge");
-                        BaseErrorCode errorCode = BaseErrorCode.TOKEN_MISSING;
+                        BaseError error = BaseError.TOKEN_MISSING;
                         context.HandleResponse();
                         context.Response.ContentType = "application/json";
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                         var result = JsonSerializer.Serialize(
                             new
                             {
-                                errorCode = errorCode.Code,
-                                message = stringLocalizer[errorCode.Message].ToString()
+                                type = error.Type,
+                                message = stringLocalizer[error.Code].ToString()
                             });
                         return context.Response.WriteAsync(result);
                     }
