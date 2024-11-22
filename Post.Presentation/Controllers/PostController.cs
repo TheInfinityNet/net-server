@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using InfinityNetServer.Services.Post.Application.DTOs.Requests;
-using InfinityNetServer.Services.Post.Application.DTOs.Responses;
+﻿using InfinityNetServer.Services.Post.Application.DTOs.Requests;
 using InfinityNetServer.Services.Post.Application.Services;
+using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Post.Presentation.Controllers
@@ -23,10 +21,8 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePost(Guid id, [FromBody] UpdatePostRequest request)
         {
-            if (id != request.Id)
-            {
-                return BadRequest("ID mismatch");
-            }
+            if (id != request.Id) return BadRequest("ID mismatch");
+
             var response = await _postService.UpdatePost(request);
             return Ok(response);
         }

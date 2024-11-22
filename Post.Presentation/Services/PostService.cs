@@ -50,9 +50,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
         }
 
         public async Task<Domain.Entities.Post> GetById(string id)
-        {
-            return await postRepository.GetByIdAsync(Guid.Parse(id));
-        }
+            => await postRepository.GetByIdAsync(Guid.Parse(id));
 
         public async Task<Domain.Entities.Post> UpdatePost(UpdatePostRequest request)
         {
