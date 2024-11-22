@@ -11,7 +11,9 @@
 
         public string SecretKey { get; set; }
 
-        public string BucketName { get; set; }
+        public string MainBucketName { get; set; }
+
+        public string TempBucketName { get; set; }
 
     }
 }

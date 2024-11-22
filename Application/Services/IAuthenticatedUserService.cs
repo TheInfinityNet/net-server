@@ -5,8 +5,9 @@ namespace InfinityNetServer.BuildingBlocks.Application.Services;
 public interface IAuthenticatedUserService
 {
 
-    bool IsAuthenticated();
+    public bool IsAuthenticated();
 
-    Guid? GetAuthenticatedUserId();
+    public Guid? GetAuthenticatedProfileId();
 
+    public Guid? GetAuthenticatedAccountId();
 }

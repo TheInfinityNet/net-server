@@ -10,10 +10,57 @@ import "google/protobuf/empty.proto";
 
 import "Protos/base.proto";
 
-message GetProfileRequest {
+message ProfileIdWithName {
+
+  string id = 1;
+
+  string name = 2;
+
+}
+
+message PotentialProfilesRequest {
+
+	string location = 1;
+
+	int32 limit = 2;
+
+}
+
+message ProfilesRequest {
+
+	repeated string ids = 1;
+
+}
+
+message PreviewFriendsResponse {
+
+	repeated UserProfileResponse friends = 1;
+
+}
+
+message ProfileResponse {
 
 	string id = 1;
 
+	string name = 5;
+
+	string mobileNumber = 6;
+
+	string accountId = 7;
+
+	string avatarId = 8;
+
+	string coverId = 9;
+
+	ProfileType type = 10;
+
+	string location = 11;
+
+	google.protobuf.Timestamp createdAt = 12;
+
+	google.protobuf.Timestamp updatedAt = 13;
+
+	google.protobuf.Timestamp deletedAt = 14;
 }
 
 message UserProfileResponse {
@@ -46,53 +93,44 @@ message UserProfileResponse {
 
 	ProfileType type = 14;
 
-}
+	string accountId = 15;
 
-message GetPreviewFriendsOfProfileRequest {
+	string avatarId = 16;
 
-	repeated string friendIds = 1;
+	string coverId = 17;
 
-}
-
-message PreviewFriendsOfProfileResponse {
-
-	repeated UserProfileResponse friends = 1;
+	string location = 18;
 
 }
 
-message GetProfileIdsResponse {
-  repeated string ids = 1;
-}
-
-message GetUserProfileIdsResponse {
-  repeated string ids = 1;
-}
-
-message GetPageProfileIdsResponse {
-  repeated string ids = 1;
-}
-
-message ProfileIdWithName {
-  string id = 1;
-  string name = 2;
-}
-
-message GetProfileIdsWithNamesResponse {
+message ProfileIdsWithNamesResponse {
   repeated ProfileIdWithName profileIdsWithNames = 1;
+}
+
+message ProfilesResponse {
+  repeated ProfileResponse profiles = 1;
 }
 
 service ProfileService {
 
-  rpc getUserProfile(GetProfileRequest) returns (UserProfileResponse) {}
+	rpc getProfile(ProfileRequest) returns (ProfileResponse) {}
 
-  rpc getPreviewFriendsOfProfile(GetPreviewFriendsOfProfileRequest) returns (PreviewFriendsOfProfileResponse) {}
+	rpc getUserProfile(ProfileRequest) returns (UserProfileResponse) {}
 
-  rpc getProfileIds(google.protobuf.Empty) returns (GetProfileIdsResponse) {}
+	rpc getPreviewFriends(ProfilesRequest) returns (PreviewFriendsResponse) {}
 
-  rpc getUserProfileIds(google.protobuf.Empty) returns (GetUserProfileIdsResponse) {}
+	rpc getProfileIds(google.protobuf.Empty) returns (ProfileIdsResponse) {}
 
-  rpc getPageProfileIds(google.protobuf.Empty) returns (GetPageProfileIdsResponse) {}
+	rpc getUserProfileIds(google.protobuf.Empty) returns (ProfileIdsResponse) {}
 
-  rpc getProfileIdsWithNames(google.protobuf.Empty) returns (GetProfileIdsWithNamesResponse) {}
+	rpc getPageProfileIds(google.protobuf.Empty) returns (ProfileIdsResponse) {}
+
+	rpc getProfileIdsWithNames(ProfilesRequest) returns (ProfileIdsWithNamesResponse) {}
+
+	rpc getPotentialProfileIds(PotentialProfilesRequest) returns (ProfileIdsResponse) {}
+
+	rpc getPreviewFileMetadatas (google.protobuf.Empty) returns (PreviewFileMetadatasResponse) {}
+
+	rpc getProfiles (ProfilesRequest) returns (ProfilesResponse) {}
 
 }

@@ -1,5 +1,5 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Protos;
-using InfinityNetServer.Services.Identity.Application.GrpcClients;
+﻿using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
+using InfinityNetServer.BuildingBlocks.Application.Protos;
 using InfinityNetServer.Services.Identity.Application.GrpcServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
@@ -23,7 +23,7 @@ public static class GrpcExtensions
             options.Address = new Uri(configuration["GrpcServers:ProfileService"]);
         });
 
-        services.AddScoped(typeof(ProfileClient));
+        services.AddScoped(typeof(CommonProfileClient));
     }
 
 }

@@ -24,6 +24,9 @@ using InfinityNetServer.Services.Post.Infrastructure.Data;
 using InfinityNetServer.BuildingBlocks.Presentation.Services;
 using InfinityNetServer.Services.Post.Presentation.Services;
 using InfinityNetServer.Services.Post.Presentation.Exceptions;
+using InfinityNetServer.Services.Post.Presentation.Mappers;
+using InfinityNetServer.Services.Post.Application.Usecases;
+using InfinityNetServer.Services.Post.Application.Consumers;
 
 namespace InfinityNetServer.Services.Post.Presentation.Configurations;
 
@@ -32,19 +35,27 @@ internal static class HostingExtensions
 
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
-        if (builder == null) throw new ArgumentNullException(nameof(builder));
+        ArgumentNullException.ThrowIfNull(builder);
 
         builder.AddSettings();
 
         builder.Services.AddHttpContextAccessor();
 
-        builder.Services.AddDbContext();
+        builder.Services.AddDbContext(builder.Configuration);
 
-        builder.Services.AddMessageBus(builder.Configuration);
+        builder.Services.AddMessageBus(builder.Configuration, 
+            typeof(UpdateUserTimelineConsumer));
+
+        builder.Services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(typeof(UpdateUserTimelineHandler).Assembly);
+        });
+
+        //builder.Services.AddRedisConnection(builder.Configuration);
 
         builder.Services.AddRepositories();
 
-        builder.Services.AddMappers();
+        builder.Services.AddMappers(typeof(PostMappers));
 
         builder.Services.AddLocalization(builder.Configuration);
 
@@ -58,7 +69,10 @@ internal static class HostingExtensions
 
         //builder.Services.AddHealthChecks(builder.Configuration);
 
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        });
 
         builder.Services.AddEndpointsApiExplorer();
 
@@ -94,7 +108,7 @@ internal static class HostingExtensions
 
     public static WebApplication ConfigurePipeline(this WebApplication app, IConfiguration configuration)
     {
-        if (app == null) throw new ArgumentNullException(nameof(app));
+        ArgumentNullException.ThrowIfNull(app);
 
         app.UseSerilogRequestLogging();
 
@@ -126,7 +140,7 @@ internal static class HostingExtensions
 
         app.AutoMigration();
 
-        app.Services.SeedEssentialData(400);
+        app.Services.SeedEssentialData();
 
         app.MapGrpcServices();
 

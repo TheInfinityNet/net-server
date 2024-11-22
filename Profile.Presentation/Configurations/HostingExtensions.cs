@@ -21,7 +21,6 @@ using InfinityNetServer.Services.Profile.Infrastructure.DependencyInjection;
 using InfinityNetServer.Services.Profile.Infrastructure.Data;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.CORS;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.HealthCheck;
-using InfinityNetServer.Services.Profile.Application.Consumers;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Grpc;
 using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
 using InfinityNetServer.Services.Profile.Presentation.Mappers;
@@ -34,7 +33,7 @@ internal static class HostingExtensions
 
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
-        if (builder == null) throw new ArgumentNullException(nameof(builder));
+        ArgumentNullException.ThrowIfNull(builder);
 
         builder.AddSettings();
 
@@ -42,7 +41,7 @@ internal static class HostingExtensions
 
         builder.Services.AddDbContext();
 
-        builder.Services.AddMessageBus(builder.Configuration, typeof(ProfileCreatedConsumer));
+        builder.Services.AddMessageBus(builder.Configuration);
 
         builder.Services.AddRepositories();
 
@@ -96,7 +95,7 @@ internal static class HostingExtensions
 
     public static WebApplication ConfigurePipeline(this WebApplication app, IConfiguration configuration)
     {
-        if (app == null) throw new ArgumentNullException(nameof(app));
+        ArgumentNullException.ThrowIfNull(app);
 
         app.UseSerilogRequestLogging();
 

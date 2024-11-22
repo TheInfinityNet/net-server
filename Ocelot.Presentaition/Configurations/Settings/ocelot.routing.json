@@ -2,11 +2,11 @@
   "Routes": [
     {
       "DownstreamPathTemplate": "/auth/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 60001
+          "Port": 61001
         }
       ],
       "UpstreamPathTemplate": "/auth/{everything}",
@@ -27,19 +27,19 @@
       },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
-        "DurationOfBreak": 5000,
-        "TimeoutValue": 2000
+        "DurationOfBreak": 10000,
+        "TimeoutValue": 5000
       },
       "SwaggerKey": "identity"
     },
 
     {
       "DownstreamPathTemplate": "/profiles/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 60002
+          "Port": 61002
         }
       ],
       "UpstreamPathTemplate": "/profiles/{everything}",
@@ -50,19 +50,19 @@
       },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
-        "DurationOfBreak": 5000,
-        "TimeoutValue": 2000
+        "DurationOfBreak": 10000,
+        "TimeoutValue": 5000
       },
       "SwaggerKey": "profile"
     },
 
     {
       "DownstreamPathTemplate": "/relationships/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 60003
+          "Port": 61003
         }
       ],
       "UpstreamPathTemplate": "/relationships/{everything}",
@@ -73,19 +73,19 @@
       },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
-        "DurationOfBreak": 5000,
-        "TimeoutValue": 2000
+        "DurationOfBreak": 10000,
+        "TimeoutValue": 5000
       },
       "SwaggerKey": "relationship"
     },
 
     {
       "DownstreamPathTemplate": "/groups/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 60004
+          "Port": 61004
         }
       ],
       "UpstreamPathTemplate": "/groups/{everything}",
@@ -96,19 +96,19 @@
       },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
-        "DurationOfBreak": 5000,
-        "TimeoutValue": 2000
+        "DurationOfBreak": 10000,
+        "TimeoutValue": 5000
       },
       "SwaggerKey": "group"
     },
 
     {
       "DownstreamPathTemplate": "/posts/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 60005
+          "Port": 61005
         }
       ],
       "UpstreamPathTemplate": "/posts/{everything}",
@@ -119,19 +119,19 @@
       },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
-        "DurationOfBreak": 5000,
-        "TimeoutValue": 2000
+        "DurationOfBreak": 10000,
+        "TimeoutValue": 5000
       },
       "SwaggerKey": "post"
     },
 
     {
       "DownstreamPathTemplate": "/comments/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 60006
+          "Port": 61006
         }
       ],
       "UpstreamPathTemplate": "/comments/{everything}",
@@ -142,19 +142,19 @@
       },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
-        "DurationOfBreak": 5000,
-        "TimeoutValue": 2000
+        "DurationOfBreak": 10000,
+        "TimeoutValue": 5000
       },
       "SwaggerKey": "comment"
     },
 
     {
       "DownstreamPathTemplate": "/reactions/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 60007
+          "Port": 61007
         }
       ],
       "UpstreamPathTemplate": "/reactions/{everything}",
@@ -165,42 +165,42 @@
       },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
-        "DurationOfBreak": 5000,
-        "TimeoutValue": 2000
+        "DurationOfBreak": 10000,
+        "TimeoutValue": 5000
       },
       "SwaggerKey": "reaction"
     },
 
     {
-      "DownstreamPathTemplate": "/tags/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamPathTemplate": "/notifications/{everything}",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 60008
+          "Port": 61008
         }
       ],
-      "UpstreamPathTemplate": "/tags/{everything}",
+      "UpstreamPathTemplate": "/notifications/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
       "FileCacheOptions": {
         "TtlSeconds": 15,
-        "Region": "tag-cache"
+        "Region": "notification-cache"
       },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
-        "DurationOfBreak": 5000,
-        "TimeoutValue": 2000
+        "DurationOfBreak": 10000,
+        "TimeoutValue": 5000
       },
-      "SwaggerKey": "tag"
+      "SwaggerKey": "notification"
     },
 
     {
       "DownstreamPathTemplate": "/files/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 60010
+          "Port": 61010
         }
       ],
       "UpstreamPathTemplate": "/files/{everything}",
@@ -211,8 +211,8 @@
       },
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
-        "DurationOfBreak": 5000,
-        "TimeoutValue": 2000
+        "DurationOfBreak": 20000,
+        "TimeoutValue": 10000
       },
       "SwaggerKey": "file"
     }

@@ -29,7 +29,11 @@ namespace InfinityNetServer.Services.Profile.Application.DTOs.Requests
 
         public Gender Gender { get; set; }
 
-        public string Bio { get; set;}
+        //public string Bio { get; set;}
+        public string GenerateName()
+        {
+            return FirstName + " " + (MiddleName != null ? MiddleName + " " : "") + LastName;
+        }
 
     }
 

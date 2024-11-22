@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Localization;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Metric;
 using InfinityNetServer.Services.Mail.Application.Consumers;
+using InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ;
+using InfinityNetServer.Services.Mail.Application.Usecases;
 
 namespace InfinityNetServer.Services.Mail.Presentation.Configurations;
 
@@ -19,7 +21,9 @@ internal static class HostingExtensions
 
         builder.Services.AddLocalization(builder.Configuration);
 
-        builder.Services.AddMessageBus(builder.Configuration, typeof(MailSentConsumer));
+        builder.Services.AddMessageBus(builder.Configuration, typeof(SendMailWithCodeEventConsumer));
+
+        builder.Services.AddMediatR(typeof(SendMailWithCodeEventHandler));
 
         builder.AddCommonSerilog();
 

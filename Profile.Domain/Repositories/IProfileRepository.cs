@@ -9,8 +9,11 @@ namespace InfinityNetServer.Services.Profile.Domain.Repositories
     public interface IProfileRepository : ISqlRepository<Entities.Profile, Guid>
     {
 
-        Task<List<Entities.Profile>> GetByType(ProfileType type);
+        public Task<IList<Entities.Profile>> GetAllByTypeAsync(ProfileType type);
 
+        public Task<IList<Entities.Profile>> GetByIdsAsync(IEnumerable<Guid> ids);
+
+        public Task<IList<Entities.Profile>> GetPotentialByLocationAsync(string location, int limit);
 
     }
 }

@@ -3,10 +3,15 @@ using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL;
 using InfinityNetServer.Services.Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System;
 
 namespace InfinityNetServer.Services.Identity.Infrastructure.Data
 {
-    public class IdentityDbContext : PostreSqlDbContext<IdentityDbContext>
+    public class IdentityDbContext(
+            DbContextOptions<IdentityDbContext> options,
+            IConfiguration configuration,
+            IAuthenticatedUserService authenticatedUserService) 
+        : PostreSqlDbContext<IdentityDbContext, Guid>(options, configuration, authenticatedUserService)
     {
 
         public DbSet<Account> Accounts { get; set; }
@@ -20,15 +25,6 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data
         public DbSet<LocalProvider> LocalProviders { get; set; }
 
         public DbSet<Verification> Verifications { get; set; }
-
-
-        public IdentityDbContext(
-            DbContextOptions<IdentityDbContext> options,
-            IConfiguration configuration,
-            IAuthenticatedUserService authenticatedUserService) : base(options, configuration, authenticatedUserService)
-        {
-
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -24,6 +24,7 @@ using InfinityNetServer.Services.Comment.Application;
 using InfinityNetServer.Services.Comment.Infrastructure.DependencyInjection;
 using InfinityNetServer.Services.Comment.Presentation.Services;
 using InfinityNetServer.Services.Comment.Presentation.Exceptions;
+using InfinityNetServer.Services.Comment.Presentation.Mappers;
 
 namespace InfinityNetServer.Services.Comment.Presentation.Configurations;
 
@@ -32,7 +33,7 @@ internal static class HostingExtensions
 
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
-        if (builder == null) throw new ArgumentNullException(nameof(builder));
+        ArgumentNullException.ThrowIfNull(builder);
 
         builder.AddSettings();
 
@@ -44,7 +45,7 @@ internal static class HostingExtensions
 
         builder.Services.AddRepositories();
 
-        builder.Services.AddMappers();
+        builder.Services.AddMappers(typeof(CommentMappers));
 
         builder.Services.AddLocalization(builder.Configuration);
 
@@ -94,7 +95,7 @@ internal static class HostingExtensions
 
     public static WebApplication ConfigurePipeline(this WebApplication app, IConfiguration configuration)
     {
-        if (app == null) throw new ArgumentNullException(nameof(app));
+        ArgumentNullException.ThrowIfNull(app);
 
         app.UseSerilogRequestLogging();
 
@@ -126,7 +127,7 @@ internal static class HostingExtensions
 
         app.AutoMigration();
 
-        app.Services.SeedEssentialData(800);
+        app.Services.SeedEssentialData();
 
         app.MapGrpcServices();
 

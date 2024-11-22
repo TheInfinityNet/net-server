@@ -1,54 +1,55 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Entities;
 using InfinityNetServer.Services.Post.Domain.Enums;
-using InfinityNetServer.BuildingBlocks.Domain.Entities;
+using InfinityNetServer.Services.Reaction.Domain.Entities;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InfinityNetServer.Services.Post.Domain.Entities
 {
     [Table("posts")]
-    public class Post : AuditEntity
+    public class Post : AuditEntity<Guid>
     {
-        [Key]
-        [Column("id")]
-        public Guid Id { get; set; } = Guid.NewGuid();
+
+        public Post() => Id = Guid.NewGuid();
 
         [Required]
         [Column("content", TypeName = "jsonb")]
-        public PostContent Content { get; set; } = new ();
+        public PostContent Content { get; set; } = new();
 
         [Required]
-        [Column("post_type")]
+        [Column("type")]
         public PostType Type { get; set; } = PostType.Text;
 
         [Column("presentation_id")]
-        public Guid? PresentationId { get; set; } = null;
+        public Guid? PresentationId { get; set; }
 
         [Column("parent_id")]
-        public Guid? ParentId { get; set; } = null; // Nullable for shared posts
+        public Guid? ParentId { get; set; } // Nullable for shared posts
 
         [Required]
         [Column("owner_id")]
         public Guid OwnerId { get; set; } // Link to Profle service
 
         [Column("group_id")]
-        public Guid? GroupId { get; set; } = null; // Link to Group service
+        public Guid? GroupId { get; set; } // Link to Group service
 
         [Column("file_metadata_id")]
-        public Guid? FileMetadataId { get; set; } = null; // Link to File service
+        public Guid? FileMetadataId { get; set; } // Link to File service
 
         [ForeignKey("ParentId")]
-        public virtual Post Parent { get; set; } = null;
+        public virtual Post Parent { get; set; }
 
         [ForeignKey("PresentationId")]
-        public virtual Post Presentation { get; set; } = null;
+        public virtual Post Presentation { get; set; }
 
         public virtual ICollection<Post> SharedPosts { get; set; } = [];
 
         public virtual ICollection<Post> SubPosts { get; set; } = [];
+        public virtual ICollection<PostReaction> PostReactions { get; set; } = [];
 
-        public virtual ICollection<PostPrivacy> PostPrivacies { get; set; } = [];
+        public virtual PostAudience Audience { get; set; }
 
     }
 

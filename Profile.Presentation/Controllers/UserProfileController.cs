@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
 using InfinityNetServer.Services.Profile.Application.DTOs.Requests;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
-using InfinityNetServer.BuildingBlocks.Application.Bus;
 using System.Threading.Tasks;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.Services.Profile.Application.Services;
@@ -19,6 +18,7 @@ using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.Services.Profile.Application.DTOs.Responses;
 using InfinityNetServer.Services.Profile.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
+using InfinityNetServer.BuildingBlocks.Application.Contracts;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Controllers
 {
@@ -50,7 +50,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             ));
         }
 
-        [Authorize]
+        //[Authorize]
         [EndpointDescription("Retrieve user profile")]
         [HttpGet("{userId}")]
         [ProducesResponseType(typeof(ViewProfileResponse<UserProfileResponse>), StatusCodes.Status200OK)]
@@ -58,30 +58,31 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         {
             logger.LogInformation("Retrieve user profile for userId: {userId}", userId);
 
-            string currentUserId = authenticatedUserService.GetAuthenticatedUserId().ToString();
+            //string currentUserId = authenticatedUserService.GetAuthenticatedUserId().ToString();
 
             UserProfile currentProfile = await userProfileService.GetUserProfileById(userId);
 
             List<string> actions = new List<string>();
 
-            if (currentUserId != userId)
-            {
-                if (await relationshipClient.HasFriendship(currentUserId, userId))
-                    actions.Add(ProfileActions.RemoveFriend.ToString());
-                else actions.Add(ProfileActions.AddFriend.ToString());
+            //if (currentUserId != userId)
+            //{
+            //    if (await relationshipClient.HasFriendship(currentUserId, userId))
+            //        actions.Add(ProfileActions.RemoveFriend.ToString());
+            //    else actions.Add(ProfileActions.AddFriend.ToString());
 
-                if (await relationshipClient.HasBlocked(currentUserId, userId))
-                    actions.Add(ProfileActions.Unblock.ToString());
-                else actions.Add(ProfileActions.Block.ToString());
+            //    if (await relationshipClient.HasBlocked(currentUserId, userId))
+            //        actions.Add(ProfileActions.Unblock.ToString());
+            //    else actions.Add(ProfileActions.Block.ToString());
 
-                if (await relationshipClient.HasFollowed(currentUserId, userId))
-                    actions.Add(ProfileActions.Unfollow.ToString());
-                else actions.Add(ProfileActions.Follow.ToString());
+            //    if (await relationshipClient.HasFollowed(currentUserId, userId))
+            //        actions.Add(ProfileActions.Unfollow.ToString());
+            //    else actions.Add(ProfileActions.Follow.ToString());
 
-                if (await relationshipClient.HasMuted(currentUserId, userId))
-                    actions.Add(ProfileActions.UnMute.ToString());
-                else actions.Add(ProfileActions.Mute.ToString());
+            //    if (await relationshipClient.HasMuted(currentUserId, userId))
+            //        actions.Add(ProfileActions.UnMute.ToString());
+            //    else actions.Add(ProfileActions.Mute.ToString());
 
+<<<<<<< HEAD
                 if (await relationshipClient.HasFriendRequest(currentUserId, userId))
                     actions.Add(ProfileActions.AcceptOrRejectFriendRequest.ToString());
             }
@@ -93,12 +94,16 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             ProfileActions.ProfileCoverPhotoDelete.ToString()
         });
             }
+=======
+            //    if (await relationshipClient.HasFriendRequest(currentUserId, userId))
+            //        actions.Add(ProfileActions.AcceptOrRejectFriendRequest.ToString());
+            //}
+            //else actions.AddRange(
+            //    [ProfileActions.ProfileCoverPhotoUpload.ToString(), 
+            //        ProfileActions.ProfileCoverPhotoDelete.ToString()]);
+>>>>>>> 05c83f5c49773149f1442b02de28785817b90a5a
 
-            return Ok(new ViewProfileResponse<UserProfileResponse>
-            {
-                Profile = mapper.Map<UserProfileResponse>(currentProfile),
-                Actions = actions
-            });
+            return Ok(mapper.Map<UserProfileResponse>(currentProfile));
         }
 
     }

@@ -1,5 +1,16 @@
-﻿using InfinityNetServer.Services.Identity.Application;
-using InfinityNetServer.Services.Identity.Application.Exceptions;
+﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
+using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
+using InfinityNetServer.BuildingBlocks.Application.Services;
+using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
+using InfinityNetServer.Services.Identity.Application;
+using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
+using InfinityNetServer.Services.Identity.Application.DTOs.Responses;
+using InfinityNetServer.Services.Identity.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -8,16 +19,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
-using InfinityNetServer.Services.Identity.Application.DTOs.Responses;
-using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
-using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
-using InfinityNetServer.BuildingBlocks.Application.Bus;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Commands;
-using InfinityNetServer.Services.Identity.Application.GrpcClients;
-using InfinityNetServer.BuildingBlocks.Application.Services;
-using InfinityNetServer.Services.Identity.Application.Services;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 {
@@ -35,7 +36,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 
         private readonly IAccountService _accountService;
 
-        private readonly ProfileClient _profileClient;
+        private readonly CommonProfileClient _profileClient;
 
         private readonly IMessageBus _messageBus;
 
@@ -46,7 +47,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             IConfiguration configuration,
             IAuthService authService,
             IAccountService accountService,
-            ProfileClient profileClient,
+            CommonProfileClient profileClient,
             IMessageBus messageBus) : base(authenticatedUserService)
         {
             _logger = logger;
@@ -72,16 +73,20 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 
         [EndpointDescription("Send verification email")]
         [ProducesResponseType(typeof(SendMailResponse), StatusCodes.Status200OK)]
+        [Authorize]
         [HttpPost("send-mail")]
         public async Task<IActionResult> SendMail([FromBody] SendMailRequest request)
         {
             _logger.LogInformation(CultureInfo.CurrentCulture.ToString());
-            await _messageBus.Publish(new BaseCommand<SendMailRequest>
+            await _messageBus.Publish(new DomainEvent.SendMailWithCodeEvent
             {
-                RoutingKey = "app.info",
-                SentAt = DateTime.UtcNow,
+                Id = Guid.NewGuid(),
+                ToMail = request.Email,
+                Type = request.Type,
                 AcceptLanguage = CultureInfo.CurrentCulture.ToString(),
-                Payload = request
+                Code = "123456",
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = GetCurrentProfileId()
             });
 
             return Ok(new SendMailResponse
@@ -156,7 +161,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
                     newAccessToken
                 ));
             }
-            throw new IdentityException(IdentityErrorCode.TOKEN_MISSING, StatusCodes.Status422UnprocessableEntity);
+            throw new CommonException(BaseErrorCode.TOKEN_MISSING, StatusCodes.Status422UnprocessableEntity);
         }
 
     }

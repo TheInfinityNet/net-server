@@ -681,3 +681,5 @@ ocelot.json
 Docker/grafana-stack/tempo/tempo-data/
 
 Docker/minio/infinity-net-minio-data/.minio.sys/
+
+File.Presentation/ffmpeg-full/

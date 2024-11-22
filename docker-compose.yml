@@ -72,6 +72,38 @@ services:
       - infinity-net-network
     restart: unless-stopped
 
+  infinity-net-express:
+    image: mongo-express:1.0.2-20-alpine3.19
+    container_name: infinity-net-express
+    depends_on:
+      [ infinity-net-mongodb ]
+    environment:
+      ME_CONFIG_BASICAUTH: false
+      ME_CONFIG_MONGODB_ADMINUSERNAME: infinitynetUser
+      ME_CONFIG_MONGODB_ADMINPASSWORD: Password@123
+      ME_CONFIG_MONGODB_URL: mongodb://infinitynetUser:Password%40123@infinity-net-mongodb:27017/
+    ports:
+      - "5051:8081"
+    networks:
+      - infinity-net-network
+    restart: unless-stopped
+
+  infinity-net-mongodb:
+    image: mongo:latest
+    container_name: infinity-net-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: infinitynetUser
+      MONGO_INITDB_ROOT_PASSWORD: Password@123
+    volumes:
+      - infinity-net-mongodb-data:/data/db
+      - ./Docker/mongodb/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
+      - ./Docker/mongodb/data:/backup
+    ports:
+      - "27017:27017"
+    networks:
+      - infinity-net-network
+    restart: unless-stopped
+
   infinity-net-minio:
     image: minio/minio:RELEASE.2024-08-26T15-33-07Z.fips
     container_name: infinity-net-minio
@@ -79,11 +111,14 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - ./Docker/minio/infinity-net-minio-data:/data:rw
+      - infinity-net-minio-data:/data:r
     environment:
       MINIO_ROOT_USER: infinitynetUser
       MINIO_ROOT_PASSWORD: Password@123
     command: server /data --console-address ":9001"
+    networks:
+      - infinity-net-network
+    restart: unless-stopped
 
   # infinity-net-tempo:
     # image: grafana/tempo:main-bbe0435
@@ -217,4 +252,6 @@ volumes:
   infinity-net-rabbitmq-data:
   infinity-net-pgadmin-data:
   infinity-net-postgres-data:
+  infinity-net-mongodb-data:
+  infinity-net-minio-data:
   #infinity-net-elasticsearch-data:

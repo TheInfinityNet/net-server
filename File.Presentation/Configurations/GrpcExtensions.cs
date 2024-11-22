@@ -1,5 +1,6 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
+using InfinityNetServer.Services.Profile.Application.GrpcServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
@@ -12,7 +13,7 @@ public static class GrpcExtensions
 {
     public static void MapGrpcServices(this IEndpointRouteBuilder endpoints)
     {
-        //endpoints.MapGrpcService<GrpcProfileService>();
+        endpoints.MapGrpcService<GrpcFileService>();
     }
 
     public static void AddGrpcClients(this IServiceCollection services, IConfiguration configuration)
@@ -44,7 +45,6 @@ public static class GrpcExtensions
         services.AddScoped(typeof(CommonPostClient));
 
         services.AddScoped(typeof(CommonCommentClient));
-
     }
 
 }

@@ -27,6 +27,10 @@ using InfinityNetServer.Services.File.Presentation.Exceptions;
 using Elastic.CommonSchema;
 using InfinityNetServer.BuildingBlocks.Infrastructure.Redis;
 using InfinityNetServer.Services.File.Infrastructure.Minio;
+using InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ;
+using InfinityNetServer.Services.File.Application.Consumers;
+using InfinityNetServer.Services.File.Application.Usecases;
+using InfinityNetServer.Services.File.Presentation.Mappers;
 
 namespace InfinityNetServer.Services.File.Presentation.Configurations;
 
@@ -35,15 +39,20 @@ internal static class HostingExtensions
 
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
-        if (builder == null) throw new ArgumentNullException(nameof(builder));
+        ArgumentNullException.ThrowIfNull(builder);
 
         builder.AddSettings();
 
         builder.Services.AddHttpContextAccessor();
 
-        builder.Services.AddDbContext();
+        builder.Services.AddDbContext(builder.Configuration);
 
-        builder.Services.AddMessageBus(builder.Configuration);
+        builder.Services.AddMessageBus(builder.Configuration, typeof(CreatePhotoMetadataEventConsumer), typeof(CreateVideoMetadataEventConsumer));
+
+        builder.Services.AddMediatR(cfg => {
+            cfg.RegisterServicesFromAssembly(typeof(CreatePhotoMetadataEventHandler).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(CreateVideoMetadataEventHandler).Assembly);
+        });
 
         builder.Services.AddRedisConnection(builder.Configuration);
 
@@ -51,7 +60,7 @@ internal static class HostingExtensions
 
         builder.Services.AddRepositories();
 
-        builder.Services.AddMappers();
+        builder.Services.AddMappers(typeof(FileMapper));
 
         builder.Services.AddGrpc();
 
@@ -101,7 +110,7 @@ internal static class HostingExtensions
 
     public static WebApplication ConfigurePipeline(this WebApplication app, IConfiguration configuration)
     {
-        if (app == null) throw new ArgumentNullException(nameof(app));
+        ArgumentNullException.ThrowIfNull(app);
 
         app.UseSerilogRequestLogging();
 
