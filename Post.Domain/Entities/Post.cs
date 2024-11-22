@@ -1,5 +1,6 @@
 ﻿using InfinityNetServer.BuildingBlocks.Domain.Entities;
 using InfinityNetServer.Services.Post.Domain.Enums;
+using InfinityNetServer.Services.Reaction.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -15,7 +16,7 @@ namespace InfinityNetServer.Services.Post.Domain.Entities
 
         [Required]
         [Column("content", TypeName = "jsonb")]
-        public PostContent Content { get; set; } = new ();
+        public PostContent Content { get; set; } = new();
 
         [Required]
         [Column("type")]
@@ -46,6 +47,7 @@ namespace InfinityNetServer.Services.Post.Domain.Entities
         public virtual ICollection<Post> SharedPosts { get; set; } = [];
 
         public virtual ICollection<Post> SubPosts { get; set; } = [];
+        public virtual ICollection<PostReaction> PostReactions { get; set; } = [];
 
         public virtual PostAudience Audience { get; set; }
 

@@ -25,8 +25,6 @@ namespace InfinityNetServer.Services.Identity.Presentation.Exceptions
                 await HandleExceptionAsync(context, ex);
             }
         }
-
-        // Khi có lỗi xảy ra sẽ bay vô hàm này
         private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             /*
