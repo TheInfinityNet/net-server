@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using InfinityNetServer.Application.Services;
-using InfinityNetServer.Presentation.Services;
+using InfinityNetServer.Services.Reaction.Application.Services;
 
 namespace InfinityNetServer.Services.Reaction.Presentation.Services
 {

@@ -4,11 +4,11 @@ namespace InfinityNetServer.Services.Group.Application.Exceptions
 {
     public class GroupException(GroupError error, int httpStatus, params object[] moreInfo) : Exception
     {
-        public GroupError Error { get; }
+        public GroupError Error { get; } = error;
 
-        public int HttpStatus { get; }
+        public int HttpStatus { get; } = httpStatus;
 
-        public object[] MoreInfo { get; }
+        public object[] MoreInfo { get; } = moreInfo;
 
     }
 }

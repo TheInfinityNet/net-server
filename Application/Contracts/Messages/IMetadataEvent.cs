@@ -6,6 +6,8 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Messages
     public interface IMetadataEvent : IMessage
     {
 
+        public Guid FileMetadataId { get; set; }
+
         public Guid OwnerId { get; set; }
 
         public FileOwnerType OwnerType { get; set; }

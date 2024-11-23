@@ -32,6 +32,7 @@ public record BaseError
     public static readonly BaseError RELATIONSHIP_NOT_FOUND = new(ErrorType.ResourceNotFound, $"{ErrorType.ResourceNotFound}.Relationship");
     public static readonly BaseError POST_NOT_FOUND = new(ErrorType.ResourceNotFound, $"{ErrorType.ResourceNotFound}.Post");
     public static readonly BaseError COMMENT_NOT_FOUND = new(ErrorType.ResourceNotFound, $"{ErrorType.ResourceNotFound}.Comment");
+    public static readonly BaseError REACTION_NOT_FOUND = new(ErrorType.ResourceNotFound, $"{ErrorType.ResourceNotFound}.Reaction");
     public static readonly BaseError FILE_NOT_FOUND = new(ErrorType.ResourceNotFound, $"{ErrorType.ResourceNotFound}.File");    
 
 }

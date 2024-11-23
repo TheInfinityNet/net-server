@@ -1,21 +1,17 @@
-﻿using Microsoft.Extensions.Localization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
+﻿using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.Services.Post.Application;
 using InfinityNetServer.Services.Post.Application.Exceptions;
-using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Post.Presentation.Exceptions
 {
     public class HttpPostExceptionHandler(ILogger<HttpPostExceptionHandler> logger, IStringLocalizer<PostSharedResource> localizer) : IMiddleware
     {
-
-        private readonly ILogger<HttpPostExceptionHandler> logger;
-
-        private readonly IStringLocalizer<PostSharedResource> localizer;
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
@@ -33,7 +29,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Exceptions
         private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             context.Response.ContentType = "application/json";
-            ErrorType type = ErrorType.UnExpected;
+            string type = ErrorType.UnExpected.ToString();
             string message = localizer["UncategorizedError"].ToString();
             Dictionary<string, string> errors;
 
@@ -41,7 +37,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Exceptions
             switch (exception)
             {
                 case PostException ex:
-                    type = ex.Error.Type;
+                    type = ex.Error.Type.ToString();
                     message = localizer[ex.Error.Code].ToString();
                     errors = GetDetailedErrors(ex.Error);
 

@@ -10,9 +10,11 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Events
         public sealed record PhotoMetadataEvent : IMetadataEvent
         {
 
-            public Guid Id { get; set; }
+            public Guid Id { get; set; } = Guid.NewGuid();
 
             public Guid TempId { get; set; }
+
+            public Guid FileMetadataId { get; set; }
 
             public Guid OwnerId { get; set; }
 
@@ -27,9 +29,11 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Events
         public sealed record VideoMetadataEvent : IMetadataEvent
         {
 
-            public Guid Id { get; set; }
+            public Guid Id { get; set; } = Guid.NewGuid();
 
             public Guid TempId { get; set; }
+
+            public Guid FileMetadataId { get; set; }
 
             public Guid OwnerId { get; set; }
 

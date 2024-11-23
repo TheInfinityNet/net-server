@@ -126,9 +126,6 @@
   <data name="Required.Email" xml:space="preserve">
     <value>Email là bắt buộc</value>
   </data>
-  <data name="Required.Password" xml:space="preserve">
-    <value>Mật khẩu là bắt buộc</value>
-  </data>
   <data name="StringLength.Password" xml:space="preserve">
     <value>Mật khẩu phải có ít nhất 6 ký tự và tối đa 20 ký tự</value>
   </data>
@@ -224,5 +221,8 @@
   </data>
   <data name="EnumDataType.Gender" xml:space="preserve">
     <value>Giới tính không hợp lệ</value>
+  </data>
+  <data name="ResourceNotFound.Account" xml:space="preserve">
+    <value>Account not found</value>
   </data>
 </root>

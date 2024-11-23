@@ -5,7 +5,7 @@ namespace InfinityNetServer.Services.Post.Application.DTOs.Requests
 {
     public sealed record CreateMultiMediaPostRequest : CreatePostBaseRequest
     {
-        public CreateMultiMediaPostRequest() => Type = PostType.MultiMedia;
+        public CreateMultiMediaPostRequest() => Type = PostType.MultiMedia.ToString();
 
         public IList<CreateMediaPostRequest> Aggregates { get; set; } = [];
 

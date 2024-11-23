@@ -27,14 +27,14 @@ namespace InfinityNetServer.BuildingBlocks.Presentation.Exceptions
         private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             context.Response.ContentType = "application/json";
-            ErrorType type = ErrorType.UnExpected;
+            string type = ErrorType.UnExpected.ToString();
             string message = localizer["UncategorizedError"].ToString();
 
             //Đoạn này chia trương hợp định nghĩa error response tùy theo kiểu exception
             switch (exception)
             {
                 case BaseException ex:
-                    type = ex.Error.Type;
+                    type = ex.Error.Type.ToString();
                     message = localizer[ex.Error.Code].ToString();
 
                     logger.LogError("Base Exception: {Exception}", ex);

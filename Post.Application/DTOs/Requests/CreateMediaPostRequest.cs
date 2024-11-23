@@ -4,7 +4,7 @@ namespace InfinityNetServer.Services.Post.Application.DTOs.Requests
 {
     public sealed record CreateMediaPostRequest : CreatePostBaseRequest
     {
-        public CreateMediaPostRequest() => Type = PostType.Photo;
+        public CreateMediaPostRequest() => Type = PostType.Photo.ToString();
 
         public string PhotoId { get; set; }
 

@@ -1,4 +1,4 @@
-﻿namespace InfinityNetServer.Services.Reaction.Domain.Enums
+﻿namespace InfinityNetServer.BuildingBlocks.Domain.Enums
 {
     public enum ReactionType
     {

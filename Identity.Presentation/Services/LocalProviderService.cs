@@ -33,12 +33,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
         public async Task<LocalProvider> GetByEmail(string email)
         {
             var localProvider = await _localProviderRepository.GetByEmailAsync(email);
-            if (localProvider == null)
-            {
-                _logger.LogError(_localizer["user_not_found"].Value);
-                throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status404NotFound);
-            }
-            return localProvider;
+            return localProvider ?? throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status404NotFound);
         }
     }
 }

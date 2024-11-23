@@ -9,8 +9,8 @@ using InfinityNetServer.Services.Reaction.Domain.Entities;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using InfinityNetServer.Services.Reaction.Domain.Enums;
 using Microsoft.Extensions.Logging;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 
 namespace InfinityNetServer.Services.Reaction.Infrastructure.Data;
 

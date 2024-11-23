@@ -2,14 +2,14 @@
 
 namespace InfinityNetServer.Services.Identity.Application.Exceptions
 {
-    public class IdentityException(IdentityError errorCode, int httpStatus, params object[] moreInfo) : Exception
+    public class IdentityException(IdentityError error, int httpStatus, params object[] moreInfo) : Exception
     {
 
-        public IdentityError Error { get; }
+        public IdentityError Error { get; } = error;
 
-        public int HttpStatus { get; }
+        public int HttpStatus { get; } = httpStatus;
 
-        public object[] MoreInfo { get; }
+        public object[] MoreInfo { get; } = moreInfo;
 
     }
 }

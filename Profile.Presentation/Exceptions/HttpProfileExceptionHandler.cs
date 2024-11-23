@@ -29,7 +29,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Exceptions
         private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             context.Response.ContentType = "application/json";
-            ErrorType type = ErrorType.UnExpected;
+            string type = ErrorType.UnExpected.ToString();
             string message = localizer["UncategorizedError"].ToString();
             Dictionary<string, string> errors;
 
@@ -37,7 +37,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Exceptions
             switch (exception)
             {
                 case ProfileException ex:
-                    type = ex.Error.Type;
+                    type = ex.Error.Type.ToString();
                     message = localizer[ex.Error.Code].ToString();
                     errors = GetDetailedErrors(ex.Error);
 

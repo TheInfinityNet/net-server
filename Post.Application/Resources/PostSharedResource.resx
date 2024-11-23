@@ -129,7 +129,4 @@
   <data name="ValidationError.InvalidPostType" xml:space="preserve">
     <value />
   </data>
-  <data name="ValidationError" xml:space="preserve">
-    <value />
-  </data>
 </root>
