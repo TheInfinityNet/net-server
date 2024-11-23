@@ -17,7 +17,6 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB.Repositories
 
         public virtual async Task CreateAsync(TEntity entity)
         {
-            if (entity.CreatedAt == null) entity.CreatedAt = DateTime.Now;
             await _collection.InsertOneAsync(entity);
         }
 
@@ -39,9 +38,9 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB.Repositories
         public virtual async Task<long> CountAsync()
             => await _collection.CountDocumentsAsync(e => true);
 
-        public async Task<BCursorPagedResult<TEntity>> GetPagedDataAsync(
-            string? cursor,
-            MongoSpecificationWithCursor<TEntity> specification)
+        public async Task<CursorPagedResult<TEntity>> GetPagedDataAsync(
+            string cursor,
+            SpecificationWithCursor<TEntity> specification)
         {
             var filterBuilder = Builders<TEntity>.Filter;
             var filters = new List<FilterDefinition<TEntity>>();
@@ -100,7 +99,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB.Repositories
             var nextCursor = hasNext ? items.Last().Id.ToString() : null;
             var prevCursor = items.Count > 1 ? items.First().Id.ToString() : null; // The first item in the current page is the prevCursor
 
-            return new BCursorPagedResult<TEntity>
+            return new CursorPagedResult<TEntity>
             {
                 Items = items,
                 NextCursor = nextCursor,

@@ -7,25 +7,24 @@ using InfinityNetServer.BuildingBlocks.Domain.Entities;
 namespace InfinityNetServer.Services.Group.Domain.Entities
 {
     [Table("groups")]
-    public class Group : AuditEntity
+    public class Group : AuditEntity<Guid>
     {
-        [Key]
-        [Column("id")]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Group() => Id = Guid.NewGuid();
 
         [Column("name")]
         [Required]
         [MaxLength(255)]
         public string Name { get; set; }
 
-        [Column("description")]
-        public string Description { get; set; } = string.Empty;
+        [Column("description", TypeName = "text")]
+        [Required]
+        public string Description { get; set; }
 
         [Column("owner_id")]
         [Required]
         public Guid OwnerId { get; set; } // Linked to Profile service
 
         // Navigation property for related GroupMembers
-        public virtual ICollection<GroupMember> Members { get; set; } = new List<GroupMember>();
+        public virtual ICollection<GroupMember> Members { get; set; } = [];
     }
 }

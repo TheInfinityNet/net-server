@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
@@ -126,30 +127,62 @@ public class CommonMappers : Profile
                 dest.Name = dest.GenerateName();
             });
 
+        CreateMap<BaseProfileResponse, PreviewProfileResponse>();
+
         CreateMap<Application.Protos.PhotoMetadataResponse, PhotoMetadataResponse>()
             .AfterMap((src, dest) =>
             {
                 dest.Type = src.Type.ToString(); // Chuyển enum sang string
+                dest.CreatedAt = dest.CreatedAt.ToLocalTime();
+                dest.UpdatedAt = dest.UpdatedAt?.ToLocalTime();
+                dest.DeletedAt = dest.DeletedAt?.ToLocalTime();
+
             });
 
         CreateMap<Application.Protos.VideoMetadataResponse, VideoMetadataResponse>()
             .AfterMap((src, dest) =>
             {
                 dest.Type = src.Type.ToString(); // Chuyển enum sang string
+                dest.CreatedAt = dest.CreatedAt.ToLocalTime();
+                dest.UpdatedAt = dest.UpdatedAt?.ToLocalTime();
+                dest.DeletedAt = dest.DeletedAt?.ToLocalTime();
             });
 
-        CreateMap<Application.Protos.PreviewPostResponse, Application.DTOs.Responses.Post.PreviewPostResponse>();
+        CreateMap<Domain.Entities.TagFacet, TagFacet>()
+            .AfterMap((src, dest) => {
+                dest.Type = src.Type.ToString();
+                dest.Profile = new PreviewProfileResponse { Id = src.ProfileId };
+                dest.Index = new FacetIndex { Start = src.Start, End = src.End };
+            });
 
-        CreateMap<Application.Protos.PreviewCommentResponse, Application.DTOs.Responses.Comment.PreviewCommentResponse>();
+        CreateMap<Application.Protos.PreviewPostResponse, Application.DTOs.Responses.Post.PreviewPostResponse>()
+            .AfterMap((src, dest) =>
+            {
+                if (src.FileMetadataId.Equals(Guid.Empty)) dest.FileMetadataId = null;
+            });
 
-        CreateMap<Application.Protos.AccountWithDefaultProfile, Application.DTOs.Others.AccountWithDefaultProfile>();
+        CreateMap<Application.Protos.PreviewCommentResponse, Application.DTOs.Responses.Comment.PreviewCommentResponse>()
+            .AfterMap((src, dest) =>
+            {
+                if (src.FileMetadataId.Equals(Guid.Empty)) dest.FileMetadataId = null;
+            });
 
-        CreateMap<Application.Protos.GroupMemberWithGroup, Application.DTOs.Others.GroupMemberWithGroup>();
+        CreateMap<Application.Protos.TagFacetResponse, Application.DTOs.Responses.Comment.CommentPreviewResponse.TagFacetResponse>()
+        .AfterMap((src, dest) =>
+        {
+            dest.Type = src.Type.ToString();
+        });
 
-        CreateMap<Application.Protos.ProfileIdWithName, Application.DTOs.Others.ProfileIdWithName>();
+        CreateMap<Application.Protos.ContentResponse, Application.DTOs.Responses.Comment.CommentPreviewResponse.ContentResponse>();
 
-        CreateMap<Application.Protos.FileMetadataIdWithType, Application.DTOs.Others.FileMetadataIdWithType>();
+        CreateMap<Application.Protos.CommentPreviewResponse, Application.DTOs.Responses.Comment.CommentPreviewResponse>();
 
-        CreateMap<Application.Protos.FileMetadataIdWithOwnerId, Application.DTOs.Others.FileMetadataIdWithOwnerId>();
+        CreateMap<Application.Protos.AccountWithDefaultProfile, AccountWithDefaultProfile>();
+
+        CreateMap<Application.Protos.GroupMemberWithGroup, GroupMemberWithGroup>();
+
+        CreateMap<Application.Protos.ProfileIdWithName, ProfileIdWithName>();
+
+        CreateMap<Application.Protos.PreviewFileMetadata, PreviewFileMetadata>();
     }
 }

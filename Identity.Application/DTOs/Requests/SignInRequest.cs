@@ -4,12 +4,12 @@ namespace InfinityNetServer.Services.Identity.Application.DTOs.Requests
 {
     public sealed record SignInRequest {
 
-        [Required(ErrorMessage = "null_email")]
-        [EmailAddress(ErrorMessage = "invalid_email")]
+        [Required(ErrorMessage = "Required.Email")]
+        [EmailAddress(ErrorMessage = "EmailAddress.Email")]
         public string Email {  get; set; }
 
-        [Required(ErrorMessage = "null_password")]
-        [StringLength(20, MinimumLength = 6, ErrorMessage = "size_password")]
+        [Required(ErrorMessage = "Required.Password")]
+        [StringLength(20, MinimumLength = 6, ErrorMessage = "StringLength.Password")]
         public string Password { get; set; }
     }
 }

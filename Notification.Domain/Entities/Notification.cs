@@ -15,7 +15,7 @@ namespace InfinityNetServer.Services.Notification.Domain.Entities
         public Guid AccountId { get; set; }
 
         [BsonElement("entity_id")]
-        public string? EntityId { get; set; }
+        public string EntityId { get; set; }
 
         [BsonElement("type")]
         public NotificationType Type { get; set; }
@@ -24,11 +24,11 @@ namespace InfinityNetServer.Services.Notification.Domain.Entities
         [BsonRepresentation(BsonType.String)]
         public Guid? ThumbnailId { get; set; }
 
-        [BsonElement("title")]
-        public string Title { get; set; }
+        [BsonElement("title_params")]
+        public string[] TitleParams { get; set; }
 
-        [BsonElement("content")]
-        public string Content { get; set; }
+        [BsonElement("content_params")]
+        public string[] ContentParams { get; set; }
 
         [BsonElement("is_read")]
         public bool IsRead { get; set; } = false;

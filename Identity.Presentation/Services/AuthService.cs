@@ -1,20 +1,20 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Linq;
-using System.Threading.Tasks;
-using System;
-using InfinityNetServer.Services.Identity.Domain.Entities;
-using Microsoft.AspNetCore.Http;
+﻿using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+using InfinityNetServer.BuildingBlocks.Application.Services;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Jwt;
 using InfinityNetServer.Services.Identity.Application.Exceptions;
 using InfinityNetServer.Services.Identity.Application.Helpers;
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Jwt;
-using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.Services.Identity.Application.Services;
-using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+using InfinityNetServer.Services.Identity.Domain.Entities;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Services
 {
@@ -57,9 +57,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             var localProvider = await _localProviderService.GetByEmail(email);
 
             if (!PasswordHelper.VerifyPassword(localProvider.PasswordHash, password))
-            {
-                throw new IdentityException(IdentityErrorCode.WRONG_PASSWORD, StatusCodes.Status401Unauthorized);
-            }
+                throw new IdentityException(IdentityError.WRONG_PASSWORD, StatusCodes.Status401Unauthorized);
 
             return localProvider;
         }
@@ -120,7 +118,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             // Verify the refresh token
             JwtSecurityToken signedJwt = await VerifyToken(refreshToken, true);
             string id = signedJwt.Subject ??
-                throw new IdentityException(IdentityErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
+                throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized);
 
             Account account;
             try
@@ -129,14 +127,13 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             }
             catch (Exception)
             {
-                _logger.LogError("Account not found");
-                throw new IdentityException(IdentityErrorCode.USER_NOT_FOUND, StatusCodes.Status400BadRequest);
+                throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status404NotFound);
             }
 
             var jwtHandler = new JwtSecurityTokenHandler();
 
             if (!jwtHandler.CanReadToken(accessToken))
-                throw new IdentityException(IdentityErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
+                throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized);
 
             var signedAccessToken = jwtHandler.ReadJwtToken(accessToken);
             var jwtId = signedAccessToken.Id;
@@ -144,7 +141,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
 
             var subject = signedAccessToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
             if (subject != id)
-                throw new IdentityException(IdentityErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
+                throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized);
 
             if (expiryTime > DateTime.UtcNow)
             {
@@ -180,31 +177,31 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
 
                 if (isRefresh)
                 {
-                    if (expiryTime < DateTime.UtcNow) throw new IdentityException(IdentityErrorCode.TOKEN_EXPIRED, StatusCodes.Status401Unauthorized);
+                    if (expiryTime < DateTime.UtcNow) throw new IdentityException(IdentityError.TOKEN_EXPIRED, StatusCodes.Status401Unauthorized);
 
                     ValidateRefreshTokenSignature(token);
                 }
-                else if (expiryTime < DateTime.UtcNow) throw new CommonException(BaseErrorCode.TOKEN_INVALID, StatusCodes.Status401Unauthorized);
+                else if (expiryTime < DateTime.UtcNow) throw new BaseException(BaseError.TOKEN_INVALID, StatusCodes.Status401Unauthorized);
 
                 var jwtId = jwtToken.Id;
                 var value = await _baseRedisService.GetAsync(jwtId);
 
                 if (value != null)
                 {
-                    if (value == "revoked") throw new IdentityException(IdentityErrorCode.TOKEN_REVOKED, StatusCodes.Status401Unauthorized);
+                    if (value == "revoked") throw new IdentityException(IdentityError.TOKEN_REVOKED, StatusCodes.Status401Unauthorized);
 
-                    else throw new IdentityException(IdentityErrorCode.TOKEN_BLACKLISTED, StatusCodes.Status401Unauthorized);
+                    else throw new IdentityException(IdentityError.TOKEN_BLACKLISTED, StatusCodes.Status401Unauthorized);
                 }
 
                 var subject = ((JwtSecurityToken)jwtToken).Subject ??
-                                throw new IdentityException(IdentityErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
+                                throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized);
                 try
                 {
                     await _accountService.GetById(subject);
                 }
                 catch (Exception)
                 {
-                    throw new IdentityException(IdentityErrorCode.INVALID_TOKEN, StatusCodes.Status400BadRequest);
+                    throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized);
                 }
 
                 return (JwtSecurityToken)jwtToken;
@@ -212,7 +209,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.INVALID_SIGNATURE, StatusCodes.Status401Unauthorized);
+                throw new BaseException(BaseError.INVALID_SIGNATURE, StatusCodes.Status401Unauthorized);
             }
 
         }
@@ -239,7 +236,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             }
             catch (Exception)
             {
-                throw new CommonException(BaseErrorCode.INVALID_SIGNATURE, StatusCodes.Status401Unauthorized);
+                throw new BaseException(BaseError.INVALID_SIGNATURE, StatusCodes.Status401Unauthorized);
             }
         }
 

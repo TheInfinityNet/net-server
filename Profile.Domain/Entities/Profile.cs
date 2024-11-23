@@ -1,18 +1,16 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using InfinityNetServer.BuildingBlocks.Domain.Entities;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Entities;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InfinityNetServer.Services.Profile.Domain.Entities
 {
     [Table("profiles")]
-    public class Profile : AuditEntity
+    public class Profile : AuditEntity<Guid>
     {
 
-        [Key]
-        [Column("id")]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Profile() => Id = Guid.NewGuid();
 
         [Required]
         [Column("account_id")]
@@ -30,7 +28,7 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         public string MobileNumber { get; set; }
 
         [Column("location", TypeName = "text")]
-        public string? Location { get; set; }
+        public string Location { get; set; }
 
         [Required]
         public bool IsMobileNumberVerified { get; set; } = false;

@@ -11,6 +11,8 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Comment
 
         public Guid PostId { get; set; }
 
+        public Guid? FileMetadataId { get; set; }
+
         public string PreviewContent { get; set; }
 
     }

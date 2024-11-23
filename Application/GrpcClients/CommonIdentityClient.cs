@@ -51,7 +51,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -67,7 +67,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -86,7 +86,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 

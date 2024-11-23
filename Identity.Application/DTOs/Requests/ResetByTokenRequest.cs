@@ -5,13 +5,13 @@ namespace InfinityNetServer.Services.Identity.Application.DTOs.Requests
     public sealed record ResetByTokenRequest 
     {
 
-        [Required(ErrorMessage = "null_password")]
-        [StringLength(20, MinimumLength = 6, ErrorMessage = "size_password")]
+        [Required(ErrorMessage = "Required.Password")]
+        [StringLength(20, MinimumLength = 6, ErrorMessage = "StringLength.Password")]
         public string NewPassword { get; set; }
 
-        [Required(ErrorMessage = "null_password")]
-        [StringLength(20, MinimumLength = 6, ErrorMessage = "size_password")]
-        public string ConfirmPassword { get; set; }
+        [Required(ErrorMessage = "Required.PasswordConfirmation")]
+        [StringLength(20, MinimumLength = 6, ErrorMessage = "StringLength.Password")]
+        public string PasswordConfirmation { get; set; }
 
         public bool AcceptTerms { get; set; }
 

@@ -9,6 +9,8 @@ namespace InfinityNetServer.Services.File.Domain.Entities
     public class BaseMetadata : MongoEntity<Guid>
     {
 
+        public BaseMetadata() => Id = Guid.NewGuid();
+
         [BsonElement("owner_id")]
         [BsonRepresentation(BsonType.String)]
         public Guid? OwnerId { get; set; }

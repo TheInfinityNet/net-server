@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
 using Microsoft.AspNetCore.Http;
@@ -28,7 +27,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -44,7 +43,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
         public async Task<IList<string>> GetPageProfileIds()
@@ -59,7 +58,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -68,13 +67,13 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting get user profile");
-                var response = await client.getProfileAsync(new GetProfileRequest { Id = id });
+                var response = await client.getProfileAsync(new ProfileRequest { Id = id });
                 return mapper.Map<DTOs.Responses.Profile.BaseProfileResponse>(response);
             }
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -83,22 +82,24 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting get user profile");
-                var response = await client.getUserProfileAsync(new GetProfileRequest { Id = id });
+                var response = await client.getUserProfileAsync(new ProfileRequest { Id = id });
                 return mapper.Map<DTOs.Responses.Profile.UserProfileResponse>(response);
             }
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
-        public async Task<IList<DTOs.Others.ProfileIdWithName>> GetProfileIdsWithNames()
+        public async Task<IList<DTOs.Others.ProfileIdWithName>> GetProfileIdsWithNames(IList<string> ids)
         {
             try
             {
                 logger.LogInformation("Starting get profile ids with name");
-                var response = await client.getProfileIdsWithNamesAsync(new Empty());
+                var request = new ProfilesRequest();
+                request.Ids.AddRange(ids);
+                var response = await client.getProfileIdsWithNamesAsync(request);
                 // Call the gRPC server to introspect the token
                 return new List<DTOs.Others.ProfileIdWithName>(response.ProfileIdsWithNames
                     .Select(mapper.Map<DTOs.Others.ProfileIdWithName>).ToList());
@@ -106,7 +107,57 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
+            }
+        }
+
+        public async Task<IList<string>> GetPotentialProfileIds(string location)
+        {
+            try
+            {
+                logger.LogInformation("Starting get page profile ids");
+                var response = await client.getPotentialProfileIdsAsync(new PotentialProfilesRequest { Location = location });
+                // Call the gRPC server to introspect the token
+                return new List<string>(response.Ids);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
+            }
+        }
+
+        public async Task<IList<DTOs.Others.PreviewFileMetadata>> GetPreviewFileMetadatas()
+        {
+            try
+            {
+                logger.LogInformation("Starting get file metadata ids with types");
+                var response = await client.getPreviewFileMetadatasAsync(new Empty());
+                // Call the gRPC server to introspect the token
+                return new List<DTOs.Others.PreviewFileMetadata>(response.PreviewFileMetadatas
+                    .Select(mapper.Map<DTOs.Others.PreviewFileMetadata>).ToList());
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
+            }
+        }
+
+        public async Task<IList<DTOs.Responses.Profile.BaseProfileResponse>> GetProfiles(IList<string> ids)
+        {
+            try
+            {
+                logger.LogInformation("Starting get user profile");
+                var request = new ProfilesRequest();
+                request.Ids.AddRange(ids);
+                var response = await client.getProfilesAsync(request);
+                return response.Profiles.Select(mapper.Map<DTOs.Responses.Profile.BaseProfileResponse>).ToList();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 

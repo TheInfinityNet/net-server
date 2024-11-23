@@ -21,12 +21,5 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File
 
         public string Url { get; set; }
 
-        public void SetTimeToLocal()
-        {
-            CreatedAt = CreatedAt.ToLocalTime();
-            UpdatedAt = UpdatedAt?.ToLocalTime();
-            DeletedAt = DeletedAt?.ToLocalTime();
-        }
-
     }
 }

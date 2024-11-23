@@ -6,11 +6,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace InfinityNetServer.Services.Relationship.Domain.Entities
 {
     [Table("profile_blocks")]
-    public class ProfileBlock : AuditEntity
+    public class ProfileBlock : AuditEntity<Guid>
     {
-        [Key]
-        [Column("id")]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public ProfileBlock() => Id = Guid.NewGuid();
 
         [Column("blocker_id")]
         [Required]

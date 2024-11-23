@@ -117,34 +117,34 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="bucket_creation_failed" xml:space="preserve">
+  <data name="UnExpected.BucketCreationFailed" xml:space="preserve">
     <value>Fail to create bucket {0}</value>
   </data>
-  <data name="can_not_delete_file" xml:space="preserve">
+  <data name="UnExpected.CanNotDeleteFile" xml:space="preserve">
     <value>Fail to delete file</value>
   </data>
-  <data name="can_not_store_file" xml:space="preserve">
+  <data name="UnExpected.CanNotStoreFile" xml:space="preserve">
     <value>Fail to store file</value>
   </data>
   <data name="Hello" xml:space="preserve">
     <value>Hello {0}</value>
   </data>
-  <data name="invalid_thumbnail_height" xml:space="preserve">
-    <value>Thumbnail height must between {0} and {1}</value>
+  <data name="Range.ThumbnailHeight" xml:space="preserve">
+    <value>Thumbnail height must between 1 and 1080</value>
   </data>
-  <data name="invalid_thumbnail_width" xml:space="preserve">
-    <value>Thumbnail width must between {0} and {1}</value>
+  <data name="Range.ThumbnailWidth" xml:space="preserve">
+    <value>Thumbnail width must between 1 and 1920</value>
   </data>
-  <data name="null_content_type" xml:space="preserve">
+  <data name="Required.ContentType" xml:space="preserve">
     <value>Content type is required</value>
   </data>
-  <data name="null_file_name" xml:space="preserve">
+  <data name="Required.FileName" xml:space="preserve">
     <value>File name is required</value>
   </data>
-  <data name="null_thumbnail_height" xml:space="preserve">
+  <data name="Required.ThumbnailHeight" xml:space="preserve">
     <value>Thumbnail height is required</value>
   </data>
-  <data name="null_thumbnail_width" xml:space="preserve">
+  <data name="Required.ThumbnailWidth" xml:space="preserve">
     <value>Thumbnail width is required</value>
   </data>
 </root>

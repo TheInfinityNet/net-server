@@ -30,7 +30,7 @@ using InfinityNetServer.Services.File.Infrastructure.Minio;
 using InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ;
 using InfinityNetServer.Services.File.Application.Consumers;
 using InfinityNetServer.Services.File.Application.Usecases;
-using InfinityNetServer.Services.Profile.Presentation.Mappers;
+using InfinityNetServer.Services.File.Presentation.Mappers;
 
 namespace InfinityNetServer.Services.File.Presentation.Configurations;
 

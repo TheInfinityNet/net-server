@@ -16,7 +16,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting has friendship");
-                var response = await client.hasFriendshipAsync(new GetProfilesRelationshipRequest
+                var response = await client.hasFriendshipAsync(new ProfilesRelationshipRequest
                 {
                     CurrentProfileId = currentProfileId,
                     TargetProfileId = targetProfileId
@@ -27,7 +27,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -36,7 +36,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting has blocked");
-                var response = await client.hasBlockedAsync(new GetProfilesRelationshipRequest
+                var response = await client.hasBlockedAsync(new ProfilesRelationshipRequest
                 {
                     CurrentProfileId = currentProfileId,
                     TargetProfileId = targetProfileId
@@ -47,7 +47,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -56,7 +56,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting has followed");
-                var response = await client.hasFollowedAsync(new GetProfilesRelationshipRequest
+                var response = await client.hasFollowedAsync(new ProfilesRelationshipRequest
                 {
                     CurrentProfileId = currentProfileId,
                     TargetProfileId = targetProfileId
@@ -67,7 +67,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
@@ -76,7 +76,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting has friend request");
-                var response = await client.hasFriendRequestAsync(new GetProfilesRelationshipRequest
+                var response = await client.hasFriendRequestAsync(new ProfilesRelationshipRequest
                 {
                     CurrentProfileId = currentProfileId,
                     TargetProfileId = targetProfileId
@@ -87,26 +87,102 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
-        public async Task<IList<string>> GetFollowers(string profileId)
+        public async Task<IList<string>> GetFriendIds(string profileId)
         {
             try
             {
                 logger.LogInformation("Starting get followers");
-                var response = await client.getFollowerIdsAsync(new GetProfileInteractionIdsRequest
+                var response = await client.getFriendIdsAsync(new ProfileRequest
                 {
-                    ProfileId = profileId
+                    Id = profileId
                 });
                 // Call the gRPC server to introspect the token
-                return response.ProfileInteractionIds;
+                return response.Ids;
             }
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
+
+        public async Task<IList<string>> GetFollowerIds(string profileId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get followers");
+                var response = await client.getFollowerIdsAsync(new ProfileRequest
+                {
+                    Id = profileId
+                });
+                // Call the gRPC server to introspect the token
+                return response.Ids;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
+
+        public async Task<IList<string>> GetFolloweeIds(string profileId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get followers");
+                var response = await client.getFolloweeIdsAsync(new ProfileRequest
+                {
+                    Id = profileId
+                });
+                // Call the gRPC server to introspect the token
+                return response.Ids;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
+
+        public async Task<IList<string>> GetBlockerIds(string profileId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get followers");
+                var response = await client.getBlockerIdsAsync(new ProfileRequest
+                {
+                    Id = profileId
+                });
+                // Call the gRPC server to introspect the token
+                return response.Ids;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
+
+        public async Task<IList<string>> GetBlockeeIds(string profileId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get followers");
+                var response = await client.getBlockeeIdsAsync(new ProfileRequest
+                {
+                    Id = profileId
+                });
+                // Call the gRPC server to introspect the token
+                return response.Ids;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 

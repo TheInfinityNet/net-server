@@ -13,9 +13,9 @@ using InfinityNetServer.Services.Identity.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -24,50 +24,25 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 {
     [Tags("Auth APIs")]
     [ApiController]
-    public class AuthController : BaseApiController
-    {
-        private readonly IStringLocalizer<IdentitySharedResource> _localizer;
-
-        private readonly ILogger<AuthController> _logger;
-
-        private readonly IConfiguration _configuration;
-
-        private readonly IAuthService _authService;
-
-        private readonly IAccountService _accountService;
-
-        private readonly CommonProfileClient _profileClient;
-
-        private readonly IMessageBus _messageBus;
-
-        public AuthController(
+    public class AuthController(
             IAuthenticatedUserService authenticatedUserService,
             ILogger<AuthController> logger,
-            IStringLocalizer<IdentitySharedResource> Localizer,
-            IConfiguration configuration,
+            IStringLocalizer<IdentitySharedResource> localizer,
             IAuthService authService,
             IAccountService accountService,
             CommonProfileClient profileClient,
-            IMessageBus messageBus) : base(authenticatedUserService)
-        {
-            _logger = logger;
-            _localizer = Localizer;
-            _configuration = configuration;
-            _authService = authService;
-            _accountService = accountService;
-            _profileClient = profileClient;
-            _messageBus = messageBus;
-        }
+            IMessageBus messageBus) : BaseApiController(authenticatedUserService)
+    {
 
         [EndpointDescription("Sign up a new user")]
         [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
         [HttpPost("sign-up")]
         public IActionResult SignUp([FromBody] SignUpRequest request)
         {
-            _logger.LogInformation(request.Gender.ToString());
+            logger.LogInformation(request.Gender.ToString());
             return Ok(new CommonMessageResponse
             (
-                _localizer["sign_up_success"].ToString()
+                localizer["Message.SignUpSuccess"].ToString()
             ));
         }
 
@@ -77,8 +52,8 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
         [HttpPost("send-mail")]
         public async Task<IActionResult> SendMail([FromBody] SendMailRequest request)
         {
-            _logger.LogInformation(CultureInfo.CurrentCulture.ToString());
-            await _messageBus.Publish(new DomainEvent.SendMailWithCodeEvent
+            logger.LogInformation(CultureInfo.CurrentCulture.ToString());
+            await messageBus.Publish(new DomainEvent.SendMailWithCodeEvent
             {
                 Id = Guid.NewGuid(),
                 ToMail = request.Email,
@@ -86,12 +61,12 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
                 AcceptLanguage = CultureInfo.CurrentCulture.ToString(),
                 Code = "123456",
                 CreatedAt = DateTime.UtcNow,
-                CreatedBy = GetCurrentUserId()
+                CreatedBy = GetCurrentProfileId()
             });
 
             return Ok(new SendMailResponse
             (
-                _localizer["send_verification_email_success"].ToString(),
+                localizer["Message.SendVerificationEmailSuccess"].ToString(),
                 60
             ));
         }
@@ -104,7 +79,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 
             return Ok(new CommonMessageResponse
             (
-                _localizer["verify_email_success"].ToString()
+                localizer["Message.VerifyEmailSuccess"].ToString()
             ));
         }
 
@@ -116,7 +91,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 
             return Ok(new CommonMessageResponse
             (
-                _localizer["verify_email_success"].ToString()
+                localizer["Message.VerifyEmailSuccess"].ToString()
             ));
         }
 
@@ -125,13 +100,13 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
         [HttpPost("sign-in")]
         public async Task<IActionResult> SignIn(SignInRequest request)
         {
-            var localProvider = await _authService.SignIn(request.Email, request.Password);
-            var account = await _accountService.GetById(localProvider.AccountId.ToString());
-            _logger.LogInformation(localProvider.AccountId.ToString());
-            var AccessToken = _authService.GenerateToken(account, false);
-            var RefreshToken = _authService.GenerateToken(account, true);
+            var localProvider = await authService.SignIn(request.Email, request.Password);
+            var account = await accountService.GetById(localProvider.AccountId.ToString());
+            logger.LogInformation(localProvider.AccountId.ToString());
+            var AccessToken = authService.GenerateToken(account, false);
+            var RefreshToken = authService.GenerateToken(account, true);
 
-            var userProfile = await _profileClient.GetUserProfile(account.DefaultUserProfileId.ToString());
+            var userProfile = await profileClient.GetUserProfile(account.DefaultUserProfileId.ToString());
             userProfile.AccountId = account.Id;
 
             return Ok(new SignInResponse
@@ -148,20 +123,20 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
         [EndpointDescription("Refresh the access token")]
         [ProducesResponseType(typeof(RefreshResponse), StatusCodes.Status200OK)]
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh([FromBody] RefreshRequest request)
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
         {
-            if (Request.Headers.ContainsKey("Authorization"))
+            if (Request.Headers.TryGetValue("Authorization", out StringValues value))
             {
-                string bearerToken = Request.Headers["Authorization"].ToString()["Bearer ".Length..];
-                var newAccessToken = await _authService.Refresh(request.RefreshToken!, bearerToken);
+                string bearerToken = value.ToString()["Bearer ".Length..];
+                var newAccessToken = await authService.Refresh(request.RefreshToken!, bearerToken);
 
                 return Ok(new RefreshResponse
                 (
-                    _localizer["refresh_token_success"].ToString(),
+                    localizer["Message.RefreshTokenSuccess"].ToString(),
                     newAccessToken
                 ));
             }
-            throw new CommonException(BaseErrorCode.TOKEN_MISSING, StatusCodes.Status422UnprocessableEntity);
+            throw new BaseException(BaseError.TOKEN_MISSING, StatusCodes.Status422UnprocessableEntity);
         }
 
     }

@@ -18,16 +18,16 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting get friends of profile");
-                var response = await client.getPreviewFriendsOfProfileAsync(new GetPreviewFriendsOfProfileRequest
+                var response = await client.getPreviewFriendsAsync(new ProfilesRequest
                 {
-                    FriendIds = { friendIds }
+                    Ids = { friendIds }
                 });
                 return response.Friends.Select(mapper.Map<BuildingBlocks.Application.DTOs.Responses.Profile.UserProfileResponse>).ToList();
             }
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new RelationshipException(RelationshipErrorCode.FRIENDS_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new RelationshipException(RelationshipError.FRIENDS_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
     }

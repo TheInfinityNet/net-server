@@ -34,7 +34,7 @@ namespace InfinityNetServer.Services.File.Presentation.Services
             catch (Exception ex)
             {
                 logger.LogError($"Error occurred: {ex.Message}");
-                throw new FileException(FileErrorCode.CAN_NOT_STORE_FILE, StatusCodes.Status422UnprocessableEntity);
+                throw new FileException(FileError.CAN_NOT_STORE_FILE, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -53,7 +53,7 @@ namespace InfinityNetServer.Services.File.Presentation.Services
             catch (Exception ex)
             {
                 logger.LogError($"Error occurred: {ex.Message}");
-                throw new FileException(FileErrorCode.CAN_NOT_DELETE_FILE, StatusCodes.Status422UnprocessableEntity);
+                throw new FileException(FileError.CAN_NOT_DELETE_FILE, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -71,7 +71,7 @@ namespace InfinityNetServer.Services.File.Presentation.Services
             catch (Exception ex)
             {
                 logger.LogError($"Error ensuring bucket '{bucketName}' exists: {ex.Message}");
-                throw new FileException(FileErrorCode.BUCKET_CREATION_FAILED, StatusCodes.Status500InternalServerError);
+                throw new FileException(FileError.BUCKET_CREATION_FAILED, StatusCodes.Status500InternalServerError);
             }
         }
 
@@ -96,7 +96,7 @@ namespace InfinityNetServer.Services.File.Presentation.Services
             catch (Exception ex)
             {
                 logger.LogError($"Error occurred while copying object: {ex.Message}");
-                throw new FileException(FileErrorCode.CAN_NOT_COPY_FILE, StatusCodes.Status422UnprocessableEntity);
+                throw new FileException(FileError.CAN_NOT_COPY_FILE, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -131,7 +131,7 @@ namespace InfinityNetServer.Services.File.Presentation.Services
             catch (Exception ex)
             {
                 logger.LogError($"Error deleting all objects in bucket '{bucketName}': {ex.Message}");
-                throw new FileException(FileErrorCode.CAN_NOT_DELETE_FILE, StatusCodes.Status422UnprocessableEntity);
+                throw new FileException(FileError.CAN_NOT_DELETE_FILE, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -153,7 +153,7 @@ namespace InfinityNetServer.Services.File.Presentation.Services
             catch (Exception ex)
             {
                 logger.LogError($"Error getting presigned URL for object '{objectKey}' in bucket '{bucketName}': {ex.Message}");
-                throw new FileException(FileErrorCode.CAN_NOT_RETRIEVE_FILE, StatusCodes.Status422UnprocessableEntity);
+                throw new FileException(FileError.CAN_NOT_RETRIEVE_FILE, StatusCodes.Status422UnprocessableEntity);
             }
         }
 

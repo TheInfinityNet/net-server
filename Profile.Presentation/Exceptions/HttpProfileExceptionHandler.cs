@@ -1,26 +1,17 @@
-﻿using Microsoft.Extensions.Localization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
+﻿using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.Services.Profile.Application;
 using InfinityNetServer.Services.Profile.Application.Exceptions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Exceptions
 {
-    public class HttpProfileExceptionHandler : IMiddleware
+    public class HttpProfileExceptionHandler(ILogger<HttpProfileExceptionHandler> logger, IStringLocalizer<ProfileSharedResource> localizer) : IMiddleware
     {
-
-        private readonly ILogger<HttpProfileExceptionHandler> _logger;
-
-        private readonly IStringLocalizer<ProfileSharedResource> _localizer;
-
-        public HttpProfileExceptionHandler(ILogger<HttpProfileExceptionHandler> logger, IStringLocalizer<ProfileSharedResource> localizer)
-        {
-            _logger = logger;
-            _localizer = localizer;
-        }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
@@ -37,40 +28,51 @@ namespace InfinityNetServer.Services.Profile.Presentation.Exceptions
         // Khi có lỗi xảy ra sẽ bay vô hàm này
         private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            /*
-            Đoạn này cấu hình trả về error response mặc định
-                nếu như exception không phải kiểu được liệt kê trong đoạn switch case
-            */
             context.Response.ContentType = "application/json";
-            string errorCode = "";
-            string message = _localizer["uncategorized"].ToString();
-            Dictionary<string, string> errors = [];
+            ErrorType type = ErrorType.UnExpected;
+            string message = localizer["UncategorizedError"].ToString();
+            Dictionary<string, string> errors;
 
             //Đoạn này chia trương hợp định nghĩa error response tùy theo kiểu exception
             switch (exception)
             {
-                case ProfileException Ex:
-                    errorCode = Ex.ErrorCode.Code;
-                    message = _localizer[Ex.ErrorCode.Message].ToString();
+                case ProfileException ex:
+                    type = ex.Error.Type;
+                    message = localizer[ex.Error.Code].ToString();
+                    errors = GetDetailedErrors(ex.Error);
 
-                    _logger.LogError("App Exception: {Exception}", Ex);
-                    context.Response.StatusCode = Ex.HttpStatus;
+                    logger.LogError("App Exception: {Exception}", ex);
+                    context.Response.StatusCode = ex.HttpStatus;
                     return context.Response.WriteAsJsonAsync(new
                     {
-                        errorCode,
-                        message
+                        type,
+                        message,
+                        errors
                     });
 
                 default:
-                    _logger.LogError("Unexpected Exception: {Exception}", exception);
-                    break;
+                    logger.LogError("Unexpected Exception: {Exception}", exception);
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    return context.Response.WriteAsJsonAsync(new
+                    {
+                        type,
+                        message,
+                        details = exception.Message
+                    });
             }
+        }
 
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            return context.Response.WriteAsJsonAsync(new
+        private Dictionary<string, string> GetDetailedErrors(ProfileError error)
+        {
+            return error.ToString() switch
             {
-                message
-            });
+                //nameof(CommentError.INVALID_POST_TYPE) => new Dictionary<string, string>
+                //{
+                //    { "type", localizer[error.Code].ToString() }
+                //},
+
+                _ => null
+            };
         }
 
     }

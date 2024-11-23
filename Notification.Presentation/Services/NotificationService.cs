@@ -23,9 +23,9 @@ namespace InfinityNetServer.Services.Notification.Presentation.Services
         public async Task Update(Domain.Entities.Notification notification)
             => await notificationRepository.UpdateAsync(notification);
 
-        public Task<BCursorPagedResult<Domain.Entities.Notification>> GetNewestNotifications(string accountId, string? cursor, int pageSize)
+        public Task<CursorPagedResult<Domain.Entities.Notification>> GetNewestNotifications(string accountId, string? cursor, int pageSize)
         {
-            var specification = new MongoSpecificationWithCursor<Domain.Entities.Notification>
+            var specification = new SpecificationWithCursor<Domain.Entities.Notification>
             {
                 Criteria = x => x.AccountId == Guid.Parse(accountId), // where account id = {id}
                 OrderFields = [

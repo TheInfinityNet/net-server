@@ -27,24 +27,24 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
-        public async Task<List<DTOs.Others.FileMetadataIdWithOwnerId>> GetFileMetadataIdsWithOwnerIds()
+        public async Task<List<DTOs.Others.PreviewFileMetadata>> GetPreviewFileMetadatas()
         {
             try
             {
                 logger.LogInformation("Starting get file metadata ids with types");
-                var response = await client.getFileMetadataIdsWithOwnerIdsAsync(new Empty());
+                var response = await client.getPreviewFileMetadatasAsync(new Empty());
                 // Call the gRPC server to introspect the token
-                return new List<DTOs.Others.FileMetadataIdWithOwnerId>(response.FileMetadataIdsWithOwnerIds
-                    .Select(_ => mapper.Map<DTOs.Others.FileMetadataIdWithOwnerId>(_)).ToList());
+                return new List<DTOs.Others.PreviewFileMetadata>(response.PreviewFileMetadatas
+                    .Select(mapper.Map<DTOs.Others.PreviewFileMetadata>).ToList());
             }
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -60,9 +60,57 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
+        public async Task<int> GetCommentCount(string postId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get preview comment");
+                var response = await client.getCommentCountAsync(new CommentByPostIdRequest { PostId = postId });
+                // Call the gRPC server to introspect the token
+                return response.Count;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
+
+        public async Task<List<string>> GetCommentIdsByPostId(string postId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get comment ids by post id");
+                var response = await client.getCommentIdsByPostIdAsync(new CommentByPostIdRequest { PostId = postId });
+                // Call the gRPC server to introspect the token
+                return new List<string>(response.Ids);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
+
+        public async Task<DTOs.Responses.Comment.CommentPreviewResponse> GetCommentPreview(string postId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get preview comment");
+                var response = await client.getCommentPreviewAsync(new CommentByPostIdRequest { PostId = postId });
+                // Call the gRPC server to introspect the token
+                return mapper.Map<DTOs.Responses.Comment.CommentPreviewResponse>(response);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
+        
     }
 }

@@ -32,20 +32,17 @@ namespace InfinityNetServer.Services.Notification.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult> GetNotifications(string cursor = null)
         {
-            var notifications = await notificationService.GetNewestNotifications(
-                authenticatedUserService.GetAuthenticatedAccountId().Value.ToString(), cursor);
-            BCursorPagedResult<NotificationResponse> response = new()
+            var notifications = await notificationService
+                .GetNewestNotifications(GetCurrentAccountId().Value.ToString(), cursor);
+
+            CursorPagedResult<NotificationResponse> response = new()
             {
                 Items = notifications.Items.Select(n => {
-                    switch (n.Type)
-                    {
-                        case BuildingBlocks.Domain.Enums.NotificationType.FriendInvitation:
-                            n.Title = localizer["FriendInvitationNotification.Title"];
-                            n.Content = localizer["FriendInvitationNotification.Content", n.Content];
-                            break;
-                    }
-                    return mapper.Map<NotificationResponse>(n);
-                    }).ToList(),
+                    var response = mapper.Map<NotificationResponse>(n);
+                    response.Title = localizer[$"{n.Type}.Title", n.TitleParams];
+                    response.Content = localizer[$"{n.Type}.Content", n.ContentParams];
+                    return response;
+                }).ToList(),
                 NextCursor = notifications.NextCursor,
                 PrevCursor = notifications.PrevCursor
             };

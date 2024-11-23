@@ -18,7 +18,7 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data
         IConfiguration configuration,
         IAuthenticatedUserService authenticatedUserService,
         IMessageBus messageBus) 
-        : PostreSqlDbContext<CommentDbContext>(options, configuration, authenticatedUserService)
+        : PostreSqlDbContext<CommentDbContext, Guid>(options, configuration, authenticatedUserService)
     {
 
         public DbSet<Domain.Entities.Comment> Comments { get; set; }
@@ -56,46 +56,41 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data
             {
                 foreach (var entry in entries)
                 {
-                    if (entry.State == EntityState.Added || (entry.State == EntityState.Modified && entry.Entity.IsDeleted))
+                    Guid id = entry.Entity.Id;
+                    Guid profileId = entry.Entity.ProfileId;
+                    DateTime createdAt = entry.Entity.CreatedAt;
+
+                    // tagged in comment
+                    CommentContent content = entry.Entity.Content;
+                    if (content.TagFacets.Count > 0)
                     {
-                        Guid id = entry.Entity.Id;
-                        Guid profileId = entry.Entity.ProfileId;
-                        DateTime createdAt = entry.Entity.CreatedAt;
-
-                        // tagged in comment
-                        CommentContent content = entry.Entity.Content;
-                        if (content.TagFacets.Count > 0)
+                        foreach (var tag in content.TagFacets)
                         {
-                            foreach (var tag in content.TagFacets)
+                            Guid taggedProfileId = tag.ProfileId;
+                            await messageBus.Publish(new DomainCommand.CreateCommentNotificationCommand
                             {
-                                Guid taggedProfileId = tag.ProfileId;
-                                await messageBus.Publish(new DomainCommand.CommentNotificationCommand
-                                {
-                                    Id = Guid.NewGuid(),
-                                    TriggeredBy = profileId.ToString(),
-                                    RelatedProfileId = taggedProfileId,
-                                    CommentId = id,
-                                    Type = BuildingBlocks.Domain.Enums.NotificationType.TaggedInComment,
-                                    CreatedAt = createdAt
-                                });
-                            }
-                        }
-
-                        // reply to comment
-                        if (entry.Entity.ParentId != null)
-                        {
-                            Guid parentCommentId = entry.Entity.ParentId.Value;
-                            Domain.Entities.Comment parentComment = await Comments.FindAsync(parentCommentId);
-                            await messageBus.Publish(new DomainCommand.CommentNotificationCommand
-                            {
-                                Id = Guid.NewGuid(),
                                 TriggeredBy = profileId.ToString(),
-                                RelatedProfileId = parentComment.ProfileId,
+                                TargetProfileId = taggedProfileId,
                                 CommentId = id,
-                                Type = BuildingBlocks.Domain.Enums.NotificationType.ReplyToComment,
+                                Type = BuildingBlocks.Domain.Enums.NotificationType.TaggedInComment,
                                 CreatedAt = createdAt
                             });
                         }
+                    }
+
+                    // reply to comment
+                    if (entry.Entity.ParentId != null)
+                    {
+                        Guid parentCommentId = entry.Entity.ParentId.Value;
+                        Domain.Entities.Comment parentComment = await Comments.FindAsync(parentCommentId);
+                        await messageBus.Publish(new DomainCommand.CreateCommentNotificationCommand
+                        {
+                            TriggeredBy = profileId.ToString(),
+                            TargetProfileId = parentComment.ProfileId,
+                            CommentId = id,
+                            Type = BuildingBlocks.Domain.Enums.NotificationType.ReplyToComment,
+                            CreatedAt = createdAt
+                        });
                     }
                 }
             }

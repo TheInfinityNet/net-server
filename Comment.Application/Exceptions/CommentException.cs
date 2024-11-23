@@ -2,20 +2,14 @@
 
 namespace InfinityNetServer.Services.Comment.Application.Exceptions
 {
-    public class CommentException : Exception
+    public class CommentException(CommentError error, int httpStatus, params object[] moreInfo) : Exception
     {
-        public CommentErrorCode ErrorCode { get; }
+
+        public CommentError Error { get; }
 
         public int HttpStatus { get; }
 
         public object[] MoreInfo { get; }
-
-        public CommentException(CommentErrorCode errorCode, int httpStatus, params object[] moreInfo) : base()
-        {
-            ErrorCode = errorCode;
-            HttpStatus = httpStatus;
-            MoreInfo = moreInfo;
-        }
 
     }
 }

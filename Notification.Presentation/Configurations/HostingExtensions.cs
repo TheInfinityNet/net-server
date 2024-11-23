@@ -42,18 +42,20 @@ internal static class HostingExtensions
 
         builder.Services.AddDbContext(builder.Configuration);
 
-        builder.Services.AddMessageBus(builder.Configuration, 
-            typeof(CreatePostNotificationCommandConsumer), 
-            typeof(CreateCommentNotificationCommandConsumer),
-            typeof(CreateFriendshipNotificationCommandConsumer),
-            typeof(CreateProfileFollowNotificationCommandConsumer));
+        builder.Services.AddMessageBus(builder.Configuration,
+            typeof(CreatePostNotificationConsumer),
+            typeof(CreateCommentNotificationConsumer),
+            typeof(CreateFriendshipNotificationConsumer),
+            typeof(CreateProfileFollowNotificationConsumer));
+            //typeof());
 
         builder.Services.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssembly(typeof(CreateCommentNotificationCommandHandler).Assembly);
-            cfg.RegisterServicesFromAssembly(typeof(CreatePostNotificationCommandHandler).Assembly);
-            cfg.RegisterServicesFromAssembly(typeof(CreateFriendshipNotificationCommandHandler).Assembly);
-            cfg.RegisterServicesFromAssembly(typeof(CreateProfileFollowNotificationCommandHandler).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(CreateCommentNotificationHandler).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(CreatePostNotificationHandler).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(CreateFriendshipNotificationHandler).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(CreateProfileFollowNotificationHandler).Assembly);
+
         });
 
         builder.Services.AddRepositories();

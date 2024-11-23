@@ -5,6 +5,7 @@ using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL;
 using InfinityNetServer.Services.Relationship.Domain.Entities;
 using InfinityNetServer.Services.Relationship.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading;
@@ -17,7 +18,7 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data
         IConfiguration configuration,
         IAuthenticatedUserService authenticatedUserService,
         IMessageBus messageBus) 
-        : PostreSqlDbContext<RelationshipDbContext>(options, configuration, authenticatedUserService)
+        : PostreSqlDbContext<RelationshipDbContext, Guid>(options, configuration, authenticatedUserService)
     {
 
         public DbSet<Friendship> Friendships { get; set; }
@@ -63,54 +64,70 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data
             if (result > 0)
             {
                 foreach (var entry in friendshipEntries)
-                {
-                    if (entry.Entity.Status.Equals(FriendshipStatus.Pending))
-                    {
-                        Guid id = entry.Entity.Id;
-                        Guid senderId = entry.Entity.SenderId;
-                        Guid receiverId = entry.Entity.ReceiverId;
-                        DateTime createdAt = entry.Entity.CreatedAt;
-
-                        // Friend invitation 
-                        await messageBus.Publish(new DomainCommand.FriendshipNotificationCommand
-                        {
-                            Id = Guid.NewGuid(),
-                            TriggeredBy = senderId.ToString(),
-                            RelatedProfileId = receiverId,
-                            FriendshipId = id,
-                            Type = BuildingBlocks.Domain.Enums.NotificationType.FriendInvitation,
-                            CreatedAt = createdAt
-                        });
-
-                    }
-                }
-
+                    await PublishFriendshipNotificationCommands(entry.Entity);
+                
                 foreach (var entry in profileFollowEntries)
-                {
-                    if (entry.Entity.UpdatedAt == null && entry.Entity.DeletedAt == null)
-                    {
-                        Guid id = entry.Entity.Id;
-                        Guid followerId = entry.Entity.FollowerId;
-                        Guid followeeId = entry.Entity.FolloweeId;
-                        DateTime createdAt = entry.Entity.CreatedAt;
-
-                        // Friend invitation 
-                        await messageBus.Publish(new DomainCommand.ProfileFollowNotificationCommand
-                        {
-                            Id = Guid.NewGuid(),
-                            TriggeredBy = followerId.ToString(),
-                            RelatedProfileId = followeeId,
-                            ProfileFollowId = id,
-                            Type = BuildingBlocks.Domain.Enums.NotificationType.NewProfileFollower,
-                            CreatedAt = createdAt
-                        });
-
-                    }
-                }
+                    await PublishProfileFollowNotificationCommands(entry.Entity);
             }
 
             return result;
         }
+
+        private async Task PublishFriendshipNotificationCommands(Friendship entity)
+        {
+            Guid id = entity.Id;
+            Guid senderId = entity.SenderId;
+            Guid receiverId = entity.ReceiverId;
+            DateTime createdAt = entity.CreatedAt;
+
+            var notificationCommand = new DomainCommand.CreateFriendshipNotificationCommand
+            {
+                FriendshipId = id,
+                CreatedAt = createdAt
+            };
+
+            switch (entity.Status)
+            {
+                case FriendshipStatus.Pending:
+                    // Friend invitation
+                    notificationCommand.TriggeredBy = senderId.ToString();
+                    notificationCommand.TargetProfileId = receiverId;
+                    notificationCommand.Type = BuildingBlocks.Domain.Enums.NotificationType.FriendInvitation;
+                    break;
+
+                case FriendshipStatus.Connected:
+                    // Friend invitation accepted
+                    notificationCommand.TriggeredBy = receiverId.ToString();
+                    notificationCommand.TargetProfileId = senderId;
+                    notificationCommand.Type = BuildingBlocks.Domain.Enums.NotificationType.FriendInvitationAccepted;
+                    break;
+
+                default:
+                    return; // Do nothing if the status doesn't match
+            }
+
+            await messageBus.Publish(notificationCommand);
+        }
+
+        private async Task PublishProfileFollowNotificationCommands(ProfileFollow entity)
+        {
+            Guid id = entity.Id;
+            Guid followerId = entity.FollowerId;
+            Guid followeeId = entity.FolloweeId;
+            DateTime createdAt = entity.CreatedAt;
+
+            var notificationCommand = new DomainCommand.CreateProfileFollowNotificationCommand
+            {
+                TriggeredBy = followerId.ToString(),
+                TargetProfileId = followeeId,
+                ProfileFollowId = id,
+                Type = BuildingBlocks.Domain.Enums.NotificationType.NewProfileFollower,
+                CreatedAt = createdAt
+            };
+
+            await messageBus.Publish(notificationCommand);
+        }
+
 
     }
 

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-	<!-- 
+  <!-- 
     Microsoft ResX Schema 
     
     Version 2.0
@@ -59,218 +59,170 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-		<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-		<xsd:element name="root" msdata:IsDataSet="true">
-			<xsd:complexType>
-				<xsd:choice maxOccurs="unbounded">
-					<xsd:element name="metadata">
-						<xsd:complexType>
-							<xsd:sequence>
-								<xsd:element name="value" type="xsd:string" minOccurs="0" />
-							</xsd:sequence>
-							<xsd:attribute name="name" use="required" type="xsd:string" />
-							<xsd:attribute name="type" type="xsd:string" />
-							<xsd:attribute name="mimetype" type="xsd:string" />
-							<xsd:attribute ref="xml:space" />
-						</xsd:complexType>
-					</xsd:element>
-					<xsd:element name="assembly">
-						<xsd:complexType>
-							<xsd:attribute name="alias" type="xsd:string" />
-							<xsd:attribute name="name" type="xsd:string" />
-						</xsd:complexType>
-					</xsd:element>
-					<xsd:element name="data">
-						<xsd:complexType>
-							<xsd:sequence>
-								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-							</xsd:sequence>
-							<xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-							<xsd:attribute ref="xml:space" />
-						</xsd:complexType>
-					</xsd:element>
-					<xsd:element name="resheader">
-						<xsd:complexType>
-							<xsd:sequence>
-								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-							</xsd:sequence>
-							<xsd:attribute name="name" type="xsd:string" use="required" />
-						</xsd:complexType>
-					</xsd:element>
-				</xsd:choice>
-			</xsd:complexType>
-		</xsd:element>
-	</xsd:schema>
-	<resheader name="resmimetype">
-		<value>text/microsoft-resx</value>
-	</resheader>
-	<resheader name="version">
-		<value>2.0</value>
-	</resheader>
-	<resheader name="reader">
-		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-	</resheader>
-	<resheader name="writer">
-		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-	</resheader>
-	<data name="uncategorized" xml:space="preserve">
-  <value>Không phân loại</value>
-</data>
-	<data name="not_have_permission" xml:space="preserve">
-  <value>Bạn không có quyền thực hiện hành động này</value>
-</data>
-	<data name="msg_test" xml:space="preserve">
-  <value>Xin chào {0}, đây là một tin nhắn thử nghiệm</value>
-</data>
-	<data name="file_upload_failed" xml:space="preserve">
-  <value>Tải lên tệp không thành công</value>
-</data>
-	<data name="delete_file_failed" xml:space="preserve">
-  <value>Xóa tệp không thành công</value>
-</data>
-	<data name="delete_folder_failed" xml:space="preserve">
-  <value>Xóa thư mục không thành công</value>
-</data>
-	<data name="refresh_token_success" xml:space="preserve">
-  <value>Token đã được làm mới</value>
-</data>
-	<data name="verify_email_success" xml:space="preserve">
-  <value>Email đã được xác minh, vui lòng đăng nhập</value>
-</data>
-	<data name="null_email" xml:space="preserve">
-  <value>Email là bắt buộc</value>
-</data>
-	<data name="null_password" xml:space="preserve">
-  <value>Mật khẩu là bắt buộc</value>
-</data>
-	<data name="size_password" xml:space="preserve">
-  <value>Mật khẩu phải có ít nhất 6 ký tự và tối đa 20 ký tự</value>
-</data>
-	<data name="null_firstname" xml:space="preserve">
-  <value>Tên là bắt buộc</value>
-</data>
-	<data name="size_firstname" xml:space="preserve">
-  <value>Tên phải có ít nhất 2 ký tự và tối đa 50 ký tự</value>
-</data>
-	<data name="null_lastname" xml:space="preserve">
-  <value>Họ là bắt buộc</value>
-</data>
-	<data name="size_lastname" xml:space="preserve">
-  <value>Họ phải có ít nhất 2 ký tự và tối đa 50 ký tự</value>
-</data>
-	<data name="null_token" xml:space="preserve">
-  <value>Token là bắt buộc</value>
-</data>
-	<data name="null_verification_type" xml:space="preserve">
-  <value>Loại xác minh là bắt buộc</value>
-</data>
-	<data name="sign_up_success" xml:space="preserve">
-  <value>Đăng ký người dùng thành công, vui lòng xác minh email của bạn</value>
-</data>
-	<data name="send_forgot_password_email_success" xml:space="preserve">
-  <value>Email quên mật khẩu đã được gửi, vui lòng kiểm tra hộp thư đến của bạn</value>
-</data>
-	<data name="verify_forgot_password_code_success" xml:space="preserve">
-  <value>Email đã được xác minh, vui lòng đăng nhập</value>
-</data>
-	<data name="reset_password_success" xml:space="preserve">
-  <value>Đặt lại mật khẩu thành công</value>
-</data>
-	<data name="send_verification_email_success" xml:space="preserve">
-  <value>Email xác minh đã được gửi, vui lòng kiểm tra hộp thư đến của bạn</value>
-</data>
-	<data name="validation_error" xml:space="preserve">
-  <value>Lỗi xác thực</value>
-</data>
-	<data name="invalid_email" xml:space="preserve">
-  <value>Địa chỉ email không hợp lệ</value>
-</data>
-	<data name="weak_password" xml:space="preserve">
-  <value>Mật khẩu quá yếu</value>
-</data>
-	<data name="password_mis_match" xml:space="preserve">
-  <value>Mật khẩu không khớp</value>
-</data>
-	<data name="terms_not_accepted" xml:space="preserve">
-  <value>Bạn phải chấp nhận các điều khoản và điều kiện</value>
-</data>
-	<data name="wrong_password" xml:space="preserve">
-  <value>Mật khẩu không chính xác</value>
-</data>
-	<data name="expired_password" xml:space="preserve">
-  <value>Mật khẩu đã hết hạn</value>
-</data>
-	<data name="two_factor_required" xml:space="preserve">
-  <value>Yêu cầu xác thực hai yếu tố</value>
-</data>
-	<data name="token_missing" xml:space="preserve">
-  <value>Token bị thiếu</value>
-</data>
-	<data name="token_invalid" xml:space="preserve">
-  <value>Token không hợp lệ</value>
-</data>
-	<data name="token_expired" xml:space="preserve">
-  <value>Refresh token đã hết hạn</value>
-</data>
-	<data name="invalid_token" xml:space="preserve">
-  <value>Refresh token không hợp lệ</value>
-</data>
-	<data name="token_revoked" xml:space="preserve">
-  <value>Refresh token đã bị thu hồi</value>
-</data>
-	<data name="token_blacklisted" xml:space="preserve">
-  <value>Refresh token đã bị đưa vào danh sách đen</value>
-</data>
-	<data name="invalid_signature" xml:space="preserve">
-  <value>Chữ ký token không hợp lệ</value>
-</data>
-	<data name="code_invalid" xml:space="preserve">
-  <value>Mã xác minh không hợp lệ</value>
-</data>
-	<data name="user_disabled" xml:space="preserve">
-  <value>Người dùng bị vô hiệu hóa</value>
-</data>
-	<data name="user_not_activated" xml:space="preserve">
-  <value>Người dùng chưa được kích hoạt</value>
-</data>
-	<data name="user_not_found" xml:space="preserve">
-  <value>Không tìm thấy người dùng</value>
-</data>
-	<data name="email_already_in_use" xml:space="preserve">
-  <value>Email đã được sử dụng</value>
-</data>
-	<data name="user_already_verified" xml:space="preserve">
-  <value>Người dùng đã được xác minh</value>
-</data>
-	<data name="cannot_send_email" xml:space="preserve">
-  <value>Không thể gửi email</value>
-</data>
-	<data name="username_already_in_use" xml:space="preserve">
-  <value>Tên người dùng đã được sử dụng</value>
-</data>
-	<data name="too_many_requests" xml:space="preserve">
-  <value>Quá nhiều yêu cầu</value>
-</data>
-	<data name="rate_limit_exceeded" xml:space="preserve">
-  <value>Vượt quá giới hạn tốc độ</value>
-</data>
-	<data name="test_msg" xml:space="preserve">
-  <value>Xin chào {0}</value>
-</data>
-	<data name="invalid_mobile_number" xml:space="preserve">
-  <value>Số điện thoại không hợp lệ</value>
-</data>
-	<data name="null_mobile_number" xml:space="preserve">
-  <value>Số điện thoại là bắt buộc</value>
-</data>
-	<data name="null_code" xml:space="preserve">
-  <value>Mã là bắt buộc</value>
-</data>
-	<data name="size_code" xml:space="preserve">
-  <value>Mã phải có 6 ký tự</value>
-</data>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Message.RefreshTokenSuccess" xml:space="preserve">
+    <value>Token đã được làm mới</value>
+  </data>
+  <data name="Message.VerifyEmailSuccess" xml:space="preserve">
+    <value>Email đã được xác minh, vui lòng đăng nhập</value>
+  </data>
+  <data name="Required.Email" xml:space="preserve">
+    <value>Email là bắt buộc</value>
+  </data>
+  <data name="Required.Password" xml:space="preserve">
+    <value>Mật khẩu là bắt buộc</value>
+  </data>
+  <data name="StringLength.Password" xml:space="preserve">
+    <value>Mật khẩu phải có ít nhất 6 ký tự và tối đa 20 ký tự</value>
+  </data>
+  <data name="Required.FirstName" xml:space="preserve">
+    <value>Tên là bắt buộc</value>
+  </data>
+  <data name="StringLength.FirstName" xml:space="preserve">
+    <value>Tên phải có ít nhất 2 ký tự và tối đa 50 ký tự</value>
+  </data>
+  <data name="Required.LastName" xml:space="preserve">
+    <value>Họ là bắt buộc</value>
+  </data>
+  <data name="StringLength.LastName" xml:space="preserve">
+    <value>Họ phải có ít nhất 2 ký tự và tối đa 50 ký tự</value>
+  </data>
+  <data name="Required.Token" xml:space="preserve">
+    <value>Token là bắt buộc</value>
+  </data>
+  <data name="Message.SignUpSuccess" xml:space="preserve">
+    <value>Đăng ký người dùng thành công, vui lòng xác minh email của bạn</value>
+  </data>
+  <data name="Message.SendForgotEmailSuccess" xml:space="preserve">
+    <value>Email quên mật khẩu đã được gửi, vui lòng kiểm tra hộp thư đến của bạn</value>
+  </data>
+  <data name="Message.VerifyForgotCodeSuccess" xml:space="preserve">
+    <value>Email đã được xác minh, vui lòng đăng nhập</value>
+  </data>
+  <data name="Message.ResetPasswordSuccess" xml:space="preserve">
+    <value>Đặt lại mật khẩu thành công</value>
+  </data>
+  <data name="Message.SendVerificationEmailSuccess" xml:space="preserve">
+    <value>Email xác minh đã được gửi, vui lòng kiểm tra hộp thư đến của bạn</value>
+  </data>
+  <data name="ValidationError.InvalidEmail" xml:space="preserve">
+    <value>Địa chỉ email không hợp lệ</value>
+  </data>
+  <data name="ValidationError.WeakPassword" xml:space="preserve">
+    <value>Mật khẩu quá yếu</value>
+  </data>
+  <data name="ValidationError.PasswordMismatch" xml:space="preserve">
+    <value>Mật khẩu không khớp</value>
+  </data>
+  <data name="ValidationError.TermsNotAccepted" xml:space="preserve">
+    <value>Bạn phải chấp nhận các điều khoản và điều kiện</value>
+  </data>
+  <data name="Unauthorized.WrongPassword" xml:space="preserve">
+    <value>Mật khẩu không chính xác</value>
+  </data>
+  <data name="Unauthorized.TwoFactorRequired" xml:space="preserve">
+    <value>Yêu cầu xác thực hai yếu tố</value>
+  </data>
+  <data name="Unauthorized.TokenExpired" xml:space="preserve">
+    <value>Refresh token đã hết hạn</value>
+  </data>
+  <data name="Unauthorized.InvalidToken" xml:space="preserve">
+    <value>Refresh token không hợp lệ</value>
+  </data>
+  <data name="Unauthorized.TokenRevoked" xml:space="preserve">
+    <value>Refresh token đã bị thu hồi</value>
+  </data>
+  <data name="Unauthorized.TokenBlacklisted" xml:space="preserve">
+    <value>Refresh token đã bị đưa vào danh sách đen</value>
+  </data>
+  <data name="ValidationError.CodeInvalid" xml:space="preserve">
+    <value>Mã xác minh không hợp lệ</value>
+  </data>
+  <data name="ValidationError.EmailAlreadyInUse" xml:space="preserve">
+    <value>Email đã được sử dụng</value>
+  </data>
+  <data name="UnExpected.CannotSendEmail" xml:space="preserve">
+    <value>Không thể gửi email</value>
+  </data>
+  <data name="ValidationError.UsernameAlreadyInUse" xml:space="preserve">
+    <value>Tên người dùng đã được sử dụng</value>
+  </data>
+  <data name="Phone.MobileNumber" xml:space="preserve">
+    <value>Số điện thoại không hợp lệ</value>
+  </data>
+  <data name="Required.MobileNumber" xml:space="preserve">
+    <value>Số điện thoại là bắt buộc</value>
+  </data>
+  <data name="Required.Code" xml:space="preserve">
+    <value>Mã là bắt buộc</value>
+  </data>
+  <data name="StringLength.Code" xml:space="preserve">
+    <value>Mã phải có 6 ký tự</value>
+  </data>
+  <data name="Required.PasswordConfirmation" xml:space="preserve">
+    <value>Nhập lại mật khẩu là bắt buộc</value>
+  </data>
+  <data name="EmailAddress.Email" xml:space="preserve">
+    <value>Địa chỉ email không hợp lệ</value>
+  </data>
+  <data name="EnumDataType.Gender" xml:space="preserve">
+    <value>Giới tính không hợp lệ</value>
+  </data>
 </root>

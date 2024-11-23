@@ -10,6 +10,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using InfinityNetServer.Services.Reaction.Domain.Enums;
+using Microsoft.Extensions.Logging;
 
 namespace InfinityNetServer.Services.Reaction.Infrastructure.Data;
 
@@ -44,6 +45,7 @@ public static class DbInitialization
         var postReactionRepository = serviceScope.ServiceProvider.GetService<IPostReactionRepository>();
         var commentReactionRepository = serviceScope.ServiceProvider.GetService<ICommentReactionRepository>();
         var profileClient = serviceScope.ServiceProvider.GetService<CommonProfileClient>();
+        var relationshipClient = serviceScope.ServiceProvider.GetService<CommonRelationshipClient>();
         var postClient = serviceScope.ServiceProvider.GetService<CommonPostClient>();
         var commentClient = serviceScope.ServiceProvider.GetService<CommonCommentClient>();
 
@@ -52,14 +54,158 @@ public static class DbInitialization
         {
             IList<string> profileIds = await profileClient.GetProfileIds();
             IList<string> postIds = await postClient.GetPostIds();
-            IList<string> commentIds = await commentClient.GetCommentIds();
 
-            var postReactions = GeneratePostReactions(profileIds, postIds);
+            var (postReactions, commentReactions) = await GenerateReactions(commentClient, postClient, profileIds, postIds);
+
             await postReactionRepository.CreateAsync(postReactions);
-
-            var commentReactions = GenerateCommentReactions(profileIds, commentIds);
             await commentReactionRepository.CreateAsync(commentReactions);
+
+            //IList<string> commentIds = await commentClient.GetCommentIds();
+
+            //var postReactions = GeneratePostReactions(profileIds, postIds);
+            //await postReactionRepository.CreateAsync(postReactions);
+
+            //var commentReactions = GenerateCommentReactions(profileIds, commentIds);
+            //await commentReactionRepository.CreateAsync(commentReactions);
         }
+    }
+
+    private static async Task<(IList<PostReaction>, IList<CommentReaction>)> GenerateReactions(
+         CommonCommentClient commentClient,
+         CommonPostClient postClient,
+         IList<string> profileIds,
+         IList<string> postIds)
+    {
+        var whoCantSeeDict = await GetWhoCantSeeForAllPosts(postIds, postClient);
+        var postReactions = new List<PostReaction>();
+        var commentReactions = new List<CommentReaction>();
+        var postReactionPairs = new HashSet<(Guid profileId, Guid postId)>();
+        var commentReactionPairs = new HashSet<(Guid profileId, Guid commentId)>();
+
+        var postReactionsFaker = new Faker<PostReaction>()
+            .CustomInstantiator(f => new PostReaction
+            {
+                Type = f.PickRandom<ReactionType>(),
+                CreatedAt = f.Date.Recent(f.Random.Int(1, 365))
+            });
+
+        var allCommentIdsByPostId = await GetAllCommentsForPosts(postIds, commentClient);
+        Faker faker = new();
+
+        // Chọn ngẫu nhiên 70% bài post để thêm reactions
+        var selectedPostIds = faker.PickRandom(postIds, (int)(postIds.Count * 0.7)).ToList();
+
+        foreach (var postId in selectedPostIds)
+        {
+            if (!whoCantSeeDict.TryGetValue(postId, out var whoCantSeeIds))
+                whoCantSeeIds = [];
+
+            var validProfileIds = profileIds.Select(Guid.Parse).Except(whoCantSeeIds).ToList();
+            if (validProfileIds.Count == 0) continue;
+
+            // Random số lượng reactions cho mỗi post (20 đến 30)
+            int numPostReactions = faker.Random.Int(20, 30);
+
+            for (int i = 0; i < numPostReactions; i++)
+            {
+                var postReaction = postReactionsFaker.Generate();
+                postReaction.PostId = Guid.Parse(postId);
+
+                var randomProfileId = faker.PickRandom(validProfileIds);
+
+                if (postReactionPairs.Add((randomProfileId, postReaction.PostId)))
+                {
+                    postReaction.ProfileId = randomProfileId;
+                    postReaction.CreatedBy = randomProfileId;
+                    postReactions.Add(postReaction);
+                }
+            }
+
+            // Xử lý reactions cho comments trong bài post
+            if (allCommentIdsByPostId.TryGetValue(Guid.Parse(postId), out var commentIds))
+            {
+                // Chọn ngẫu nhiên 50% comments để thêm reactions
+                var selectedCommentIds = faker.PickRandom(commentIds, (int)(commentIds.Count * 0.5)).ToList();
+
+                foreach (var commentId in selectedCommentIds)
+                {
+                    // Random số lượng reactions cho mỗi comment (5 đến 10)
+                    int numCommentReactions = faker.Random.Int(5, 10);
+
+                    for (int i = 0; i < numCommentReactions; i++)
+                    {
+                        var commentReaction = new Faker<CommentReaction>()
+                            .CustomInstantiator(f => new CommentReaction
+                            {
+                                CommentId = Guid.Parse(commentId),
+                                Type = f.PickRandom<ReactionType>(),
+                                CreatedAt = f.Date.Recent(f.Random.Int(1, 365))
+                            }).Generate();
+
+                        var randomProfileId = faker.PickRandom(validProfileIds);
+
+                        if (commentReactionPairs.Add((randomProfileId, commentReaction.CommentId)))
+                        {
+                            commentReaction.ProfileId = randomProfileId;
+                            commentReaction.CreatedBy = randomProfileId;
+                            commentReactions.Add(commentReaction);
+                        }
+                    }
+                }
+            }
+        }
+
+        return (postReactions, commentReactions);
+    }
+
+
+    private static async Task<Dictionary<Guid, List<string>>> GetAllCommentsForPosts(
+        IList<string> postIds,
+        CommonCommentClient commentClient)
+    {
+        // Thực hiện gọi song song đến gRPC để lấy commentIds cho từng postId
+        var tasks = postIds.Select(async postId =>
+        {
+            try
+            {
+                var commentIds = await commentClient.GetCommentIdsByPostId(postId);
+                return new KeyValuePair<Guid, List<string>>(Guid.Parse(postId), commentIds.ToList());
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi nếu có
+                Console.WriteLine($"Error fetching comments for PostId {postId}: {ex.Message}");
+                return new KeyValuePair<Guid, List<string>>(Guid.Parse(postId), []);
+            }
+        });
+
+        // Đợi tất cả các task hoàn thành
+        var results = await Task.WhenAll(tasks);
+
+        // Trả về kết quả dưới dạng dictionary
+        return results.ToDictionary(x => x.Key, x => x.Value);
+    }
+
+
+    public static async Task<Dictionary<string, IList<Guid>>> GetWhoCantSeeForAllPosts(
+        IEnumerable<string> postIds,
+        CommonPostClient postClient)
+    {
+        var whoCantSeeDict = new Dictionary<string, IList<Guid>>();
+
+        // Gọi API một lần cho mỗi bài đăng để lấy thông tin ai không thể xem bài đăng đó
+        var tasks = postIds.Select(async postId =>
+        {
+            var whoCantSeeForPost = await postClient.WhoCantSee(postId);
+
+            // Lưu kết quả vào dictionary với key là postId
+            whoCantSeeDict[postId] = whoCantSeeForPost.Select(Guid.Parse).ToList();
+        });
+
+        // Chờ tất cả các task hoàn thành
+        await Task.WhenAll(tasks);
+
+        return whoCantSeeDict;
     }
 
     private static List<PostReaction> GeneratePostReactions(
@@ -82,7 +228,7 @@ public static class DbInitialization
         foreach (var profileId in selectedProfileIds)
         {
             // Ngẫu nhiên chọn số lượng post cho mỗi account
-            var randomPostsForProfile = faker.PickRandom(selectedPostIds, faker.Random.Int(1, selectedPostIds.Count()));
+            var randomPostsForProfile = faker.PickRandom(selectedPostIds, faker.Random.Int(1, selectedPostIds.Count));
 
             foreach (var postId in randomPostsForProfile)
             {
@@ -130,7 +276,7 @@ public static class DbInitialization
         {
             // Ngẫu nhiên chọn số lượng comment cho mỗi account
             var randomCommentsForProfile = 
-                faker.PickRandom(selectedCommentIds, faker.Random.Int(1, selectedCommentIds.Count()));
+                faker.PickRandom(selectedCommentIds, faker.Random.Int(1, selectedCommentIds.Count));
 
             foreach (var commentId in randomCommentsForProfile)
             {

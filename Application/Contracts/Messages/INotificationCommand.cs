@@ -8,7 +8,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Messages
 
         public NotificationType Type { get; set; }
 
-        public Guid RelatedProfileId { get; set; }
+        public Guid TargetProfileId { get; set; }
 
         public string TriggeredBy { get; set; }
 

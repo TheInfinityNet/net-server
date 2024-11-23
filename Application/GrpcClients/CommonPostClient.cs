@@ -27,24 +27,24 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
-        public async Task<List<DTOs.Others.FileMetadataIdWithType>> GetFileMetadataIdsWithTypes(PostType type)
+        public async Task<List<DTOs.Others.PreviewFileMetadata>> GetPreviewFileMetadatas(PostType type)
         {
             try
             {
                 logger.LogInformation("Starting get file metadata ids with types");
-                var response = await client.getFileMetadataIdsWithTypesAsync(new GetFileMetadataIdsWithTypesRequest { Type = type.ToString() });
+                var response = await client.getPreviewFileMetadatasAsync(new PreviewFileMetadatasRequest { Type = type.ToString() });
                 // Call the gRPC server to introspect the token
-                return new List<DTOs.Others.FileMetadataIdWithType>(response.FileMetadataIdsWithTypes
-                    .Select(_ => mapper.Map<DTOs.Others.FileMetadataIdWithType>(_)).ToList());
+                return new List<DTOs.Others.PreviewFileMetadata>(response.PreviewFileMetadatas
+                    .Select(mapper.Map<DTOs.Others.PreviewFileMetadata>).ToList());
             }
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.SEED_DATA_ERROR, StatusCodes.Status422UnprocessableEntity);
+                throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -53,14 +53,30 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             try
             {
                 logger.LogInformation("Starting get preview post");
-                var response = await client.getPreviewPostAsync(new PreviewPostRequest { Id = id });
+                var response = await client.getPreviewPostAsync(new PostRequest { Id = id });
                 // Call the gRPC server to introspect the token
                 return mapper.Map<DTOs.Responses.Post.PreviewPostResponse>(response);
             }
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new CommonException(BaseErrorCode.POST_NOT_FOUND, StatusCodes.Status404NotFound);
+                throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
+
+        public async Task<List<string>> WhoCantSee(string id)
+        {
+            try
+            {
+                logger.LogInformation("Starting who cant see");
+                var response = await client.whoCantSeeAsync(new PostRequest { Id = id });
+                // Call the gRPC server to introspect the token
+                return new List<string>(response.Ids);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
 
