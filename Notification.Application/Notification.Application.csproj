@@ -7,14 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Application\Application.csproj" />
-    <ProjectReference Include="..\Notification.Domain\Notification.Domain.csproj" />
+    <Compile Remove="GrpcClients\**" />
+    <Compile Remove="GrpcServices\**" />
+    <Compile Remove="Helper\**" />
+    <EmbeddedResource Remove="GrpcClients\**" />
+    <EmbeddedResource Remove="GrpcServices\**" />
+    <EmbeddedResource Remove="Helper\**" />
+    <None Remove="GrpcClients\**" />
+    <None Remove="GrpcServices\**" />
+    <None Remove="Helper\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="GrpcClients\" />
-    <Folder Include="GrpcServices\" />
-    <Folder Include="Helper\" />
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Notification.Domain\Notification.Domain.csproj" />
   </ItemGroup>
 
 </Project>

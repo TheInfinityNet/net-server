@@ -28,7 +28,7 @@ namespace InfinityNetServer.Services.Notification.Application.Usecases
             var notification = new Domain.Entities.Notification
             {
                 AccountId = profile.AccountId,
-                ThumbnailId = !profile.Avatar.Id.Equals(Guid.Empty.ToString()) ? profile.Avatar.Id : null,
+                ThumbnailId = !triggerProfile.Avatar.Id.Equals(Guid.Empty.ToString()) ? triggerProfile.Avatar.Id : null,
                 EntityId = request.CommentId.ToString(),
                 Type = request.Type,
                 TitleParams = [post.PreviewContent],

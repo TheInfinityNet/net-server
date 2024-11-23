@@ -7,25 +7,25 @@
 
         FriendInvitation,
 
-        FriendInvitationAccepted,
+        FriendInvitationAccepted, // trigger trong relationship
 
         NewProfileFollower,
 
-        NewFollowerPost,
+        NewFollowerPost, //
 
         NewGroupPost,
 
-        PostReaction,
+        PostReaction, // trigger trong reactions
 
-        CommentReaction,
+        CommentReaction, // trigger trong reactions
 
-        CommentToPost,
+        CommentToPost, 
 
         ReplyToComment,
 
         TaggedInComment,
 
-        Miscellaneous
+        Miscellaneous //
 
     }
 }
