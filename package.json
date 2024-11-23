@@ -1,0 +1,30 @@
+{
+  "name": "net-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node dev.js",
+    "comment:dev": "dotnet watch run --launch-profile https --project Comment.Presentation",
+    "file:dev": "dotnet watch run --launch-profile https --project File.Presentation",
+    "group:dev": "dotnet watch run --launch-profile https --project Group.Presentation",
+    "identity:dev": "dotnet watch run --launch-profile https --project Identity.Presentation",
+    "mail:dev": "dotnet watch run --launch-profile https --project Mail.Presentation",
+    "notification:dev": "dotnet watch run --launch-profile https --project Notification.Presentation",
+    "ocelot:dev": "dotnet watch run --launch-profile http --project Ocelot.Presentaition",
+    "post:dev": "dotnet watch run --launch-profile https --project Post.Presentation",
+    "profile:dev": "dotnet watch run --launch-profile https --project Profile.Presentation",
+    "reaction:dev": "dotnet watch run --launch-profile https --project Reaction.Presentation",
+    "relationship:dev": "dotnet watch run --launch-profile https --project Relationship.Presentation",
+    "build": "dotnet build",
+    "test": "dotnet test",
+    "clean": "dotnet clean",
+    "restore": "dotnet restore"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
