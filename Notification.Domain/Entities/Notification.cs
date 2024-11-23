@@ -15,7 +15,7 @@ namespace InfinityNetServer.Services.Notification.Domain.Entities
         public Guid AccountId { get; set; }
 
         [BsonElement("entity_id")]
-        public string? EntityId { get; set; }
+        public string EntityId { get; set; }
 
         [BsonElement("type")]
         public NotificationType Type { get; set; }

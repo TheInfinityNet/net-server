@@ -153,4 +153,7 @@
   <data name="FriendInvitationAccepted.Content" xml:space="preserve">
     <value>{0} accepted your invitation</value>
   </data>
+  <data name="CommentReaction.Title" xml:space="preserve">
+    <value>New reaction for comment</value>
+  </data>
 </root>

@@ -75,6 +75,23 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Commands
 
         }
 
+        public sealed record CreateCommentReactionCommand : INotificationCommand
+        {
+
+            public Guid Id { get; set; } = Guid.NewGuid();
+
+            public NotificationType Type { get; set; }
+
+            public Guid TargetProfileId { get; set; }
+
+            public string TriggeredBy { get; set; }
+
+            public Guid CommentId { get; set; }
+
+            public DateTime CreatedAt { get; set; }
+
+        }
+
         public sealed record PushPostToTimelineCommand : IUserTimelineCommand
         {
 

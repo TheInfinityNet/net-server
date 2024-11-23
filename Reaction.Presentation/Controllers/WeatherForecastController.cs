@@ -1,3 +1,5 @@
+using InfinityNetServer.Services.Reaction.Domain.Repositories;
+using InfinityNetServer.Services.Reaction.Infrastructure.Repositories;
 using InfinityNetServer.Services.Reaction.Presentation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -11,6 +13,8 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
+        private readonly CommentReactionRepository _commentReactionRepository;
+
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -18,9 +22,10 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, CommentReactionRepository commentReactionRepository)
         {
             _logger = logger;
+            _commentReactionRepository = commentReactionRepository;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
