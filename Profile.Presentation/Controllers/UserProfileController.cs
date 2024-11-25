@@ -1,24 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using AutoMapper;
+using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
+using InfinityNetServer.BuildingBlocks.Application.Services;
+using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.Profile.Application;
+using InfinityNetServer.Services.Profile.Application.DTOs.Requests;
+using InfinityNetServer.Services.Profile.Application.DTOs.Responses;
+using InfinityNetServer.Services.Profile.Application.Services;
+using InfinityNetServer.Services.Profile.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
-using InfinityNetServer.Services.Profile.Application.DTOs.Requests;
-using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using InfinityNetServer.BuildingBlocks.Application.Services;
-using InfinityNetServer.Services.Profile.Application.Services;
-using Microsoft.AspNetCore.Authorization;
-using InfinityNetServer.Services.Profile.Domain.Entities;
-using AutoMapper;
-using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
-using InfinityNetServer.Services.Profile.Application.DTOs.Responses;
-using InfinityNetServer.Services.Profile.Domain.Enums;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
-using InfinityNetServer.BuildingBlocks.Application.Contracts;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Controllers
 {
@@ -82,28 +81,8 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             //        actions.Add(ProfileActions.UnMute.ToString());
             //    else actions.Add(ProfileActions.Mute.ToString());
 
-<<<<<<< HEAD
-                if (await relationshipClient.HasFriendRequest(currentUserId, userId))
-                    actions.Add(ProfileActions.AcceptOrRejectFriendRequest.ToString());
-            }
-            else
-            {
-                actions.AddRange(new[]
-                {
-            ProfileActions.ProfileCoverPhotoUpload.ToString(),
-            ProfileActions.ProfileCoverPhotoDelete.ToString()
-        });
-            }
-=======
-            //    if (await relationshipClient.HasFriendRequest(currentUserId, userId))
-            //        actions.Add(ProfileActions.AcceptOrRejectFriendRequest.ToString());
-            //}
-            //else actions.AddRange(
-            //    [ProfileActions.ProfileCoverPhotoUpload.ToString(), 
-            //        ProfileActions.ProfileCoverPhotoDelete.ToString()]);
->>>>>>> 05c83f5c49773149f1442b02de28785817b90a5a
-
             return Ok(mapper.Map<UserProfileResponse>(currentProfile));
         }
 
     }
+}

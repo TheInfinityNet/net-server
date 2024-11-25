@@ -1,4 +1,5 @@
 ﻿using InfinityNetServer.Services.Profile.Application;
+using InfinityNetServer.Services.Profile.Application.DTOs.Requests;
 using InfinityNetServer.Services.Profile.Application.Services;
 using InfinityNetServer.Services.Profile.Domain.Entities;
 using InfinityNetServer.Services.Profile.Domain.Repositories;
@@ -44,6 +45,11 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
         public async Task<IList<UserProfile>> GetUserProfilesByIds(IList<string> ids)
         {
             return await _userProfileRepository.GetUserProfilesByIdsAsync(ids.Select(Guid.Parse).ToList());
+        }
+
+        public Task<IList<UserProfile>> UpdateUserProfile(UpdateUserProfileRequest userProfile)
+        {
+            throw new NotImplementedException();
         }
     }
 }

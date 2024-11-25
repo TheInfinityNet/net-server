@@ -7,6 +7,7 @@ using Microsoft.Extensions.Localization;
 using InfinityNetServer.Services.Post.Application;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
 using InfinityNetServer.Services.Post.Application.Helpers;
+using System.Collections.Generic;
 
 namespace InfinityNetServer.Services.Post.Presentation.Controllers
 {
@@ -26,12 +27,10 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         [HttpPut("update-post/{id}")]
         public async Task<IActionResult> UpdatePost(Guid id, [FromBody] UpdatePostRequest request)
         {
-<<<<<<< HEAD
             if (id != request.Id) return BadRequest("ID mismatch");
 
             var response = await _postService.UpdatePost(request);
             return Ok(response);
-=======
             if (id != request.Id)
             {
                 return BadRequest("ID mismatch");
@@ -40,7 +39,6 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             return Ok(new CommonMessageResponse(
                 localizer["post_updated_success", request.Id].ToString()
             ));
->>>>>>> 88f702cbae1aaa0fe95a72f508fe90f750c60d9e
         }
 
         [HttpDelete("delete-post/{id}")]
