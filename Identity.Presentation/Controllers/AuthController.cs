@@ -103,8 +103,8 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             var localProvider = await authService.SignIn(request.Email, request.Password);
             var account = await accountService.GetById(localProvider.AccountId.ToString());
             logger.LogInformation(localProvider.AccountId.ToString());
-            var AccessToken = authService.GenerateToken(account, false);
-            var RefreshToken = authService.GenerateToken(account, true);
+            var AccessToken = authService.GenerateToken(account, account.DefaultUserProfileId, false);
+            var RefreshToken = authService.GenerateToken(account, account.DefaultUserProfileId, true);
 
             var userProfile = await profileClient.GetUserProfile(account.DefaultUserProfileId.ToString());
             userProfile.AccountId = account.Id;
@@ -125,19 +125,14 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
         {
-            if (Request.Headers.TryGetValue("Authorization", out StringValues value))
-            {
-                string bearerToken = value.ToString()["Bearer ".Length..];
-                var newAccessToken = await authService.Refresh(request.RefreshToken!, bearerToken);
+            var newAccessToken = await authService.Refresh(request.RefreshToken!);
 
-                return Ok(new RefreshResponse
-                (
-                    localizer["Message.RefreshTokenSuccess"].ToString(),
-                    newAccessToken
-                ));
-            }
-            throw new BaseException(BaseError.TOKEN_MISSING, StatusCodes.Status422UnprocessableEntity);
+            return Ok(new RefreshResponse
+            (
+                localizer["Message.RefreshTokenSuccess"].ToString(),
+                newAccessToken
+            ));
         }
-
     }
+
 }
