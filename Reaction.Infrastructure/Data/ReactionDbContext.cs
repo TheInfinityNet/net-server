@@ -1,14 +1,16 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
+using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
-using InfinityNetServer.BuildingBlocks.Infrastructure.Bus;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL;
 using InfinityNetServer.Services.Reaction.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Threading.Tasks;
 using System.Threading;
-using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Reaction.Infrastructure.Data
 {
@@ -16,8 +18,11 @@ namespace InfinityNetServer.Services.Reaction.Infrastructure.Data
         DbContextOptions<ReactionDbContext> options,
         IConfiguration configuration,
         IMessageBus messageBus,
-        IAuthenticatedUserService authenticatedUserService) 
+        CommonPostClient postClient,
+        CommonCommentClient commentClient,
+        IAuthenticatedUserService authenticatedUserService)
         : PostreSqlDbContext<ReactionDbContext, Guid>(options, configuration, authenticatedUserService)
+
     {
 
         public DbSet<PostReaction> PostReactions { get; set; }
@@ -39,23 +44,81 @@ namespace InfinityNetServer.Services.Reaction.Infrastructure.Data
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            var entries = ChangeTracker.Entries<CommentReaction>();
+
+            var postReactionEntries = ChangeTracker.Entries<Domain.Entities.PostReaction>();
+
+            var commentReactionEntries = ChangeTracker.Entries<Domain.Entities.CommentReaction>();
+
 
             int result = await base.SaveChangesAsync(cancellationToken);
 
             if (result > 0)
             {
-                foreach (var entry in entries)
-                {
-                    // send noti
-                    await messageBus.Publish(new DomainCommand.CreateCommentReactionCommand {
-                        //
-                    });
-                }
+                foreach (var entry in postReactionEntries)
+                    await PublishPostReactionCommands(entry);
+
+                foreach (var entry in commentReactionEntries)
+                    await PublicCommentReactionCommands(entry);
             }
+
             return result;
         }
 
+        private async Task PublishPostReactionCommands(EntityEntry<PostReaction> entry)
+        {
+            //Post Reaction
+            var previewPost = await postClient.GetPreviewPost(entry.Entity.PostId.ToString());
+
+            if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+            {
+                Guid postReactionId = entry.Entity.Id;
+                Guid profileId = entry.Entity.ProfileId;
+                Guid relatedProfileId = previewPost.OwnerId;
+                Guid postId = entry.Entity.PostId;
+                ReactionType postReactionType = entry.Entity.Type;
+                DateTime createdAt = entry.Entity.CreatedAt;
+
+                var notificationCommand = new DomainCommand.CreatePostReactionNotificationCommand
+                {
+                    TriggeredBy = profileId.ToString(),
+                    TargetProfileId = relatedProfileId,
+                    Type = BuildingBlocks.Domain.Enums.NotificationType.PostReaction,
+                    PostReactionId = postReactionId,
+                    PostId = postId,
+                    ReactionType = postReactionType,
+                    CreatedAt = createdAt,
+                };
+                await messageBus.Publish(notificationCommand);
+            }
+        }
+
+        private async Task PublicCommentReactionCommands(EntityEntry<CommentReaction> entry)
+        {
+            //Comment Reaction
+            var previewComment = await commentClient.GetPreviewComment(entry.Entity.CommentId.ToString());
+
+            if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+            {
+                Guid commentReactionId = entry.Entity.Id;
+                Guid profileId = entry.Entity.ProfileId;
+                Guid relatedProfileId = previewComment.ProfileId;
+                Guid commentId = entry.Entity.CommentId;
+                ReactionType commentReactionType = entry.Entity.Type;
+                DateTime createdAt = entry.Entity.CreatedAt;
+
+                var notificationCommand = new DomainCommand.CreateCommentReactionNotificationCommand
+                {
+                    TriggeredBy = profileId.ToString(),
+                    TargetProfileId = relatedProfileId,
+                    Type = BuildingBlocks.Domain.Enums.NotificationType.CommentReaction,
+                    CommentReactionId = commentReactionId,
+                    CommentId = commentId,
+                    ReactionType = commentReactionType,
+                    CreatedAt = createdAt,
+                };
+                await messageBus.Publish(notificationCommand);
+            }
+        }
     }
 
 }

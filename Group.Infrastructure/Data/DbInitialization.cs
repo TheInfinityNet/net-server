@@ -59,7 +59,7 @@ public static class DbInitialization
     private static async Task<List<Domain.Entities.Group>> GenerateGroups(int count, CommonProfileClient profileClient)
     {
         var userProfileIds = await profileClient.GetUserProfileIds();
-        
+
         var faker = new Faker<Domain.Entities.Group>()
             .CustomInstantiator(f =>
             {

@@ -85,13 +85,13 @@ public static class DbInitialization
     private static IList<UserProfile> GenerateUserProfiles(
         IList<AccountWithDefaultProfile> accountWithDefaultProfileIds)
     {
-        IList<UserProfile> userProfiles =  [];
-        Faker faker = new ();
+        IList<UserProfile> userProfiles = [];
+        Faker faker = new();
 
         foreach (var item in accountWithDefaultProfileIds)
         {
 
-            UserProfile userProfile = new ()
+            UserProfile userProfile = new()
             {
                 Id = Guid.Parse(item.DefaultUserProfileId),
                 Type = ProfileType.User,

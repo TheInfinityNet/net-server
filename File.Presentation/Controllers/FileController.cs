@@ -35,7 +35,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         CommonProfileClient profileClient,
         CommonPostClient postClient,
         CommonCommentClient commentClient,
-        IMinioClientService minioClientService) : BaseApiController(authenticatedUserService) 
+        IMinioClientService minioClientService) : BaseApiController(authenticatedUserService)
     {
 
         [EndpointDescription("Seed data for post photo")]
@@ -102,7 +102,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                 int height;
                 TimeSpan duration;
                 long size;
-                
+
                 (width, height, duration) = await GetVideoInfoAsync(filePath);
 
                 using (FileStream stream = System.IO.File.OpenRead(filePath))
@@ -292,20 +292,20 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                 // Reset stream position to the beginning
                 stream.Position = 0;
 
-                await minioClientService.StoreObject(isTemporarily ? TEMP_BUCKET_NAME : MAIN_BUCKET_NAME, 
+                await minioClientService.StoreObject(isTemporarily ? TEMP_BUCKET_NAME : MAIN_BUCKET_NAME,
                     stream, fileName, photo.ContentType);
 
-                if (isTemporarily) 
+                if (isTemporarily)
                     await redisServiceForPhoto.SetWithExpirationAsync(id.ToString(), new PhotoMetadata
-                        {
-                            Id = id,
-                            Type = FileMetadataType.Photo,
-                            Name = fileName,
-                            Width = width,
-                            Height = height,
-                            Size = size,
-                            CreatedBy = GetCurrentProfileId(),
-                        }, TimeSpan.FromMinutes(30));
+                    {
+                        Id = id,
+                        Type = FileMetadataType.Photo,
+                        Name = fileName,
+                        Width = width,
+                        Height = height,
+                        Size = size,
+                        CreatedBy = GetCurrentProfileId(),
+                    }, TimeSpan.FromMinutes(30));
             }
 
             return Ok(new
@@ -335,7 +335,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
             [Range(1, 1080, ErrorMessage = "Range.ThumbnailHeight")]
             int thumbnailHeight,
 
-            [FromForm] 
+            [FromForm]
             bool isTemporarily = false)
         {
             if (video == null || video.Length == 0)
@@ -344,7 +344,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
             var filetype = video.ContentType.Split('/').First();
             var extension = video.ContentType.Split('/').Last();
             var id = Guid.NewGuid();
-            long size = video.Length;   
+            long size = video.Length;
 
             var tempFilePath = Path.GetTempFileName();
             await using (var stream = new FileStream(tempFilePath, FileMode.Create))

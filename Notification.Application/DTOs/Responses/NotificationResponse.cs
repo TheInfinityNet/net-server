@@ -1,7 +1,7 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using System;
 
-namespace InfinityNetServer.Services.Notification.Application.DTOs
+namespace InfinityNetServer.Services.Notification.Application.DTOs.Responses
 {
     public class NotificationResponse
     {
@@ -9,6 +9,8 @@ namespace InfinityNetServer.Services.Notification.Application.DTOs
         public Guid Id { get; set; }
 
         public string Type { get; set; }
+
+        public string Permalink { get; set; }
 
         public PhotoMetadataResponse Thumbnail { get; set; }
 

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
 {
-    public class ProfileBlockRepository(RelationshipDbContext context) 
+    public class ProfileBlockRepository(RelationshipDbContext context)
         : SqlRepository<ProfileBlock, Guid>(context), IProfileBlockRepository
     {
 

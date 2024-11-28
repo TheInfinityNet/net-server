@@ -2,7 +2,6 @@
 {
     public enum ReactionType
     {
-
         Like,
 
         Love,
@@ -14,6 +13,5 @@
         Sad,
 
         Angry
-
     }
 }

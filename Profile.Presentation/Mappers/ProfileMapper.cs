@@ -67,6 +67,6 @@ public class ProfileMapper : AutoMapper.Profile
                     };
                 }
                 dest.Name = dest.GenerateName();
-            }); 
+            });
     }
 }

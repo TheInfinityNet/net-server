@@ -51,8 +51,8 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
             IList<Friendship> friendships = await friendshipRepository
                 .GetAllFriendshipsAsync(Guid.Parse(profileId), 10);
 
-            return friendships.Select(f => 
-                f.SenderId.ToString() == profileId 
+            return friendships.Select(f =>
+                f.SenderId.ToString() == profileId
                     ? f.ReceiverId.ToString() : f.SenderId.ToString()).ToList();
         }
 

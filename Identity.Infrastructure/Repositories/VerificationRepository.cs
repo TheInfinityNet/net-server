@@ -12,7 +12,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Repositories
         public VerificationRepository(IdentityDbContext context) : base(context)
         { }
 
-        
+
 
     }
 }

@@ -12,11 +12,11 @@ namespace InfinityNetServer.Services.Relationship.Domain.Entities
 
         [Column("blocker_id")]
         [Required]
-        public Guid BlockerId { get; set; } 
+        public Guid BlockerId { get; set; }
 
         [Column("blockee_id")]
         [Required]
-        public Guid BlockeeId { get; set; } 
+        public Guid BlockeeId { get; set; }
 
     }
 

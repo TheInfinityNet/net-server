@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace InfinityNetServer.Services.Profile.Application.GrpcServices
 {
     public class GrpcProfileService
-        (ILogger<GrpcProfileService> logger, 
+        (ILogger<GrpcProfileService> logger,
         IUserProfileService userProfileService,
         IProfileService profileService, IMapper mapper) : ProfileService.ProfileServiceBase
     {
@@ -142,7 +142,8 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
         {
             logger.LogInformation("GetProfile called with Profiles");
             var source = await profileService.GetByIds(request.Ids);
-            var profiles = source.Select(profile => {
+            var profiles = source.Select(profile =>
+            {
                 profile.AvatarId ??= Guid.Empty;
                 profile.CoverId ??= Guid.Empty;
 

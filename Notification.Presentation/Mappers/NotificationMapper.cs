@@ -1,6 +1,6 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
-using InfinityNetServer.Services.Notification.Application.DTOs;
+using InfinityNetServer.Services.Notification.Application.DTOs.Responses;
 using System;
 
 namespace InfinityNetServer.Services.Notification.Presentation.Mappers;
@@ -33,5 +33,8 @@ public class NotificationMapper : AutoMapper.Profile
 
                 dest.Type = src.Type.ToString();
             });
+
+        CreateMap<Domain.Entities.Notification, ChangeReadStatusNotificationResponse>();
+        CreateMap<Domain.Entities.Notification, RemoveNotificationResponse>();
     }
 }

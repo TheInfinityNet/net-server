@@ -77,7 +77,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             return isValid;
         }
 
-        public string GenerateToken(Account account, bool isRefresh)
+        public string GenerateToken(Account account, Guid profileId, bool isRefresh)
         {
             var securityKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(isRefresh ? _jwtOptions.RefreshKey! : _jwtOptions.AccessKey));
@@ -93,7 +93,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, account.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("profile_id", account.DefaultUserProfileId.ToString()),
+                new Claim("profile_id", profileId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Iss, _jwtOptions.Issuer),
                 new Claim(JwtRegisteredClaimNames.Aud, _jwtOptions.Audiences.First())
             };
@@ -106,50 +106,31 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             };
 
             if (!isRefresh) tokenDescriptor.Subject.AddClaim(new Claim("scope", "User"));
-         
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
 
-        public async Task<string> Refresh(string refreshToken, string accessToken)
+        public async Task<string> Refresh(string refreshToken)
         {
-            // Verify the refresh token
             JwtSecurityToken signedJwt = await VerifyToken(refreshToken, true);
-            string id = signedJwt.Subject ??
-                throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized);
 
+            string accountId = signedJwt.Subject ??
+                throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized);
+            Guid profileId = Guid.Parse(signedJwt.Claims.FirstOrDefault(c => c.Type == "profile_id")?.Value ?? throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized));
             Account account;
+
             try
             {
-                account = await _accountService.GetById(id);
+                account = await _accountService.GetById(accountId);
             }
             catch (Exception)
             {
                 throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status404NotFound);
             }
 
-            var jwtHandler = new JwtSecurityTokenHandler();
-
-            if (!jwtHandler.CanReadToken(accessToken))
-                throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized);
-
-            var signedAccessToken = jwtHandler.ReadJwtToken(accessToken);
-            var jwtId = signedAccessToken.Id;
-            var expiryTime = signedAccessToken.ValidTo;
-
-            var subject = signedAccessToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
-            if (subject != id)
-                throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized);
-
-            if (expiryTime > DateTime.UtcNow)
-            {
-                var timeToLive = expiryTime.ToUniversalTime() - DateTime.UtcNow;
-                await _baseRedisService.SetWithExpirationAsync(jwtId, "revoked", timeToLive);
-            }
-
-            return GenerateToken(account, false);
+            return GenerateToken(account, profileId, false);
         }
 
         private async Task<JwtSecurityToken> VerifyToken(string token, bool isRefresh)
@@ -239,6 +220,5 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
                 throw new BaseException(BaseError.INVALID_SIGNATURE, StatusCodes.Status401Unauthorized);
             }
         }
-
     }
 }

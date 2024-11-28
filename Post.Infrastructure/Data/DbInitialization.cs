@@ -54,7 +54,7 @@ public static class DbInitialization
         var postService = serviceScope.ServiceProvider.GetService<IPostService>();
 
         var existingPostCount = await postRepository.GetAllAsync();
-        
+
         if (existingPostCount.Count == 0)
         {
             var profileIds = await profileClient.GetProfileIds();

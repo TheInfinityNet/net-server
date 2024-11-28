@@ -23,9 +23,9 @@ public class AuthenticatedUserService
 
             if (user == null) return null;
 
-            if (user.Identity != null & user.Identity!.IsAuthenticated) 
+            if (user.Identity != null & user.Identity!.IsAuthenticated)
                 return Guid.Parse(user.FindFirstValue("profile_id")!);
-            
+
             return null;
         }
         catch (Exception)

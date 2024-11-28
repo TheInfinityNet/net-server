@@ -10,7 +10,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data
     public class IdentityDbContext(
             DbContextOptions<IdentityDbContext> options,
             IConfiguration configuration,
-            IAuthenticatedUserService authenticatedUserService) 
+            IAuthenticatedUserService authenticatedUserService)
         : PostreSqlDbContext<IdentityDbContext, Guid>(options, configuration, authenticatedUserService)
     {
 

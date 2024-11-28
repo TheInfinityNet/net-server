@@ -21,8 +21,8 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
         private readonly IStringLocalizer<IdentitySharedResource> _localizer;
 
         public AccountService(
-            IAccountRepository accountRepository, 
-            ILogger<AccountService> logger, 
+            IAccountRepository accountRepository,
+            ILogger<AccountService> logger,
             IStringLocalizer<IdentitySharedResource> localizer)
         {
             _accountRepository = accountRepository;

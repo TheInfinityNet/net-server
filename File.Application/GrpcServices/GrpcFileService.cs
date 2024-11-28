@@ -10,7 +10,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
     public class GrpcFileService
         (ILogger<GrpcFileService> logger,
         IMinioClientService minioClientService,
-        IPhotoMetadataService photoMetadataService, 
+        IPhotoMetadataService photoMetadataService,
         IVideoMetadataService videoMetadataService, IMapper mapper) : FileService.FileServiceBase
     {
 

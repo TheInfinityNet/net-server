@@ -27,6 +27,7 @@ namespace InfinityNetServer.Services.Notification.Application.Usecases
                 ThumbnailId = !profile.Avatar.Id.Equals(Guid.Empty.ToString()) ? profile.Avatar.Id : null,
                 EntityId = request.FriendshipId.ToString(),
                 Type = request.Type,
+                Permalink = "https://localhost:61000/profiles/users/" + request.TriggeredBy.ToString(),
                 TitleParams = [],
                 ContentParams = [triggerProfile.Name],
                 CreatedAt = request.CreatedAt

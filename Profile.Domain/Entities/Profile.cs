@@ -36,8 +36,8 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         [Column("type")]
         public ProfileType Type { get; set; }
 
-        [Required] 
-        [Column("status")] 
+        [Required]
+        [Column("status")]
         public ProfileStatus Status { get; set; } = ProfileStatus.Active;
 
         [Column("last_online_at")]

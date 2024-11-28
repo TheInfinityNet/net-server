@@ -156,4 +156,19 @@
   <data name="CommentReaction.Title" xml:space="preserve">
     <value>New reaction for comment</value>
   </data>
+  <data name="CommentReaction.Content" xml:space="preserve">
+    <value>{0} reacted with a {1} emoji to your comment.</value>
+  </data>
+  <data name="PostReaction.Title" xml:space="preserve">
+    <value>New reaction for post</value>
+  </data>
+  <data name="PostReaction.Content" xml:space="preserve">
+    <value>{0} reacted with a {1} emoji to your post.</value>
+  </data>
+  <data name="CommentToPost.Title" xml:space="preserve">
+    <value>Post: {0}</value>
+  </data>
+  <data name="CommentToPost.Content" xml:space="preserve">
+    <value>{0} commented on your post.</value>
+  </data>
 </root>

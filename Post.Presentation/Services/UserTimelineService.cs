@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace InfinityNetServer.Services.Post.Presentation.Services
 {
     public class UserTimelineService(
-        ILogger<UserTimelineService> logger, 
+        ILogger<UserTimelineService> logger,
         IUserTimelineRepository userTimelineRepository) : IUserTimelineService
     {
         public async Task<CursorPagedResult<TimelinePost>> GetUserTimeline(string profileId, string cursor, int pageSize)

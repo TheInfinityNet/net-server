@@ -42,7 +42,7 @@ public class CommonMappers : Profile
                         Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
                         CreatedAt = DateTime.Now
                     };
-                } 
+                }
                 else
                 {
                     dest.Avatar = new PhotoMetadataResponse
@@ -97,7 +97,8 @@ public class CommonMappers : Profile
                         CreatedAt = DateTime.Now
                     };
                 }
-                else {
+                else
+                {
                     dest.Avatar = new PhotoMetadataResponse
                     {
                         Id = Guid.Parse(src.AvatarId),
@@ -150,7 +151,8 @@ public class CommonMappers : Profile
             });
 
         CreateMap<Domain.Entities.TagFacet, TagFacet>()
-            .AfterMap((src, dest) => {
+            .AfterMap((src, dest) =>
+            {
                 dest.Type = src.Type.ToString();
                 dest.Profile = new PreviewProfileResponse { Id = src.ProfileId };
                 dest.Index = new FacetIndex { Start = src.Start, End = src.End };

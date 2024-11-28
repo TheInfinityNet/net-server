@@ -21,8 +21,8 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
         private readonly IStringLocalizer<IdentitySharedResource> _localizer;
 
         public LocalProviderService(
-            ILocalProviderRepository localProviderRepository, 
-            ILogger<LocalProviderService> logger, 
+            ILocalProviderRepository localProviderRepository,
+            ILogger<LocalProviderService> logger,
             IStringLocalizer<IdentitySharedResource> localizer)
         {
             _localProviderRepository = localProviderRepository;

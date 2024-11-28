@@ -183,7 +183,7 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
                     break;
 
                 case PostAudienceType.OnlyMe:
-                    whoCanSee = [ ownerId ];
+                    whoCanSee = [ownerId];
                     break;
             }
 

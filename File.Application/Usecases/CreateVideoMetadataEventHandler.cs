@@ -45,7 +45,7 @@ namespace InfinityNetServer.Services.File.Application.Usecases
                     UpdatedAt = request.UpdatedAt,
                     Thumbnail = videoMetadata.Thumbnail
                 });
-                
+
             }
             else
             {

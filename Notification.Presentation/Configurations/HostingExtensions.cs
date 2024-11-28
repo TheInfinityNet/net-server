@@ -46,8 +46,9 @@ internal static class HostingExtensions
             typeof(CreatePostNotificationConsumer),
             typeof(CreateCommentNotificationConsumer),
             typeof(CreateFriendshipNotificationConsumer),
-            typeof(CreateProfileFollowNotificationConsumer));
-            //typeof());
+            typeof(CreateProfileFollowNotificationConsumer),
+            typeof(CreatePostReactionNotificationConsumer),
+            typeof(CreateCommentReactionNotificationConsumer));
 
         builder.Services.AddMediatR(cfg =>
         {
@@ -55,7 +56,8 @@ internal static class HostingExtensions
             cfg.RegisterServicesFromAssembly(typeof(CreatePostNotificationHandler).Assembly);
             cfg.RegisterServicesFromAssembly(typeof(CreateFriendshipNotificationHandler).Assembly);
             cfg.RegisterServicesFromAssembly(typeof(CreateProfileFollowNotificationHandler).Assembly);
-
+            cfg.RegisterServicesFromAssembly(typeof(CreatePostReactionNotificationHandler).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(CreateCommentReactionNotificationHandler).Assembly);
         });
 
         builder.Services.AddRepositories();

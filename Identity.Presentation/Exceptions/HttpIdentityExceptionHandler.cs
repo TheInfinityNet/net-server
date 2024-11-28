@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace InfinityNetServer.Services.Identity.Presentation.Exceptions
 {
     public class HttpIdentityExceptionHandler(
-        ILogger<HttpIdentityExceptionHandler> logger, 
+        ILogger<HttpIdentityExceptionHandler> logger,
         IStringLocalizer<IdentitySharedResource> localizer) : IMiddleware
     {
 
@@ -91,23 +91,23 @@ namespace InfinityNetServer.Services.Identity.Presentation.Exceptions
                 {
                     { "password", localizer[error.Code].ToString() }
                             },
-                            IdentityError e when e == IdentityError.TOKEN_INVALID => new Dictionary<string, string>
+                IdentityError e when e == IdentityError.TOKEN_INVALID => new Dictionary<string, string>
                 {
                     { "token", localizer[error.Code].ToString() }
                 },
-                            IdentityError e when e == IdentityError.EMAIL_ALREADY_IN_USE => new Dictionary<string, string>
+                IdentityError e when e == IdentityError.EMAIL_ALREADY_IN_USE => new Dictionary<string, string>
                 {
                     { "email", localizer[error.Code].ToString() }
                 },
-                            IdentityError e when e == IdentityError.INVALID_EMAIL => new Dictionary<string, string>
+                IdentityError e when e == IdentityError.INVALID_EMAIL => new Dictionary<string, string>
                 {
                     { "email", localizer[error.Code].ToString() }
                 },
-                            IdentityError e when e == IdentityError.TERMS_NOT_ACCEPTED => new Dictionary<string, string>
+                IdentityError e when e == IdentityError.TERMS_NOT_ACCEPTED => new Dictionary<string, string>
                 {
                     { "termsAccepted", localizer[error.Code].ToString() }
                 },
-                            IdentityError e when e == IdentityError.CODE_INVALID => new Dictionary<string, string>
+                IdentityError e when e == IdentityError.CODE_INVALID => new Dictionary<string, string>
                 {
                     { "code", localizer[error.Code].ToString() }
                 },

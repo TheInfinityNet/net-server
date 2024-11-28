@@ -12,7 +12,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Repositories
         public PageProfileRepository(ProfileDbContext context) : base(context)
         { }
 
-        
+
 
     }
 }

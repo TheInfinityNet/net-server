@@ -10,5 +10,5 @@ public class MessageBus(IPublishEndpoint publishEndpoint) : IMessageBus
 
     public async Task Publish<TEvent>(TEvent @event) where TEvent : IMessage
         => await publishEndpoint.Publish(@event);
- 
+
 }
