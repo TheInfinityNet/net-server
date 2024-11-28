@@ -1,4 +1,5 @@
-﻿using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositories;
+﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
+using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositories;
 using InfinityNetServer.Services.Relationship.Domain.Entities;
 using InfinityNetServer.Services.Relationship.Domain.Enums;
 using InfinityNetServer.Services.Relationship.Domain.Repositories;
@@ -60,15 +61,6 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
                 .CountAsync(f => (f.SenderId == profileId || f.ReceiverId == profileId) &&
                             (f.SenderId == currentProfile || f.ReceiverId == currentProfile) &&
                             f.Status == FriendshipStatus.Connected);
-
-        public async Task<IList<Guid>> GetFriendsOfCurrentUserAsync(Guid? currentUserId)
-        {
-            return await context.Friendships
-                .Where(f => (f.SenderId == currentUserId || f.ReceiverId == currentUserId) && f.Status != FriendshipStatus.NotConnected )
-                .Select(f => f.SenderId == currentUserId ? f.ReceiverId : f.SenderId)
-                .ToListAsync();
-        }
-
         public async Task<IList<Guid>> GetMutualFriendsAsync(Guid? currentUserId, IList<Guid> friendsOfCurrentUser)
         {
             return await context.Friendships
@@ -79,6 +71,21 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
                 .Distinct()
                 .ToListAsync();
         }
+        public async Task<IList<Guid>> GetFriendsOfCurrentUserAsync(Guid? currentUserId)
+        {
+            return await context.Friendships
+                .Where(f => (f.SenderId == currentUserId || f.ReceiverId == currentUserId) && f.Status == FriendshipStatus.Connected )
+                .Select(f => f.SenderId == currentUserId ? f.ReceiverId : f.SenderId)
+                .ToListAsync();
+        }
+        public async Task<IList<Guid>> GetPendingRequestsAsync(Guid? currentUserId)
+        {
+            return await context.Friendships
+                .Where(f => (f.SenderId == currentUserId || f.ReceiverId == currentUserId) && f.Status == FriendshipStatus.Pending)
+                .Select(f => f.SenderId == currentUserId ? f.ReceiverId : f.SenderId)
+                .ToListAsync();
+        }
+
         public async Task<IQueryable<Friendship>> GetMutualFriendsQueryAsync(Guid? currentUserId, IList<Guid> friendsOfCurrentUser, Guid? cursor)
         {
             IQueryable<Friendship> query = context.Friendships
@@ -110,23 +117,29 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
 
             return (hasNext, hasPrevious, results);
         }
-        public IList<Guid> GetCommonFriendsIds(IList<Friendship> results, Guid? currentUserId)
+        public async Task<IList<Guid>> GetCommonFriendsIds(IList<Friendship> results, Guid? currentUserId)
         {
             return results
                 .Select(f => f.SenderId == currentUserId ? f.ReceiverId : f.SenderId)
                 .Distinct()
                 .ToList();
         }
-        
-        //public async Task<IList<(Guid friendId, int commonFriendsCount)>> GetCommonFriendsWithCount(IList<Guid> commonFriendsIds, IList<Friendship> friendships)
-        //{
-        //    return commonFriendsIds.Select(friendId => new
-        //    {
-        //        FriendId = friendId,
-        //        CommonFriendsCount = friendships.Count(f => (f.SenderId == friendId || f.ReceiverId == friendId))
-        //    })
-        //    .Select(item => (item.FriendId, item.CommonFriendsCount))  // Chuyển sang dạng Tuple
-        //    .ToList();
-        //}
+        public async Task<IList<(Guid FriendId, int MutualFriendCount)>> GetMutualFriendCount(IList<string> results, Guid? currentUserId)
+        {
+            var resultGuids = results.Select(Guid.Parse).ToList();
+            var queryResult = await context.Friendships
+                .Where(f => resultGuids.Contains(f.SenderId) || resultGuids.Contains(f.ReceiverId)) 
+                .Where(f => f.SenderId != currentUserId && f.ReceiverId != currentUserId) 
+                .Select(f => f.SenderId == currentUserId ? f.ReceiverId : f.SenderId)
+                .GroupBy(friendId => friendId) 
+                .Select(group => new 
+                {
+                    FriendId = group.Key,
+                    Count = group.Count()
+                })
+                .ToListAsync(); 
+
+            return queryResult.Select(x => (x.FriendId, x.Count)).ToList();
+        }
     }
 }

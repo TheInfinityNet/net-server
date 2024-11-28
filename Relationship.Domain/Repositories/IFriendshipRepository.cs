@@ -16,7 +16,7 @@ namespace InfinityNetServer.Services.Relationship.Domain.Repositories
         Task<Friendship> GetByStatus(FriendshipStatus status, Guid senderId, Guid receiverId);
 
         Task<IList<Guid>> GetAllFriendIdsAsync(Guid profile);
-
+        Task<IList<Guid>> GetPendingRequestsAsync(Guid? currentUserId);
         Task<int> CountFriendshipsAsync(Guid profileId);
 
         Task<IList<Friendship>> GetAllFriendshipsAsync(Guid profileId, int? limit);
@@ -26,7 +26,8 @@ namespace InfinityNetServer.Services.Relationship.Domain.Repositories
         Task<IQueryable<Friendship>> GetMutualFriendsQueryAsync(Guid? currentUserId, IList<Guid> friendsOfCurrentUser, Guid? cursor);
         Task<IList<Friendship>> GetPagedResultsAsync(IQueryable<Friendship> query, int pageSize);
         (bool hasNext, bool hasPrevious, IList<Friendship> results) ProcessPagedResults(IList<Friendship> results, int pageSize, Guid? cursor);
-        IList<Guid> GetCommonFriendsIds(IList<Friendship> results, Guid? currentUserId);
-        
+        Task<IList<Guid>> GetCommonFriendsIds(IList<Friendship> results, Guid? currentUserId);
+        Task<IList<(Guid FriendId, int MutualFriendCount)>> GetMutualFriendCount(IList<string> results, Guid? currentUserId);
+
     }
 }

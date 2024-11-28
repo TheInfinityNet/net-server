@@ -24,6 +24,7 @@ using InfinityNetServer.Services.Relationship.Infrastructure.DependencyInjection
 using InfinityNetServer.Services.Relationship.Infrastructure.Data;
 using InfinityNetServer.BuildingBlocks.Presentation.Services;
 using InfinityNetServer.Services.Relationship.Presentation.Services;
+using InfinityNetServer.Services.Relationship.Presentation.Mappers;
 
 namespace InfinityNetServer.Services.Relationship.Presentation.Configurations;
 
@@ -44,7 +45,7 @@ internal static class HostingExtensions
 
         builder.Services.AddRepositories();
 
-        builder.Services.AddMappers();
+        builder.Services.AddMappers(typeof(RelationshipMapper));
 
         builder.Services.AddLocalization(builder.Configuration);
 
@@ -58,7 +59,10 @@ internal static class HostingExtensions
 
         //builder.Services.AddHealthChecks(builder.Configuration);
 
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        });
 
         builder.Services.AddEndpointsApiExplorer();
 

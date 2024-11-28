@@ -14,6 +14,28 @@ message ProfilesRelationshipRequest {
 
 }
 
+message MutualFriendCountRequest {
+
+	repeated string profileIds = 1;
+
+	string currentProfileId = 2;
+
+}
+
+message ProfileIdWithMutualCount {
+
+	string profileId = 1;
+
+	int32 count =2;
+
+}
+
+message MutualFriendCountResponse {
+
+	repeated ProfileIdWithMutualCount profileIdsWithMutualCounts = 1;
+
+}
+
 message ProfileRelationshipResponse {
 
   bool result = 1;
@@ -46,4 +68,7 @@ service RelationshipService {
 
   rpc getBlockeeIds(ProfileRequest) returns (ProfileIdsResponse) {}
 
+  rpc getMutualFriendCount(MutualFriendCountRequest) returns (MutualFriendCountResponse) {}
+
+  rpc getPendingRequestProfiles(ProfileRequest) returns (ProfileIdsResponse) {}
 }

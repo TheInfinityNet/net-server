@@ -4,6 +4,7 @@ using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
+using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.Profile.Application;
 using InfinityNetServer.Services.Profile.Application.DTOs.Requests;
@@ -15,7 +16,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Controllers
@@ -90,6 +93,33 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
 
             return Ok(mapper.Map<UserProfileResponse>(currentProfile));
         }
+        [HttpGet("suggestions")]
+        //[Authorize]
+        public async Task<IActionResult> GetFriendSuggestions([FromQuery] string? nextCursor, [FromQuery] int limit = 10)
+        {
+            string? currentUserId = "05692dcb-b747-4fb0-8a9f-9f044077b2ad";
 
+            var suggestions = await userProfileService.GetFriendSuggestions(currentUserId, nextCursor, limit);
+
+            var resultHasCount = await relationshipClient.GetMutualCount(currentUserId, suggestions.Items.Select(f => f.Id.ToString()).ToList());
+
+            var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
+
+            IList<FriendSuggestionResponse> result = [];
+            foreach (var item in suggestions.Items)
+            {
+                var previewProfile = mapper.Map<UserProfileResponse>(item);
+                var itemResponse =  mapper.Map<FriendSuggestionResponse>(previewProfile);
+                itemResponse.Status = "NotConnected";
+                itemResponse.MutualFriendsCount = resultHasCountDict.TryGetValue(item.Id.ToString(), out var a) ? a.Count : 0;
+                result.Add(itemResponse);
+            }
+            
+            return Ok(new
+            {
+                Items = result,
+                NextCursor = suggestions.NextCursor
+            });
+        }
     }
 }

@@ -1,7 +1,11 @@
-﻿using InfinityNetServer.Services.Profile.Application;
+﻿using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
+using InfinityNetServer.BuildingBlocks.Domain.Specifications;
+using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
+using InfinityNetServer.Services.Profile.Application;
 using InfinityNetServer.Services.Profile.Application.Services;
 using InfinityNetServer.Services.Profile.Domain.Entities;
 using InfinityNetServer.Services.Profile.Domain.Repositories;
+using InfinityNetServer.Services.Profile.Infrastructure.Repositories;
 using MassTransit;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -12,20 +16,41 @@ using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Services
 {
-    public class UserProfileService : IUserProfileService
+    public class UserProfileService(
+        IUserProfileRepository _userProfileRepository,
+        ILogger<UserProfileService> _logger,
+        IStringLocalizer<ProfileSharedResource> _localizer,
+        CommonRelationshipClient relationshipClient
+        ) : IUserProfileService
     {
 
-        private readonly IUserProfileRepository _userProfileRepository;
-
-        private readonly ILogger<UserProfileService> _logger;
-
-        private readonly IStringLocalizer<ProfileSharedResource> _localizer;
-
-        public UserProfileService(IUserProfileRepository userProfileRepository, ILogger<UserProfileService> logger, IStringLocalizer<ProfileSharedResource> localizer)
+        public async Task<CursorPagedResult<UserProfile>> GetFriendSuggestions(string profileId, string cursor, int pageSize)
         {
-            _userProfileRepository = userProfileRepository;
-            _logger = logger;
-            _localizer = localizer;
+            var profile = await GetUserProfileById(profileId);
+            IList<string> followeeIds = await relationshipClient.GetFolloweeIds(profileId);
+            IList<string> friendIds = await relationshipClient.GetFriendIds(profileId);
+            IList<string> pendingRequests = await relationshipClient.GetPendingRequestProfiles(profileId);
+            IList<string> blockerIds = await relationshipClient.GetBlockerIds(profileId.ToString());
+            IList<string> blockeeIds = await relationshipClient.GetBlockeeIds(profileId.ToString());
+
+            var specification = new SpecificationWithCursor<UserProfile>
+            {
+                Criteria = userProfile =>
+                        !friendIds.Contains(userProfile.Id.ToString())
+                        && !pendingRequests.Contains(userProfile.Id.ToString())
+                        && !blockerIds.Concat(blockeeIds).Contains(userProfile.Id.ToString()),
+
+                OrderFields = [
+                        new OrderField<UserProfile>
+                        {
+                            Field = x => x.CreatedAt,
+                            Direction = SortDirection.Descending
+                        }
+                    ],
+                Cursor = cursor,
+                PageSize = pageSize
+            };
+            return await _userProfileRepository.GetPagedAsync(specification);
         }
 
         // await async là kiến thức về bất đồng bộ có j ông search youtube xem thêm nha

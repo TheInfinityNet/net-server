@@ -140,8 +140,11 @@ public static class DbInitialization
                 friendships.Add(friendship);
 
                 // Tạo các ProfileFollow
-                AddProfileFollow(profileFollows, friendship.SenderId, friendship.ReceiverId, friendship.CreatedAt);
-                AddProfileFollow(profileFollows, friendship.ReceiverId, friendship.SenderId, friendship.CreatedAt);
+                if(friendship.Status == FriendshipStatus.Connected)
+                {
+                    AddProfileFollow(profileFollows, friendship.SenderId, friendship.ReceiverId, friendship.CreatedAt);
+                    AddProfileFollow(profileFollows, friendship.ReceiverId, friendship.SenderId, friendship.CreatedAt);
+                }
             }
         }
 

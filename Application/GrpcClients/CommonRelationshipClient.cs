@@ -90,7 +90,6 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
                 throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
-
         public async Task<IList<string>> GetFriendIds(string profileId)
         {
             try
@@ -109,7 +108,24 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
                 throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
-
+        public async Task<IList<string>> GetPendingRequestProfiles(string profileId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get pending request profiles");
+                var response = await client.getPendingRequestProfilesAsync(new ProfileRequest
+                {
+                    Id = profileId
+                });
+                // Call the gRPC server to introspect the token
+                return response.Ids;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
         public async Task<IList<string>> GetFollowerIds(string profileId)
         {
             try
@@ -185,6 +201,23 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
                 throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
-
+        public async Task<IList<ProfileIdWithMutualCount>> GetMutualCount(string profileId, IList<string> profileIds)
+        {
+            try
+            {
+                logger.LogInformation("Starting get mutual friend count");
+                var request = new MutualFriendCountRequest();
+                request.CurrentProfileId = profileId;
+                request.ProfileIds.AddRange(profileIds);
+                var response = await client.getMutualFriendCountAsync(request);
+                // Call the gRPC server to introspect the token
+                return response.ProfileIdsWithMutualCounts;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
     }
 }

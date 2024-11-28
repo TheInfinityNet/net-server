@@ -215,14 +215,23 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
             string previousCursor = hasPrevious ? cursor?.ToString() : null;
 
             // Trả về kết quả phân trang
+            
             return new PagedCursorResult<TEntity>
             {
-                Results = results,
+                Results = Task.FromResult<IList<TEntity>>(results),
                 NextCursor = nextCursor,
                 PreviousCursor = previousCursor,
                 HasNext = hasNext,
                 HasPrevious = hasPrevious
             };
+            //return new PagedCursorResult<TEntity>
+            //{
+            //    Results = results,
+            //    NextCursor = nextCursor,
+            //    PreviousCursor = previousCursor,
+            //    HasNext = hasNext,
+            //    HasPrevious = hasPrevious
+            //};
         }
     }
 

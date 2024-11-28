@@ -421,5 +421,6 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             IEnumerable<Domain.Entities.Post> response = await postService.GetAllByGroupId(groupId);
             return Ok(PostHelper.ToResponses(response));
         }
+
     }
 }

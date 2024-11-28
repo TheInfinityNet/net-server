@@ -69,7 +69,14 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcServices
             response.Ids.AddRange(source);
             return response;
         }
-
+        public override async Task<ProfileIdsResponse> getPendingRequestProfiles(ProfileRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Get pending request profiles of ProfileId: {ProfileId}", request.Id);
+            var source = await friendshipService.GetPendingRequestProfiles(request.Id);
+            var response = new ProfileIdsResponse();
+            response.Ids.AddRange(source);
+            return response;
+        }
         public override async Task<ProfileIdsResponse> getFollowerIds(ProfileRequest request, ServerCallContext context)
         {
             logger.LogInformation("Get followers for ProfileId: {ProfileId}", request.Id);
@@ -106,5 +113,13 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcServices
             return response;
         }
 
+        public override async Task<MutualFriendCountResponse> getMutualFriendCount(MutualFriendCountRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Get mutual friend count for ProfileId: {ProfileId}", request.CurrentProfileId);
+            var source = await friendshipService.GetCountMutualFriend(request.CurrentProfileId, request.ProfileIds);
+            var response = new MutualFriendCountResponse();
+            response.ProfileIdsWithMutualCounts.AddRange(source.Select(mapper.Map<ProfileIdWithMutualCount>));
+            return response;
+        }
     }
 }

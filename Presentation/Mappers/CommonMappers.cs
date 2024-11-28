@@ -5,6 +5,7 @@ using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Presentation.Mappers.Converters;
+using InfinityNetServer.Services.Profile.Application.DTOs.Responses;
 using System;
 
 namespace InfinityNetServer.BuildingBlocks.Presentation.Mappers;
@@ -184,5 +185,9 @@ public class CommonMappers : Profile
         CreateMap<Application.Protos.ProfileIdWithName, ProfileIdWithName>();
 
         CreateMap<Application.Protos.PreviewFileMetadata, PreviewFileMetadata>();
+
+        CreateMap<Application.Protos.ProfileIdWithMutualCount, ProfileIdWithMutualCount>().ReverseMap();
+        CreateMap<UserProfileResponse, FriendSuggestionResponse>()
+           .ForMember(dest => dest.Status, opt => opt.Ignore());
     }
 }

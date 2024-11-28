@@ -11,4 +11,8 @@
     <ProjectReference Include="..\Profile.Domain\Profile.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="GrpcClients\" />
+  </ItemGroup>
+
 </Project>
