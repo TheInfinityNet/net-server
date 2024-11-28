@@ -52,9 +52,12 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB.Repositories
                 filters.Add(criteriaFilter);
             }
 
-            // Apply Cursor-based filter for pagination
-            // If cursor is null, don't add any filter, it means it's the first page
-            if (cursor != null) filters.Add(filterBuilder.Gt("_id", cursor));
+            // Apply Cursor-based filter for pagination using created_at
+            if (cursor != null)
+            {
+                var cursorDate = DateTime.Parse(cursor);
+                filters.Add(filterBuilder.Gt("created_at", cursorDate)); // Replace with Lt for descending
+            }
 
             var filter = filters.Count > 0 ? filterBuilder.And(filters) : filterBuilder.Empty;
 
@@ -96,8 +99,8 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB.Repositories
             if (hasNext) items = items.Take(specification.PageSize).ToList(); // Remove extra item if there is a next page
 
             // Determine the next and previous cursors
-            var nextCursor = hasNext ? items.Last().Id.ToString() : null;
-            var prevCursor = items.Count > 1 ? items.First().Id.ToString() : null; // The first item in the current page is the prevCursor
+            var nextCursor = hasNext ? items.Last().CreatedAt.ToString("o") : null;
+            var prevCursor = items.Count > 1 ? items.First().CreatedAt.ToString("o") : null; // The first item in the current page is the prevCursor
 
             return new CursorPagedResult<TEntity>
             {
@@ -106,6 +109,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB.Repositories
                 PrevCursor = prevCursor, // Include prevCursor in the result
             };
         }
+
 
     }
 }

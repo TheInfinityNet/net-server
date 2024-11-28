@@ -195,7 +195,8 @@ public class PostMappers : Profile
             .AfterMap((src, dest) =>
             {
                 PostType type = Enum.Parse<PostType>(src.Type);
-                switch (type) {
+                switch (type)
+                {
                     case PostType.Photo:
                         dest.FileMetadataId = Guid.Parse(src.PhotoId);
                         break;

@@ -53,7 +53,8 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             post.OwnerId = GetCurrentProfileId().Value;
 
             var response = await postService.Create(post);
-            return Created(string.Empty, new {
+            return Created(string.Empty, new
+            {
                 id = response.Id,
             });
         }
@@ -88,7 +89,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
 
             postService.ValidateAudienceType(request.Audience);
 
-            var post = mapper.Map<Domain.Entities.Post>(request); 
+            var post = mapper.Map<Domain.Entities.Post>(request);
             post.OwnerId = GetCurrentProfileId().Value;
 
             var response = await postService.Create(post);
