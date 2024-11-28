@@ -153,4 +153,22 @@
   <data name="FriendInvitationAccepted.Content" xml:space="preserve">
     <value>{0} đã chấp nhận lời mời kết bạn</value>
   </data>
+  <data name="CommentReaction.Title" xml:space="preserve">
+    <value>Có cảm xúc mới trong bình luận của bạn.</value>
+  </data>
+  <data name="CommentReaction.Content" xml:space="preserve">
+    <value>{0} đã thả cảm xúc {1} vào bình luận của bạn.</value>
+  </data>
+  <data name="PostReaction.Title" xml:space="preserve">
+    <value>Có cảm xúc mới trong bài viết của bạn. </value>
+  </data>
+  <data name="PostReaction.Content" xml:space="preserve">
+    <value>{0} đã thả cảm xúc {1} vào bài viết của bạn.</value>
+  </data>
+  <data name="CommentToPost.Title" xml:space="preserve">
+    <value>Bài viết: {0}</value>
+  </data>
+  <data name="CommentToPost.Content" xml:space="preserve">
+    <value>{0} đã bình luận bài viết của bạn.</value>
+  </data>
 </root>

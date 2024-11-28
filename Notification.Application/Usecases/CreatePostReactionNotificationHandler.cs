@@ -9,16 +9,15 @@ using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Notification.Application.Usecases
 {
-    public class CreatePostNotificationHandler
-        (ILogger<CreatePostNotificationHandler> logger,
+    public class CreatePostReactionNotificationHandler
+        (ILogger<CreatePostReactionNotificationHandler> logger,
         CommonProfileClient profileClient,
         CommonPostClient postClient,
-        INotificationService notificationService) : IRequestHandler<DomainCommand.CreatePostNotificationCommand>
+        INotificationService notificationService) : IRequestHandler<DomainCommand.CreatePostReactionNotificationCommand>
     {
-
-        public async Task Handle(DomainCommand.CreatePostNotificationCommand request, CancellationToken cancellationToken)
+        public async Task Handle(DomainCommand.CreatePostReactionNotificationCommand request, CancellationToken cancellationToken)
         {
-            logger.LogInformation("Starting create post notification command handler");
+            logger.LogInformation("Starting create post reaction notification command handler");
             var profile = await profileClient.GetProfile(request.TargetProfileId.ToString());
             var triggerProfile = await profileClient.GetProfile(request.TriggeredBy);
             var post = await postClient.GetPreviewPost(request.PostId.ToString());
@@ -26,17 +25,15 @@ namespace InfinityNetServer.Services.Notification.Application.Usecases
             var notification = new Domain.Entities.Notification
             {
                 AccountId = profile.AccountId,
-                ThumbnailId = !profile.Avatar.Id.Equals(Guid.Empty.ToString()) ? profile.Avatar.Id : null,
-                EntityId = request.PostId.ToString(),
+                ThumbnailId = !triggerProfile.Avatar.Id.Equals(Guid.Empty.ToString()) ? triggerProfile.Avatar.Id : null,
+                EntityId = request.PostReactionId.ToString(),
                 Type = request.Type,
                 Permalink = "https://localhost:61000/posts/get-post/" + request.PostId.ToString(),
                 TitleParams = [post.PreviewContent],
-                ContentParams = [triggerProfile.Name],
-                CreatedAt = request.CreatedAt
+                ContentParams = [triggerProfile.Name, request.ReactionType.ToString()],
+                CreatedAt = request.CreatedAt,
             };
-
             await notificationService.Create(notification);
         }
-
     }
 }

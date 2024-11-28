@@ -1,5 +1,6 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL;
 using InfinityNetServer.Services.Comment.Domain.Entities;
@@ -17,6 +18,7 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data
         DbContextOptions<CommentDbContext> options,
         IConfiguration configuration,
         IAuthenticatedUserService authenticatedUserService,
+        CommonPostClient postClient,
         IMessageBus messageBus)
         : PostreSqlDbContext<CommentDbContext, Guid>(options, configuration, authenticatedUserService)
     {
@@ -90,6 +92,20 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data
                             CommentId = id,
                             Type = BuildingBlocks.Domain.Enums.NotificationType.ReplyToComment,
                             CreatedAt = createdAt
+                        });
+                    }
+
+                    //Comment to Post
+                    if (entry.State == EntityState.Added)
+                    {
+                        var post = await postClient.GetPreviewPost(entry.Entity.PostId.ToString());
+                        await messageBus.Publish(new DomainCommand.CreateCommentNotificationCommand
+                        {
+                            TriggeredBy = profileId.ToString(),
+                            TargetProfileId = post.OwnerId,
+                            CommentId = id,
+                            Type = BuildingBlocks.Domain.Enums.NotificationType.CommentToPost,
+                            CreatedAt = createdAt,
                         });
                     }
                 }

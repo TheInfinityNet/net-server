@@ -20,6 +20,9 @@ namespace InfinityNetServer.Services.Notification.Domain.Entities
         [BsonElement("type")]
         public NotificationType Type { get; set; }
 
+        [BsonElement("permalink")]
+        public string Permalink { get; set; }
+
         [BsonElement("thumbnail_id")]
         [BsonRepresentation(BsonType.String)]
         public Guid? ThumbnailId { get; set; }

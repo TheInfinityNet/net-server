@@ -94,8 +94,8 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
 
                         && (post.Audience.Type == PostAudienceType.Public
 
-                            || post.OwnerId.Equals(profileId) 
-                            
+                            || post.OwnerId.Equals(profileId)
+
                             || (followeeIds.Contains(post.OwnerId.ToString()) && friendIds.Contains(post.OwnerId.ToString()))
 
                             || (post.Audience.Type == PostAudienceType.OnlyMe && post.OwnerId.Equals(profileUuid))
@@ -152,7 +152,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
             switch (type)
             {
                 case PostType.Photo:
-                    if (string.IsNullOrEmpty(dto.PhotoId)) 
+                    if (string.IsNullOrEmpty(dto.PhotoId))
                         throw new PostException(PostError.REQUIRED_PHOTO_ID, StatusCodes.Status400BadRequest);
                     break;
 
@@ -200,10 +200,10 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
 
         public async Task ConfirmSave(string postId, string profileId, string fileMetadataId, IMessageBus messageBus)
         {
-            Domain.Entities.Post post = await GetById(postId) 
+            Domain.Entities.Post post = await GetById(postId)
                 ?? throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            Guid fileMetadataGuid = post.FileMetadataId 
+            Guid fileMetadataGuid = post.FileMetadataId
                 ?? throw new BaseException(BaseError.FILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
             switch (post.Type)
