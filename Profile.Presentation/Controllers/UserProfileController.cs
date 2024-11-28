@@ -11,6 +11,8 @@ using InfinityNetServer.Services.Profile.Application.DTOs.Requests;
 using InfinityNetServer.Services.Profile.Application.DTOs.Responses;
 using InfinityNetServer.Services.Profile.Application.Services;
 using InfinityNetServer.Services.Profile.Domain.Entities;
+using InfinityNetServer.Services.Profile.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -52,7 +54,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             ));
         }
 
-        //[Authorize]
+        [Authorize]
         [EndpointDescription("Retrieve user profile")]
         [HttpGet("{userId}")]
         [ProducesResponseType(typeof(ViewProfileResponse<UserProfileResponse>), StatusCodes.Status200OK)]
@@ -60,44 +62,43 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         {
             logger.LogInformation("Retrieve user profile");
 
-            //string currentUserId = authenticatedUserService.GetAuthenticatedUserId().ToString();
+            string currentUserId = authenticatedUserService.GetAuthenticatedProfileId().ToString();
 
             UserProfile currentProfile = await userProfileService.GetUserProfileById(userId);
 
             List<string> actions = [];
 
-            //if (currentUserId != userId)
-            //{
-            //    if (await relationshipClient.HasFriendship(currentUserId, userId))
-            //        actions.Add(ProfileActions.RemoveFriend.ToString());
-            //    else actions.Add(ProfileActions.AddFriend.ToString());
+            if (currentUserId != userId)
+            {
+                if (await relationshipClient.HasFriendship(currentUserId, userId))
+                    actions.Add(ProfileActions.RemoveFriend.ToString());
+                else actions.Add(ProfileActions.AddFriend.ToString());
 
-            //    if (await relationshipClient.HasBlocked(currentUserId, userId))
-            //        actions.Add(ProfileActions.Unblock.ToString());
-            //    else actions.Add(ProfileActions.Block.ToString());
+                if (await relationshipClient.HasBlocked(currentUserId, userId))
+                    actions.Add(ProfileActions.Unblock.ToString());
+                else actions.Add(ProfileActions.Block.ToString());
 
-            //    if (await relationshipClient.HasFollowed(currentUserId, userId))
-            //        actions.Add(ProfileActions.Unfollow.ToString());
-            //    else actions.Add(ProfileActions.Follow.ToString());
+                if (await relationshipClient.HasFollowed(currentUserId, userId))
+                    actions.Add(ProfileActions.Unfollow.ToString());
+                else actions.Add(ProfileActions.Follow.ToString());
 
-            //    if (await relationshipClient.HasMuted(currentUserId, userId))
-            //        actions.Add(ProfileActions.UnMute.ToString());
-            //    else actions.Add(ProfileActions.Mute.ToString());
-
-            //    if (await relationshipClient.HasFriendRequest(currentUserId, userId))
-            //        actions.Add(ProfileActions.AcceptOrRejectFriendRequest.ToString());
-            //}
-            //else actions.AddRange(
-            //    [ProfileActions.ProfileCoverPhotoUpload.ToString(), 
-            //        ProfileActions.ProfileCoverPhotoDelete.ToString()]);
+                if (await relationshipClient.HasFriendRequest(currentUserId, userId))
+                    actions.Add(ProfileActions.AcceptOrRejectFriendRequest.ToString());
+            }
+            else actions.AddRange(
+                [ProfileActions.ProfileCoverPhotoUpload.ToString(),
+                    ProfileActions.ProfileCoverPhotoDelete.ToString()]);
 
             return Ok(mapper.Map<UserProfileResponse>(currentProfile));
         }
+
         [HttpGet("suggestions")]
-        //[Authorize]
+        [EndpointDescription("Retrieve friend suggestions")]
+        [ProducesResponseType(typeof(CursorPagedResult<FriendSuggestionResponse>), StatusCodes.Status200OK)]
+        [Authorize]
         public async Task<IActionResult> GetFriendSuggestions([FromQuery] string? nextCursor, [FromQuery] int limit = 10)
         {
-            string? currentUserId = "05692dcb-b747-4fb0-8a9f-9f044077b2ad";
+            string? currentUserId = authenticatedUserService.GetAuthenticatedProfileId().ToString();
 
             var suggestions = await userProfileService.GetFriendSuggestions(currentUserId, nextCursor, limit);
 
@@ -105,7 +106,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
 
             var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
 
-            IList<FriendSuggestionResponse> result = [];
+            IList<FriendSuggestionResponse> result = []; 
             foreach (var item in suggestions.Items)
             {
                 var previewProfile = mapper.Map<UserProfileResponse>(item);
@@ -114,18 +115,23 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 itemResponse.MutualFriendsCount = resultHasCountDict.TryGetValue(item.Id.ToString(), out var a) ? a.Count : 0;
                 result.Add(itemResponse);
             }
-            
-            return Ok(new
-            {
+            CursorPagedResult<FriendSuggestionResponse> a = new (){
                 Items = result,
                 NextCursor = suggestions.NextCursor
+            };
+            return Ok(new
+            {
+                a
             });
         }
+
         [HttpGet("requests")]
-        //[Authorize]
+        [EndpointDescription("Retrieve requests")]
+        [ProducesResponseType(typeof(CursorPagedResult<FriendSuggestionResponse>), StatusCodes.Status200OK)]
+        [Authorize]
         public async Task<IActionResult> GetFriendRequests([FromQuery] string? nextCursor, [FromQuery] int limit = 10)
         {
-            string? currentUserId = "05692dcb-b747-4fb0-8a9f-9f044077b2ad";
+            string? currentUserId = authenticatedUserService.GetAuthenticatedProfileId().ToString();
 
             var friendRequests = await userProfileService.GetFriendRequests(currentUserId, nextCursor, limit);
 
@@ -142,18 +148,25 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 itemResponse.MutualFriendsCount = resultHasCountDict.TryGetValue(item.Id.ToString(), out var a) ? a.Count : 0;
                 result.Add(itemResponse);
             }
-
+            CursorPagedResult<FriendSuggestionResponse> a = new()
+            {
+                Items = result,
+                NextCursor = friendRequests.NextCursor
+            };
             return Ok(new
             {
                 Items = result,
                 NextCursor = friendRequests.NextCursor
             });
         }
+
         [HttpGet("sent-requests")]
-        //[Authorize]
+        [EndpointDescription("Retrieve sent requests ")]
+        [ProducesResponseType(typeof(CursorPagedResult<FriendSuggestionResponse>), StatusCodes.Status200OK)]
+        [Authorize]
         public async Task<IActionResult> GetFriendSentRequests([FromQuery] string? nextCursor, [FromQuery] int limit = 10)
         {
-            string? currentUserId = "05692dcb-b747-4fb0-8a9f-9f044077b2ad";
+            string? currentUserId = authenticatedUserService.GetAuthenticatedProfileId().ToString();
 
             var friendSentRequests = await userProfileService.GetFriendSentRequests(currentUserId, nextCursor, limit);
 
@@ -170,18 +183,25 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 itemResponse.MutualFriendsCount = resultHasCountDict.TryGetValue(item.Id.ToString(), out var a) ? a.Count : 0;
                 result.Add(itemResponse);
             }
-
-            return Ok(new
+            CursorPagedResult<FriendSuggestionResponse> a = new()
             {
                 Items = result,
                 NextCursor = friendSentRequests.NextCursor
+            };
+            return Ok(new
+            {
+                Items = result,
+                friendSentRequests.NextCursor
             });
         }
+
         [HttpGet("friends")]
-        //[Authorize]
+        [EndpointDescription("Retrieve friends")]
+        [ProducesResponseType(typeof(CursorPagedResult<FriendSuggestionResponse>), StatusCodes.Status200OK)]
+        [Authorize]
         public async Task<IActionResult> GetFriends([FromQuery] string? nextCursor, [FromQuery] int limit = 10)
         {
-            string? currentUserId = "05692dcb-b747-4fb0-8a9f-9f044077b2ad";
+            string? currentUserId = authenticatedUserService.GetAuthenticatedProfileId().ToString();
 
             var friends = await userProfileService.GetFriends(currentUserId, nextCursor, limit);
 
@@ -198,11 +218,15 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 itemResponse.MutualFriendsCount = resultHasCountDict.TryGetValue(item.Id.ToString(), out var a) ? a.Count : 0;
                 result.Add(itemResponse);
             }
-
-            return Ok(new
+            CursorPagedResult<FriendSuggestionResponse> a = new()
             {
                 Items = result,
                 NextCursor = friends.NextCursor
+            };
+            return Ok(new
+            {
+                Items = result,
+                friends.NextCursor
             });
         }
     }
