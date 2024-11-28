@@ -50,20 +50,6 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
                 totalFriends
             });
         }
-        //[HttpGet("suggestions")]
-        ////[Authorize]
-        //public async Task<IActionResult> GetFriendSuggestions([FromQuery] Guid? nextCursor, [FromQuery] int limit = 10)
-        //{
-        //    Guid? currentUserId = Guid.Parse("041c3e5a-b31c-4237-9b6c-e6384f21b52a");
-
-        //    var suggestions = await friendshipService.GetPagedCommonFriendsAsync(currentUserId, nextCursor, limit);
-
-        //    return Ok(new
-        //    {
-        //        items = suggestions.Results.Result,
-        //        suggestions.NextCursor
-        //    });
-        //}
         [HttpPost("requests")]
         [Authorize]
         public async Task<IActionResult> SendRequest([FromBody] string request)
@@ -74,7 +60,22 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         }
         [HttpDelete("requests/{profileId}")]
         [Authorize]
-        public async Task<IActionResult> DeleteFriendship(string profileId)
+        public async Task<IActionResult> CancelRequest(string profileId)
+        {
+            Guid? currentUserId = GetCurrentProfileId();
+            Domain.Entities.Friendship friendship = await friendshipService.GetByStatus(FriendshipStatus.Pending, currentUserId.ToString(), profileId);
+            if (friendship == null)
+            {
+                return NotFound();
+            }
+            var result = await friendshipService.CancelRequest(friendship.Id);
+            return Ok(
+                result
+            );
+        }
+        [HttpDelete("{profileId}")]
+        [Authorize]
+        public async Task<IActionResult> UnFriend(string profileId)
         {
             Guid? currentUserId = GetCurrentProfileId();
             Domain.Entities.Friendship friendship = await friendshipService.GetByStatus(FriendshipStatus.Pending, currentUserId.ToString(), profileId);
@@ -93,6 +94,14 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         {
             Guid? currentUserId = GetCurrentProfileId();
             var requestResponse = await friendshipService.AcceptRequest(currentUserId.ToString(), request);
+            return Ok(requestResponse);
+        }
+        [HttpPost("requests/decline")]
+        [Authorize]
+        public async Task<IActionResult> RejectRequest([FromBody] string request)
+        {
+            Guid? currentUserId = GetCurrentProfileId();
+            var requestResponse = await friendshipService.RejectRequest(Guid.Parse(request));
             return Ok(requestResponse);
         }
     }

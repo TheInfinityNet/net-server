@@ -77,6 +77,22 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcServices
             response.Ids.AddRange(source);
             return response;
         }
+        public override async Task<ProfileIdsResponse> getRequestProfiles(ProfileRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Get friend requests profiles of ProfileId: {ProfileId}", request.Id);
+            var source = await friendshipService.GetRequests(request.Id);
+            var response = new ProfileIdsResponse();
+            response.Ids.AddRange(source);
+            return response;
+        }
+        public override async Task<ProfileIdsResponse> getSentRequestProfiles(ProfileRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Get friend requests profiles of ProfileId: {ProfileId}", request.Id);
+            var source = await friendshipService.GetSentRequests(request.Id);
+            var response = new ProfileIdsResponse();
+            response.Ids.AddRange(source);
+            return response;
+        }
         public override async Task<ProfileIdsResponse> getFollowerIds(ProfileRequest request, ServerCallContext context)
         {
             logger.LogInformation("Get followers for ProfileId: {ProfileId}", request.Id);

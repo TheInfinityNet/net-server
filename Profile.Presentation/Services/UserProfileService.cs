@@ -23,6 +23,83 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
         CommonRelationshipClient relationshipClient
         ) : IUserProfileService
     {
+        public async Task<CursorPagedResult<UserProfile>> GetFriendRequests(string profileId, string cursor, int pageSize)
+        {
+            var profile = await GetUserProfileById(profileId);
+            IList<string> pendingRequests = await relationshipClient.GetRequestsProfiles(profileId);
+            IList<string> blockerIds = await relationshipClient.GetBlockerIds(profileId.ToString());
+            IList<string> blockeeIds = await relationshipClient.GetBlockeeIds(profileId.ToString());
+
+            var specification = new SpecificationWithCursor<UserProfile>
+            {
+                Criteria = userProfile =>
+                        pendingRequests.Contains(userProfile.Id.ToString())
+                        && !blockerIds.Concat(blockeeIds).Contains(userProfile.Id.ToString()),
+
+                OrderFields = [
+                        new OrderField<UserProfile>
+                        {
+                            Field = x => x.CreatedAt,
+                            Direction = SortDirection.Descending
+                        }
+                    ],
+                Cursor = cursor,
+                PageSize = pageSize
+            };
+            return await _userProfileRepository.GetPagedAsync(specification);
+        }
+
+        public async Task<CursorPagedResult<UserProfile>> GetFriends(string profileId, string cursor, int pageSize)
+        {
+            var profile = await GetUserProfileById(profileId);
+            IList<string> pendingRequests = await relationshipClient.GetFriendIds(profileId);
+            IList<string> blockerIds = await relationshipClient.GetBlockerIds(profileId.ToString());
+            IList<string> blockeeIds = await relationshipClient.GetBlockeeIds(profileId.ToString());
+            
+            var specification = new SpecificationWithCursor<UserProfile>
+            {
+                Criteria = userProfile =>
+                        pendingRequests.Contains(userProfile.Id.ToString())
+                        && !blockerIds.Concat(blockeeIds).Contains(userProfile.Id.ToString()),
+
+                OrderFields = [
+                        new OrderField<UserProfile>
+                        {
+                            Field = x => x.CreatedAt,
+                            Direction = SortDirection.Descending
+                        }
+                    ],
+                Cursor = cursor,
+                PageSize = pageSize
+            };
+            return await _userProfileRepository.GetPagedAsync(specification);
+        }
+
+        public async Task<CursorPagedResult<UserProfile>> GetFriendSentRequests(string profileId, string cursor, int pageSize)
+        {
+            var profile = await GetUserProfileById(profileId);
+            IList<string> pendingRequests = await relationshipClient.GetSentRequestProfiles(profileId);
+            IList<string> blockerIds = await relationshipClient.GetBlockerIds(profileId.ToString());
+            IList<string> blockeeIds = await relationshipClient.GetBlockeeIds(profileId.ToString());
+
+            var specification = new SpecificationWithCursor<UserProfile>
+            {
+                Criteria = userProfile =>
+                        pendingRequests.Contains(userProfile.Id.ToString())
+                        && !blockerIds.Concat(blockeeIds).Contains(userProfile.Id.ToString()),
+
+                OrderFields = [
+                        new OrderField<UserProfile>
+                        {
+                            Field = x => x.CreatedAt,
+                            Direction = SortDirection.Descending
+                        }
+                    ],
+                Cursor = cursor,
+                PageSize = pageSize
+            };
+            return await _userProfileRepository.GetPagedAsync(specification);
+        }
 
         public async Task<CursorPagedResult<UserProfile>> GetFriendSuggestions(string profileId, string cursor, int pageSize)
         {
@@ -53,11 +130,8 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
             return await _userProfileRepository.GetPagedAsync(specification);
         }
 
-        // await async là kiến thức về bất đồng bộ có j ông search youtube xem thêm nha
         public async Task<UserProfile> GetUserProfileByAccountId(string id)
         {
-            // chỗ này implement cái đã định nghĩa trong interface
-            // truyền id vào là string nên phải parse ra Guid
             return await _userProfileRepository.GetUserProfileByAccountIdAsync(Guid.Parse(id));
         }
 

@@ -121,5 +121,89 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 NextCursor = suggestions.NextCursor
             });
         }
+        [HttpGet("requests")]
+        //[Authorize]
+        public async Task<IActionResult> GetFriendRequests([FromQuery] string? nextCursor, [FromQuery] int limit = 10)
+        {
+            string? currentUserId = "05692dcb-b747-4fb0-8a9f-9f044077b2ad";
+
+            var friendRequests = await userProfileService.GetFriendRequests(currentUserId, nextCursor, limit);
+
+            var resultHasCount = await relationshipClient.GetMutualCount(currentUserId, friendRequests.Items.Select(f => f.Id.ToString()).ToList());
+
+            var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
+
+            IList<FriendSuggestionResponse> result = [];
+            foreach (var item in friendRequests.Items)
+            {
+                var previewProfile = mapper.Map<UserProfileResponse>(item);
+                var itemResponse = mapper.Map<FriendSuggestionResponse>(previewProfile);
+                itemResponse.Status = "RequestReceived";
+                itemResponse.MutualFriendsCount = resultHasCountDict.TryGetValue(item.Id.ToString(), out var a) ? a.Count : 0;
+                result.Add(itemResponse);
+            }
+
+            return Ok(new
+            {
+                Items = result,
+                NextCursor = friendRequests.NextCursor
+            });
+        }
+        [HttpGet("sent-requests")]
+        //[Authorize]
+        public async Task<IActionResult> GetFriendSentRequests([FromQuery] string? nextCursor, [FromQuery] int limit = 10)
+        {
+            string? currentUserId = "05692dcb-b747-4fb0-8a9f-9f044077b2ad";
+
+            var friendSentRequests = await userProfileService.GetFriendSentRequests(currentUserId, nextCursor, limit);
+
+            var resultHasCount = await relationshipClient.GetMutualCount(currentUserId, friendSentRequests.Items.Select(f => f.Id.ToString()).ToList());
+
+            var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
+
+            IList<FriendSuggestionResponse> result = [];
+            foreach (var item in friendSentRequests.Items)
+            {
+                var previewProfile = mapper.Map<UserProfileResponse>(item);
+                var itemResponse = mapper.Map<FriendSuggestionResponse>(previewProfile);
+                itemResponse.Status = "RequestSent";
+                itemResponse.MutualFriendsCount = resultHasCountDict.TryGetValue(item.Id.ToString(), out var a) ? a.Count : 0;
+                result.Add(itemResponse);
+            }
+
+            return Ok(new
+            {
+                Items = result,
+                NextCursor = friendSentRequests.NextCursor
+            });
+        }
+        [HttpGet("friends")]
+        //[Authorize]
+        public async Task<IActionResult> GetFriends([FromQuery] string? nextCursor, [FromQuery] int limit = 10)
+        {
+            string? currentUserId = "05692dcb-b747-4fb0-8a9f-9f044077b2ad";
+
+            var friends = await userProfileService.GetFriends(currentUserId, nextCursor, limit);
+
+            var resultHasCount = await relationshipClient.GetMutualCount(currentUserId, friends.Items.Select(f => f.Id.ToString()).ToList());
+
+            var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
+
+            IList<FriendSuggestionResponse> result = [];
+            foreach (var item in friends.Items)
+            {
+                var previewProfile = mapper.Map<UserProfileResponse>(item);
+                var itemResponse = mapper.Map<FriendSuggestionResponse>(previewProfile);
+                itemResponse.Status = "Connected";
+                itemResponse.MutualFriendsCount = resultHasCountDict.TryGetValue(item.Id.ToString(), out var a) ? a.Count : 0;
+                result.Add(itemResponse);
+            }
+
+            return Ok(new
+            {
+                Items = result,
+                NextCursor = friends.NextCursor
+            });
+        }
     }
 }

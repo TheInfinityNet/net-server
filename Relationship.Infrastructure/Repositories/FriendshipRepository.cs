@@ -86,7 +86,20 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
                 .Select(f => f.SenderId == currentUserId ? f.ReceiverId : f.SenderId)
                 .ToListAsync();
         }
-
+        public async Task<IList<Guid>> GetRequestsAsync(Guid? currentUserId)
+        {
+            return await context.Friendships
+                .Where(f => (f.ReceiverId == currentUserId) && f.Status == FriendshipStatus.Pending)
+                .Select(f => f.SenderId)
+                .ToListAsync();
+        }
+        public async Task<IList<Guid>> GetSentRequestsAsync(Guid? currentUserId)
+        {
+            return await context.Friendships
+                .Where(f => (f.SenderId == currentUserId) && f.Status == FriendshipStatus.Pending)
+                .Select(f => f.ReceiverId)
+                .ToListAsync();
+        }
         public async Task<IQueryable<Friendship>> GetMutualFriendsQueryAsync(Guid? currentUserId, IList<Guid> friendsOfCurrentUser, Guid? cursor)
         {
             IQueryable<Friendship> query = context.Friendships

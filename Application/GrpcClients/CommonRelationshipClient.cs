@@ -126,6 +126,42 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
                 throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
+        public async Task<IList<string>> GetRequestsProfiles(string profileId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get friend requests profiles");
+                var response = await client.getRequestProfilesAsync(new ProfileRequest
+                {
+                    Id = profileId
+                });
+                // Call the gRPC server to introspect the token
+                return response.Ids;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
+        public async Task<IList<string>> GetSentRequestProfiles(string profileId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get friend sent requests profiles");
+                var response = await client.getSentRequestProfilesAsync(new ProfileRequest
+                {
+                    Id = profileId
+                });
+                // Call the gRPC server to introspect the token
+                return response.Ids;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
         public async Task<IList<string>> GetFollowerIds(string profileId)
         {
             try

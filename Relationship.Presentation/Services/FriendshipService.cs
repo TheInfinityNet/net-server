@@ -120,6 +120,16 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
                 Status = "NotConnected"
             };
         }
+        public async Task<CancelRequestResponse> CancelRequest(Guid requestId)
+        {
+            await friendshipRepository.DeleteAsync(requestId);
+            return new CancelRequestResponse
+            {
+                UserId = requestId,
+                Message = "Friend request canceled",
+                Status = "NotConnected"
+            };
+        }
         public Task<AcceptRequestResponse> AcceptRequest(string senderId, string receiverId)
         {
             throw new NotImplementedException();
@@ -144,5 +154,19 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
                 Count = item.MutualFriendCount
             }).ToList();
         }
+
+        public async Task<IList<string>> GetRequests(string profile)
+        {
+            var list = await friendshipRepository.GetRequestsAsync(Guid.Parse(profile));
+            return list.Select(x => x.ToString()).ToList();
+        }
+
+        public async Task<IList<string>> GetSentRequests(string profile)
+        {
+            var list = await friendshipRepository.GetSentRequestsAsync(Guid.Parse(profile));
+            return list.Select(x => x.ToString()).ToList();
+        }
+
+        
     }
 }

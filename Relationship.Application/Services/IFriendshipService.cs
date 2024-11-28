@@ -15,11 +15,12 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
         public Task<Friendship> GetByStatus(FriendshipStatus status, string senderId, string receiverId);
         public Task<IList<string>> GetFriendIds(string profile);
         public Task<IList<string>> GetPendingRequestProfiles(string profile);
+        public Task<IList<string>> GetRequests(string profile);
+        public Task<IList<string>> GetSentRequests(string profile);
         public Task<int> CountFriendships(string profileId);
         public Task<IList<string>> GetPreviewFriendIds(string profileId);
-        //public Task<IList<FriendSuggestionResponse>> GetFriendSuggestions(Guid currentUserId, Guid? nextCursor, int pageSize);
-        //public Task<PagedCursorResult<FriendSuggestionResponse>> GetPagedCommonFriendsAsync(Guid? currentUserId, Guid? cursor, int pageSize);
         public Task<SendRequestResponse> SendRequest(string senderId, string receiverId);
+        public Task<CancelRequestResponse> CancelRequest(Guid requestId);
         public Task<AcceptRequestResponse> AcceptRequest(string senderId, string receiverId);
         public Task<RejectRequestResponse> RejectRequest(Guid requestId);
         public Task<UnfriendResponse> Unfriend(string senderId, string receiverId);
