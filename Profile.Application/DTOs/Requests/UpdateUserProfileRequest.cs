@@ -25,11 +25,11 @@ namespace InfinityNetServer.Services.Profile.Application.DTOs.Requests
         [StringLength(100, MinimumLength = 1, ErrorMessage = "StringLength.LastName")]
         public string LastName { get; set; }
 
-        public DateTime Birthdate { get; set;}
+        public DateTime Birthdate { get; set; }
 
         public Gender Gender { get; set; }
 
-        public string Bio { get; set;}
+        public string Bio { get; set; }
 
     }
 

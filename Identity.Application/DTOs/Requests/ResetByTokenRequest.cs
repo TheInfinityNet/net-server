@@ -2,7 +2,7 @@
 
 namespace InfinityNetServer.Services.Identity.Application.DTOs.Requests
 {
-    public sealed record ResetByTokenRequest 
+    public sealed record ResetByTokenRequest
     {
 
         [Required(ErrorMessage = "Required.Password")]

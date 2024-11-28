@@ -33,7 +33,7 @@ namespace InfinityNetServer.BuildingBlocks.Presentation.Services
 
         public async Task<bool> ExistsAsync(TKey key)
             => await _database.KeyExistsAsync(key?.ToString());
-        
+
 
         public async Task<bool> DeleteAsync(TKey key)
             => await _database.KeyDeleteAsync(key?.ToString());

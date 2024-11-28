@@ -34,14 +34,16 @@ public class PostMappers : Profile
             });
 
         CreateMap<Domain.Entities.Post, BasePostResponse>()
-            .AfterMap((src, dest) => {
+            .AfterMap((src, dest) =>
+            {
                 dest.Owner = new PreviewProfileResponse { Id = src.OwnerId };
             });
 
         CreateMap<Domain.Entities.PostContent, Application.DTOs.Orther.PostContent>();
 
         CreateMap<BuildingBlocks.Domain.Entities.HashtagFacet, HashTagFacet>()
-            .AfterMap((src, dest) => {
+            .AfterMap((src, dest) =>
+            {
                 dest.Index = new FacetIndex { Start = src.Start, End = src.End };
             });
 
@@ -166,7 +168,7 @@ public class PostMappers : Profile
         CreateMap<Application.DTOs.Orther.PostAudienceInclude, PostAudience>()
             .AfterMap((src, dest) =>
             {
-                dest.Includes = src.Include.Select(i => 
+                dest.Includes = src.Include.Select(i =>
                 new Domain.Entities.PostAudienceInclude { ProfileId = i.Id }).ToList();
             });
 

@@ -10,5 +10,5 @@ public abstract class BaseConsumer<TEvent>(ISender sender) : IConsumer<TEvent> w
 
     public async Task Consume(ConsumeContext<TEvent> context)
         => await sender.Send(context.Message);
-    
+
 }

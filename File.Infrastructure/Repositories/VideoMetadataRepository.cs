@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 namespace InfinityNetServer.Services.File.Infrastructure.Repositories
 {
     public class VideoMetadataRepository(
-        FileDbContext dbContext, 
-        IAuthenticatedUserService authenticatedUserService) 
+        FileDbContext dbContext,
+        IAuthenticatedUserService authenticatedUserService)
         : MongoDbGenericRepository<VideoMetadata, Guid>(dbContext), IVideoMetadataRepository
     {
 

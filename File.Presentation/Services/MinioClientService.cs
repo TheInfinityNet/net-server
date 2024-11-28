@@ -83,7 +83,7 @@ namespace InfinityNetServer.Services.File.Presentation.Services
                 await EnsureBucketExists(destinationBucket);
 
                 await minioClient.CopyObjectAsync(new CopyObjectArgs()
-                    .WithBucket(destinationBucket) 
+                    .WithBucket(destinationBucket)
                     .WithObject(destinationObjectKey) // New name for the copied object
                     .WithCopyObjectSource(new CopySourceObjectArgs()
                         .WithBucket(sourceBucket) // Source bucket

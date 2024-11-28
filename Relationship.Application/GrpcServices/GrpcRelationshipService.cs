@@ -10,7 +10,7 @@ using InfinityNetServer.Services.Relationship.Domain.Enums;
 namespace InfinityNetServer.Services.Relationship.Application.GrpcServices
 {
     public class GrpcRelationshipService(
-        ILogger<GrpcRelationshipService> logger, 
+        ILogger<GrpcRelationshipService> logger,
         IFriendshipService friendshipService,
         IProfileFollowService profileFollowService,
         IProfileBlockService profileBlockService,

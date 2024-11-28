@@ -17,7 +17,7 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data
         DbContextOptions<RelationshipDbContext> options,
         IConfiguration configuration,
         IAuthenticatedUserService authenticatedUserService,
-        IMessageBus messageBus) 
+        IMessageBus messageBus)
         : PostreSqlDbContext<RelationshipDbContext, Guid>(options, configuration, authenticatedUserService)
     {
 
@@ -65,7 +65,7 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data
             {
                 foreach (var entry in friendshipEntries)
                     await PublishFriendshipNotificationCommands(entry.Entity);
-                
+
                 foreach (var entry in profileFollowEntries)
                     await PublishProfileFollowNotificationCommands(entry.Entity);
             }

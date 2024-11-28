@@ -43,7 +43,7 @@ internal static class HostingExtensions
 
         builder.Services.AddDbContext(builder.Configuration);
 
-        builder.Services.AddMessageBus(builder.Configuration, 
+        builder.Services.AddMessageBus(builder.Configuration,
             typeof(UpdateUserTimelineConsumer));
 
         builder.Services.AddMediatR(cfg =>

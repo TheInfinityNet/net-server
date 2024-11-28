@@ -33,7 +33,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ
                         h.Password(rabbitMqOptions.Password);
                     });
 
-                    bus.UseMessageRetry(retry => 
+                    bus.UseMessageRetry(retry =>
                         retry.Incremental(
                             retryLimit: 3,
                             initialInterval: TimeSpan.FromSeconds(5),

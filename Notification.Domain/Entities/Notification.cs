@@ -9,7 +9,7 @@ namespace InfinityNetServer.Services.Notification.Domain.Entities
     public class Notification : MongoEntity<Guid>
     {
         public Notification() => Id = Guid.NewGuid();
-        
+
         [BsonElement("account_id")]
         [BsonRepresentation(BsonType.String)]
         public Guid AccountId { get; set; }

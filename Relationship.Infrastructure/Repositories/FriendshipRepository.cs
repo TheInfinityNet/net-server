@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
 {
-    public class FriendshipRepository(RelationshipDbContext context) : SqlRepository<Friendship, Guid>(context) , IFriendshipRepository
+    public class FriendshipRepository(RelationshipDbContext context) : SqlRepository<Friendship, Guid>(context), IFriendshipRepository
     {
 
         public async Task<bool> HasFriendship(Guid currentProfileId, Guid targetProfileId, FriendshipStatus status)
@@ -23,9 +23,9 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
             => await context.Friendships.CountAsync(f =>
                     (f.SenderId == profileId || f.ReceiverId == profileId) &&
                     f.Status == FriendshipStatus.Connected);
-        
 
-        public async Task<Friendship> GetByStatus(FriendshipStatus status, Guid senderId, Guid receiverId) 
+
+        public async Task<Friendship> GetByStatus(FriendshipStatus status, Guid senderId, Guid receiverId)
             => await context.Friendships.FirstOrDefaultAsync(f =>
                     f.SenderId.Equals(senderId) && f.ReceiverId.Equals(receiverId) && f.Status == status);
 
@@ -51,7 +51,7 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
         public async Task<IList<Friendship>> GetAllFriendshipsAsync(Guid profileId, int? limit)
             => await context.Friendships
                 .Where(f =>
-                    (f.SenderId == profileId || f.ReceiverId == profileId) 
+                    (f.SenderId == profileId || f.ReceiverId == profileId)
                     && f.Status == FriendshipStatus.Connected)
                 .Take(limit ?? context.Friendships.Count()).ToListAsync();
 
@@ -64,7 +64,7 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
         public async Task<IList<Guid>> GetFriendsOfCurrentUserAsync(Guid? currentUserId)
         {
             return await context.Friendships
-                .Where(f => (f.SenderId == currentUserId || f.ReceiverId == currentUserId) && f.Status != FriendshipStatus.NotConnected )
+                .Where(f => (f.SenderId == currentUserId || f.ReceiverId == currentUserId) && f.Status != FriendshipStatus.NotConnected)
                 .Select(f => f.SenderId == currentUserId ? f.ReceiverId : f.SenderId)
                 .ToListAsync();
         }
@@ -117,7 +117,7 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
                 .Distinct()
                 .ToList();
         }
-        
+
         //public async Task<IList<(Guid friendId, int commonFriendsCount)>> GetCommonFriendsWithCount(IList<Guid> commonFriendsIds, IList<Friendship> friendships)
         //{
         //    return commonFriendsIds.Select(friendId => new

@@ -9,7 +9,7 @@ using System.Globalization;
 namespace InfinityNetServer.Services.Mail.Application.Usecases
 {
     public class SendMailWithCodeEventHandler
-        (ILogger<SendMailWithCodeEventHandler> logger, 
+        (ILogger<SendMailWithCodeEventHandler> logger,
         IStringLocalizer<MailSharedResource> localizer) : IRequestHandler<DomainEvent.SendMailWithCodeEvent>
     {
 

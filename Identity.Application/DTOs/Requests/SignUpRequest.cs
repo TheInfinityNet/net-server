@@ -4,11 +4,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace InfinityNetServer.Services.Identity.Application.DTOs.Requests
 {
-    public sealed record SignUpRequest {
+    public sealed record SignUpRequest
+    {
 
         [Required(ErrorMessage = "Required.FirstName")]
         [StringLength(100, MinimumLength = 1, ErrorMessage = "StringLength.FirstName")]
-        public string FirstName { get; set;}
+        public string FirstName { get; set; }
 
         public string MiddleName { get; set; }
 

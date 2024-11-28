@@ -50,7 +50,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         public async Task<IActionResult> GetFriendSuggestions([FromQuery] Guid? nextCursor, [FromQuery] int limit = 10)
         {
             Guid? currentUserId = GetCurrentProfileId();
-            
+
             var suggestions = await friendshipService.GetPagedCommonFriendsAsync(currentUserId, nextCursor, limit);
             var result = profileClient.GetPreviewFriendsOfProfile(suggestions.Results.Select(guid => guid.ToString()).ToList());
             return Ok(new

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace InfinityNetServer.Services.Identity.Presentation.Exceptions
 {
     public class HttpIdentityExceptionHandler(
-        ILogger<HttpIdentityExceptionHandler> logger, 
+        ILogger<HttpIdentityExceptionHandler> logger,
         IStringLocalizer<IdentitySharedResource> localizer) : IMiddleware
     {
 

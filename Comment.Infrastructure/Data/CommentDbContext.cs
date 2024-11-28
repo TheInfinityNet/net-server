@@ -17,7 +17,7 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data
         DbContextOptions<CommentDbContext> options,
         IConfiguration configuration,
         IAuthenticatedUserService authenticatedUserService,
-        IMessageBus messageBus) 
+        IMessageBus messageBus)
         : PostreSqlDbContext<CommentDbContext, Guid>(options, configuration, authenticatedUserService)
     {
 

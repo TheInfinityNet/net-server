@@ -42,7 +42,7 @@ namespace InfinityNetServer.Services.File.Application.Usecases
                     UpdatedBy = request.UpdatedBy,
                     UpdatedAt = request.UpdatedAt
                 });
-                
+
             }
             else
             {

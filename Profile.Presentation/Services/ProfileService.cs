@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace InfinityNetServer.Services.Profile.Presentation.Services
 {
     public class ProfileService(
-        IProfileRepository profileRepository, 
+        IProfileRepository profileRepository,
         ILogger<ProfileService> logger) : IProfileService
     {
 

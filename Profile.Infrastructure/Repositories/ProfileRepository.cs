@@ -13,7 +13,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Repositories
     public class ProfileRepository(ProfileDbContext context) : SqlRepository<Domain.Entities.Profile, Guid>(context), IProfileRepository
     {
 
-        public async Task<IList<Domain.Entities.Profile>> GetAllByTypeAsync(ProfileType type) 
+        public async Task<IList<Domain.Entities.Profile>> GetAllByTypeAsync(ProfileType type)
             => await context.Profiles.Where(p => p.Type == type).ToListAsync();
 
         public async Task<IList<Domain.Entities.Profile>> GetByIdsAsync(IEnumerable<Guid> ids)

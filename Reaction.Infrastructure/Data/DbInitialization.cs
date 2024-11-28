@@ -275,7 +275,7 @@ public static class DbInitialization
         foreach (var profileId in selectedProfileIds)
         {
             // Ngẫu nhiên chọn số lượng comment cho mỗi account
-            var randomCommentsForProfile = 
+            var randomCommentsForProfile =
                 faker.PickRandom(selectedCommentIds, faker.Random.Int(1, selectedCommentIds.Count));
 
             foreach (var commentId in randomCommentsForProfile)

@@ -44,8 +44,8 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
 
             var comments = await query
                 .OrderByDescending(c => c.CreatedAt)
-                .Skip((pageNumber - 1) * pageSize) 
-                .Take(pageSize)                     
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
             return (comments, totalCount);

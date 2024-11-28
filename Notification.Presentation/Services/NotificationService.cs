@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace InfinityNetServer.Services.Notification.Presentation.Services
 {
     public class NotificationService
-        (ILogger<NotificationService> logger, 
+        (ILogger<NotificationService> logger,
         INotificationRepository notificationRepository) : INotificationService
     {
         public async Task Create(Domain.Entities.Notification notification)
@@ -34,11 +34,11 @@ namespace InfinityNetServer.Services.Notification.Presentation.Services
                             Field = x => x.IsRead,
                             Direction = SortDirection.Ascending
                         },
-                        new OrderField<Domain.Entities.Notification>
-                        {
-                            Field = x => x.CreatedAt,
-                            Direction = SortDirection.Descending
-                        }
+                    new OrderField<Domain.Entities.Notification>
+                    {
+                        Field = x => x.CreatedAt,
+                        Direction = SortDirection.Descending
+                    }
                     ],
                 Cursor = cursor,
                 PageSize = 10

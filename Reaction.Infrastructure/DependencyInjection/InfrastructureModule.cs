@@ -20,7 +20,7 @@ public static class InfrastructureModule
         services.AddScoped(typeof(ISqlRepository<,>), typeof(SqlRepository<,>));
         services.AddScoped<IPostReactionRepository, PostReactionRepository>();
         services.AddScoped<ICommentReactionRepository, CommentReactionRepository>();
-       
+
     }
 
 }
