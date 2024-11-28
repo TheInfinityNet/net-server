@@ -13,11 +13,11 @@ namespace InfinityNetServer.Services.Relationship.Domain.Entities
 
         [Column("follower_id")]
         [Required]
-        public Guid FollowerId { get; set; } 
+        public Guid FollowerId { get; set; }
 
         [Column("followee_id")]
         [Required]
-        public Guid FolloweeId { get; set; } 
+        public Guid FolloweeId { get; set; }
 
     }
 

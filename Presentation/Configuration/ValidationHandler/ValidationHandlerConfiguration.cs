@@ -19,19 +19,20 @@ public static class ValidationHandlerConfiguration
         {
             options.InvalidModelStateResponseFactory = context =>
             {
-                Dictionary<string, string[]> errors = context.ModelState
-                        .Where(x => x.Value!.Errors.Count > 0)
-                        .ToDictionary(
-                            kvp => LowercaseFirstChar(kvp.Key),
-                            kvp => kvp.Value!.Errors.Select(
-                                e =>
-                                {
-                                    System.Console.WriteLine(e.GetType());
-                                    return stringLocalizer[e.ErrorMessage].ToString();
-                                }).ToArray()
-                        );
+                var errors = context.ModelState
+                    .Where(x => x.Value?.Errors.Count > 0) // Kiểm tra null
+                    .ToDictionary(
+                        kvp =>
+                        {
+                            string keyString = kvp.Key.Split('.').Last();
+                            return LowercaseFirstChar(keyString);
+                        },
+                        kvp => kvp.Value!.Errors
+                            .Select(e => stringLocalizer[e.ErrorMessage]?.ToString() ?? e.ErrorMessage) // Xử lý fallback nếu không tìm thấy trong stringLocalizer
+                    );
+
                 BaseError error = BaseError.VALIDATION_ERROR;
-                var type = error.Type;
+                string type = error.Type.ToString();
                 string message = stringLocalizer[error.Code].ToString();
 
                 return new BadRequestObjectResult(new

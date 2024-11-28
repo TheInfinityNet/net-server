@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace InfinityNetServer.Services.Identity.Presentation.Exceptions
 {
     public class HttpIdentityExceptionHandler(
-        ILogger<HttpIdentityExceptionHandler> logger, 
+        ILogger<HttpIdentityExceptionHandler> logger,
         IStringLocalizer<IdentitySharedResource> localizer) : IMiddleware
     {
 
@@ -29,7 +29,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Exceptions
         private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             context.Response.ContentType = "application/json";
-            ErrorType type = ErrorType.UnExpected;
+            string type = ErrorType.UnExpected.ToString();
             string message = localizer["UncategorizedError"].ToString();
             Dictionary<string, string> errors;
 
@@ -37,9 +37,9 @@ namespace InfinityNetServer.Services.Identity.Presentation.Exceptions
             switch (exception)
             {
                 case IdentityException ex:
-                    type = ex.Error.Type;
+                    type = ex.Error.Type.ToString();
                     message = localizer[ex.Error.Code].ToString();
-                    errors = GetDetailedErrors(ex.Error);
+                    errors = GetDetailedErrors(ex.Error, nameof(ex.Error));
 
                     logger.LogError("App Exception: {Exception}", ex);
                     context.Response.StatusCode = ex.HttpStatus;
@@ -48,6 +48,18 @@ namespace InfinityNetServer.Services.Identity.Presentation.Exceptions
                         type,
                         message,
                         errors
+                    });
+
+                case BaseException ex:
+                    type = ex.Error.Type.ToString();
+                    message = localizer[ex.Error.Code].ToString();
+
+                    logger.LogError("Base Exception: {Exception}", ex);
+                    context.Response.StatusCode = ex.HttpStatus;
+                    return context.Response.WriteAsJsonAsync(new
+                    {
+                        type,
+                        message
                     });
 
                 default:
@@ -62,61 +74,46 @@ namespace InfinityNetServer.Services.Identity.Presentation.Exceptions
             }
         }
 
-        private Dictionary<string, string> GetDetailedErrors(IdentityError errorCode)
+        private Dictionary<string, string> GetDetailedErrors(IdentityError error, string errorName)
         {
-            return errorCode.ToString() switch
+            logger.LogError("Unexpected Exception: {Exception}", errorName);
+            return error switch
             {
-                nameof(IdentityError.VALIDATION_ERROR) => new Dictionary<string, string>
+                IdentityError e when e == BaseError.VALIDATION_ERROR => new Dictionary<string, string>
                 {
-                    { "email", localizer[errorCode.Code].ToString() },
-                    { "password", localizer[errorCode.Code].ToString() }
+                    { "email", localizer[error.Code].ToString() },
+                    { "password", localizer[error.Code].ToString() }
                 },
-
-                nameof(IdentityError.EXPIRED_PASSWORD) => new Dictionary<string, string>
+                IdentityError e when e == IdentityError.EXPIRED_PASSWORD ||
+                    e == IdentityError.WRONG_PASSWORD ||
+                    e == IdentityError.PASSWORD_MISMATCH ||
+                    e == IdentityError.WEAK_PASSWORD => new Dictionary<string, string>
                 {
-                    { "password", localizer[errorCode.Code].ToString() }
+                    { "password", localizer[error.Code].ToString() }
+                            },
+                            IdentityError e when e == IdentityError.TOKEN_INVALID => new Dictionary<string, string>
+                {
+                    { "token", localizer[error.Code].ToString() }
                 },
-
-                nameof(IdentityError.TOKEN_INVALID) => new Dictionary<string, string>
+                            IdentityError e when e == IdentityError.EMAIL_ALREADY_IN_USE => new Dictionary<string, string>
                 {
-                    { "token", localizer[errorCode.Code].ToString() }
+                    { "email", localizer[error.Code].ToString() }
                 },
-
-                nameof(IdentityError.WRONG_PASSWORD) => new Dictionary<string, string>
+                            IdentityError e when e == IdentityError.INVALID_EMAIL => new Dictionary<string, string>
                 {
-                    { "password", localizer[errorCode.Code].ToString() }
+                    { "email", localizer[error.Code].ToString() }
                 },
-
-                nameof(IdentityError.PASSWORD_MISMATCH) => new Dictionary<string, string>
+                            IdentityError e when e == IdentityError.TERMS_NOT_ACCEPTED => new Dictionary<string, string>
                 {
-                    { "password", localizer[errorCode.Code].ToString() }
+                    { "termsAccepted", localizer[error.Code].ToString() }
                 },
-                nameof(IdentityError.EMAIL_ALREADY_IN_USE) => new Dictionary<string, string>
+                            IdentityError e when e == IdentityError.CODE_INVALID => new Dictionary<string, string>
                 {
-                    { "email", localizer[errorCode.Code].ToString() }
-                },
-
-                nameof(IdentityError.WEAK_PASSWORD) => new Dictionary<string, string>
-                {
-                    { "password", localizer[errorCode.Code].ToString() }
-                },
-
-                nameof(IdentityError.INVALID_EMAIL) => new Dictionary<string, string>
-                {
-                    { "email", localizer[errorCode.Code].ToString() }
-                },
-
-                nameof(IdentityError.TERMS_NOT_ACCEPTED) => new Dictionary<string, string>
-                {
-                    { "termsAccepted", localizer[errorCode.Code].ToString() }
-                },
-
-                nameof(IdentityError.CODE_INVALID) => new Dictionary<string, string>
-                {
-                    { "code", localizer[errorCode.Code].ToString() }
+                    { "code", localizer[error.Code].ToString() }
                 },
                 _ => null
             };
+
         }
 
 

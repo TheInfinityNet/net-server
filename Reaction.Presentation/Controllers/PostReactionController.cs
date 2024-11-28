@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using InfinityNetServer.Application.Post.Presentation.DTOs.Requests;
-using InfinityNetServer.Application.Services;
+﻿using InfinityNetServer.Services.Reaction.Application.DTOs.Requests;
+using InfinityNetServer.Services.Reaction.Application.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 
-namespace InfinityNetServer.Presentation.Controller
+namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
 {
     [ApiController]
     [Route("post-reaction")]
@@ -18,12 +18,14 @@ namespace InfinityNetServer.Presentation.Controller
         {
             try
             {
-                var model = await _service.CreatePostReaction(request);
+                var model = await _service.Create(request);
                 return Ok(model);
-            }catch(Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 Console.WriteLine("Đã có lỗi xảy ra" + ex.Message.ToString());
             }
-            return BadRequest(new {Message = "Lỗi không xác định" });
+            return BadRequest(new { Message = "Lỗi không xác định" });
         }
 
         [HttpGet]

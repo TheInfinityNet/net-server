@@ -49,7 +49,8 @@ internal static class HostingExtensions
 
         builder.Services.AddMessageBus(builder.Configuration, typeof(CreatePhotoMetadataEventConsumer), typeof(CreateVideoMetadataEventConsumer));
 
-        builder.Services.AddMediatR(cfg => {
+        builder.Services.AddMediatR(cfg =>
+        {
             cfg.RegisterServicesFromAssembly(typeof(CreatePhotoMetadataEventHandler).Assembly);
             cfg.RegisterServicesFromAssembly(typeof(CreateVideoMetadataEventHandler).Assembly);
         });

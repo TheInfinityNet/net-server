@@ -1,6 +1,5 @@
 ﻿
 using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
-using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.File.Application.Services;
@@ -16,22 +15,18 @@ namespace InfinityNetServer.Services.File.Application.Usecases
         (ILogger<CreateVideoMetadataEventHandler> logger,
         IBaseRedisService<string, VideoMetadata> baseRedisService,
         IMinioClientService minioClientService,
-        CommonPostClient postClient,
         IVideoMetadataService videoMetadataService) : IRequestHandler<DomainEvent.VideoMetadataEvent>
     {
 
         public async Task Handle(DomainEvent.VideoMetadataEvent request, CancellationToken cancellationToken)
         {
-            logger.LogInformation("Handling message with file name: {Id}", request.Id);
+            logger.LogInformation("Handling message with file name: {Id}", request.FileMetadataId);
 
-            string tempId = request.Id.Equals(request.TempId) ? request.Id.ToString() : request.TempId.ToString();
+            VideoMetadata videoMetadata = await baseRedisService.GetAsync(request.TempId.ToString());
 
-            VideoMetadata videoMetadata = await baseRedisService.GetAsync(tempId);
+            VideoMetadata existedVideoMetadata = await videoMetadataService.GetById(request.FileMetadataId.ToString());
 
-            var previewPostResponse = await postClient.GetPreviewPost(request.OwnerId.ToString());
-            logger.LogInformation("File metadata id: {fileMetadataId}", previewPostResponse.FileMetadataId.Value);
-
-            if (previewPostResponse.FileMetadataId == null)
+            if (existedVideoMetadata == null)
             {
                 await videoMetadataService.Create(new VideoMetadata
                 {
@@ -50,11 +45,10 @@ namespace InfinityNetServer.Services.File.Application.Usecases
                     UpdatedAt = request.UpdatedAt,
                     Thumbnail = videoMetadata.Thumbnail
                 });
-                
+
             }
             else
             {
-                VideoMetadata existedVideoMetadata = await videoMetadataService.GetById(previewPostResponse.FileMetadataId.Value.ToString());
                 await minioClientService.DeleteObject("infinity-net-bucket", existedVideoMetadata.Name);
                 await minioClientService.DeleteObject("infinity-net-bucket", existedVideoMetadata.Thumbnail.Name);
 
@@ -71,7 +65,7 @@ namespace InfinityNetServer.Services.File.Application.Usecases
                 await videoMetadataService.Update(existedVideoMetadata);
             }
 
-            await baseRedisService.DeleteAsync(tempId);
+            await baseRedisService.DeleteAsync(request.TempId.ToString());
             await minioClientService.CopyObject("infinity-net-temp-bucket", videoMetadata.Name, "infinity-net-bucket", videoMetadata.Name);
             await minioClientService.CopyObject("infinity-net-temp-bucket", videoMetadata.Thumbnail.Name, "infinity-net-bucket", videoMetadata.Thumbnail.Name);
             await minioClientService.DeleteObject("infinity-net-temp-bucket", videoMetadata.Name);

@@ -10,7 +10,7 @@ namespace InfinityNetServer.Services.Post.Application.DTOs.Requests
         public PostContent Content { get; set; }
 
         [Required(ErrorMessage = "Required.Type")]
-        public PostType Type { get; set; } = PostType.Text;
+        public string Type { get; set; } = PostType.Text.ToString();
 
         [Required(ErrorMessage = "Required.Audience")]
         public BasePostAudience Audience { get; set; }

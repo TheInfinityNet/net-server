@@ -228,4 +228,7 @@
   <data name="EnumDataType.Gender" xml:space="preserve">
     <value>Invalid gender</value>
   </data>
+  <data name="ResourceNotFound.Account" xml:space="preserve">
+    <value>Account not found</value>
+  </data>
 </root>

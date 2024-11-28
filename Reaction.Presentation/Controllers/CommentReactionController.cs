@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using InfinityNetServer.Application.Post.Presentation.DTOs.Requests;
-using InfinityNetServer.Application.Services;
 using System.Threading.Tasks;
 using System;
 using Microsoft.AspNetCore.Authorization;
+using InfinityNetServer.Services.Reaction.Application.Services;
+using InfinityNetServer.Services.Reaction.Application.DTOs.Requests;
 
-namespace InfinityNetServer.Presentation.Controller
+namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
 {
     [ApiController]
     [Route("comment-reaction")]
-    public class CommandReactionController(ICommentReactionService service) : ControllerBase
+    public class CommentReactionController(ICommentReactionService service) : ControllerBase
     {
         private readonly ICommentReactionService _service = service;
         [HttpPost]

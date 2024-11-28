@@ -9,8 +9,8 @@ using InfinityNetServer.Services.Reaction.Domain.Entities;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using InfinityNetServer.Services.Reaction.Domain.Enums;
 using Microsoft.Extensions.Logging;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 
 namespace InfinityNetServer.Services.Reaction.Infrastructure.Data;
 
@@ -275,7 +275,7 @@ public static class DbInitialization
         foreach (var profileId in selectedProfileIds)
         {
             // Ngẫu nhiên chọn số lượng comment cho mỗi account
-            var randomCommentsForProfile = 
+            var randomCommentsForProfile =
                 faker.PickRandom(selectedCommentIds, faker.Random.Int(1, selectedCommentIds.Count));
 
             foreach (var commentId in randomCommentsForProfile)

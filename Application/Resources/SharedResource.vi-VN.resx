@@ -147,4 +147,7 @@
   <data name="Required.Birthdate" xml:space="preserve">
     <value>Sinh nhật là bắt buộc</value>
   </data>
+  <data name="ResourceNotFound.Account" xml:space="preserve">
+    <value>Account not found</value>
+  </data>
 </root>

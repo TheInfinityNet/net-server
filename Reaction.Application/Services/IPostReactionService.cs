@@ -1,14 +1,22 @@
-﻿using InfinityNetServer.Services.Reaction.Domain.Entities;
-using InfinityNetServer.Application.DTOs.Results;
-using InfinityNetServer.Application.Post.Presentation.DTOs.Requests;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Enums;
+using InfinityNetServer.Services.Reaction.Application.DTOs.Requests;
+using InfinityNetServer.Services.Reaction.Application.DTOs.Results;
+using InfinityNetServer.Services.Reaction.Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace InfinityNetServer.Application.Services
+namespace InfinityNetServer.Services.Reaction.Application.Services
 {
     public interface IPostReactionService
     {
-        public Task<PostReaction> CreatePostReaction(AddPostReactionRequest request);
+
+        public Task<PostReaction> Create(AddPostReactionRequest request);
+
+        public Task<int> CountByPostIdAndType(string postId, ReactionType type);
+
+        public Task<PostReaction> GetByPostIdAndProfileId(string postId, string profileId);
+
         public Task<List<PostReactionGroupResult>> GetPostReactions(string lstPostId);// Id cách nhau bởi ,
+
     }
 }

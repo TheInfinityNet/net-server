@@ -1,0 +1,61 @@
+﻿syntax = "proto3";
+
+package InfinityNetServer.BuildingBlocks.Application.Protos;
+
+option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
+
+message ReactionsByPostIdRequest {
+
+	string postId = 1;
+
+	string type = 2;
+
+}
+
+message ReactionsByCommentIdRequest {
+
+	string commentId = 1;
+
+	string type = 2;
+
+}
+
+message ReactionByPostIdAndProfileIdRequest {
+
+	string postId = 1;
+
+	string profileId = 2;
+
+}
+
+message ReactionByCommentIdAndProfileIdRequest {
+
+	string commentId = 1;
+
+	string profileId = 2;
+
+}
+
+message ReactionCountResponse {
+
+	int32 count = 1;
+
+}
+
+message ReactionTypeResponse {
+
+	string type = 3;
+
+}
+
+service ReactionService {
+
+	rpc getPostReactionsCount(ReactionsByPostIdRequest) returns (ReactionCountResponse);
+
+	rpc getCommentReactionsCount(ReactionsByCommentIdRequest) returns (ReactionCountResponse);
+
+	rpc getPostReactionByProfileId(ReactionByPostIdAndProfileIdRequest) returns (ReactionTypeResponse);
+
+	rpc getCommentReactionByProfileId(ReactionByCommentIdAndProfileIdRequest) returns (ReactionTypeResponse);
+
+}

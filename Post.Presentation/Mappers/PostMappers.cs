@@ -5,6 +5,7 @@ using InfinityNetServer.Services.Post.Application.DTOs.Orther;
 using InfinityNetServer.Services.Post.Application.DTOs.Requests;
 using InfinityNetServer.Services.Post.Application.DTOs.Responses;
 using InfinityNetServer.Services.Post.Domain.Entities;
+using InfinityNetServer.Services.Post.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,14 +34,16 @@ public class PostMappers : Profile
             });
 
         CreateMap<Domain.Entities.Post, BasePostResponse>()
-            .AfterMap((src, dest) => {
+            .AfterMap((src, dest) =>
+            {
                 dest.Owner = new PreviewProfileResponse { Id = src.OwnerId };
             });
 
         CreateMap<Domain.Entities.PostContent, Application.DTOs.Orther.PostContent>();
 
         CreateMap<BuildingBlocks.Domain.Entities.HashtagFacet, HashTagFacet>()
-            .AfterMap((src, dest) => {
+            .AfterMap((src, dest) =>
+            {
                 dest.Index = new FacetIndex { Start = src.Start, End = src.End };
             });
 
@@ -53,7 +56,7 @@ public class PostMappers : Profile
         CreateMap<PostAudience, Application.DTOs.Orther.PostAudienceInclude>()
             .AfterMap((src, dest) =>
             {
-                if (src.Type != Domain.Enums.PostAudienceType.Include)
+                if (src.Type != PostAudienceType.Include)
                     dest = null;
 
                 else dest.Include = src.Includes.Select(i => new BaseProfileResponse { Id = i.ProfileId }).ToList();
@@ -62,7 +65,7 @@ public class PostMappers : Profile
         CreateMap<PostAudience, Application.DTOs.Orther.PostAudienceExclude>()
             .AfterMap((src, dest) =>
             {
-                if (src.Type != Domain.Enums.PostAudienceType.Exclude)
+                if (src.Type != PostAudienceType.Exclude)
                     dest = null;
 
                 else dest.Exclude = src.Excludes.Select(i => new BaseProfileResponse { Id = i.ProfileId }).ToList();
@@ -159,13 +162,13 @@ public class PostMappers : Profile
         CreateMap<BasePostAudience, PostAudience>()
             .AfterMap((src, dest) =>
             {
-                dest.Type = Enum.Parse<Domain.Enums.PostAudienceType>(src.Type);
+                dest.Type = Enum.Parse<PostAudienceType>(src.Type);
             });
 
         CreateMap<Application.DTOs.Orther.PostAudienceInclude, PostAudience>()
             .AfterMap((src, dest) =>
             {
-                dest.Includes = src.Include.Select(i => 
+                dest.Includes = src.Include.Select(i =>
                 new Domain.Entities.PostAudienceInclude { ProfileId = i.Id }).ToList();
             });
 
@@ -191,11 +194,12 @@ public class PostMappers : Profile
         CreateMap<CreateMediaPostRequest, Domain.Entities.Post>()
             .AfterMap((src, dest) =>
             {
-                switch (src.Type) {
-                    case Domain.Enums.PostType.Photo:
+                PostType type = Enum.Parse<PostType>(src.Type);
+                switch (type) {
+                    case PostType.Photo:
                         dest.FileMetadataId = Guid.Parse(src.PhotoId);
                         break;
-                    case Domain.Enums.PostType.Video:
+                    case PostType.Video:
                         dest.FileMetadataId = Guid.Parse(src.VideoId);
                         break;
                 }

@@ -45,7 +45,7 @@ internal static class HostingExtensions
         builder.Services.AddRepositories();
 
         builder.Services.AddMappers();
-        
+
         builder.Services.AddLocalization(builder.Configuration);
 
         builder.Services.AddGrpc();

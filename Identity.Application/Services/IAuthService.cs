@@ -1,4 +1,5 @@
 ﻿using InfinityNetServer.Services.Identity.Domain.Entities;
+using System;
 using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Identity.Application.Services
@@ -10,9 +11,9 @@ namespace InfinityNetServer.Services.Identity.Application.Services
 
         Task<bool> Introspect(string token);
 
-        string GenerateToken(Account account, bool isRefresh);
+        string GenerateToken(Account account, Guid profileId, bool isRefresh);
 
-        Task<string> Refresh(string refreshToken, string accessToken);
+        Task<string> Refresh(string refreshToken);
 
     }
 }

@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace InfinityNetServer.Services.Relationship.Presentation.Services
 {
     public class FriendshipService(
-        IFriendshipRepository friendshipRepository, 
+        IFriendshipRepository friendshipRepository,
         ILogger<FriendshipService> logger,
         IStringLocalizer<RelationshipSharedResource> localizer) : IFriendshipService
     {
@@ -39,8 +39,8 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
             IList<Friendship> friendships = await friendshipRepository
                 .GetAllFriendshipsAsync(Guid.Parse(profileId), 10);
 
-            return friendships.Select(f => 
-                f.SenderId.ToString() == profileId 
+            return friendships.Select(f =>
+                f.SenderId.ToString() == profileId
                     ? f.ReceiverId.ToString() : f.SenderId.ToString()).ToList();
         }
 

@@ -25,14 +25,14 @@ namespace InfinityNetServer.Services.Post.Application.Helpers
         {
             return new Domain.Entities.Post
             {
-                Id = dto.Id,
-                Content = dto.Content,
-                Type = dto.Type,
-                PresentationId = dto.PresentationId,
-                ParentId = dto.ParentId,
-                OwnerId = dto.OwnerId,
-                GroupId = dto.GroupId,
-                FileMetadataId = dto.FileMetadataId
+                //Id = dto.Id,
+                //Content = dto.Content,
+                //Type = dto.Type,
+                //PresentationId = dto.PresentationId,
+                //ParentId = dto.ParentId,
+                //OwnerId = dto.OwnerId,
+                //GroupId = dto.GroupId,
+                //FileMetadataId = dto.FileMetadataId
             };
         }
 

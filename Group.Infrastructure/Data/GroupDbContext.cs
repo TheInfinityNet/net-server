@@ -10,7 +10,7 @@ namespace InfinityNetServer.Services.Group.Infrastructure.Data
     public class GroupDbContext(
         DbContextOptions<GroupDbContext> options,
         IConfiguration configuration,
-        IAuthenticatedUserService authenticatedUserService) 
+        IAuthenticatedUserService authenticatedUserService)
         : PostreSqlDbContext<GroupDbContext, Guid>(options, configuration, authenticatedUserService)
     {
 

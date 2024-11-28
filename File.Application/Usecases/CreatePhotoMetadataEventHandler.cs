@@ -1,6 +1,5 @@
 ﻿
 using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
-using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.File.Application.Services;
@@ -16,26 +15,21 @@ namespace InfinityNetServer.Services.File.Application.Usecases
         (ILogger<CreatePhotoMetadataEventHandler> logger,
         IBaseRedisService<string, PhotoMetadata> baseRedisService,
         IMinioClientService minioClientService,
-        CommonPostClient postClient,
         IPhotoMetadataService photoMetadataService) : IRequestHandler<DomainEvent.PhotoMetadataEvent>
     {
 
         public async Task Handle(DomainEvent.PhotoMetadataEvent request, CancellationToken cancellationToken)
         {
-            logger.LogInformation("Handling message with file name: {Id}", request.Id);
+            logger.LogInformation("Handling message with file name: {Id}", request.FileMetadataId);
 
-            string tempId = request.Id.Equals(request.TempId) ? request.Id.ToString() : request.TempId.ToString();
+            PhotoMetadata photoMetadata = await baseRedisService.GetAsync(request.TempId.ToString());
 
-            PhotoMetadata photoMetadata = await baseRedisService.GetAsync(tempId);
-
-            var previewPostResponse = await postClient.GetPreviewPost(request.OwnerId.ToString());
-            logger.LogInformation("File metadata id: {fileMetadataId}", previewPostResponse.FileMetadataId.Value);
-
-            if (previewPostResponse.FileMetadataId == null)
+            PhotoMetadata existedPhotoMetadata = await photoMetadataService.GetById(request.FileMetadataId.ToString());
+            if (existedPhotoMetadata == null)
             {
                 await photoMetadataService.Create(new PhotoMetadata
                 {
-                    Id = request.Id,
+                    Id = request.FileMetadataId,
                     Type = FileMetadataType.Photo,
                     Name = photoMetadata.Name,
                     Width = photoMetadata.Width,
@@ -48,13 +42,11 @@ namespace InfinityNetServer.Services.File.Application.Usecases
                     UpdatedBy = request.UpdatedBy,
                     UpdatedAt = request.UpdatedAt
                 });
-                
+
             }
             else
             {
-                PhotoMetadata existedPhotoMetadata = await photoMetadataService.GetById(previewPostResponse.FileMetadataId.Value.ToString());
                 await minioClientService.DeleteObject("infinity-net-bucket", existedPhotoMetadata.Name);
-
                 existedPhotoMetadata.Name = photoMetadata.Name;
                 existedPhotoMetadata.Width = photoMetadata.Width;
                 existedPhotoMetadata.Height = photoMetadata.Height;
@@ -62,11 +54,10 @@ namespace InfinityNetServer.Services.File.Application.Usecases
                 existedPhotoMetadata.OwnerType = request.OwnerType;
                 existedPhotoMetadata.UpdatedAt = request.UpdatedAt;
                 existedPhotoMetadata.UpdatedBy = request.UpdatedBy;
-
                 await photoMetadataService.Update(existedPhotoMetadata);
             }
 
-            await baseRedisService.DeleteAsync(tempId);
+            await baseRedisService.DeleteAsync(request.TempId.ToString());
             await minioClientService.CopyObject("infinity-net-temp-bucket", photoMetadata.Name, "infinity-net-bucket", photoMetadata.Name);
             await minioClientService.DeleteObject("infinity-net-temp-bucket", photoMetadata.Name);
         }

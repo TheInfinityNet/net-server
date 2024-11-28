@@ -126,7 +126,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
                 var cursorDateTime = DateTime.Parse(spec.Cursor);
                 if (spec.OrderFields == null || spec.OrderFields.First().Direction == SortDirection.Descending)
                     query = query.Where(x => x.CreatedAt < cursorDateTime);
-                
+
                 else query = query.Where(x => x.CreatedAt > cursorDateTime);
             }
 

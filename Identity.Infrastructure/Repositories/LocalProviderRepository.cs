@@ -11,7 +11,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Repositories
     public class LocalProviderRepository(IdentityDbContext context) : SqlRepository<LocalProvider, Guid>(context), ILocalProviderRepository
     {
 
-        public async Task<LocalProvider> GetByEmailAsync(string email) 
+        public async Task<LocalProvider> GetByEmailAsync(string email)
             => await context.LocalProviders.FirstOrDefaultAsync(x => x.Email == email);
 
     }

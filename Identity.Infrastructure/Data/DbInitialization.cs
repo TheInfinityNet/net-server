@@ -54,7 +54,7 @@ public static class DbInitialization
 
             foreach (var account in accounts)
             {
-                var accountProviders = GenerateAccountProviders(account, 1); 
+                var accountProviders = GenerateAccountProviders(account, 1);
                 await accountProviderRepository.CreateAsync(accountProviders);
             }
             var verifications = GenerateVerifications(new Faker().PickRandom(accounts), 50);

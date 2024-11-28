@@ -1,9 +1,9 @@
-using InfinityNetServer.Services.Reaction.Domain.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 
-namespace InfinityNetServer.Application.Post.Presentation.DTOs.Requests
+namespace InfinityNetServer.Services.Reaction.Application.DTOs.Requests
 {
     public class AddCommentReactionRequest
     {

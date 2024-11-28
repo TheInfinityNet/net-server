@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
 {
-    public class ProfileFollowRepository(RelationshipDbContext context) 
+    public class ProfileFollowRepository(RelationshipDbContext context)
         : SqlRepository<ProfileFollow, Guid>(context), IProfileFollowRepository
     {
 

@@ -21,10 +21,10 @@
         "PeriodTimespan": 60,
         "Limit": 5
       },*/
-      "FileCacheOptions": {
-        "TtlSeconds": 15,
-        "Region": "identity-cache"
-      },
+      //"FileCacheOptions": {
+      //  "TtlSeconds": 15,
+      //  "Region": "identity-cache"
+      //},
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 10000,
@@ -44,10 +44,10 @@
       ],
       "UpstreamPathTemplate": "/profiles/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      "FileCacheOptions": {
-        "TtlSeconds": 15,
-        "Region": "profile-cache"
-      },
+      //"FileCacheOptions": {
+      //  "TtlSeconds": 15,
+      //  "Region": "profile-cache"
+      //},
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 10000,
@@ -67,10 +67,10 @@
       ],
       "UpstreamPathTemplate": "/relationships/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      "FileCacheOptions": {
-        "TtlSeconds": 15,
-        "Region": "relationship-cache"
-      },
+      //"FileCacheOptions": {
+      //  "TtlSeconds": 15,
+      //  "Region": "relationship-cache"
+      //},
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 10000,
@@ -90,10 +90,10 @@
       ],
       "UpstreamPathTemplate": "/groups/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      "FileCacheOptions": {
-        "TtlSeconds": 15,
-        "Region": "group-cache"
-      },
+      //"FileCacheOptions": {
+      //  "TtlSeconds": 15,
+      //  "Region": "group-cache"
+      //},
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 10000,
@@ -113,10 +113,10 @@
       ],
       "UpstreamPathTemplate": "/posts/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      "FileCacheOptions": {
-        "TtlSeconds": 15,
-        "Region": "post-cache"
-      },
+      //"FileCacheOptions": {
+      //  "TtlSeconds": 15,
+      //  "Region": "post-cache"
+      //},
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 10000,
@@ -136,10 +136,10 @@
       ],
       "UpstreamPathTemplate": "/comments/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      "FileCacheOptions": {
-        "TtlSeconds": 15,
-        "Region": "comment-cache"
-      },
+      //"FileCacheOptions": {
+      //  "TtlSeconds": 15,
+      //  "Region": "comment-cache"
+      //},
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 10000,
@@ -159,10 +159,10 @@
       ],
       "UpstreamPathTemplate": "/reactions/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      "FileCacheOptions": {
-        "TtlSeconds": 15,
-        "Region": "reaction-cache"
-      },
+      //"FileCacheOptions": {
+      //  "TtlSeconds": 15,
+      //  "Region": "reaction-cache"
+      //},
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 10000,
@@ -182,10 +182,10 @@
       ],
       "UpstreamPathTemplate": "/notifications/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      "FileCacheOptions": {
-        "TtlSeconds": 15,
-        "Region": "notification-cache"
-      },
+      //"FileCacheOptions": {
+      //  "TtlSeconds": 15,
+      //  "Region": "notification-cache"
+      //},
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 10000,
@@ -205,10 +205,10 @@
       ],
       "UpstreamPathTemplate": "/files/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      "FileCacheOptions": {
-        "TtlSeconds": 15,
-        "Region": "file-cache"
-      },
+      //"FileCacheOptions": {
+      //  "TtlSeconds": 15,
+      //  "Region": "file-cache"
+      //},
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2,
         "DurationOfBreak": 20000,

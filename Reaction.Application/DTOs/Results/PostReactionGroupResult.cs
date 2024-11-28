@@ -1,7 +1,7 @@
-using InfinityNetServer.Services.Reaction.Domain.Enums;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using System;
 
-namespace InfinityNetServer.Application.DTOs.Results
+namespace InfinityNetServer.Services.Reaction.Application.DTOs.Results
 {
     public class PostReactionGroupResult
     {

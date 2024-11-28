@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Relationship.Application.DTOs.Responses
 {
-    public class FriendSuggestionResponse { 
+    public class FriendSuggestionResponse
+    {
         public Guid Id { get; set; }
         public string Name { get; set; }
         public PhotoMetadataResponse Avatar { get; set; }

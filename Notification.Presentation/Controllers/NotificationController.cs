@@ -37,7 +37,8 @@ namespace InfinityNetServer.Services.Notification.Presentation.Controllers
 
             CursorPagedResult<NotificationResponse> response = new()
             {
-                Items = notifications.Items.Select(n => {
+                Items = notifications.Items.Select(n =>
+                {
                     var response = mapper.Map<NotificationResponse>(n);
                     response.Title = localizer[$"{n.Type}.Title", n.TitleParams];
                     response.Content = localizer[$"{n.Type}.Content", n.ContentParams];

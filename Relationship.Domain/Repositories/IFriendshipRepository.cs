@@ -27,6 +27,6 @@ namespace InfinityNetServer.Services.Relationship.Domain.Repositories
         Task<IList<Friendship>> GetPagedResultsAsync(IQueryable<Friendship> query, int pageSize);
         (bool hasNext, bool hasPrevious, IList<Friendship> results) ProcessPagedResults(IList<Friendship> results, int pageSize, Guid? cursor);
         IList<Guid> GetCommonFriendsIds(IList<Friendship> results, Guid? currentUserId);
-        
+
     }
 }

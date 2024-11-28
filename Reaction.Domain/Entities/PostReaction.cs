@@ -1,5 +1,5 @@
 ﻿using InfinityNetServer.BuildingBlocks.Domain.Entities;
-using InfinityNetServer.Services.Reaction.Domain.Enums;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
