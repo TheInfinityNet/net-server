@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
+﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.Services.Post.Application.DTOs.Orther;
 using InfinityNetServer.Services.Post.Application.DTOs.Requests;
@@ -12,7 +11,7 @@ using System.Linq;
 
 namespace InfinityNetServer.Services.Post.Presentation.Mappers;
 
-public class PostMappers : Profile
+public class PostMappers : AutoMapper.Profile
 {
     public PostMappers()
     {

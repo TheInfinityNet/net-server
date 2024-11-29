@@ -1,4 +1,3 @@
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.MVC;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Serilog;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +14,7 @@ using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Jwt;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Localization;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Metric;
 using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Web;
 
 namespace InfinityNetServer.Gateways.OcelotGateway.Presentaition.Configurations;
 

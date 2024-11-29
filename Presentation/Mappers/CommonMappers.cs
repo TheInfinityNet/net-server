@@ -189,7 +189,8 @@ public class CommonMappers : Profile
         CreateMap<Application.Protos.PreviewFileMetadata, PreviewFileMetadata>();
 
         CreateMap<Application.Protos.ProfileIdWithMutualCount, ProfileIdWithMutualCount>().ReverseMap();
+
         CreateMap<UserProfileResponse, FriendSuggestionResponse>()
-           .ForMember(dest => dest.Status, opt => opt.Ignore());
+            .ForMember(dest => dest.Status, opt => opt.Ignore());
     }
 }

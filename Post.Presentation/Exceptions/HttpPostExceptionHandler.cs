@@ -64,9 +64,9 @@ namespace InfinityNetServer.Services.Post.Presentation.Exceptions
 
         private Dictionary<string, string> GetDetailedErrors(PostError error)
         {
-            return error.ToString() switch
+            return error switch
             {
-                nameof(PostError.INVALID_POST_TYPE) => new Dictionary<string, string>
+                PostError e when e == PostError.INVALID_POST_TYPE => new Dictionary<string, string>
                 {
                     { "type", localizer[error.Code].ToString() }
                 },

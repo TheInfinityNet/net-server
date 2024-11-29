@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 using InfinityNetServer.BuildingBlocks.Presentation.Exceptions;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
-namespace InfinityNetServer.BuildingBlocks.Presentation.Configuration.MVC;
+namespace InfinityNetServer.BuildingBlocks.Presentation.Configuration.Web;
 
 public static class WebApiConfiguration
 {

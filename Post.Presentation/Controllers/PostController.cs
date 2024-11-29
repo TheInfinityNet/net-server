@@ -177,9 +177,9 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                     .Select(item => item.Parent.OwnerId))
                 .Concat(result.Items
                     .Where(item => item.Type == PostType.Share && item.Parent.Type == PostType.MultiMedia)
-                    .SelectMany(item => item.Parent.SubPosts
-                        .Select(p => p.OwnerId)))
+                    .SelectMany(item => item.Parent.SubPosts.Select(p => p.OwnerId)))
                 .Distinct();
+            profileIds.ToList().Add(profileId);
 
             // Nạp toàn bộ profiles cần thiết
             var profiles = await profileClient.GetProfiles(profileIds.Select(id => id.ToString()).ToList());
@@ -254,9 +254,11 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                     // Map TagFacets
                     postResponse.Content.TagFacets = postResponse.Content.TagFacets.Select(tagFacet =>
                     {
-                        if (profileDict.TryGetValue(tagFacet.Profile.Id, out var profile))
-                            tagFacet.Profile = mapper.Map<PreviewProfileResponse>(profile);
-                        tagFacet.Profile.Avatar = null;
+                        if (profileDict.TryGetValue(tagFacet.Profile.Id, out var profile)) 
+                        {
+                            tagFacet.Profile.Id = profile.Id;
+                            tagFacet.Profile.Type = profile.Type;
+                        }
                         return tagFacet;
                     }).ToList();
 
@@ -290,8 +292,10 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                                 subPostResponse.Content.TagFacets = subPostResponse.Content.TagFacets.Select(tagFacet =>
                                 {
                                     if (profileDict.TryGetValue(tagFacet.Profile.Id, out var profile))
-                                        tagFacet.Profile = mapper.Map<PreviewProfileResponse>(profile);
-                                    tagFacet.Profile.Avatar = null;
+                                    {
+                                        tagFacet.Profile.Id = profile.Id;
+                                        tagFacet.Profile.Type = profile.Type;
+                                    }
                                     return tagFacet;
                                 }).ToList();
 
@@ -330,7 +334,10 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                                 parentResponse.Content.TagFacets = parentResponse.Content.TagFacets.Select(tagFacet =>
                                 {
                                     if (profileDict.TryGetValue(tagFacet.Profile.Id, out var profile))
-                                        tagFacet.Profile = mapper.Map<PreviewProfileResponse>(profile);
+                                    {
+                                        tagFacet.Profile.Id = profile.Id;
+                                        tagFacet.Profile.Type = profile.Type;
+                                    }
                                     return tagFacet;
                                 }).ToList();
 
@@ -359,6 +366,17 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                                         parentResponse.Aggregates = await Task.WhenAll(postItem.Parent.SubPosts.Select(subPost =>
                                         {
                                             var subPostResponse = mapper.Map<BasePostResponse>(subPost);
+
+                                            // Map TagFacets
+                                            subPostResponse.Content.TagFacets = subPostResponse.Content.TagFacets.Select(tagFacet =>
+                                            {
+                                                if (profileDict.TryGetValue(tagFacet.Profile.Id, out var profile))
+                                                {
+                                                    tagFacet.Profile.Id = profile.Id;
+                                                    tagFacet.Profile.Type = profile.Type;
+                                                }
+                                                return tagFacet;
+                                            }).ToList();
 
                                             // Process SubPost Owner
                                             if (profileDict.TryGetValue(subPost.OwnerId, out var subOwnerProfile))

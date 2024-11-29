@@ -1,4 +1,3 @@
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.MVC;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Serilog;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -31,6 +30,7 @@ using InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ;
 using InfinityNetServer.Services.File.Application.Consumers;
 using InfinityNetServer.Services.File.Application.Usecases;
 using InfinityNetServer.Services.File.Presentation.Mappers;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Web;
 
 namespace InfinityNetServer.Services.File.Presentation.Configurations;
 

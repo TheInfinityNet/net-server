@@ -1,19 +1,16 @@
-﻿using InfinityNetServer.BuildingBlocks.Domain.Enums;
+﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace InfinityNetServer.Services.Profile.Application.DTOs.Requests
 {
-    public sealed record UpdateUserProfileRequest
+    public sealed record UpdateUserProfileRequest : BaseProfileRequest
     {
 
         [Required(ErrorMessage = "Required.Username")]
         [StringLength(100, MinimumLength = 10, ErrorMessage = "StringLength.Username")]
         public string Username { get; set; }
-
-        [Required(ErrorMessage = "Required.MobileNumber")]
-        [Phone(ErrorMessage = "Phone.MobileNumber")]
-        public string MobileNumber { get; set; }
 
         [Required(ErrorMessage = "Required.FirstName")]
         [StringLength(100, MinimumLength = 1, ErrorMessage = "StringLength.FirstName")]

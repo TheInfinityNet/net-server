@@ -1,4 +1,3 @@
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.MVC;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Serilog;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -25,6 +24,7 @@ using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Grpc;
 using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
 using InfinityNetServer.Services.Profile.Presentation.Mappers;
 using InfinityNetServer.BuildingBlocks.Presentation.Services;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Web;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Configurations;
 

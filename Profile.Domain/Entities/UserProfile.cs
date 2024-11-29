@@ -21,7 +21,7 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
 
         [MaxLength(50)]
         [Column("middle_name")]
-        public string? MiddleName { get; set; } = null;
+        public string MiddleName { get; set; }
 
         [Required]
         [MaxLength(50)]
@@ -37,7 +37,7 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
         public Gender Gender { get; set; } = Gender.Other;
 
         [Column("bio", TypeName = "text")]
-        public string? Bio { get; set; } = null;
+        public string Bio { get; set; }
 
         [ForeignKey("Id")]
         public virtual Profile Profile { get; set; }

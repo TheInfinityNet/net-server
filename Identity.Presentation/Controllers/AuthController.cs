@@ -2,7 +2,6 @@
 using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
-using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
@@ -15,7 +14,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -31,6 +29,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             IAuthService authService,
             IAccountService accountService,
             CommonProfileClient profileClient,
+            CommonFileClient fileClient,
             IMessageBus messageBus) : BaseApiController(authenticatedUserService)
     {
 
@@ -108,6 +107,12 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 
             var userProfile = await profileClient.GetUserProfile(account.DefaultUserProfileId.ToString());
             userProfile.AccountId = account.Id;
+
+            if (userProfile.Avatar != null)
+                userProfile.Avatar = await fileClient.GetPhotoMetadata(userProfile.Avatar.Id.ToString());
+
+            if (userProfile.Cover != null)
+                userProfile.Cover = await fileClient.GetPhotoMetadata(userProfile.Cover.Id.ToString());
 
             return Ok(new SignInResponse
             (

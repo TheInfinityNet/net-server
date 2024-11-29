@@ -1,4 +1,5 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
+﻿using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.Services.Profile.Application;
@@ -7,6 +8,7 @@ using InfinityNetServer.Services.Profile.Domain.Entities;
 using InfinityNetServer.Services.Profile.Domain.Repositories;
 using InfinityNetServer.Services.Profile.Infrastructure.Repositories;
 using MassTransit;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System;
@@ -19,13 +21,12 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
     public class UserProfileService(
         IUserProfileRepository _userProfileRepository,
         ILogger<UserProfileService> _logger,
-        IStringLocalizer<ProfileSharedResource> _localizer,
         CommonRelationshipClient relationshipClient
         ) : IUserProfileService
     {
         public async Task<CursorPagedResult<UserProfile>> GetFriendRequests(string profileId, string cursor, int pageSize)
         {
-            var profile = await GetUserProfileById(profileId);
+            var profile = await GetById(profileId);
             IList<string> pendingRequests = await relationshipClient.GetRequestsProfiles(profileId);
             IList<string> blockerIds = await relationshipClient.GetBlockerIds(profileId.ToString());
             IList<string> blockeeIds = await relationshipClient.GetBlockeeIds(profileId.ToString());
@@ -51,7 +52,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
 
         public async Task<CursorPagedResult<UserProfile>> GetFriends(string profileId, string cursor, int pageSize)
         {
-            var profile = await GetUserProfileById(profileId);
+            var profile = await GetById(profileId);
             IList<string> pendingRequests = await relationshipClient.GetFriendIds(profileId);
             IList<string> blockerIds = await relationshipClient.GetBlockerIds(profileId.ToString());
             IList<string> blockeeIds = await relationshipClient.GetBlockeeIds(profileId.ToString());
@@ -77,7 +78,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
 
         public async Task<CursorPagedResult<UserProfile>> GetFriendSentRequests(string profileId, string cursor, int pageSize)
         {
-            var profile = await GetUserProfileById(profileId);
+            var profile = await GetById(profileId);
             IList<string> pendingRequests = await relationshipClient.GetSentRequestProfiles(profileId);
             IList<string> blockerIds = await relationshipClient.GetBlockerIds(profileId.ToString());
             IList<string> blockeeIds = await relationshipClient.GetBlockeeIds(profileId.ToString());
@@ -103,7 +104,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
 
         public async Task<CursorPagedResult<UserProfile>> GetFriendSuggestions(string profileId, string cursor, int pageSize)
         {
-            var profile = await GetUserProfileById(profileId);
+            var profile = await GetById(profileId);
             IList<string> followeeIds = await relationshipClient.GetFolloweeIds(profileId);
             IList<string> friendIds = await relationshipClient.GetFriendIds(profileId);
             IList<string> pendingRequests = await relationshipClient.GetPendingRequestProfiles(profileId);
@@ -130,19 +131,30 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
             return await _userProfileRepository.GetPagedAsync(specification);
         }
 
-        public async Task<UserProfile> GetUserProfileByAccountId(string id)
-        {
-            return await _userProfileRepository.GetUserProfileByAccountIdAsync(Guid.Parse(id));
-        }
+        public async Task<UserProfile> GetByAccountId(string id)
+            => await _userProfileRepository.GetUserProfileByAccountIdAsync(Guid.Parse(id));
 
-        public async Task<UserProfile> GetUserProfileById(string id)
-        {
-            return await _userProfileRepository.GetByIdAsync(Guid.Parse(id));
-        }
+        public async Task<UserProfile> GetById(string id)
+            => await _userProfileRepository.GetByIdAsync(Guid.Parse(id));
 
-        public async Task<IList<UserProfile>> GetUserProfilesByIds(IList<string> ids)
+        public async Task<IList<UserProfile>> GetByIds(IList<string> ids)
+            => await _userProfileRepository.GetUserProfilesByIdsAsync(ids.Select(Guid.Parse).ToList());
+
+        public async Task<UserProfile> Update(UserProfile userProfile)
         {
-            return await _userProfileRepository.GetUserProfilesByIdsAsync(ids.Select(Guid.Parse).ToList());
+            UserProfile existedProfile = await GetById(userProfile.Id.ToString()) 
+                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            existedProfile.FirstName = userProfile.FirstName;
+            existedProfile.LastName = userProfile.LastName;
+            existedProfile.Username = userProfile.Username;
+            existedProfile.Birthdate = userProfile.Birthdate;
+            existedProfile.Gender = userProfile.Gender;
+            existedProfile.MobileNumber = userProfile.MobileNumber;
+
+            await _userProfileRepository.UpdateAsync(existedProfile);
+
+            return existedProfile;
         }
     }
 }

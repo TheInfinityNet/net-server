@@ -1,4 +1,3 @@
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.MVC;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Serilog;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -28,6 +27,7 @@ using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
 using Newtonsoft.Json.Converters;
 using InfinityNetServer.Services.Identity.Presentation.Validations;
 using InfinityNetServer.BuildingBlocks.Presentation.Services;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Web;
 
 namespace InfinityNetServer.Services.Identity.Presentation.Configurations;
 

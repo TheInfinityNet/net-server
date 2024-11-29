@@ -39,7 +39,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Exceptions
                 case IdentityException ex:
                     type = ex.Error.Type.ToString();
                     message = localizer[ex.Error.Code].ToString();
-                    errors = GetDetailedErrors(ex.Error, nameof(ex.Error));
+                    errors = GetDetailedErrors(ex.Error);
 
                     logger.LogError("App Exception: {Exception}", ex);
                     context.Response.StatusCode = ex.HttpStatus;
@@ -74,9 +74,8 @@ namespace InfinityNetServer.Services.Identity.Presentation.Exceptions
             }
         }
 
-        private Dictionary<string, string> GetDetailedErrors(IdentityError error, string errorName)
+        private Dictionary<string, string> GetDetailedErrors(IdentityError error)
         {
-            logger.LogError("Unexpected Exception: {Exception}", errorName);
             return error switch
             {
                 IdentityError e when e == BaseError.VALIDATION_ERROR => new Dictionary<string, string>

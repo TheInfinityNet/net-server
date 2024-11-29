@@ -7,12 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Application\Application.csproj" />
-    <ProjectReference Include="..\Profile.Domain\Profile.Domain.csproj" />
+    <Compile Remove="GrpcClients\**" />
+    <EmbeddedResource Remove="GrpcClients\**" />
+    <None Remove="GrpcClients\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="GrpcClients\" />
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Profile.Domain\Profile.Domain.csproj" />
   </ItemGroup>
 
 </Project>

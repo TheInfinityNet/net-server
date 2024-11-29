@@ -1,11 +1,10 @@
-﻿using Bogus.DataSets;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
+﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
 using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace InfinityNetServer.Services.Profile.Application.DTOs.Requests
 {
-    public sealed class UserProfileRequest : BaseProfileRequest
+    public sealed record UserProfileRequest : BaseProfileRequest
     {
 
         [Required(ErrorMessage = "Required.Username")]
@@ -28,10 +27,5 @@ namespace InfinityNetServer.Services.Profile.Application.DTOs.Requests
         public string Gender { get; set; }
 
         public string Bio { get; set; }
-
-        protected override void SetName()
-        {
-            Name = FirstName + " " + (MiddleName.Length != 0 ? MiddleName + " " : "") + LastName;
-        }
     }
 }

@@ -21,7 +21,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
         public override async Task<PreviewFriendsResponse> getPreviewFriends(ProfilesRequest request, ServerCallContext context)
         {
             logger.LogInformation("GetFriendsOfProfile");
-            var source = await userProfileService.GetUserProfilesByIds(request.Ids);
+            var source = await userProfileService.GetByIds(request.Ids);
             var response = new PreviewFriendsResponse();
             response.Friends.AddRange(source.Select(mapper.Map<UserProfileResponse>).ToList());
             return response;
@@ -77,7 +77,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
         public override async Task<UserProfileResponse> getUserProfile(ProfileRequest request, ServerCallContext context)
         {
             logger.LogInformation("GetUserProfile called with ProfileId: {ProfileId}", request.Id);
-            var source = await userProfileService.GetUserProfileById(request.Id);
+            var source = await userProfileService.GetById(request.Id);
             source.AvatarId ??= Guid.Empty;
             source.CoverId ??= Guid.Empty;
             return mapper.Map<UserProfileResponse>(source);

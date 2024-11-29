@@ -1,4 +1,3 @@
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.MVC;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Serilog;
 using InfinityNetServer.BuildingBlocks.Infrastructure.Bus;
 using Microsoft.AspNetCore.Builder;
@@ -10,6 +9,7 @@ using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Metric;
 using InfinityNetServer.Services.Mail.Application.Consumers;
 using InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ;
 using InfinityNetServer.Services.Mail.Application.Usecases;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Web;
 
 namespace InfinityNetServer.Services.Mail.Presentation.Configurations;
 

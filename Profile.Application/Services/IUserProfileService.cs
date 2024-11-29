@@ -7,11 +7,13 @@ namespace InfinityNetServer.Services.Profile.Application.Services
 {
     public interface IUserProfileService
     {
-        Task<UserProfile> GetUserProfileById(string id);
+        Task<UserProfile> GetById(string id);
 
-        Task<UserProfile> GetUserProfileByAccountId(string id);
+        Task<UserProfile> GetByAccountId(string id);
 
-        Task<IList<UserProfile>> GetUserProfilesByIds(IList<string> ids);
+        Task<IList<UserProfile>> GetByIds(IList<string> ids);
+
+        Task<UserProfile> Update(UserProfile userProfile);
 
         Task<CursorPagedResult<UserProfile>> GetFriendSuggestions(string profileId, string cursor, int pageSize);
 
