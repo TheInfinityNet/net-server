@@ -1,11 +1,8 @@
-﻿using System;
-using InfinityNetServer.Services.Comment.Application.DTOs.Responses;
-using InfinityNetServer.Services.Comment.Domain.Entities;
-using AutoMapper;
+﻿using InfinityNetServer.Services.Comment.Application.DTOs.Responses;
 
 namespace InfinityNetServer.Services.Comment.Presentation.Mappers
 {
-    public class CommentMapper : Profile
+    public class CommentMapper : AutoMapper.Profile
     {
         public CommentMapper()
         {

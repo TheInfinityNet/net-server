@@ -1,8 +1,6 @@
-﻿using AutoMapper;
+﻿namespace InfinityNetServer.Services.Comment.Presentation.Mappers;
 
-namespace InfinityNetServer.Services.Comment.Presentation.Mappers;
-
-public class CommentMappers : Profile
+public class CommentMappers : AutoMapper.Profile
 {
     public CommentMappers()
     {

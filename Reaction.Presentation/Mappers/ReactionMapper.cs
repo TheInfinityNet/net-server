@@ -1,10 +1,9 @@
-using AutoMapper;
-using InfinityNetServer.Services.Reaction.Domain.Entities;
 using InfinityNetServer.Services.Reaction.Application.DTOs.Requests;
+using InfinityNetServer.Services.Reaction.Domain.Entities;
 
 namespace InfinityNetServer.Services.Reaction.Presentation.Mappers
 {
-    public class ReactionMapper : Profile
+    public class ReactionMapper : AutoMapper.Profile
     {
         public ReactionMapper()
         {
