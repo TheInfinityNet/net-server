@@ -100,47 +100,39 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
             };
 
         }
-        public async Task<DeleteCommentResponse> DeleteCommentAsync(DeleteCommentRequest request)
+        public async Task<DeleteCommentResponse> DeleteCommentAsync(Guid commentId)
         {
-            if (request.CommentId == Guid.Empty)
+            if (commentId == Guid.Empty)
                 return new DeleteCommentResponse(false, "Comment ID is invalid.");
 
-            if (request.DeletedBy == Guid.Empty)
-                return new DeleteCommentResponse(false, "DeletedBy is invalid.");
-
-            var isDeleted = await _commentRepository.DeleteCommentAsync(request.CommentId, request.DeletedBy);
+            var isDeleted = await _commentRepository.DeleteCommentAsync(commentId);
 
             if (!isDeleted)
                 return new DeleteCommentResponse(false, "Comment not found or already deleted.");
 
             return new DeleteCommentResponse(true, "Comment deleted successfully.");
         }
-        public async Task<UpdateCommentResponse> UpdateCommentAsync(UpdateCommentRequest request)
+        public async Task<UpdateCommentResponse> UpdateCommentAsync(Guid commentId, UpdateCommentRequest request)
         {
-            if (request.CommentId == Guid.Empty)
-                return new UpdateCommentResponse(false, "Comment ID is invalid.");
-
             if (request.UpdatedBy == Guid.Empty)
                 return new UpdateCommentResponse(false, "UpdatedBy is invalid.");
-
-            var comment = await _commentRepository.GetByIdAsync(request.CommentId);
+            var comment = await _commentRepository.GetByIdAsync(commentId);
 
             if (comment == null)
                 return new UpdateCommentResponse(false, "Comment not found.");
-
             if (comment.IsDeleted)
                 return new UpdateCommentResponse(false, "Comment has been deleted.");
 
             if (comment.ProfileId != request.UpdatedBy)
                 return new UpdateCommentResponse(false, "You are not allowed to update this comment.");
-
-            var isUpdated = await _commentRepository.UpdateCommentAsync(request.CommentId, request.NewContent);
+            var isUpdated = await _commentRepository.UpdateCommentAsync(commentId, request.NewContent);
 
             if (!isUpdated)
                 return new UpdateCommentResponse(false, "Failed to update comment.");
 
             return new UpdateCommentResponse(true, "Comment updated successfully.");
         }
+
 
 
         public async Task<List<ChildCommentResponse>> GetChildCommentsAsync(Guid parentCommentId)
@@ -169,7 +161,8 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
                         Text = comment.Content.Text,
                         TagFacets = tagFacets
                     },
-                    ReplyCount = replyCount
+                    ReplyCount = replyCount,
+                    ProfileId = comment.ProfileId.ToString()
                 };
 
                 result.Add(response);

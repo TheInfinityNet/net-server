@@ -1,4 +1,6 @@
-﻿using InfinityNetServer.Services.Comment.Application.DTOs.Requests;
+﻿using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
+using InfinityNetServer.Services.Comment.Application.DTOs.Requests;
 using InfinityNetServer.Services.Comment.Application.DTOs.Responses;
 using InfinityNetServer.Services.Comment.Application.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -9,36 +11,20 @@ using System.Threading.Tasks;
 namespace InfinityNetServer.Services.Comment.Presentation.Controllers
 {
     [ApiController]
-    [Route("api/comments")]
+    //[Route("comments")]
     public class CommentController : ControllerBase
     {
         private readonly ICommentService _commentService;
+        private readonly CommonProfileClient _commonProfileClient;
 
-        public CommentController(ICommentService commentService)
+        public CommentController(ICommentService commentService, CommonProfileClient commonProfileClient)
         {
             _commentService = commentService;
-        }
-
-        [HttpPost("comment-count/{postId}")]
-        public async Task<IActionResult> GetCommentCount(string postId)
-        {
-            try
-            {
-                var response = await _commentService.GetCommentCountAsync(postId);
-                return Ok(new { postId = response.PostId, commentCount = response.CommentCount });
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while processing your request.", details = ex.Message });
-            }
+            _commonProfileClient = commonProfileClient;
         }
 
         //[Authorize]
-        [HttpPost("preview-comment/{postId}")]
+        [HttpGet("preview-comment/{postId}")]
         public async Task<IActionResult> GetTopCommentWithMostReplies(string postId)
         {
             var response = await _commentService.GetTopCommentWithMostRepliesAsync(postId);
@@ -59,23 +45,40 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
 
             return Ok(response);
         }
-        [HttpPost("get-child-comments")]
-        public async Task<IActionResult> GetChildComments([FromBody] GetChildCommentsRequest request)
+        [HttpGet("{commentId}/replies")]
+        public async Task<IActionResult> GetChildComments(Guid commentId)
         {
-            if (request.ParentCommentId == Guid.Empty)
+            if (commentId == Guid.Empty)
             {
                 return BadRequest("Parent Comment ID is required.");
             }
 
-            var childComments = await _commentService.GetChildCommentsAsync(request.ParentCommentId);
+            var childComments = await _commentService.GetChildCommentsAsync(commentId);
 
-            if (childComments == null || !childComments.Any())
+            var profilesTasks = childComments.Select(async comment =>
             {
-                return NotFound("No child comments found.");
-            }
+                try
+                {
+                    var profileResponse = await _commonProfileClient.GetProfile(comment.ProfileId.ToString());
+
+                    comment.Profile = new SimpleProfileResponse
+                    {
+                        Username = profileResponse.Name,
+                        AvatarId = profileResponse.Avatar?.Id.ToString()
+                    };
+                }
+                catch (BaseException ex)
+                {
+                    comment.Profile = null;
+                }
+                return comment;
+            });
+
+            await Task.WhenAll(profilesTasks);
 
             return Ok(childComments);
         }
+
 
         [HttpPost("add-comment")]
         public async Task<ActionResult<AddCommentResponse>> AddComment([FromBody] AddCommentRequest request)
@@ -86,26 +89,32 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
             var response = await _commentService.AddCommentAsync(request);
             return Ok(response);
         }
-        [HttpDelete("delete")]
-        public async Task<IActionResult> DeleteComment([FromBody] DeleteCommentRequest request)
+        [HttpDelete("delete/{commentId}")]
+        public async Task<IActionResult> DeleteComment(Guid commentId)
         {
-            var response = await _commentService.DeleteCommentAsync(request);
+            var response = await _commentService.DeleteCommentAsync(commentId);
 
             if (!response.IsDeleted)
                 return NotFound(new { message = response.Message });
 
             return Ok(new { message = response.Message });
         }
-        [HttpPut("update")]
-        public async Task<IActionResult> UpdateComment([FromBody] UpdateCommentRequest request)
+        [HttpPut("update/{commentId}")]
+        public async Task<IActionResult> UpdateComment(Guid commentId, [FromBody] UpdateCommentRequest request)
         {
-            var response = await _commentService.UpdateCommentAsync(request);
+            if (commentId == Guid.Empty)
+            {
+                return BadRequest("Invalid comment ID.");
+            }
+
+            var response = await _commentService.UpdateCommentAsync(commentId, request);
 
             if (!response.Success)
                 return BadRequest(new { message = response.Message });
 
             return Ok(new { message = response.Message });
         }
+
 
         [HttpGet("count/{postId}")]
         public async Task<ActionResult<CommentCountResponse>> GetCommentCountByPostId(Guid postId)

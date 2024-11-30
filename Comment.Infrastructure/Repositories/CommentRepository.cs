@@ -62,7 +62,7 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
             await context.SaveChangesAsync();
             return comment;
         }
-        public async Task<bool> DeleteCommentAsync(Guid commentId, Guid deletedBy)
+        public async Task<bool> DeleteCommentAsync(Guid commentId)
         {
             var comment = await context.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
 
@@ -70,7 +70,7 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
                 return false;
 
             comment.IsDeleted = true;
-            comment.DeletedBy = deletedBy;
+            comment.DeletedBy = comment.ProfileId;
 
             context.Comments.Update(comment);
             await context.SaveChangesAsync();

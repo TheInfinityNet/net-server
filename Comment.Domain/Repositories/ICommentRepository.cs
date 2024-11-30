@@ -13,7 +13,7 @@ namespace InfinityNetServer.Services.Comment.Domain.Repositories
         Task<Entities.Comment> GetTopCommentWithMostRepliesAsync(Guid postId);
         Task<(List<Entities.Comment> Comments, int TotalCount)> GetCommentsByPostIdAsync(Guid postId, int pageSize, int pageNumber);
         Task<Entities.Comment> AddCommentAsync(Entities.Comment comment);
-        Task<bool> DeleteCommentAsync(Guid commentId, Guid deletedBy);
+        Task<bool> DeleteCommentAsync(Guid commentId);
         Task<bool> UpdateCommentAsync(Guid commentId, CommentContent newContent);
         Task<List<Entities.Comment>> GetChildCommentsAsync(Guid parentCommentId);
         Task<int> GetRepliesCommentAsync(Guid commentId);
