@@ -22,5 +22,10 @@ namespace InfinityNetServer.Services.Profile.Application.Services
         Task<CursorPagedResult<UserProfile>> GetFriendSentRequests(string profileId, string cursor, int pageSize);
 
         Task<CursorPagedResult<UserProfile>> GetFriends(string profileId, string cursor, int pageSize);
+
+        Task<CursorPagedResult<UserProfile>> GetBlockedList(string profileId, string cursor, int pageSize);
+
+        Task<CursorPagedResult<UserProfile>> GetFollowingList(string profileId, string cursor, int pageSize);
+        Task<CursorPagedResult<UserProfile>> GetFollowedList(string profileId, string cursor, int pageSize);
     }
 }

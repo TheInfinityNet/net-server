@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
@@ -34,6 +35,8 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         IUserProfileService userProfileService) : BaseApiController(authenticatedUserService)
     {
 
+
+        [Authorize]
         [EndpointDescription("Retrieve user profile")]
         [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
         [Authorize]

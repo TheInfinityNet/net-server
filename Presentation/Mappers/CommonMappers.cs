@@ -192,5 +192,7 @@ public class CommonMappers : Profile
 
         CreateMap<UserProfileResponse, FriendSuggestionResponse>()
             .ForMember(dest => dest.Status, opt => opt.Ignore());
+           
+        CreateMap<UserProfileResponse, BlockeeResponse>();
     }
 }

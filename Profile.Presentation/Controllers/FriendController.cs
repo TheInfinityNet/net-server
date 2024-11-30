@@ -287,5 +287,54 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             });
         }
 
+        [EndpointDescription("Retrieve blocked list")]
+        [ProducesResponseType(typeof(CursorPagedResult<BlockeeResponse>), StatusCodes.Status200OK)]
+        [Authorize]
+        [HttpGet("blocked-list")]
+        public async Task<IActionResult> GetBlookee([FromQuery] string nextCursor, [FromQuery] int limit = 10)
+        {
+            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
+                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            var _ = await userProfileService.GetById(currentProfileId)
+                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            var blookees = await userProfileService.GetBlockedList(currentProfileId, nextCursor, limit);
+
+            // Tập hợp toàn bộ các ID cần nạp trước
+            var profileIds = blookees.Items.Select(item => item.Id.ToString()).Distinct();
+            profileIds.ToList().Add(currentProfileId);
+
+            // Nạp toàn bộ profiles cần thiết
+            var profiles = await profileService.GetByIds(profileIds.ToList());
+            var profileDict = profiles.ToDictionary(p => p.Id, mapper.Map<PreviewProfileResponse>);
+
+            var photoMetadataIds = profiles
+                .Where(profile => profile.AvatarId != null)
+                    .Select(profile => profile.AvatarId)
+                .Distinct();
+
+            var photoMetadataTasks = photoMetadataIds.Select(async id =>
+            {
+                var metadata = await fileClient.GetPhotoMetadata(id.ToString());
+                return new { Id = id, Metadata = metadata ??= new PhotoMetadataResponse { Id = id.Value } };
+            });
+            var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
+
+            var result = blookees.Items
+                .Select(up => mapper.Map<BlockeeResponse>(mapper.Map<UserProfileResponse>(up)))
+                .ToList();
+
+            CursorPagedResult<BlockeeResponse> response = new()
+            {
+                Items = result,
+                NextCursor = blookees.NextCursor
+            };
+            return Ok(new
+            {
+                response
+            });
+        }
+
     }
 }

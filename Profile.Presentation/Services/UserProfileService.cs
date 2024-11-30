@@ -24,6 +24,70 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
         CommonRelationshipClient relationshipClient
         ) : IUserProfileService
     {
+        public async Task<CursorPagedResult<UserProfile>> GetBlockedList(string profileId, string cursor, int pageSize)
+        {
+            var profile = await GetById(profileId);
+            IList<string> blockeeIds = await relationshipClient.GetBlockeeIds(profileId.ToString());
+
+            var specification = new SpecificationWithCursor<UserProfile>
+            {
+                Criteria = userProfile =>
+                        blockeeIds.Contains(userProfile.Id.ToString()),
+                OrderFields = [
+                        new OrderField<UserProfile>
+                        {
+                            Field = x => x.CreatedAt,
+                            Direction = SortDirection.Descending
+                        }
+                    ],
+                Cursor = cursor,
+                PageSize = pageSize
+            };
+            return await _userProfileRepository.GetPagedAsync(specification);
+        }
+
+        public async Task<CursorPagedResult<UserProfile>> GetFollowedList(string profileId, string cursor, int pageSize)
+        {
+            var profile = await GetById(profileId);
+            IList<string> followerIds = await relationshipClient.GetFollowerIds(profileId);
+
+            var specification = new SpecificationWithCursor<UserProfile>
+            {
+                Criteria = userProfile =>
+                        followerIds.Contains(userProfile.Id.ToString()),
+                OrderFields = [
+                        new OrderField<UserProfile>
+                        {
+                            Field = x => x.CreatedAt,
+                            Direction = SortDirection.Descending
+                        }
+                    ],
+                Cursor = cursor,
+                PageSize = pageSize
+            };
+            return await _userProfileRepository.GetPagedAsync(specification);
+        }
+        public async Task<CursorPagedResult<UserProfile>> GetFollowingList(string profileId, string cursor, int pageSize)
+        {
+            var profile = await GetById(profileId);
+            IList<string> followeeIds = await relationshipClient.GetFolloweeIds(profileId);
+
+            var specification = new SpecificationWithCursor<UserProfile>
+            {
+                Criteria = userProfile =>
+                        followeeIds.Contains(userProfile.Id.ToString()),
+                OrderFields = [
+                        new OrderField<UserProfile>
+                        {
+                            Field = x => x.CreatedAt,
+                            Direction = SortDirection.Descending
+                        }
+                    ],
+                Cursor = cursor,
+                PageSize = pageSize
+            };
+            return await _userProfileRepository.GetPagedAsync(specification);
+        }
         public async Task<CursorPagedResult<UserProfile>> GetFriendRequests(string profileId, string cursor, int pageSize)
         {
             var profile = await GetById(profileId);

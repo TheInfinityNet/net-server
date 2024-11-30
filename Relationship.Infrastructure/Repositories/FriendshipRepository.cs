@@ -1,4 +1,5 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
+﻿using Grpc.Core;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositories;
 using InfinityNetServer.Services.Relationship.Domain.Entities;
 using InfinityNetServer.Services.Relationship.Domain.Enums;
@@ -25,6 +26,9 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
                     (f.SenderId == profileId || f.ReceiverId == profileId) &&
                     f.Status == FriendshipStatus.Connected);
 
+        public async Task<Friendship> HasFriendship(Guid senderId, Guid receiverId)
+        => await context.Friendships.FirstOrDefaultAsync(f =>
+                    (f.SenderId.Equals(senderId) && f.ReceiverId.Equals(receiverId)) || (f.SenderId.Equals(receiverId) && f.ReceiverId.Equals(senderId)));
 
         public async Task<Friendship> GetByStatus(FriendshipStatus status, Guid senderId, Guid receiverId)
             => await context.Friendships.FirstOrDefaultAsync(f =>
