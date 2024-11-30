@@ -14,6 +14,5 @@ namespace InfinityNetServer.Services.Relationship.Domain.Repositories
         Task<IList<Guid>> GetAllFolloweeIdsAsync(Guid profileId);
 
         Task<IList<Guid>> GetAllFollowerIdsAsync(Guid profileId);
-
     }
 }

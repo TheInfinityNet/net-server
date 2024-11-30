@@ -34,6 +34,9 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
         public async Task<bool> HasFriendship(string senderId, string receiverId, FriendshipStatus status)
             => await friendshipRepository.HasFriendship(Guid.Parse(senderId), Guid.Parse(receiverId), status);
 
+        public async Task<Friendship> HasFriendship(string senderId, string receiverId)
+            => await friendshipRepository.HasFriendship(Guid.Parse(senderId), Guid.Parse(receiverId));
+
         public async Task<Friendship> GetByStatus(FriendshipStatus status, string senderId, string receiverId)
             => await friendshipRepository.GetByStatus(status, Guid.Parse(senderId), Guid.Parse(receiverId));
 
@@ -167,6 +170,15 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
             return list.Select(x => x.ToString()).ToList();
         }
 
-        
+        public async Task<UnfriendResponse> Unfriend(Guid friendshipId)
+        {
+            await friendshipRepository.DeleteAsync(friendshipId);
+            return new UnfriendResponse
+            {
+                UserId = friendshipId,
+                Message = "Friend request canceled",
+                Status = "NotConnected"
+            };
+        }
     }
 }
