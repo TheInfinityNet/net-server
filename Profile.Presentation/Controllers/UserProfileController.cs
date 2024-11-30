@@ -39,7 +39,6 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         IMessageBus messageBus) : BaseApiController(authenticatedUserService)
     {
 
-
         [EndpointDescription("Update user profile")]
         [HttpPut]
         [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
@@ -115,13 +114,13 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 itemResponse.MutualFriendsCount = resultHasCountDict.TryGetValue(item.Id.ToString(), out var a) ? a.Count : 0;
                 result.Add(itemResponse);
             }
-            CursorPagedResult<FriendSuggestionResponse> a = new (){
+            CursorPagedResult<FriendSuggestionResponse> response = new (){
                 Items = result,
                 NextCursor = suggestions.NextCursor
             };
             return Ok(new
             {
-                a
+                response
             });
         }
 
@@ -148,15 +147,14 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 itemResponse.MutualFriendsCount = resultHasCountDict.TryGetValue(item.Id.ToString(), out var a) ? a.Count : 0;
                 result.Add(itemResponse);
             }
-            CursorPagedResult<FriendSuggestionResponse> a = new()
+            CursorPagedResult<FriendSuggestionResponse> response = new()
             {
                 Items = result,
                 NextCursor = friendRequests.NextCursor
             };
             return Ok(new
             {
-                Items = result,
-                NextCursor = friendRequests.NextCursor
+                response
             });
         }
 
@@ -183,15 +181,14 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 itemResponse.MutualFriendsCount = resultHasCountDict.TryGetValue(item.Id.ToString(), out var a) ? a.Count : 0;
                 result.Add(itemResponse);
             }
-            CursorPagedResult<FriendSuggestionResponse> a = new()
+            CursorPagedResult<FriendSuggestionResponse> response = new()
             {
                 Items = result,
                 NextCursor = friendSentRequests.NextCursor
             };
             return Ok(new
             {
-                Items = result,
-                friendSentRequests.NextCursor
+                response
             });
         }
 
@@ -218,15 +215,37 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 itemResponse.MutualFriendsCount = resultHasCountDict.TryGetValue(item.Id.ToString(), out var a) ? a.Count : 0;
                 result.Add(itemResponse);
             }
-            CursorPagedResult<FriendSuggestionResponse> a = new()
+            CursorPagedResult<FriendSuggestionResponse> response = new()
             {
                 Items = result,
                 NextCursor = friends.NextCursor
             };
             return Ok(new
             {
+                response
+            });
+        }
+        [Authorize]
+        [HttpGet("blocked-list")]
+        [EndpointDescription("Retrieve blocked list")]
+        [ProducesResponseType(typeof(CursorPagedResult<BlockeeResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetBlookee([FromQuery] string? nextCursor, [FromQuery] int limit = 10)
+        {
+            string? currentUserId = authenticatedUserService.GetAuthenticatedProfileId().ToString();
+
+            var blookees = await userProfileService.GetBlockedList(currentUserId, nextCursor, limit);
+
+            var result = blookees.Items
+                .Select(up => mapper.Map<BlockeeResponse>(mapper.Map<UserProfileResponse>(up)))
+                .ToList();
+            CursorPagedResult<BlockeeResponse> response = new()
+            {
                 Items = result,
-                friends.NextCursor
+                NextCursor = blookees.NextCursor
+            };
+            return Ok(new
+            {
+                response
             });
         }
     }

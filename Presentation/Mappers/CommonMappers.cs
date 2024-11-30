@@ -191,5 +191,6 @@ public class CommonMappers : Profile
         CreateMap<Application.Protos.ProfileIdWithMutualCount, ProfileIdWithMutualCount>().ReverseMap();
         CreateMap<UserProfileResponse, FriendSuggestionResponse>()
            .ForMember(dest => dest.Status, opt => opt.Ignore());
+        CreateMap<UserProfileResponse, BlockeeResponse>();
     }
 }
