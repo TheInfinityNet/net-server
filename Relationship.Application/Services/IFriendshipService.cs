@@ -22,7 +22,7 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
         public Task<IList<string>> GetPreviewFriendIds(string profileId);
         public Task<SendRequestResponse> SendRequest(string senderId, string receiverId);
         public Task<CancelRequestResponse> CancelRequest(Guid requestId);
-        public Task<AcceptRequestResponse> AcceptRequest(string senderId, string receiverId);
+        public Task<AcceptRequestResponse> AcceptRequest(Friendship friendship);
         public Task<RejectRequestResponse> RejectRequest(Guid requestId);
         public Task<UnfriendResponse> Unfriend(Guid friendshipId);
         public Task<IList<ProfileIdWithMutualCount>> GetCountMutualFriend(string currentProfileId, IList<string> profileIds);

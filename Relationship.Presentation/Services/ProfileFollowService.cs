@@ -48,7 +48,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
             {
                 Message = "UnFollowed",
                 Status = "UnFollowed",
-                UserId = Guid.Parse(followId)
+                UserId = followId
             };
         }
         public async Task<ProfileFollow> GetByFollowerIdAndFolloweeIdAsync(string followerId, string followeeId)

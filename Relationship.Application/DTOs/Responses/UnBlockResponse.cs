@@ -8,7 +8,7 @@ namespace InfinityNetServer.Services.Relationship.Application.DTOs.Responses
 {
     public class UnBlockResponse
     {
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
         public string Message { get; set; }
         public string Status { get; set; }
     }
