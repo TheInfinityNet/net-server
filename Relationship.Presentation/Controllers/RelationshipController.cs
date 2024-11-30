@@ -62,6 +62,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         {
             Guid? currentUserId = GetCurrentProfileId();
             var requestResponse = await friendshipService.SendRequest(currentUserId.ToString(), request);
+            await profileFollowService.Follow(currentUserId.ToString(), request);
             return Ok(requestResponse);
         }
 
@@ -92,6 +93,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
                 return NotFound();
             }
             var requestResponse = await friendshipService.AcceptRequest(friendship);
+            await profileFollowService.Follow(currentUserId.ToString(), request);
             return Ok(requestResponse);
         }
 
