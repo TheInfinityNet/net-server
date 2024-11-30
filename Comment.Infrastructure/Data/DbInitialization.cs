@@ -2,7 +2,6 @@
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
-using InfinityNetServer.Services.Comment.Domain.Entities;
 using InfinityNetServer.Services.Comment.Domain.Repositories;
 using MassTransit.Util;
 using Microsoft.AspNetCore.Builder;
@@ -225,10 +224,10 @@ public static class DbInitialization
         return whoCantSeeDict;
     }
 
-    private static CommentContent GenerateCommentContent(IList<ProfileIdWithName> profileIdsWithNames)
+    private static Domain.Entities.CommentContent GenerateCommentContent(IList<ProfileIdWithName> profileIdsWithNames)
     {
         var faker = new Faker();
-        var commentContent = new CommentContent();
+        var commentContent = new Domain.Entities.CommentContent();
         var textBuilder = new StringBuilder(faker.Lorem.Sentence(50));
         var usedProfileIdsWithNames = new HashSet<string>();
 

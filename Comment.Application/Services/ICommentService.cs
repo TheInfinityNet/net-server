@@ -1,7 +1,6 @@
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Comment;
+using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.Services.Comment.Application.DTOs.Requests;
 using InfinityNetServer.Services.Comment.Application.DTOs.Responses;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -9,14 +8,28 @@ namespace InfinityNetServer.Services.Comment.Application.Services
 {
     public interface ICommentService
     {
-        Task<CommentCountResponse> GetCommentCountAsync(string postId);
-        Task<CommentPreviewResponse> GetTopCommentWithMostRepliesAsync(string postId);
-        Task<GetCommentsResponse> GetCommentsForPostAsync(GetCommentsRequest request);
-        Task<AddCommentResponse> AddCommentAsync(AddCommentRequest request);
-        Task<DeleteCommentResponse> DeleteCommentAsync(DeleteCommentRequest request);
-        Task<UpdateCommentResponse> UpdateCommentAsync(UpdateCommentRequest request);
-        Task<List<ChildCommentResponse>> GetChildCommentsAsync(Guid parentCommentId);
-        Task<int> GetRepliesCommentAsync(Guid commentId);
-        Task<int> CountCommentsByPostIdAsync(Guid postId);
+
+        public Task<Domain.Entities.Comment> GetById(string id);
+
+        public Task<int> CountByPostId(string postId);
+
+        public Task<int> CountByParentId(string parentId);
+
+        public Task<IList<int>> CountByParentIds(IList<string> parentIds);
+
+        public Task<IList<Domain.Entities.Comment>> GetPopularComments(string postId);
+
+        public Task<GetCommentsResponse> GetByPostId(GetCommentsRequest request);
+
+        public Task ConfirmSave(string id, string profileId, string fileMetadataId, IMessageBus messageBus);
+
+        public Task<Domain.Entities.Comment> Create(Domain.Entities.Comment entity);
+
+        public Task<Domain.Entities.Comment> Update(Domain.Entities.Comment entity);
+
+        public Task<Domain.Entities.Comment> SoftDelete(string commentId);
+
+        //Task<List<ChildCommentResponse>> GetChildCommentsAsync(string parentCommentId);
+
     }
 }

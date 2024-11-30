@@ -10,30 +10,30 @@ namespace InfinityNetServer.BuildingBlocks.Domain.Repositories
     public interface ISqlRepository<TEntity, TId> where TEntity : AuditEntity<TId>
     {
 
-        Task<List<TEntity>> GetAllAsync();
+        public Task<List<TEntity>> GetAllAsync();
 
-        Task<TEntity> GetByIdAsync(TId id);
+        public Task<TEntity> GetByIdAsync(TId id);
 
-        Task CreateAsync(IEnumerable<TEntity> items);
+        public Task CreateAsync(IEnumerable<TEntity> items);
 
-        Task<TEntity> CreateAsync(TEntity item);
+        public Task<TEntity> CreateAsync(TEntity item);
 
-        Task UpdateAsync(TEntity item);
+        public Task<TEntity> UpdateAsync(TEntity item);
 
-        Task DeleteAsync(TId id);
+        public Task<TEntity> DeleteAsync(TId id);
 
-        Task<List<TEntity>> FindAsync(Func<TEntity, bool> predicate);
+        public Task<TEntity> SoftDeleteAsync(TId id);
 
-        Task<bool> ExistsAsync(TId id);
+        public Task<List<TEntity>> FindAsync(Func<TEntity, bool> predicate);
 
-        Task<int> CountAsync();
+        public Task<bool> ExistsAsync(TId id);
+
+        public Task<int> CountAsync();
+
+        public Task<PagedResult<TEntity>> GetPagedAsync(ISqlSpecification<TEntity> spec);
 
         public Task<CursorPagedResult<TEntity>> GetPagedAsync(SpecificationWithCursor<TEntity> spec);
 
-        // Phương thức sử dụng Specification
-        Task<PagedResult<TEntity>> GetPagedAsync(ISqlSpecification<TEntity> spec);
-
-        Task<PagedCursorResult<TEntity>> GetPagedCursorAsync(ISqlSpecification<TEntity> spec, int pageSize, Guid? cursor = null);
     }
 
 }

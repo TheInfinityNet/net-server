@@ -6,7 +6,7 @@ namespace InfinityNetServer.Services.Comment.Application.DTOs.Responses
 {
     public class GetCommentsResponse
     {
-        public List<CommentPreviewResponse> Comments { get; set; } = new();
+        public List<CommentResponse> Comments { get; set; } = new();
         public int TotalCount { get; set; }
         public int CurrentPage { get; set; }
         public int PageSize { get; set; }

@@ -1,5 +1,4 @@
 ﻿using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositories;
-using InfinityNetServer.Services.Comment.Domain.Entities;
 using InfinityNetServer.Services.Comment.Domain.Repositories;
 using InfinityNetServer.Services.Comment.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -17,26 +16,23 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
 
         public async Task<IList<Domain.Entities.Comment>> GetAllMediaCommentAsync()
             => await context.Comments.Where(c => c.FileMetadataId != null).ToListAsync();
-        public async Task<int> CountCommentsByPostIdAsync(Guid postId)
-        {
-            try
-            {
-                return await context.Comments.CountAsync(c => c.PostId == postId && !c.IsDeleted);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in CountCommentsByPostIdAsync: {ex.Message}");
-                throw;
-            }
-        }
-        public async Task<Domain.Entities.Comment> GetTopCommentWithMostRepliesAsync(Guid postId)
-        {
-            return await context.Comments
+
+        public async Task<int> CountByPostIdAsync(Guid postId)
+            => await context.Comments.CountAsync(c => c.PostId == postId && !c.IsDeleted);
+
+        public async Task<int> CountByParentIdAsync(Guid parentId)
+            => await context.Comments.Where(c => c.ParentId == parentId && !c.IsDeleted).CountAsync();
+
+        public async Task<IList<int>> CountByParentIdsAsync(IList<Guid> parentIds)
+            => await context.Comments.Where(c => parentIds.Contains(c.Id) && !c.IsDeleted)
+            .Select(c => c.RepliesComments.Where(r => !r.IsDeleted).Count()).ToListAsync();
+
+        public async Task<IList<Domain.Entities.Comment>> GetPopularCommentsAsync(Guid postId)
+            => await context.Comments
                 .Where(c => c.PostId == postId && !c.IsDeleted && c.ParentId == null)
-                .OrderByDescending(c => c.RepliesComments.Count)
-                .FirstOrDefaultAsync();
-        }
-        public async Task<(List<Domain.Entities.Comment>, int)> GetCommentsByPostIdAsync(Guid postId, int pageSize, int pageNumber)
+                .OrderByDescending(c => c.RepliesComments.Count).Take(5).ToListAsync();
+
+        public async Task<(List<Domain.Entities.Comment>, int)> GetAllByPostIdAsync(Guid postId, int pageSize, int pageNumber)
         {
             var query = context.Comments.Where(c => c.PostId == postId && !c.IsDeleted && c.ParentId == null);
 
@@ -50,65 +46,6 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
 
             return (comments, totalCount);
         }
-        public async Task<List<Domain.Entities.Comment>> GetChildCommentsAsync(Guid parentCommentId)
-        {
-            return await context.Comments
-                .Where(c => c.ParentId == parentCommentId && !c.IsDeleted)
-                .ToListAsync();
-        }
-        public async Task<Domain.Entities.Comment> AddCommentAsync(Domain.Entities.Comment comment)
-        {
-            await context.Comments.AddAsync(comment);
-            await context.SaveChangesAsync();
-            return comment;
-        }
-        public async Task<bool> DeleteCommentAsync(Guid commentId, Guid deletedBy)
-        {
-            var comment = await context.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
 
-            if (comment == null || comment.IsDeleted)
-                return false;
-
-            comment.IsDeleted = true;
-            comment.DeletedBy = deletedBy;
-
-            context.Comments.Update(comment);
-            await context.SaveChangesAsync();
-
-            return true;
-        }
-
-        public async Task<bool> UpdateCommentAsync(Guid commentId, CommentContent newContent)
-        {
-            var comment = await GetByIdAsync(commentId);
-
-            if (comment == null || comment.IsDeleted)
-                return false;
-
-            comment.Content = newContent;
-
-            context.Comments.Update(comment);
-            await context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<List<Domain.Entities.Comment?>> GetChildComments(Guid parentCommentId)
-        {
-            return await context.Comments
-                .Where(c => c.ParentId == parentCommentId)
-                .ToListAsync();
-        }
-
-        public async Task<int> GetRepliesCommentAsync(Guid commentId)
-        {
-            return await context.Comments
-                .Where(c => c.ParentId == commentId)
-                .CountAsync();
-        }
-
-        public async Task<int> CountByPostIdAsync(Guid postId)
-        {
-            return await context.Comments.CountAsync(c => c.PostId == postId && !c.IsDeleted);
-        }
     }
 }

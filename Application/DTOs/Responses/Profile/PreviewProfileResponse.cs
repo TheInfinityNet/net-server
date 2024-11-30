@@ -10,6 +10,8 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile
 
         public string Type { get; set; }
 
+        public string Name { get; set; }
+
         public PhotoMetadataResponse Avatar { get; set; }
 
     }

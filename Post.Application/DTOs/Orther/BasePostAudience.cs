@@ -9,9 +9,9 @@ namespace InfinityNetServer.Services.Post.Application.DTOs.Orther
 
         public string Type { get; set; } = PostAudienceType.Public.ToString();
 
-        public IList<BaseProfileResponse> Include { get; set; }
+        public IList<PreviewProfileResponse> Include { get; set; }
 
-        public IList<BaseProfileResponse> Exclude { get; set; }
+        public IList<PreviewProfileResponse> Exclude { get; set; }
 
     }
 }

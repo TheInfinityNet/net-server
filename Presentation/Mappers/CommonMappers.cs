@@ -129,8 +129,6 @@ public class CommonMappers : Profile
                 dest.Name = dest.GenerateName();
             });
 
-        CreateMap<BaseProfileResponse, PreviewProfileResponse>();
-
         CreateMap<Application.Protos.PhotoMetadataResponse, PhotoMetadataResponse>()
             .AfterMap((src, dest) =>
             {
@@ -150,14 +148,6 @@ public class CommonMappers : Profile
                 dest.DeletedAt = dest.DeletedAt?.ToLocalTime();
             });
 
-        CreateMap<Domain.Entities.TagFacet, TagFacet>()
-            .AfterMap((src, dest) =>
-            {
-                dest.Type = src.Type.ToString();
-                dest.Profile = new PreviewProfileResponse { Id = src.ProfileId };
-                dest.Index = new FacetIndex { Start = src.Start, End = src.End };
-            });
-
         CreateMap<Application.Protos.PreviewPostResponse, Application.DTOs.Responses.Post.PreviewPostResponse>()
             .AfterMap((src, dest) =>
             {
@@ -170,15 +160,27 @@ public class CommonMappers : Profile
                 if (src.FileMetadataId.Equals(Guid.Empty)) dest.FileMetadataId = null;
             });
 
-        CreateMap<Application.Protos.TagFacetResponse, Application.DTOs.Responses.Comment.CommentPreviewResponse.TagFacetResponse>()
-        .AfterMap((src, dest) =>
-        {
-            dest.Type = src.Type.ToString();
-        });
+        CreateMap<Application.Protos.TagFacet, TagFacet>()
+            .AfterMap((src, dest) =>
+            {
+                dest.Type = src.Type.ToString();
+                dest.Profile = new PreviewProfileResponse { Id = Guid.Parse(src.ProfileId) };
+                dest.Index = new FacetIndex { Start = src.Start, End = src.End };
+            });
 
-        CreateMap<Application.Protos.ContentResponse, Application.DTOs.Responses.Comment.CommentPreviewResponse.ContentResponse>();
+        CreateMap<Application.Protos.CommentContent, CommentContent>();
 
-        CreateMap<Application.Protos.CommentPreviewResponse, Application.DTOs.Responses.Comment.CommentPreviewResponse>();
+        CreateMap<Application.Protos.CommentResponse, Application.DTOs.Responses.Comment.CommentResponse>()
+            .AfterMap((src, dest) =>
+            {
+                dest.Profile = new PreviewProfileResponse { Id = Guid.Parse(src.ProfileId) };
+
+                if (src.ReplyCount > 0) dest.ReplyCount = src.ReplyCount;
+
+                //dest.Type = src.Type.ToString();
+                if (src.FileMetadataId != null)
+                    dest.Photo = new PhotoMetadataResponse { Id = Guid.Parse(src.FileMetadataId) };
+            });
 
         CreateMap<Application.Protos.AccountWithDefaultProfile, AccountWithDefaultProfile>();
 
@@ -190,9 +192,32 @@ public class CommonMappers : Profile
 
         CreateMap<Application.Protos.ProfileIdWithMutualCount, ProfileIdWithMutualCount>().ReverseMap();
 
+        // DTO -> DTO
+        CreateMap<BaseProfileResponse, PreviewProfileResponse>();
+
         CreateMap<UserProfileResponse, FriendSuggestionResponse>()
             .ForMember(dest => dest.Status, opt => opt.Ignore());
-           
+
         CreateMap<UserProfileResponse, BlockeeResponse>();
+
+        // Entity -> DTO
+        CreateMap<Domain.Entities.TagFacet, TagFacet>()
+            .AfterMap((src, dest) =>
+            {
+                dest.Type = src.Type.ToString();
+                dest.Profile = new PreviewProfileResponse { Id = src.ProfileId };
+                dest.Index = new FacetIndex { Start = src.Start, End = src.End };
+            });
+
+        CreateMap<Domain.Entities.TagFacet, Application.Protos.TagFacet>();
+
+        // DTO -> Entity
+        CreateMap<TagFacet, Domain.Entities.TagFacet>()
+            .AfterMap((src, dest) =>
+            {
+                dest.ProfileId = Guid.Parse(src.ProfileId);
+                dest.Start = src.Index.Start;
+                dest.End = src.Index.End;
+            });
     }
 }

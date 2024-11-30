@@ -600,7 +600,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCommentCountById(string id)
         {
-            int commentCount = await commentClient.GetCommentCount(id);
+            int commentCount = await commentClient.GetCommentCountByPostId(id);
             return Ok(commentCount);
         }
         /*
@@ -610,7 +610,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         [HttpPost("preview-comment/{postId}")]
         public async Task<IActionResult> GetTopCommentWithMostReplies(string postId)
         {
-            var response = await commentClient.GetCommentPreview(postId);
+            var response = await commentClient.GetPopularComments(postId);
 
             if (response == null)
                 return NotFound(new { message = "No comments found for the given post ID." });

@@ -38,29 +38,40 @@ message PreviewCommentResponse {
 }
 
 message CommentCountResponse {
+
 	int32 count = 1;
+
 }
 
-message CommentPreviewResponse {
-    string commentId = 1;
+message CommentResponse {
+
+    string id = 1;
+
     string profileId = 2;
-    ContentResponse content = 3;
-    int32 replyCount = 4;
-    google.protobuf.Timestamp createAt = 5;
+
+	string fileMetadataId = 3;
+
+    CommentContent content = 4;
+
+    int32 replyCount = 5;
+
+    google.protobuf.Timestamp createdAt = 6;
+
 }
 
-message ContentResponse {
+message CommentContent {
+
     string text = 1;
-    repeated TagFacetResponse tagFacets = 2;
+
+    repeated TagFacet tagFacets = 2;
+
 }
 
-message TagFacetResponse {
-    string type = 1;
-    int32 start = 2;
-    int32 end = 3;
-    string profileId = 4;
-}
+message PopularCommentsResponse {
 
+  repeated CommentResponse comments = 1;
+
+}
 
 service CommentService {
 
@@ -68,12 +79,12 @@ service CommentService {
 
 	rpc getPreviewFileMetadatas (google.protobuf.Empty) returns (PreviewFileMetadatasResponse) {}
 
+	rpc getCommentIdsByPostId (CommentByPostIdRequest) returns (CommentIdsResponse) {}
+
 	rpc getPreviewComment (PreviewCommentRequest) returns (PreviewCommentResponse) {}
 
-	rpc getCommentCount (CommentByPostIdRequest) returns (CommentCountResponse) {}
+	rpc getCommentCountByPostId (CommentByPostIdRequest) returns (CommentCountResponse) {}
 
-	rpc getCommentPreview (CommentByPostIdRequest) returns (CommentPreviewResponse) {}
-
-	rpc getCommentIdsByPostId (CommentByPostIdRequest) returns (CommentIdsResponse) {}
+	rpc getPopularComments (CommentByPostIdRequest) returns (PopularCommentsResponse) {}
 
 }

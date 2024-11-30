@@ -15,7 +15,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
     public class CommonCommentClient(CommentServiceClient client, ILogger<CommonCommentClient> logger, IMapper mapper)
     {
 
-        public async Task<List<string>> GetCommentIds()
+        public async Task<IList<string>> GetCommentIds()
         {
             try
             {
@@ -31,7 +31,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
-        public async Task<List<DTOs.Others.PreviewFileMetadata>> GetPreviewFileMetadatas()
+        public async Task<IList<DTOs.Others.PreviewFileMetadata>> GetPreviewFileMetadatas()
         {
             try
             {
@@ -47,6 +47,23 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
                 throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
             }
         }
+
+        public async Task<IList<string>> GetCommentIdsByPostId(string postId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get comment ids by post id");
+                var response = await client.getCommentIdsByPostIdAsync(new CommentByPostIdRequest { PostId = postId });
+                // Call the gRPC server to introspect the token
+                return new List<string>(response.Ids);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
+
 
         public async Task<DTOs.Responses.Comment.PreviewCommentResponse> GetPreviewComment(string id)
         {
@@ -64,51 +81,37 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
-        public async Task<int> GetCommentCount(string postId)
+        public async Task<int> GetCommentCountByPostId(string postId)
         {
             try
             {
-                logger.LogInformation("Starting get preview comment");
-                var response = await client.getCommentCountAsync(new CommentByPostIdRequest { PostId = postId });
+                logger.LogInformation("Starting get comment count");
+                var response = await client.getCommentCountByPostIdAsync(new CommentByPostIdRequest { PostId = postId });
                 // Call the gRPC server to introspect the token
                 return response.Count;
             }
             catch (Exception e)
             {
-                logger.LogError(e.Message);
-                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+                logger.LogError(e, "Caused by {0}", e.Message);
+                //throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+                return 0;
             }
         }
 
-        public async Task<List<string>> GetCommentIdsByPostId(string postId)
+        public async Task<IList<DTOs.Responses.Comment.CommentResponse>> GetPopularComments(string postId)
         {
             try
             {
-                logger.LogInformation("Starting get comment ids by post id");
-                var response = await client.getCommentIdsByPostIdAsync(new CommentByPostIdRequest { PostId = postId });
+                logger.LogInformation("Starting get popular comments");
+                var response = await client.getPopularCommentsAsync(new CommentByPostIdRequest { PostId = postId });
                 // Call the gRPC server to introspect the token
-                return new List<string>(response.Ids);
+                return response.Comments.Select(mapper.Map<DTOs.Responses.Comment.CommentResponse>).ToList();
             }
             catch (Exception e)
             {
-                logger.LogError(e.Message);
-                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
-            }
-        }
-
-        public async Task<DTOs.Responses.Comment.CommentPreviewResponse> GetCommentPreview(string postId)
-        {
-            try
-            {
-                logger.LogInformation("Starting get preview comment");
-                var response = await client.getCommentPreviewAsync(new CommentByPostIdRequest { PostId = postId });
-                // Call the gRPC server to introspect the token
-                return mapper.Map<DTOs.Responses.Comment.CommentPreviewResponse>(response);
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e.Message);
-                throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+                logger.LogError(e, "Caused by {0}", e.Message);
+                //throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+                return [];
             }
         }
 

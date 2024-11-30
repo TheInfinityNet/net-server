@@ -47,10 +47,13 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         [HttpPost("text")]
         public async Task<IActionResult> CreateTextPost([FromBody] CreatePostBaseRequest request)
         {
+            Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
+                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+
             postService.ValidateAudienceType(request.Audience);
 
             var post = mapper.Map<Domain.Entities.Post>(request);
-            post.OwnerId = GetCurrentProfileId().Value;
+            post.OwnerId = currentProfileId;
 
             var response = await postService.Create(post);
             return Created(string.Empty, new
@@ -65,12 +68,15 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         [HttpPost("share")]
         public async Task<IActionResult> CreateSharePost([FromBody] CreateSharePostRequest request)
         {
+            Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
+                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+
             postService.ValidateAudienceType(request.Audience);
             _ = await postService.GetById(request.ShareId)
                 ?? throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status404NotFound);
 
             var post = mapper.Map<Domain.Entities.Post>(request);
-            post.OwnerId = GetCurrentProfileId().Value;
+            post.OwnerId = currentProfileId;
 
             var response = await postService.Create(post);
             return Created(string.Empty, new
@@ -85,12 +91,15 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         [HttpPost("media")]
         public async Task<IActionResult> CreateMediaPost([FromBody] CreateMediaPostRequest request)
         {
+            Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
+                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+
             postService.ValidateMediaPostType(request);
 
             postService.ValidateAudienceType(request.Audience);
 
             var post = mapper.Map<Domain.Entities.Post>(request);
-            post.OwnerId = GetCurrentProfileId().Value;
+            post.OwnerId = currentProfileId;
 
             var response = await postService.Create(post);
 
@@ -108,11 +117,13 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         [HttpPost("multi-media")]
         public async Task<IActionResult> CreateMultiMediaPost([FromBody] CreateMultiMediaPostRequest request)
         {
+            Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
+                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
             postService.ValidateAudienceType(request.Audience);
 
             var post = mapper.Map<Domain.Entities.Post>(request);
-            post.OwnerId = GetCurrentProfileId().Value;
+            post.OwnerId = currentProfileId;
 
             var subPosts = new List<Domain.Entities.Post>();
             foreach (var subPostDto in request.Aggregates)
@@ -120,7 +131,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                 postService.ValidateMediaPostType(subPostDto);
                 var subPost = mapper.Map<Domain.Entities.Post>(subPostDto);
                 subPost.Audience = null;
-                subPost.OwnerId = GetCurrentProfileId().Value;
+                subPost.OwnerId = currentProfileId;
                 subPosts.Add(subPost);
             }
             post.SubPosts = subPosts;
@@ -162,8 +173,22 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         [ProducesResponseType(typeof(CursorPagedResult<>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTimeline([FromQuery] string cursor = null, [FromQuery] int limit = 10)
         {
-            var profileId = GetCurrentProfileId().Value;
-            var result = await postService.GetNewsFeed(profileId.ToString(), cursor, limit);
+            Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
+                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            var result = await postService.GetNewsFeed(currentProfileId.ToString(), cursor, limit);
+
+            (IList<string> postIds, List<string> ownerIds) =
+                (result.Items.Select(item => item.Id.ToString()).ToList(),
+                 result.Items.Select(item => item.OwnerId.ToString()).ToList());
+
+            var popularCommentsTasks = postIds.Select(async id =>
+            {
+                var comments = await commentClient.GetPopularComments(id.ToString());
+                return new { Id = id, comments };
+            });
+
+            var popularCommentsDict = (await Task.WhenAll(popularCommentsTasks)).ToDictionary(x => x.Id, x => x.comments);
 
             // Tập hợp toàn bộ các ID cần nạp trước
             var profileIds = result.Items
@@ -178,8 +203,10 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                 .Concat(result.Items
                     .Where(item => item.Type == PostType.Share && item.Parent.Type == PostType.MultiMedia)
                     .SelectMany(item => item.Parent.SubPosts.Select(p => p.OwnerId)))
+                .Concat(popularCommentsDict.Values
+                    .SelectMany(comment => comment.Select(c => c.Profile.Id)).ToList())
+                .Concat([currentProfileId])
                 .Distinct();
-            profileIds.ToList().Add(profileId);
 
             // Nạp toàn bộ profiles cần thiết
             var profiles = await profileClient.GetProfiles(profileIds.Select(id => id.ToString()).ToList());
@@ -239,10 +266,6 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             });
             var videoMetadataDict = (await Task.WhenAll(videoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
 
-            (IList<string> postIds, List<string> ownerIds) =
-                (result.Items.Select(item => item.Id.ToString()).ToList(),
-                 result.Items.Select(item => item.OwnerId.ToString()).ToList());
-
             // Xử lý response
             CursorPagedResult<BasePostResponse> response = new()
             {
@@ -269,6 +292,18 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                         ownerProfile.Avatar = avatar;
                         postResponse.Owner = ownerProfile;
                     }
+
+                    if (popularCommentsDict.TryGetValue(postItem.Id.ToString(), out var comments))
+                        postResponse.PopularComments = comments.Select(comment =>
+                        {
+                            if (profileDict.TryGetValue(comment.Profile.Id, out var profile))
+                            {
+                                var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
+                                profile.Avatar = avatar;
+                                comment.Profile = profile;
+                            }
+                            return comment;
+                        }).ToList();
 
                     // Process Post Types
                     switch (postItem.Type)

@@ -43,9 +43,6 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
                 : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            var _ = await userProfileService.GetById(currentProfileId) 
-                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
-
             var suggestions = await userProfileService.GetFriendSuggestions(currentProfileId, nextCursor, limit);
 
             // Tập hợp toàn bộ các ID cần nạp trước
@@ -107,9 +104,6 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString() 
                 : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            var _ = await userProfileService.GetById(currentProfileId)
-                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
-
             var friendRequests = await userProfileService.GetFriendRequests(currentProfileId, nextCursor, limit);
 
             // Tập hợp toàn bộ các ID cần nạp trước
@@ -169,9 +163,6 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         {
             string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
                 : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
-
-            var _ = await userProfileService.GetById(currentProfileId)
-                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
             var friendSentRequests = await userProfileService.GetFriendSentRequests(currentProfileId, nextCursor, limit);
 
@@ -233,9 +224,6 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
                 : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            var _ = await userProfileService.GetById(currentProfileId)
-                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
-
             var friends = await userProfileService.GetFriends(currentProfileId, nextCursor, limit);
 
             // Tập hợp toàn bộ các ID cần nạp trước
@@ -295,9 +283,6 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         {
             string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
                 : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
-
-            var _ = await userProfileService.GetById(currentProfileId)
-                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
             var blookees = await userProfileService.GetBlockedList(currentProfileId, nextCursor, limit);
 

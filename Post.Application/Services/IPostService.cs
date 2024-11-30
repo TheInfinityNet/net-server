@@ -1,9 +1,7 @@
 using InfinityNetServer.BuildingBlocks.Application.Contracts;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.Services.Post.Application.DTOs.Orther;
 using InfinityNetServer.Services.Post.Application.DTOs.Requests;
-using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,7 +14,7 @@ namespace InfinityNetServer.Services.Post.Application.Services
 
         public void ValidateAudienceType(BasePostAudience dto);
 
-        public Task ConfirmSave(string postId, string profileId, string fileMetadataId, IMessageBus messageBus);
+        public Task ConfirmSave(string id, string profileId, string fileMetadataId, IMessageBus messageBus);
 
         public Task<Domain.Entities.Post> GetById(string id);
 

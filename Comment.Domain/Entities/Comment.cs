@@ -30,7 +30,7 @@ namespace InfinityNetServer.Services.Comment.Domain.Entities
         public CommentContent Content { get; set; } = new CommentContent();
 
         [ForeignKey("ParentId")]
-        public virtual Comment? ParentComment { get; set; } = null;
+        public virtual Comment ParentComment { get; set; } = null;
 
         public virtual ICollection<Comment> RepliesComments { get; set; } = [];
 

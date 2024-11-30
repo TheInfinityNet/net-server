@@ -1,4 +1,5 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
+﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Comment;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Post.Application.DTOs.Orther;
@@ -35,6 +36,8 @@ namespace InfinityNetServer.Services.Post.Application.DTOs.Responses
         public IList<BasePostResponse> Aggregates { get; set; }
 
         public BasePostResponse Share { get; set; }
+
+        public IList<CommentResponse> PopularComments { get; set; }   
 
     }
 }

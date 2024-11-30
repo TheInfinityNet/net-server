@@ -6,6 +6,8 @@ using InfinityNetServer.Services.Comment.Application.Services;
 using InfinityNetServer.Services.Comment.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -43,42 +45,6 @@ namespace InfinityNetServer.Services.Comment.Application.GrpcServices
             return await Task.FromResult(response);
         }
 
-        public override async Task<PreviewCommentResponse> getPreviewComment(PreviewCommentRequest request, ServerCallContext context)
-        {
-            logger.LogInformation("Received getPreviewComment request");
-            Domain.Entities.Comment comment = await commentRepository.GetByIdAsync(Guid.Parse(request.Id));
-            comment.FileMetadataId ??= Guid.Empty;
-            return mapper.Map<PreviewCommentResponse>(comment);
-        }
-
-        public override async Task<CommentCountResponse> getCommentCount(CommentByPostIdRequest request, ServerCallContext context)
-        {
-            var getPostIdRequest = new CommentByPostIdRequest
-            {
-                PostId = request.PostId
-            };
-            logger.LogInformation("GetCommentCount");
-            var source = await commentService.GetCommentCountAsync(getPostIdRequest.PostId);
-            var response = new CommentCountResponse
-            {
-                Count = source.CommentCount
-            };
-            return response;
-        }
-
-        public override async Task<CommentPreviewResponse> getCommentPreview(CommentByPostIdRequest request, ServerCallContext context)
-        {
-            var getPostIdRequest = new CommentByPostIdRequest
-            {
-                PostId = request.PostId
-            };
-            logger.LogInformation("GetCommentPreview");
-            var source = await commentService.GetTopCommentWithMostRepliesAsync(getPostIdRequest.PostId);
-            var response = mapper.Map<CommentPreviewResponse>(source);
-            logger.LogInformation("GetCommentPreview");
-            return response;
-        }
-
         public override async Task<CommentIdsResponse> getCommentIdsByPostId(CommentByPostIdRequest request, ServerCallContext context)
         {
             logger.LogInformation("Received getCommentIds by postId request");
@@ -87,6 +53,44 @@ namespace InfinityNetServer.Services.Comment.Application.GrpcServices
             response.Ids.AddRange(comments.Select(p => p.Id.ToString()).ToList());
 
             return await Task.FromResult(response);
+        }
+
+        public override async Task<PreviewCommentResponse> getPreviewComment(PreviewCommentRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Received getPreviewComment request");
+            Domain.Entities.Comment comment = await commentRepository.GetByIdAsync(Guid.Parse(request.Id));
+            comment.FileMetadataId ??= Guid.Empty;
+            return mapper.Map<PreviewCommentResponse>(comment);
+        }
+
+        public override async Task<CommentCountResponse> getCommentCountByPostId(CommentByPostIdRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("GetCommentCount");
+            var source = await commentService.CountByPostId(request.PostId);
+            var response = new CommentCountResponse
+            {
+                Count = source
+            };
+            return response;
+        }
+
+        public override async Task<PopularCommentsResponse> getPopularComments(CommentByPostIdRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Get Popular Comments");
+            var source = await commentService.GetPopularComments(request.PostId);
+            IList<int> counts = await commentService.CountByParentIds(source.Select(p => p.Id.ToString()).ToList());
+            var repliesCountDict = source.ToDictionary(p => p.Id, p => counts[source.IndexOf(p)]);
+
+            var comments = source.Select(comment => {
+                comment.FileMetadataId ??= Guid.Empty;
+                var dto = mapper.Map<CommentResponse>(comment);
+                if (repliesCountDict.TryGetValue(comment.Id, out var count)) dto.ReplyCount = count;
+                return dto;
+            }).ToList();
+
+            var response = new PopularCommentsResponse();
+            response.Comments.AddRange(comments);
+            return response;
         }
     }
 }

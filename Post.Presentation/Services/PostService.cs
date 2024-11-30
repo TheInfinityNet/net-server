@@ -198,9 +198,9 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
             }
         }
 
-        public async Task ConfirmSave(string postId, string profileId, string fileMetadataId, IMessageBus messageBus)
+        public async Task ConfirmSave(string id, string profileId, string fileMetadataId, IMessageBus messageBus)
         {
-            Domain.Entities.Post post = await GetById(postId)
+            Domain.Entities.Post post = await GetById(id)
                 ?? throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status404NotFound);
 
             Guid fileMetadataGuid = post.FileMetadataId
@@ -213,7 +213,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
                     {
                         FileMetadataId = fileMetadataGuid,
                         TempId = Guid.Parse(fileMetadataId),
-                        OwnerId = Guid.Parse(postId),
+                        OwnerId = Guid.Parse(id),
                         OwnerType = FileOwnerType.Post,
                         UpdatedAt = DateTime.Now,
                         UpdatedBy = Guid.Parse(profileId)
@@ -225,7 +225,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
                     {
                         FileMetadataId = fileMetadataGuid,
                         TempId = Guid.Parse(fileMetadataId),
-                        OwnerId = Guid.Parse(postId),
+                        OwnerId = Guid.Parse(id),
                         OwnerType = FileOwnerType.Post,
                         UpdatedAt = DateTime.Now,
                         UpdatedBy = Guid.Parse(profileId)
@@ -236,5 +236,6 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
                     throw new PostException(PostError.INVALID_POST_TYPE, StatusCodes.Status400BadRequest);
             }
         }
+
     }
 }

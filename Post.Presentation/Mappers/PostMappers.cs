@@ -1,5 +1,6 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Post.Application.DTOs.Orther;
 using InfinityNetServer.Services.Post.Application.DTOs.Requests;
 using InfinityNetServer.Services.Post.Application.DTOs.Responses;
@@ -50,36 +51,20 @@ public class PostMappers : AutoMapper.Profile
             .AfterMap((src, dest) =>
             {
                 dest.Type = src.Type.ToString();
-            });
 
-        CreateMap<PostAudience, Application.DTOs.Orther.PostAudienceInclude>()
-            .AfterMap((src, dest) =>
-            {
-                if (src.Type != PostAudienceType.Include)
-                    dest = null;
+                switch (src.Type) {
+                    case PostAudienceType.Include:
+                        dest.Include = src.Includes.Select(i => new PreviewProfileResponse { Id = i.ProfileId }).ToList();
+                        break;
 
-                else dest.Include = src.Includes.Select(i => new BaseProfileResponse { Id = i.ProfileId }).ToList();
-            });
+                    case PostAudienceType.Exclude:
+                        dest.Exclude =  src.Excludes.Select(i => new PreviewProfileResponse { Id = i.ProfileId }).ToList();
+                        break;
 
-        CreateMap<PostAudience, Application.DTOs.Orther.PostAudienceExclude>()
-            .AfterMap((src, dest) =>
-            {
-                if (src.Type != PostAudienceType.Exclude)
-                    dest = null;
-
-                else dest.Exclude = src.Excludes.Select(i => new BaseProfileResponse { Id = i.ProfileId }).ToList();
-            });
-
-        CreateMap<PostAudience, PostAudienceCustom>()
-            .AfterMap((src, dest) =>
-            {
-                if (src.Type != Domain.Enums.PostAudienceType.Custom)
-                    dest = null;
-
-                else
-                {
-                    dest.Include = src.Includes.Select(i => new BaseProfileResponse { Id = i.ProfileId }).ToList();
-                    dest.Exclude = src.Excludes.Select(i => new BaseProfileResponse { Id = i.ProfileId }).ToList();
+                    case PostAudienceType.Custom:
+                        dest.Include = src.Includes.Select(i => new PreviewProfileResponse { Id = i.ProfileId }).ToList();
+                        dest.Exclude = src.Excludes.Select(i => new PreviewProfileResponse { Id = i.ProfileId }).ToList();
+                        break;
                 }
             });
 
@@ -149,43 +134,42 @@ public class PostMappers : AutoMapper.Profile
                 });
 
         // DTO -> Entity
-        CreateMap<Application.DTOs.Orther.PostContent, Domain.Entities.PostContent>();
-
         CreateMap<BaseFacet, BuildingBlocks.Domain.Entities.BaseFacet>()
             .AfterMap((src, dest) =>
             {
                 dest.Start = src.Index.Start;
                 dest.End = src.Index.End;
+                dest.Type = Enum.Parse<FacetType>(src.Type);
             });
+
+        CreateMap<HashTagFacet, BuildingBlocks.Domain.Entities.HashtagFacet>();
+
+        CreateMap<Application.DTOs.Orther.PostContent, Domain.Entities.PostContent>();
 
         CreateMap<BasePostAudience, PostAudience>()
             .AfterMap((src, dest) =>
             {
                 dest.Type = Enum.Parse<PostAudienceType>(src.Type);
-            });
 
-        CreateMap<Application.DTOs.Orther.PostAudienceInclude, PostAudience>()
-            .AfterMap((src, dest) =>
-            {
-                dest.Includes = src.Include.Select(i =>
-                new Domain.Entities.PostAudienceInclude { ProfileId = i.Id }).ToList();
-            });
+                switch (dest.Type) {
+                    case PostAudienceType.Include:
+                        dest.Includes = src.Include.Select(i =>
+                        new Domain.Entities.PostAudienceInclude { ProfileId = i.Id }).ToList();
+                        break;
 
-        CreateMap<Application.DTOs.Orther.PostAudienceExclude, PostAudience>()
-            .AfterMap((src, dest) =>
-            {
-                dest.Excludes = src.Exclude.Select(i =>
-                new Domain.Entities.PostAudienceExclude { ProfileId = i.Id }).ToList();
-            });
+                    case PostAudienceType.Exclude:
+                        dest.Excludes = src.Exclude.Select(i =>
+                        new PostAudienceExclude { ProfileId = i.Id }).ToList();
+                        break;
 
-        CreateMap<PostAudienceCustom, PostAudience>()
-            .AfterMap((src, dest) =>
-            {
-                dest.Includes = src.Include.Select(i =>
-                new Domain.Entities.PostAudienceInclude { ProfileId = i.Id }).ToList();
+                    case PostAudienceType.Custom:
+                        dest.Includes = src.Include.Select(i =>
+                        new PostAudienceInclude { ProfileId = i.Id }).ToList();
 
-                dest.Excludes = src.Exclude.Select(i =>
-                new Domain.Entities.PostAudienceExclude { ProfileId = i.Id }).ToList();
+                        dest.Excludes = src.Exclude.Select(i =>
+                        new PostAudienceExclude { ProfileId = i.Id }).ToList();
+                        break;
+                }
             });
 
         CreateMap<CreatePostBaseRequest, Domain.Entities.Post>();

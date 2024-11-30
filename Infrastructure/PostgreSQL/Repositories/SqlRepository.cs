@@ -40,19 +40,31 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
             return item;
         }
 
-        public async Task UpdateAsync(TEntity item)
+        public async Task<TEntity> UpdateAsync(TEntity item)
         {
             ArgumentNullException.ThrowIfNull(item);
             DbSet.Attach(item);
             context.Entry(item).State = EntityState.Modified;
             await context.SaveChangesAsync();
+            return item;
         }
 
-        public async Task DeleteAsync(TId id)
+        public async Task<TEntity> DeleteAsync(TId id)
         {
             var entity = await GetByIdAsync(id) ?? throw new KeyNotFoundException($"Entity with id {id} not found.");
             DbSet.Remove(entity);
             await context.SaveChangesAsync();
+            return entity;
+        }
+
+        public async Task<TEntity> SoftDeleteAsync(TId id)
+        {
+            var entity = await GetByIdAsync(id) ?? throw new KeyNotFoundException($"Entity with id {id} not found.");
+            entity.IsDeleted = true;
+            DbSet.Attach(entity);
+            context.Entry(entity).State = EntityState.Modified;
+            await context.SaveChangesAsync();
+            return entity;
         }
 
         public async Task<List<TEntity>> FindAsync(Func<TEntity, bool> predicate)
@@ -188,51 +200,6 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
             return query;
         }
 
-        public async Task<PagedCursorResult<TEntity>> GetPagedCursorAsync(ISqlSpecification<TEntity> spec, int pageSize, Guid? cursor = null)
-        {
-            ArgumentNullException.ThrowIfNull(spec);
-            IQueryable<TEntity> query = ApplySpecification(spec);
-
-            if (cursor.HasValue)
-            {
-                query = query.Where(e => EF.Property<Guid>(e, "Id").CompareTo(cursor.Value) > 0);
-            }
-
-            query = query.OrderBy(e => EF.Property<Guid>(e, "Id"));
-
-            // Lấy pageSize + 1 item để kiểm tra xem có trang tiếp theo hay không
-            var results = await query.Take(pageSize + 1).ToListAsync();
-
-            // Xác định HasNext và HasPrevious
-            bool hasNext = results.Count > pageSize;
-            bool hasPrevious = cursor != null;
-
-            // Cắt bớt phần tử thừa nếu có
-            if (hasNext) results.RemoveAt(results.Count - 1);
-
-            // Thiết lập các giá trị cursor
-            string nextCursor = hasNext ? results.LastOrDefault()?.GetType().GetProperty("Id")?.GetValue(results.LastOrDefault()).ToString() : null;
-            string previousCursor = hasPrevious ? cursor?.ToString() : null;
-
-            // Trả về kết quả phân trang
-            
-            return new PagedCursorResult<TEntity>
-            {
-                Results = Task.FromResult<IList<TEntity>>(results),
-                NextCursor = nextCursor,
-                PreviousCursor = previousCursor,
-                HasNext = hasNext,
-                HasPrevious = hasPrevious
-            };
-            //return new PagedCursorResult<TEntity>
-            //{
-            //    Results = results,
-            //    NextCursor = nextCursor,
-            //    PreviousCursor = previousCursor,
-            //    HasNext = hasNext,
-            //    HasPrevious = hasPrevious
-            //};
-        }
     }
 
 }
