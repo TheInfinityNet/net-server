@@ -18,6 +18,8 @@ using InfinityNetServer.Services.Relationship.Application.DTOs.Responses;
 using MassTransit.Initializers;
 using InfinityNetServer.Services.Relationship.Domain.Enums;
 using InfinityNetServer.Services.Profile.Domain.Entities;
+using InfinityNetServer.Services.Relationship.Infrastructure.Repositories;
+using MongoDB.Driver.Core.Servers;
 
 namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
 {
@@ -79,6 +81,29 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
             );
         }
 
+        [HttpPut("requests/accept")]
+        [Authorize]
+        public async Task<IActionResult> AcceptRequest([FromBody] string request)
+        {
+            Guid? currentUserId = GetCurrentProfileId();
+            var friendship = await friendshipService.GetByStatus(FriendshipStatus.Pending, currentUserId.ToString(), request);
+            if(friendship == null)
+            {
+                return NotFound();
+            }
+            var requestResponse = await friendshipService.AcceptRequest(friendship);
+            return Ok(requestResponse);
+        }
+
+        [HttpPut("requests/decline")]
+        [Authorize]
+        public async Task<IActionResult> RejectRequest([FromBody] string request)
+        {
+            Guid? currentUserId = GetCurrentProfileId();
+            var requestResponse = await friendshipService.RejectRequest(Guid.Parse(request));
+            return Ok(requestResponse);
+        }
+
         [HttpDelete("{profileId}")]
         [Authorize]
         public async Task<IActionResult> UnFriend(string profileId)
@@ -89,28 +114,10 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
             {
                 return NotFound();
             }
-            var result = await friendshipService.RejectRequest(friendship.Id);
+            var result = await friendshipService.Unfriend(friendship.Id);
             return Ok(
                 result
             );
-        }
-
-        [HttpPost("requests/accept")]
-        [Authorize]
-        public async Task<IActionResult> AcceptRequest([FromBody] string request)
-        {
-            Guid? currentUserId = GetCurrentProfileId();
-            var requestResponse = await friendshipService.AcceptRequest(currentUserId.ToString(), request);
-            return Ok(requestResponse);
-        }
-
-        [HttpPost("requests/decline")]
-        [Authorize]
-        public async Task<IActionResult> RejectRequest([FromBody] string request)
-        {
-            Guid? currentUserId = GetCurrentProfileId();
-            var requestResponse = await friendshipService.RejectRequest(Guid.Parse(request));
-            return Ok(requestResponse);
         }
 
         [HttpPost("follow")]

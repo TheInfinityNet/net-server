@@ -50,7 +50,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
             {
                 Message = "UnBlocked",
                 Status = "UnBlocked",
-                UserId = Guid.Parse(blockId)
+                UserId = blockId
             };
         }
     }

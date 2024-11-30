@@ -107,8 +107,9 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
             };
             await friendshipRepository.CreateAsync(friendship);
             return new SendRequestResponse
+
             {
-                UserId = friendship.Id,
+                UserId = friendship.Id.ToString(),
                 Message = "Friend request sent",
                 Status = "RequestSent"
             };
@@ -118,7 +119,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
             await friendshipRepository.DeleteAsync(requestId);
             return new RejectRequestResponse
             {
-                UserId = requestId,
+                UserId = requestId.ToString(),
                 Message = "Friend request rejected",
                 Status = "NotConnected"
             };
@@ -128,20 +129,32 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
             await friendshipRepository.DeleteAsync(requestId);
             return new CancelRequestResponse
             {
-                UserId = requestId,
+                UserId = requestId.ToString(),
                 Message = "Friend request canceled",
                 Status = "NotConnected"
             };
         }
-        public Task<AcceptRequestResponse> AcceptRequest(string senderId, string receiverId)
+        public async Task<AcceptRequestResponse> AcceptRequest(Friendship friendship)
         {
-            throw new NotImplementedException();
+            friendship.Status = FriendshipStatus.Connected;
+            await friendshipRepository.UpdateAsync(friendship);
+            return new AcceptRequestResponse
+            {
+                UserId = friendship.Id.ToString(),
+                Message = "Friend request accepted",
+                Status = "Connected"
+            };
         }
-        public Task<UnfriendResponse> Unfriend(string senderId, string receiverId)
+        public async Task<UnfriendResponse> Unfriend(Guid friendshipId)
         {
-            throw new NotImplementedException();
+            await friendshipRepository.DeleteAsync(friendshipId);
+            return new UnfriendResponse
+            {
+                UserId = friendshipId.ToString(),
+                Message = "Removed friend",
+                Status = "NotConnected"
+            };
         }
-
         public async Task<IList<string>> GetPendingRequestProfiles(string profile)
         {
             var list = await friendshipRepository.GetPendingRequestsAsync(Guid.Parse(profile));
@@ -170,15 +183,6 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
             return list.Select(x => x.ToString()).ToList();
         }
 
-        public async Task<UnfriendResponse> Unfriend(Guid friendshipId)
-        {
-            await friendshipRepository.DeleteAsync(friendshipId);
-            return new UnfriendResponse
-            {
-                UserId = friendshipId,
-                Message = "Friend request canceled",
-                Status = "NotConnected"
-            };
-        }
+        
     }
 }
