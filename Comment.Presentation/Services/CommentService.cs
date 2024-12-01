@@ -1,24 +1,26 @@
 ﻿using AutoMapper;
-using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
 using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Comment;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Comment.Application.DTOs.Requests;
 using InfinityNetServer.Services.Comment.Application.DTOs.Responses;
+using InfinityNetServer.Services.Comment.Application.Exceptions;
 using InfinityNetServer.Services.Comment.Application.Services;
+using InfinityNetServer.Services.Comment.Domain.Enums;
 using InfinityNetServer.Services.Comment.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Comment.Presentation.Services
 {
     public class CommentService(
-        ICommentRepository commentRepository, 
+        ICommentRepository commentRepository,
         ILogger<CommentService> logger,
         IMapper mapper) : ICommentService
     {
@@ -53,6 +55,27 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
             return response;
         }
 
+        public void ValidateType(Domain.Entities.Comment entity)
+        {
+            switch (entity.Type)
+            {
+                case CommentType.Text:
+                    if (entity.FileMetadataId != null)
+                        throw new CommentException(CommentError.INVALID_COMMENT_TYPE, StatusCodes.Status400BadRequest);
+                    break;
+
+                case CommentType.Photo:
+                    if (entity.FileMetadataId == null)
+                        throw new CommentException(CommentError.REQUIRED_PHOTO_ID, StatusCodes.Status400BadRequest);
+                    break;
+
+                case CommentType.Video:
+                    if (entity.FileMetadataId == null)
+                        throw new CommentException(CommentError.REQUIRED_VIDEO_ID, StatusCodes.Status400BadRequest);
+                    break;
+            }
+        }
+
         public async Task ConfirmSave(string id, string profileId, string fileMetadataId, IMessageBus messageBus)
         {
             Domain.Entities.Comment comment = await GetById(id)
@@ -61,9 +84,9 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
             Guid fileMetadataGuid = comment.FileMetadataId
                 ?? throw new BaseException(BaseError.FILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            //switch (comment.Type)
-            //{
-            //    case CommentType.Photo:
+            switch (comment.Type)
+            {
+                case CommentType.Photo:
                     await messageBus.Publish(new DomainEvent.PhotoMetadataEvent
                     {
                         FileMetadataId = fileMetadataGuid,
@@ -73,23 +96,23 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
                         UpdatedAt = DateTime.Now,
                         UpdatedBy = Guid.Parse(profileId)
                     });
-            //        break;
+                    break;
 
-            //    case CommentType.Video:
-            //        await messageBus.Publish(new DomainEvent.VideoMetadataEvent
-            //        {
-            //            FileMetadataId = fileMetadataGuid,
-            //            TempId = Guid.Parse(fileMetadataId),
-            //            OwnerId = Guid.Parse(id),
-            //            OwnerType = FileOwnerType.Comment,
-            //            UpdatedAt = DateTime.Now,
-            //            UpdatedBy = Guid.Parse(profileId)
-            //        });
-            //        break;
+                case CommentType.Video:
+                    await messageBus.Publish(new DomainEvent.VideoMetadataEvent
+                    {
+                        FileMetadataId = fileMetadataGuid,
+                        TempId = Guid.Parse(fileMetadataId),
+                        OwnerId = Guid.Parse(id),
+                        OwnerType = FileOwnerType.Comment,
+                        UpdatedAt = DateTime.Now,
+                        UpdatedBy = Guid.Parse(profileId)
+                    });
+                    break;
 
-            //    default:
-            //        throw new CommentException(PostError.INVALID_COMMENT_TYPE, StatusCodes.Status400BadRequest);
-            //}
+                default:
+                    throw new CommentException(CommentError.INVALID_COMMENT_TYPE, StatusCodes.Status400BadRequest);
+                }
         }
 
         public async Task<Domain.Entities.Comment> Create(Domain.Entities.Comment entity)
@@ -103,9 +126,25 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
             logger.LogInformation("Soft delete comment");
             return await commentRepository.SoftDeleteAsync(Guid.Parse(commentId));
         }
+
         public async Task<Domain.Entities.Comment> Update(Domain.Entities.Comment entity)
         {
             logger.LogInformation("Update comment");
+            var existedComment = await GetById(entity.Id.ToString())
+                ?? throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            if (existedComment.ProfileId != entity.ProfileId)
+                throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
+
+            existedComment.Content = entity.Content;
+            existedComment.Type = entity.Type;
+            existedComment.FileMetadataId = entity.FileMetadataId;
+
+            if (entity.FileMetadataId == null && existedComment.FileMetadataId != null)
+            {
+                // Delete file
+            }
+
             return await commentRepository.UpdateAsync(entity);
         }
 

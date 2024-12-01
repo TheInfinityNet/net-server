@@ -6,6 +6,8 @@ namespace InfinityNetServer.Services.File.Domain.Entities
     public class VideoMetadata : BaseMetadata
     {
 
+        public VideoMetadata() => Type = BuildingBlocks.Domain.Enums.FileMetadataType.Video;
+
         [BsonElement("thumbnail")]
         public PhotoMetadata Thumbnail { get; set; }
 

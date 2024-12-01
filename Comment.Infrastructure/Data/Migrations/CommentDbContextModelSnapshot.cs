@@ -75,6 +75,10 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("profile_id");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
@@ -93,6 +97,8 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data.Migrations
                     b.HasIndex("PostId");
 
                     b.HasIndex("ProfileId");
+
+                    b.HasIndex("Type");
 
                     b.ToTable("comments");
                 });

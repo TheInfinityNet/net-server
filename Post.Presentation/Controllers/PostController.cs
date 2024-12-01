@@ -6,6 +6,7 @@ using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.Post.Application;
@@ -103,7 +104,10 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
 
             var response = await postService.Create(post);
 
-            await postService.ConfirmSave(response.Id.ToString(), post.OwnerId.ToString(), post.FileMetadataId.ToString(), messageBus);
+            await postService.ConfirmSave(
+                response.Id.ToString(), 
+                post.OwnerId.ToString(), 
+                post.FileMetadataId.ToString(), messageBus);
 
             return Created(string.Empty, new
             {
@@ -139,7 +143,10 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             var response = await postService.Create(post);
 
             foreach (var subPost in response.SubPosts)
-                await postService.ConfirmSave(subPost.Id.ToString(), post.OwnerId.ToString(), subPost.FileMetadataId.ToString(), messageBus);
+                await postService.ConfirmSave(
+                    subPost.Id.ToString(), 
+                    post.OwnerId.ToString(), 
+                    subPost.FileMetadataId.ToString(), messageBus);
 
             return Created(string.Empty, new
             {
@@ -178,9 +185,10 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
 
             var result = await postService.GetNewsFeed(currentProfileId.ToString(), cursor, limit);
 
+            // Popular comments and Reactions
             (IList<string> postIds, List<string> ownerIds) =
-                (result.Items.Select(item => item.Id.ToString()).ToList(),
-                 result.Items.Select(item => item.OwnerId.ToString()).ToList());
+                (result.Items.Select(item => item.Id.ToString()).Distinct().ToList(),
+                 result.Items.Select(item => item.OwnerId.ToString()).Distinct().ToList());
 
             var popularCommentsTasks = postIds.Select(async id =>
             {
@@ -190,7 +198,25 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
 
             var popularCommentsDict = (await Task.WhenAll(popularCommentsTasks)).ToDictionary(x => x.Id, x => x.comments);
 
-            // Tập hợp toàn bộ các ID cần nạp trước
+            IList<(string postId, string profileId)> postIdsAndProfileIds = postIds
+                .SelectMany(postId => ownerIds.Select(ownerId => (postId, ownerId)))
+                .ToList();
+            var postReactionTypes = await reactionClient.GetPostReactionsByProfileIds(postIdsAndProfileIds);
+            var postReactionTypesDict = postReactionTypes.Select((type, index) => new { index = postIdsAndProfileIds[index], type })
+                .ToDictionary(x => x.index, x => x.type);
+
+            (IList<string> commentIds, List<string> mProfileIds) =
+                (popularCommentsDict.Values.SelectMany(comment => comment.Select(c => c.Id.ToString())).Distinct().ToList(),
+                 popularCommentsDict.Values.SelectMany(comment => comment.Select(c => c.Profile.Id.ToString())).Distinct().ToList());
+
+            IList<(string commentId, string profileId)> commentIdsAndProfileIds = commentIds
+                .SelectMany(commentId => mProfileIds.Select(profileId => (commentId, profileId)))
+                .ToList();
+            var commentReactionTypes = await reactionClient.GetCommentReactionByProfileId(commentIdsAndProfileIds);
+            var commentReactionTypesDict = commentReactionTypes.Select((type, index) => new { index = commentIdsAndProfileIds[index], type })
+                .ToDictionary(x => x.index, x => x.type);
+
+            // Profiles
             var profileIds = result.Items
                 .SelectMany(item => item.Content.TagFacets.Select(t => t.ProfileId))
                 .Concat(result.Items.Select(item => item.OwnerId))
@@ -203,15 +229,14 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                 .Concat(result.Items
                     .Where(item => item.Type == PostType.Share && item.Parent.Type == PostType.MultiMedia)
                     .SelectMany(item => item.Parent.SubPosts.Select(p => p.OwnerId)))
-                .Concat(popularCommentsDict.Values
-                    .SelectMany(comment => comment.Select(c => c.Profile.Id)).ToList())
+                .Concat(mProfileIds.Select(Guid.Parse).ToList())
                 .Concat([currentProfileId])
                 .Distinct();
 
-            // Nạp toàn bộ profiles cần thiết
             var profiles = await profileClient.GetProfiles(profileIds.Select(id => id.ToString()).ToList());
             var profileDict = profiles.ToDictionary(p => p.Id, mapper.Map<PreviewProfileResponse>);
 
+            // File Metadatas
             var photoMetadataIds = profiles
                 .Where(profile => profile.Avatar != null)
                     .Select(profile => profile.Avatar.Id)
@@ -293,6 +318,9 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                         postResponse.Owner = ownerProfile;
                     }
 
+                    if (postReactionTypesDict.TryGetValue((postItem.Id.ToString(), postItem.OwnerId.ToString()), out var reactionTypes))
+                        postResponse.Reaction = reactionTypes;
+
                     if (popularCommentsDict.TryGetValue(postItem.Id.ToString(), out var comments))
                         postResponse.PopularComments = comments.Select(comment =>
                         {
@@ -302,6 +330,10 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                                 profile.Avatar = avatar;
                                 comment.Profile = profile;
                             }
+
+                            if (commentReactionTypesDict.TryGetValue((comment.Id.ToString(), comment.Profile.Id.ToString()), out var reactionTypes))
+                                comment.Reaction = reactionTypes;
+
                             return comment;
                         }).ToList();
 

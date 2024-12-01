@@ -26,8 +26,8 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Services
             return await repository.CreateAsync(model);
         }
 
-        public async Task<PostReaction> GetByPostIdAndProfileId(string postId, string profileId)
-            => await repository.GetByPostIdAndProfileId(Guid.Parse(postId), Guid.Parse(profileId));
+        public async Task<IList<PostReaction>> GetAllByPostIdsAndProfileIds(IList<(string postId, string profileId)> postIdsAndProfileIds)
+            => await repository.GetAllByPostIdsAndProfileIdsAsync(postIdsAndProfileIds.Select(q => (Guid.Parse(q.postId), Guid.Parse(q.profileId))).ToList());
 
         public async Task<List<PostReactionGroupResult>> GetPostReactions(string lstPostId)
         {

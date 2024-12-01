@@ -39,12 +39,6 @@ message PostRequest {
 
 }
 
-message PreviewFileMetadatasRequest {
-
-	string type = 1;
-
-}
-
 message PostIdsResponse {
 
   repeated string ids = 1;

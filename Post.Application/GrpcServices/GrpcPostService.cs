@@ -31,7 +31,7 @@ namespace InfinityNetServer.Services.Post.Application.GrpcServices
         {
             logger.LogInformation("Received getFileMetadataIdsWithTypes request");
             var response = new PreviewFileMetadatasResponse();
-            var fileMetadataIdsWithTypes = await postService.GetByType(request.Type.ToString());
+            var fileMetadataIdsWithTypes = await postService.GetAllByType(request.Type.ToString());
             response.PreviewFileMetadatas.AddRange(fileMetadataIdsWithTypes.Select(p => new PreviewFileMetadata
             {
                 Id = p.Id.ToString(),

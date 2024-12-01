@@ -7,18 +7,11 @@ namespace InfinityNetServer.Services.Comment.Application.Exceptions
 
         private CommentError(ErrorType type, string code) : base(type, code) { }
 
-        /*
-        
-        Chỗ này định nghĩa tất cả các lỗi CÓ LIÊN QUAN đến các chức năng/nghiệp vụ của service, mỗi loại lỗi gồm:
-        - code: mã lỗi để frontend nhận biết, tạm thời cứ đặt ngẫu hứng, sau kết hợp vs frontend rồi refactor lại
+        public static readonly CommentError REQUIRED_PHOTO_ID = new(ErrorType.ValidationError, "Comment.RequiredPhotoId");
 
-        - message: ĐÂY LÀ KEY của message được định nghiã trong "Resources/SharedResource.[lang-code].resx", 
-                    dùng để map với value của message tương ứng theo ngôn ngữ hiện tại trong Application Context.
+        public static readonly CommentError REQUIRED_VIDEO_ID = new(ErrorType.ValidationError, "Comment.RequiredVideoId");
 
-         */
-
-        // Static instances to represent each error code
-
+        public static readonly CommentError INVALID_COMMENT_TYPE = new(ErrorType.ValidationError, "Comment.InvalidCommentType");
 
     }
 

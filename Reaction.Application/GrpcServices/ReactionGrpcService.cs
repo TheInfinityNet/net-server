@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using Grpc.Core;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
-using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Reaction.Application.Services;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using ReactionType = InfinityNetServer.BuildingBlocks.Domain.Enums.ReactionType;
 
 namespace InfinityNetServer.Services.Reaction.Application.GrpcServices
 {
@@ -44,28 +46,38 @@ namespace InfinityNetServer.Services.Reaction.Application.GrpcServices
             };
         }
 
-        public override async Task<ReactionTypeResponse> getPostReactionByProfileId(ReactionByPostIdAndProfileIdRequest request, ServerCallContext context)
+        public override async Task<ReactionTypesResponse> getPostReactionsByProfileIds(ReactionsByPostIdsAndProfileIdsRequest request, ServerCallContext context)
         {
-            logger.LogInformation("Handling GRPC call for getPostReactionByProfileId with PostId: {PostId} and ProfileId: {ProfileId}", request.PostId, request.ProfileId);
+            logger.LogInformation("Handling GRPC call for getPostReactionByProfileId");
+            IList<(string postId, string profileId)> input = [];
+            foreach (var item in request.PostIdsAndProfileIds)
+                input.Add((item.PostId, item.ProfileId));
 
-            var reaction = await postReactionService.GetByPostIdAndProfileId(request.PostId, request.ProfileId);
+            var reaction = await postReactionService.GetAllByPostIdsAndProfileIds(input);
 
-            return new ReactionTypeResponse
+            var response = new ReactionTypesResponse();
+            response.Types_.AddRange(reaction.Select(p => new BuildingBlocks.Application.Protos.ReactionType
             {
-                Type = reaction.Type.ToString()
-            };
+                Type = p.Type.ToString()
+            }));
+            return response;
         }
 
-        public override async Task<ReactionTypeResponse> getCommentReactionByProfileId(ReactionByCommentIdAndProfileIdRequest request, ServerCallContext context)
+        public override async Task<ReactionTypesResponse> getCommentReactionsByProfileIds(ReactionsByCommentIdsAndProfileIdsRequest request, ServerCallContext context)
         {
-            logger.LogInformation("Handling GRPC call for getCommentReactionByProfileId with CommentId: {CommentId} and ProfileId: {ProfileId}", request.CommentId, request.ProfileId);
+            logger.LogInformation("Handling GRPC call for getCommentReactionByProfileId");
+            IList<(string commentId, string profileId)> input = [];
+            foreach (var item in request.CommentIdsAndProfileIds)
+                input.Add((item.CommentId, item.ProfileId));
 
-            var reaction = await commentReactionService.GetByCommentIdAndProfileId(request.CommentId, request.ProfileId);
+            var reaction = await commentReactionService.GetAllByCommentIdsAndProfileIds(input);
 
-            return new ReactionTypeResponse
+            var response = new ReactionTypesResponse();
+            response.Types_.AddRange(reaction.Select(p => new BuildingBlocks.Application.Protos.ReactionType
             {
-                Type = reaction.Type.ToString()
-            };
+                Type = p.Type.ToString()
+            }));
+            return response;
         }
 
     }

@@ -45,6 +45,7 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data
             comment.HasIndex(c => c.ProfileId);
             comment.HasIndex(c => c.PostId);
             comment.HasIndex(c => c.ParentId);
+            comment.HasIndex(c => c.Type);
             comment.HasIndex(c => c.CreatedAt);
         }
 

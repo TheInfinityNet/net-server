@@ -20,7 +20,7 @@ message ReactionsByCommentIdRequest {
 
 }
 
-message ReactionByPostIdAndProfileIdRequest {
+message ReactionByPostIdAndProfileId {
 
 	string postId = 1;
 
@@ -28,11 +28,23 @@ message ReactionByPostIdAndProfileIdRequest {
 
 }
 
-message ReactionByCommentIdAndProfileIdRequest {
+message ReactionsByPostIdsAndProfileIdsRequest {
+
+	repeated ReactionByPostIdAndProfileId postIdsAndProfileIds = 1;
+
+}
+
+message ReactionByCommentIdAndProfileId {
 
 	string commentId = 1;
 
 	string profileId = 2;
+
+}
+
+message ReactionsByCommentIdsAndProfileIdsRequest {
+
+	repeated ReactionByCommentIdAndProfileId commentIdsAndProfileIds = 1;
 
 }
 
@@ -42,9 +54,15 @@ message ReactionCountResponse {
 
 }
 
-message ReactionTypeResponse {
+message ReactionType {
 
 	string type = 3;
+
+}
+
+message ReactionTypesResponse {
+
+	repeated ReactionType types = 1;
 
 }
 
@@ -54,8 +72,8 @@ service ReactionService {
 
 	rpc getCommentReactionsCount(ReactionsByCommentIdRequest) returns (ReactionCountResponse);
 
-	rpc getPostReactionByProfileId(ReactionByPostIdAndProfileIdRequest) returns (ReactionTypeResponse);
+	rpc getPostReactionsByProfileIds(ReactionsByPostIdsAndProfileIdsRequest) returns (ReactionTypesResponse);
 
-	rpc getCommentReactionByProfileId(ReactionByCommentIdAndProfileIdRequest) returns (ReactionTypeResponse);
+	rpc getCommentReactionsByProfileIds(ReactionsByCommentIdsAndProfileIdsRequest) returns (ReactionTypesResponse);
 
 }

@@ -1,17 +1,16 @@
 using AutoMapper;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
+using InfinityNetServer.Services.Reaction.Application.DTOs.Requests;
+using InfinityNetServer.Services.Reaction.Application.DTOs.Results;
+using InfinityNetServer.Services.Reaction.Application.Services;
 using InfinityNetServer.Services.Reaction.Domain.Entities;
 using InfinityNetServer.Services.Reaction.Domain.Repositories;
 using InfinityNetServer.Services.Reaction.Infrastructure.Data;
-using k8s.KubeConfigModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using InfinityNetServer.Services.Reaction.Application.Services;
-using InfinityNetServer.BuildingBlocks.Domain.Enums;
-using InfinityNetServer.Services.Reaction.Application.DTOs.Results;
-using InfinityNetServer.Services.Reaction.Application.DTOs.Requests;
 
 namespace InfinityNetServer.Services.Reaction.Presentation.Services
 {
@@ -27,8 +26,8 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Services
             return await repository.CreateAsync(model);
         }
 
-        public async Task<CommentReaction> GetByCommentIdAndProfileId(string commentId, string profileId)
-            => await repository.GetByCommentIdAndProfileId(Guid.Parse(commentId), Guid.Parse(profileId));
+        public async Task<IList<CommentReaction>> GetAllByCommentIdsAndProfileIds(IList<(string commentId, string profileId)> commentIdsAndProfileIds)
+            => await repository.GetAllByCommentIdsAndProfileIdsAsync(commentIdsAndProfileIds.Select(q => (Guid.Parse(q.commentId), Guid.Parse(q.profileId))).ToList());
 
         public async Task<List<CommandReacionGroupResult>> GetCommandReaction(string lstCommandId)
         {

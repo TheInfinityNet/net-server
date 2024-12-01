@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using InfinityNetServer.BuildingBlocks.Domain.Repositories;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Repositories;
 using InfinityNetServer.Services.Post.Domain.Enums;
 using System;
 using System.Collections.Generic;
@@ -16,7 +13,7 @@ namespace InfinityNetServer.Services.Post.Domain.Repositories
 
         Task<IList<Guid>> GetAllPresentationIdsAsync();
 
-        Task<IList<Entities.Post>> GetByTypeAsync(PostType type);
+        Task<IList<Entities.Post>> GetAllByTypeAsync(PostType type);
 
         Task<IList<Entities.Post>> GetAllByOwnerIdAsync(Guid ownerId);
 

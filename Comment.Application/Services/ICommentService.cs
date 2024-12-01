@@ -21,6 +21,8 @@ namespace InfinityNetServer.Services.Comment.Application.Services
 
         public Task<GetCommentsResponse> GetByPostId(GetCommentsRequest request);
 
+        public void ValidateType(Domain.Entities.Comment entity);
+
         public Task ConfirmSave(string id, string profileId, string fileMetadataId, IMessageBus messageBus);
 
         public Task<Domain.Entities.Comment> Create(Domain.Entities.Comment entity);

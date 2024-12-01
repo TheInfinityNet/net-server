@@ -31,12 +31,12 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
-        public async Task<IList<DTOs.Others.PreviewFileMetadata>> GetPreviewFileMetadatas()
+        public async Task<IList<DTOs.Others.PreviewFileMetadata>> GetPreviewFileMetadatas(PostType type)
         {
             try
             {
                 logger.LogInformation("Starting get file metadata ids with types");
-                var response = await client.getPreviewFileMetadatasAsync(new Empty());
+                var response = await client.getPreviewFileMetadatasAsync(new PreviewFileMetadatasRequest { Type = type.ToString() });
                 // Call the gRPC server to introspect the token
                 return new List<DTOs.Others.PreviewFileMetadata>(response.PreviewFileMetadatas
                     .Select(mapper.Map<DTOs.Others.PreviewFileMetadata>).ToList());

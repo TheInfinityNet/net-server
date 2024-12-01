@@ -1,8 +1,9 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using InfinityNetServer.BuildingBlocks.Domain.Entities;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Entities;
+using InfinityNetServer.Services.Comment.Domain.Enums;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InfinityNetServer.Services.Comment.Domain.Entities
 {
@@ -24,6 +25,10 @@ namespace InfinityNetServer.Services.Comment.Domain.Entities
 
         [Column("file_metadata_id")]
         public Guid? FileMetadataId { get; set; } = null; // Link to File service
+
+        [Required]
+        [Column("type")]
+        public CommentType Type { get; set; }
 
         [Required]
         [Column("content", TypeName = "jsonb")]

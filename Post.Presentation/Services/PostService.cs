@@ -64,8 +64,8 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
             return requestPost;
         }
 
-        public async Task<IList<Domain.Entities.Post>> GetByType(string type)
-            => await postRepository.GetByTypeAsync(Enum.Parse<PostType>(type));
+        public async Task<IList<Domain.Entities.Post>> GetAllByType(string type)
+            => await postRepository.GetAllByTypeAsync(Enum.Parse<PostType>(type));
 
         public async Task<IList<string>> WhoCantSee(string id)
         {

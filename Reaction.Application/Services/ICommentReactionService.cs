@@ -13,7 +13,7 @@ namespace InfinityNetServer.Services.Reaction.Application.Services
 
         public Task<int> CountByCommentIdAndType(string commentId, ReactionType type);
 
-        public Task<CommentReaction> GetByCommentIdAndProfileId(string commentId, string profileId);
+        public Task<IList<CommentReaction>> GetAllByCommentIdsAndProfileIds(IList<(string commentId, string profileId)> commentIdsAndProfileIds);
 
         public Task<List<CommandReacionGroupResult>> GetCommandReaction(string lstCommandId);
 

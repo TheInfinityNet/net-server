@@ -82,6 +82,12 @@ message PreviewFileMetadata {
 
 }
 
+message PreviewFileMetadatasRequest {
+
+	string type = 1;
+
+}
+
 message PreviewFileMetadatasResponse {
 
 	repeated PreviewFileMetadata previewFileMetadatas = 1;

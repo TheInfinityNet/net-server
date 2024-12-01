@@ -19,7 +19,7 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Repositories
         public async Task<IList<Guid>> GetAllPresentationIdsAsync()
             => await context.Posts.Where(p => p.PresentationId == null).Select(p => p.Id).ToListAsync();
 
-        public async Task<IList<Domain.Entities.Post>> GetByTypeAsync(PostType type)
+        public async Task<IList<Domain.Entities.Post>> GetAllByTypeAsync(PostType type)
             => await context.Posts.Where(p => p.Type == type).ToListAsync();
 
         public async Task<IList<Domain.Entities.Post>> GetAllByOwnerIdAsync(Guid ownerId)

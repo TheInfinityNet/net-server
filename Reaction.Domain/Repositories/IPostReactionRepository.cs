@@ -2,6 +2,7 @@
 using InfinityNetServer.BuildingBlocks.Domain.Repositories;
 using InfinityNetServer.Services.Reaction.Domain.Entities;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Reaction.Domain.Repositories
@@ -11,7 +12,7 @@ namespace InfinityNetServer.Services.Reaction.Domain.Repositories
 
         public Task<int> CountByPostIdAndType(Guid postId, ReactionType type);
 
-        public Task<PostReaction> GetByPostIdAndProfileId(Guid postId, Guid profileId);
+        public Task<IList<PostReaction>> GetAllByPostIdsAndProfileIdsAsync(IList<(Guid postId, Guid profileId)> postIdsAndProfileIds);
 
     }
 }

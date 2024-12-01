@@ -1,4 +1,5 @@
 ﻿using InfinityNetServer.BuildingBlocks.Domain.Repositories;
+using InfinityNetServer.Services.Comment.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace InfinityNetServer.Services.Comment.Domain.Repositories
     {
         public Task<IList<Entities.Comment>> GetAllByPostIdAsync(Guid postId);
 
-        public Task<IList<Entities.Comment>> GetAllMediaCommentAsync();
+        public Task<IList<Entities.Comment>> GetAllByType(CommentType type);
 
         public Task<int> CountByPostIdAsync(Guid postId);
 

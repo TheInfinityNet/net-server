@@ -1,4 +1,5 @@
 ﻿using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositories;
+using InfinityNetServer.Services.Comment.Domain.Enums;
 using InfinityNetServer.Services.Comment.Domain.Repositories;
 using InfinityNetServer.Services.Comment.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -14,8 +15,8 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Repositories
         public async Task<IList<Domain.Entities.Comment>> GetAllByPostIdAsync(Guid postId)
             => await context.Comments.Where(c => c.PostId == postId).ToListAsync();
 
-        public async Task<IList<Domain.Entities.Comment>> GetAllMediaCommentAsync()
-            => await context.Comments.Where(c => c.FileMetadataId != null).ToListAsync();
+        public async Task<IList<Domain.Entities.Comment>> GetAllByType(CommentType type)
+            => await context.Comments.Where(c => c.Type == type).ToListAsync();
 
         public async Task<int> CountByPostIdAsync(Guid postId)
             => await context.Comments.CountAsync(c => c.PostId == postId && !c.IsDeleted);

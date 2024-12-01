@@ -18,6 +18,8 @@ namespace InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Comment
 
         public int? ReplyCount { get; set; }
 
+        public string Reaction { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
     }

@@ -19,7 +19,7 @@ namespace InfinityNetServer.Services.Post.Application.DTOs.Responses
 
         public DateTime CreatedAt { get; set; }
 
-        public ReactionType? Reaction { get; set; }
+        public string Reaction { get; set; }
 
         public DateTime? UpdatedAt { get; set; }
 

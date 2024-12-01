@@ -77,7 +77,7 @@ service CommentService {
 
 	rpc getCommentIds (google.protobuf.Empty) returns (CommentIdsResponse) {}
 
-	rpc getPreviewFileMetadatas (google.protobuf.Empty) returns (PreviewFileMetadatasResponse) {}
+	rpc getPreviewFileMetadatas (PreviewFileMetadatasRequest) returns (PreviewFileMetadatasResponse) {}
 
 	rpc getCommentIdsByPostId (CommentByPostIdRequest) returns (CommentIdsResponse) {}
 

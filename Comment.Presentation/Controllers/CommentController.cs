@@ -6,7 +6,6 @@ using InfinityNetServer.BuildingBlocks.Application.Services;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.Comment.Application;
 using InfinityNetServer.Services.Comment.Application.DTOs.Requests;
-using InfinityNetServer.Services.Comment.Application.DTOs.Responses;
 using InfinityNetServer.Services.Comment.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -93,6 +92,8 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
             Domain.Entities.Comment comment = mapper.Map<Domain.Entities.Comment>(request);
             comment.ProfileId = currentProfileId;
 
+            commentService.ValidateType(comment);
+
             var response = await commentService.Create(comment);
 
             if (request.FileMetadataId != null)
@@ -136,12 +137,11 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
             Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
                             : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            var existedComment = await commentService.GetById(id)
-                ?? throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
-
             Domain.Entities.Comment comment = mapper.Map<Domain.Entities.Comment>(request);
-            comment.Id = existedComment.Id;
+            comment.Id = Guid.Parse(id);
             comment.ProfileId = currentProfileId;
+
+            commentService.ValidateType(comment);
 
             var response = await commentService.Update(comment);
             if (request.FileMetadataId != null)

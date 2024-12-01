@@ -3,10 +3,10 @@ using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
 using InfinityNetServer.Services.Comment.Application.Services;
+using InfinityNetServer.Services.Comment.Domain.Enums;
 using InfinityNetServer.Services.Comment.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,16 +30,17 @@ namespace InfinityNetServer.Services.Comment.Application.GrpcServices
             return await Task.FromResult(response);
         }
 
-        public override async Task<PreviewFileMetadatasResponse> getPreviewFileMetadatas(Empty request, ServerCallContext context)
+        public override async Task<PreviewFileMetadatasResponse> getPreviewFileMetadatas(PreviewFileMetadatasRequest request, ServerCallContext context)
         {
             logger.LogInformation("Received getFileMetadataIdsWithTypes request");
             var response = new PreviewFileMetadatasResponse();
-            var comments = await commentRepository.GetAllMediaCommentAsync();
+            var comments = await commentRepository.GetAllByType(System.Enum.Parse<CommentType>(request.Type));
             response.PreviewFileMetadatas.AddRange(comments.Select(p => new PreviewFileMetadata
             {
                 Id = p.Id.ToString(),
                 OwnerId = p.ProfileId.ToString(),
-                FileMetadataId = p.FileMetadataId.ToString()
+                FileMetadataId = p.FileMetadataId.ToString(),
+                Type = p.Type.ToString()
             }));
 
             return await Task.FromResult(response);

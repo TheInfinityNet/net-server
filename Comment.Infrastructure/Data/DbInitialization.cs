@@ -2,6 +2,7 @@
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
+using InfinityNetServer.Services.Comment.Domain.Enums;
 using InfinityNetServer.Services.Comment.Domain.Repositories;
 using MassTransit.Util;
 using Microsoft.AspNetCore.Builder;
@@ -115,6 +116,9 @@ public static class DbInitialization
                 comment.ProfileId = faker.PickRandom(validProfileIds);
                 comment.CreatedBy = comment.ProfileId;
 
+                comment.Type = comment.FileMetadataId == null ? CommentType.Text
+                    : faker.PickRandom(new CommentType[] { CommentType.Photo, CommentType.Video });
+
                 // Lấy danh sách bạn bè và người theo dõi (nếu cần tạo content phụ thuộc)
                 var friendIds = await relationshipClient.GetFriendIds(comment.ProfileId.ToString());
                 var followerIds = await relationshipClient.GetFollowerIds(comment.ProfileId.ToString());
@@ -184,6 +188,9 @@ public static class DbInitialization
                 comment.ParentId = parentComment.Id;
                 comment.ProfileId = faker.PickRandom(validProfileIds);
                 comment.CreatedBy = comment.ProfileId;
+
+                comment.Type = comment.FileMetadataId == null ? CommentType.Text 
+                    : faker.PickRandom(new CommentType[] { CommentType.Photo, CommentType.Video });
 
                 // Lấy danh sách bạn bè và người theo dõi
                 var friendIds = await relationshipClient.GetFriendIds(comment.ProfileId.ToString());
