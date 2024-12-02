@@ -4,6 +4,8 @@ using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Comment;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
+using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
+using InfinityNetServer.BuildingBlocks.Domain.Specifications;
 using InfinityNetServer.Services.Comment.Application.DTOs.Requests;
 using InfinityNetServer.Services.Comment.Application.DTOs.Responses;
 using InfinityNetServer.Services.Comment.Application.Exceptions;
@@ -40,19 +42,46 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
         public async Task<IList<Domain.Entities.Comment>> GetPopularComments(string postId)
             => await commentRepository.GetPopularCommentsAsync(Guid.Parse(postId));
 
-        public async Task<GetCommentsResponse> GetByPostId(GetCommentsRequest request)
+        public async Task<CursorPagedResult<Domain.Entities.Comment>> GetByPostId
+            (string postId, string cursor, int pageSize, SortDirection sortDirection)
         {
-            var (comments, totalCount) = await commentRepository.GetAllByPostIdAsync(request.PostId, request.PageSize, request.PageNumber);
-
-            var response = new GetCommentsResponse
+            var specification = new SpecificationWithCursor<Domain.Entities.Comment>
             {
-                Comments = mapper.Map<List<CommentResponse>>(comments),
-                TotalCount = totalCount,
-                CurrentPage = request.PageNumber,
-                PageSize = request.PageSize
+                Criteria = comment => comment.ParentId == null && comment.PostId == Guid.Parse(postId) && !comment.IsDeleted,
+
+                OrderFields = [
+                        new OrderField<Domain.Entities.Comment>
+                        {
+                            Field = x => x.CreatedAt,
+                            Direction = sortDirection
+                        }
+                    ],
+                Cursor = cursor,
+                PageSize = pageSize
             };
 
-            return response;
+            return await commentRepository.GetPagedAsync(specification);
+        }
+
+        public async Task<CursorPagedResult<Domain.Entities.Comment>> GetReplies
+            (string parentId, string cursor, int pageSize)
+        {
+            var specification = new SpecificationWithCursor<Domain.Entities.Comment>
+            {
+                Criteria = comment => comment.ParentId == Guid.Parse(parentId) && !comment.IsDeleted,
+
+                OrderFields = [
+                        new OrderField<Domain.Entities.Comment>
+                        {
+                            Field = x => x.CreatedAt,
+                            Direction = SortDirection.Descending
+                        }
+                    ],
+                Cursor = cursor,
+                PageSize = pageSize
+            };
+
+            return await commentRepository.GetPagedAsync(specification);
         }
 
         public void ValidateType(Domain.Entities.Comment entity)
@@ -147,42 +176,6 @@ namespace InfinityNetServer.Services.Comment.Presentation.Services
 
             return await commentRepository.UpdateAsync(entity);
         }
-
-        //public async Task<List<ChildCommentResponse>> GetChildCommentsAsync(Guid parentCommentId)
-        //{
-        //    var childComments = await commentRepository.GetChildCommentsAsync(parentCommentId);
-
-        //    var result = new List<ChildCommentResponse>();
-        //    foreach (var comment in childComments)
-        //    {
-        //        var replyCount = await GetRepliesCommentAsync(comment.Id);
-
-        //        var tagFacets = comment.Content.TagFacets.Select(tag => new TagFacetResponse
-        //        {
-        //            Type = tag.Type.ToString(),
-        //            Start = tag.Start,
-        //            End = tag.End,
-        //            ProfileId = tag.ProfileId
-        //        }).ToList();
-
-        //        var response = new ChildCommentResponse
-        //        {
-        //            Id = comment.Id.ToString(),
-        //            CreateAt = comment.CreatedAt,
-        //            Content = new ContentResponse
-        //            {
-        //                Text = comment.Content.Text,
-        //                TagFacets = tagFacets
-        //            },
-        //            ReplyCount = replyCount,
-        //            ProfileId = comment.ProfileId.ToString()
-        //        };
-
-        //        result.Add(response);
-        //    }
-
-        //    return result;
-        //}
 
     }
 }

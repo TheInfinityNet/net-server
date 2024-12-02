@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
@@ -14,50 +15,20 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
     public class CommonReactionClient(ReactionServiceClient client, ILogger<CommonReactionClient> logger, IMapper mapper)
     {
 
-        public async Task<int> GetPostReactionsCount(string postId, string type)
+        public async Task<IList<(string postId, IDictionary<string, int> countDetails)>> GetPostReactionsCount(IList<string> postIds)
         {
             try
             {
                 logger.LogInformation("Starting get post reactions count");
-                var response = await client.getPostReactionsCountAsync(new ReactionsByPostIdRequest { PostId = postId, Type = type });
-                // Call the gRPC server to introspect the token
-                return response.Count;
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e.Message);
-                throw new BaseException(BaseError.REACTION_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
-            }
-        }
+                var request = new ReactionCountsRequest();
+                request.OwnerIds.AddRange(postIds);
 
-        public async Task<int> GetCommentReactionsCount(string commentId, string type)
-        {
-            try
-            {
-                logger.LogInformation("Starting get comment reactions count");
-                var response = await client.getCommentReactionsCountAsync(new ReactionsByCommentIdRequest { CommentId = commentId, Type = type });
-                // Call the gRPC server to introspect the token
-                return response.Count;
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e.Message);
-                throw new BaseException(BaseError.REACTION_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
-            }
-        }
+                var result = await client.getPostReactionsCountAsync(request);
 
-        public async Task<IList<string>> GetPostReactionsByProfileIds(IList<(string postId, string profileId)> postIdsAndProfileIds)
-        {
-            try
-            {
-                logger.LogInformation("Starting get post reactions by profile ids");
-                var request = new ReactionsByPostIdsAndProfileIdsRequest();
-                request.PostIdsAndProfileIds.AddRange(postIdsAndProfileIds
-                    .Select(q => new ReactionByPostIdAndProfileId { PostId = q.postId, ProfileId = q.profileId }));
-
-                var reactionTypes = await client.getPostReactionsByProfileIdsAsync(request);
-                // Call the gRPC server to introspect the token
-                return reactionTypes.Types_.Select(q => q.Type).ToList();
+                return result.ReactionCounts.Select(q => {
+                    IDictionary<string, int> countDetails = q.CountDetails.ToDictionary(p => p.Type, p => p.Count);
+                    return (q.OwnerId, countDetails);
+                }).ToList();
             }
             catch (Exception e)
             {
@@ -67,18 +38,62 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
-        public async Task<IList<string>> GetCommentReactionByProfileId(IList<(string commentId, string profileId)> commentIdsAndProfileIds)
+        public async Task<IList<(string commentId, IDictionary<string, int> countDetails)>> GetCommentReactionsCount(IList<string> commentIds)
+        {
+            try
+            {
+                logger.LogInformation("Starting get comment reactions count");
+                var request = new ReactionCountsRequest();
+                request.OwnerIds.AddRange(commentIds);
+
+                var result = await client.getCommentReactionsCountAsync(request);
+
+                return result.ReactionCounts.Select(q => {
+                    IDictionary<string, int> countDetails = q.CountDetails.ToDictionary(p => p.Type, p => p.Count);
+                    return (q.OwnerId, countDetails);
+                }).ToList();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                //throw new BaseException(BaseError.REACTION_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
+                return [];
+            }
+        }
+
+        public async Task<IList<DTOs.Others.PreviewReaction>> GetPostReactionsByProfileIds(IList<(string postId, string profileId)> postIdsAndProfileIds)
+        {
+            try
+            {
+                logger.LogInformation("Starting get post reactions by profile ids");
+                var request = new ReactionsByProfileIdsRequest();
+                request.OwnerIdsAndProfileIds.AddRange(postIdsAndProfileIds
+                    .Select(q => new ReactionByOwnerIdAndProfileId { OwnerId = q.postId, ProfileId = q.profileId }));
+
+                var reactionTypes = await client.getPostReactionsByProfileIdsAsync(request);
+                // Call the gRPC server to introspect the token
+                return reactionTypes.PreviewReactions.Select(mapper.Map<DTOs.Others.PreviewReaction>).ToList();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                //throw new BaseException(BaseError.REACTION_NOT_FOUND, StatusCodes.Status422UnprocessableEntity);
+                return [];
+            }
+        }
+
+        public async Task<IList<DTOs.Others.PreviewReaction>> GetCommentReactionByProfileId(IList<(string commentId, string profileId)> commentIdsAndProfileIds)
         {
             try
             {
                 logger.LogInformation("Starting get comment reactions by profile ids");
-                var request = new ReactionsByCommentIdsAndProfileIdsRequest();
-                request.CommentIdsAndProfileIds.AddRange(commentIdsAndProfileIds
-                   .Select(q => new ReactionByCommentIdAndProfileId { CommentId = q.commentId, ProfileId = q.profileId }));
+                var request = new ReactionsByProfileIdsRequest();
+                request.OwnerIdsAndProfileIds.AddRange(commentIdsAndProfileIds
+                   .Select(q => new ReactionByOwnerIdAndProfileId { OwnerId = q.commentId, ProfileId = q.profileId }));
 
                 var reactionTypes = await client.getCommentReactionsByProfileIdsAsync(request);
                 // Call the gRPC server to introspect the token
-                return reactionTypes.Types_.Select(q => q.Type).ToList();
+                return reactionTypes.PreviewReactions.Select(mapper.Map<DTOs.Others.PreviewReaction>).ToList();
             }
             catch (Exception e)
             {

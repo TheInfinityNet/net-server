@@ -4,76 +4,72 @@ package InfinityNetServer.BuildingBlocks.Application.Protos;
 
 option csharp_namespace = "InfinityNetServer.BuildingBlocks.Application.Protos";
 
-message ReactionsByPostIdRequest {
+message ReactionCountsRequest {
 
-	string postId = 1;
-
-	string type = 2;
+	repeated string ownerIds = 1;
 
 }
 
-message ReactionsByCommentIdRequest {
+message ReactionByOwnerIdAndProfileId {
 
-	string commentId = 1;
-
-	string type = 2;
-
-}
-
-message ReactionByPostIdAndProfileId {
-
-	string postId = 1;
+	string ownerId = 1;
 
 	string profileId = 2;
 
 }
 
-message ReactionsByPostIdsAndProfileIdsRequest {
+message ReactionsByProfileIdsRequest {
 
-	repeated ReactionByPostIdAndProfileId postIdsAndProfileIds = 1;
+	repeated ReactionByOwnerIdAndProfileId ownerIdsAndProfileIds = 1;
 
 }
 
-message ReactionByCommentIdAndProfileId {
+message ReactionCount {
+	
+	string type = 1;
 
-	string commentId = 1;
+	int32 count = 2;
+
+}
+
+message ReactionCountWithOwnerId {
+
+	string ownerId = 1;
+
+	repeated ReactionCount countDetails = 2;
+
+}
+
+message ReactionCountsResponse {
+
+	repeated ReactionCountWithOwnerId reactionCounts = 2;
+
+}
+
+message PreviewReaction {
+
+	string ownerId = 1;
 
 	string profileId = 2;
-
-}
-
-message ReactionsByCommentIdsAndProfileIdsRequest {
-
-	repeated ReactionByCommentIdAndProfileId commentIdsAndProfileIds = 1;
-
-}
-
-message ReactionCountResponse {
-
-	int32 count = 1;
-
-}
-
-message ReactionType {
 
 	string type = 3;
 
 }
 
-message ReactionTypesResponse {
+message PreviewReactionsResponse {
 
-	repeated ReactionType types = 1;
+	repeated PreviewReaction previewReactions = 1;
 
 }
 
 service ReactionService {
 
-	rpc getPostReactionsCount(ReactionsByPostIdRequest) returns (ReactionCountResponse);
+	rpc getPostReactionsCount(ReactionCountsRequest) returns (ReactionCountsResponse);
 
-	rpc getCommentReactionsCount(ReactionsByCommentIdRequest) returns (ReactionCountResponse);
+	rpc getCommentReactionsCount(ReactionCountsRequest) returns (ReactionCountsResponse);
 
-	rpc getPostReactionsByProfileIds(ReactionsByPostIdsAndProfileIdsRequest) returns (ReactionTypesResponse);
+	rpc getPostReactionsByProfileIds(ReactionsByProfileIdsRequest) returns (PreviewReactionsResponse);
 
-	rpc getCommentReactionsByProfileIds(ReactionsByCommentIdsAndProfileIdsRequest) returns (ReactionTypesResponse);
+	rpc getCommentReactionsByProfileIds(ReactionsByProfileIdsRequest) returns (PreviewReactionsResponse);
 
 }

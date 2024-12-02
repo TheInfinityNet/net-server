@@ -5,7 +5,7 @@ using InfinityNetServer.Services.File.Application.Services;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
-namespace InfinityNetServer.Services.Profile.Application.GrpcServices
+namespace InfinityNetServer.Services.File.Application.GrpcServices
 {
     public class GrpcFileService
         (ILogger<GrpcFileService> logger,

@@ -18,65 +18,73 @@ namespace InfinityNetServer.Services.Reaction.Application.GrpcServices
         ICommentReactionService commentReactionService) : ReactionService.ReactionServiceBase
     {
 
-        public override async Task<ReactionCountResponse> getPostReactionsCount(ReactionsByPostIdRequest request, ServerCallContext context)
+        public override async Task<ReactionCountsResponse> getPostReactionsCount(ReactionCountsRequest request, ServerCallContext context)
         {
-            logger.LogInformation("Handling GRPC call for getPostReactionsCount with PostId: {PostId}", request.PostId);
+            logger.LogInformation("Handling GRPC call for getPostReactionsCounts");
 
-            ReactionType reactionType = Enum.Parse<ReactionType>(request.Type);
+            IList<(string postId, IDictionary<ReactionType, int> countDetails)> 
+                reactionsCounts = await postReactionService.CountByPostIdAsync(request.OwnerIds);
 
-            var count = await postReactionService.CountByPostIdAndType(request.PostId, reactionType);
-
-            return new ReactionCountResponse
+            var response = new ReactionCountsResponse();
+            response.ReactionCounts.AddRange(reactionsCounts.Select(q => new ReactionCountWithOwnerId
             {
-                Count = count
-            };
-        }
-
-        public override async Task<ReactionCountResponse> getCommentReactionsCount(ReactionsByCommentIdRequest request, ServerCallContext context)
-        {
-            logger.LogInformation("Handling GRPC call for getCommentReactionsCount with CommentId: {CommentId}", request.CommentId);
-
-            ReactionType reactionType = Enum.Parse<ReactionType>(request.Type);
-
-            var count = await commentReactionService.CountByCommentIdAndType(request.CommentId, reactionType);
-
-            return new ReactionCountResponse
-            {
-                Count = count
-            };
-        }
-
-        public override async Task<ReactionTypesResponse> getPostReactionsByProfileIds(ReactionsByPostIdsAndProfileIdsRequest request, ServerCallContext context)
-        {
-            logger.LogInformation("Handling GRPC call for getPostReactionByProfileId");
-            IList<(string postId, string profileId)> input = [];
-            foreach (var item in request.PostIdsAndProfileIds)
-                input.Add((item.PostId, item.ProfileId));
-
-            var reaction = await postReactionService.GetAllByPostIdsAndProfileIds(input);
-
-            var response = new ReactionTypesResponse();
-            response.Types_.AddRange(reaction.Select(p => new BuildingBlocks.Application.Protos.ReactionType
-            {
-                Type = p.Type.ToString()
+                OwnerId = q.postId,
+                CountDetails = { q.countDetails.Select(p => new ReactionCount
+                {
+                    Type = p.Key.ToString(),
+                    Count = p.Value
+                })}
             }));
+
             return response;
         }
 
-        public override async Task<ReactionTypesResponse> getCommentReactionsByProfileIds(ReactionsByCommentIdsAndProfileIdsRequest request, ServerCallContext context)
+        public override async Task<ReactionCountsResponse> getCommentReactionsCount(ReactionCountsRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Handling GRPC call for getCommentReactionsCounts");
+
+            IList<(string commentId, IDictionary<ReactionType, int> countDetails)>
+                reactionsCounts = await commentReactionService.CountByCommentIdAsync(request.OwnerIds);
+
+            var response = new ReactionCountsResponse();
+            response.ReactionCounts.AddRange(reactionsCounts.Select(q => new ReactionCountWithOwnerId
+            {
+                OwnerId = q.commentId,
+                CountDetails = { q.countDetails.Select(p => new ReactionCount
+                {
+                    Type = p.Key.ToString(),
+                    Count = p.Value
+                })}
+            }));
+
+            return response;
+        }
+
+        public override async Task<PreviewReactionsResponse> getPostReactionsByProfileIds(ReactionsByProfileIdsRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Handling GRPC call for getPostReactionByProfileId");
+            IList<(string postId, string profileId)> input = [];
+            foreach (var item in request.OwnerIdsAndProfileIds)
+                input.Add((item.OwnerId, item.ProfileId));
+
+            var reaction = await postReactionService.GetAllByPostIdsAndProfileIds(input);
+
+            var response = new PreviewReactionsResponse();
+            response.PreviewReactions.AddRange(reaction.Select(mapper.Map<PreviewReaction>));
+            return response;
+        }
+
+        public override async Task<PreviewReactionsResponse> getCommentReactionsByProfileIds(ReactionsByProfileIdsRequest request, ServerCallContext context)
         {
             logger.LogInformation("Handling GRPC call for getCommentReactionByProfileId");
             IList<(string commentId, string profileId)> input = [];
-            foreach (var item in request.CommentIdsAndProfileIds)
-                input.Add((item.CommentId, item.ProfileId));
+            foreach (var item in request.OwnerIdsAndProfileIds)
+                input.Add((item.OwnerId, item.ProfileId));
 
             var reaction = await commentReactionService.GetAllByCommentIdsAndProfileIds(input);
 
-            var response = new ReactionTypesResponse();
-            response.Types_.AddRange(reaction.Select(p => new BuildingBlocks.Application.Protos.ReactionType
-            {
-                Type = p.Type.ToString()
-            }));
+            var response = new PreviewReactionsResponse();
+            response.PreviewReactions.AddRange(reaction.Select(mapper.Map<PreviewReaction>));
             return response;
         }
 

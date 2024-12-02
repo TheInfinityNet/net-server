@@ -90,7 +90,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Services
             {
 
                 Criteria = post =>
-                        post.Presentation == null
+                        post.Presentation == null && post.GroupId == null && !post.IsDeleted
 
                         && (post.Audience.Type == PostAudienceType.Public
 

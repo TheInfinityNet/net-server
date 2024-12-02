@@ -24,6 +24,7 @@ using InfinityNetServer.Services.Reaction.Infrastructure.DependencyInjection;
 using InfinityNetServer.Services.Reaction.Presentation.Services;
 using InfinityNetServer.Services.Reaction.Presentation.Exceptions;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Web;
+using InfinityNetServer.Services.Reaction.Presentation.Mappers;
 
 namespace InfinityNetServer.Services.Reaction.Presentation.Configurations;
 
@@ -44,7 +45,7 @@ internal static class HostingExtensions
 
         builder.Services.AddRepositories();
 
-        builder.Services.AddMappers();
+        builder.Services.AddMappers(typeof(ReactionMappers));
 
         builder.Services.AddLocalization(builder.Configuration);
 

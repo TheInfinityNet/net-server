@@ -49,13 +49,15 @@ message CommentResponse {
 
     string profileId = 2;
 
-	string fileMetadataId = 3;
+	string postId = 3;
 
-    CommentContent content = 4;
+	string fileMetadataId = 4;
 
-    int32 replyCount = 5;
+    CommentContent content = 5;
 
-    google.protobuf.Timestamp createdAt = 6;
+    int32 replyCount = 6;
+
+    google.protobuf.Timestamp createdAt = 7;
 
 }
 

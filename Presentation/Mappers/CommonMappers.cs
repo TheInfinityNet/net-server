@@ -88,7 +88,7 @@ public class CommonMappers : Profile
                     dest.Avatar = new PhotoMetadataResponse
                     {
                         Id = Guid.Empty,
-                        Name = "cover.jpg",
+                        Name = "demo.jpg",
                         Width = 500,
                         Height = 500,
                         Size = 1000,
@@ -110,7 +110,7 @@ public class CommonMappers : Profile
                     dest.Cover = new PhotoMetadataResponse
                     {
                         Id = Guid.Empty,
-                        Name = "cover.jpg",
+                        Name = "demo.jpg",
                         Width = 500,
                         Height = 500,
                         Size = 1000,
@@ -173,8 +173,8 @@ public class CommonMappers : Profile
         CreateMap<Application.Protos.CommentResponse, Application.DTOs.Responses.Comment.CommentResponse>()
             .AfterMap((src, dest) =>
             {
-                dest.Profile = new PreviewProfileResponse { Id = Guid.Parse(src.ProfileId) };
-
+                dest.Owner = new PreviewProfileResponse { Id = Guid.Parse(src.ProfileId) };
+                dest.OwnerId = Guid.Parse(src.ProfileId);
                 if (src.ReplyCount > 0) dest.ReplyCount = src.ReplyCount;
 
                 //dest.Type = src.Type.ToString();
@@ -189,6 +189,8 @@ public class CommonMappers : Profile
         CreateMap<Application.Protos.ProfileIdWithName, ProfileIdWithName>();
 
         CreateMap<Application.Protos.PreviewFileMetadata, PreviewFileMetadata>();
+
+        CreateMap<Application.Protos.PreviewReaction, PreviewReaction>();
 
         CreateMap<Application.Protos.ProfileIdWithMutualCount, ProfileIdWithMutualCount>().ReverseMap();
 

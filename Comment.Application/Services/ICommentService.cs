@@ -1,6 +1,6 @@
 using InfinityNetServer.BuildingBlocks.Application.Contracts;
-using InfinityNetServer.Services.Comment.Application.DTOs.Requests;
-using InfinityNetServer.Services.Comment.Application.DTOs.Responses;
+using InfinityNetServer.BuildingBlocks.Domain.Specifications;
+using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -19,7 +19,11 @@ namespace InfinityNetServer.Services.Comment.Application.Services
 
         public Task<IList<Domain.Entities.Comment>> GetPopularComments(string postId);
 
-        public Task<GetCommentsResponse> GetByPostId(GetCommentsRequest request);
+        public Task<CursorPagedResult<Domain.Entities.Comment>> GetByPostId
+            (string postId, string cursor, int pageSize, SortDirection sortDirection);
+
+        public Task<CursorPagedResult<Domain.Entities.Comment>> GetReplies
+            (string parentId, string cursor, int pageSize);
 
         public void ValidateType(Domain.Entities.Comment entity);
 
@@ -30,8 +34,6 @@ namespace InfinityNetServer.Services.Comment.Application.Services
         public Task<Domain.Entities.Comment> Update(Domain.Entities.Comment entity);
 
         public Task<Domain.Entities.Comment> SoftDelete(string commentId);
-
-        //Task<List<ChildCommentResponse>> GetChildCommentsAsync(string parentCommentId);
 
     }
 }

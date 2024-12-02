@@ -3,9 +3,9 @@
     public record PhotoMetadataResponse : BaseMetadataResponse
     {
 
-        public int Width { get; set; }
+        public int Width { get; set; } = 500;
 
-        public int Height { get; set; }
+        public int Height { get; set; } = 500;
 
     }
 }

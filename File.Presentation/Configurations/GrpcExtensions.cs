@@ -1,6 +1,6 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
-using InfinityNetServer.Services.Profile.Application.GrpcServices;
+using InfinityNetServer.Services.File.Application.GrpcServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;

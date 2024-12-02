@@ -9,7 +9,7 @@ public static class GrpcConfiguration
 
     public static void AddGrpcPreConfigured(this IServiceCollection services)
     {
-        if (services == null) throw new ArgumentNullException(nameof(services));
+        ArgumentNullException.ThrowIfNull(services);
 
         services.AddGrpc(options =>
         {

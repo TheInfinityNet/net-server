@@ -21,6 +21,8 @@ namespace InfinityNetServer.Services.Post.Application.DTOs.Responses
 
         public string Reaction { get; set; }
 
+        public IDictionary<string, int> ReactionCounts { get; set; }
+
         public DateTime? UpdatedAt { get; set; }
 
         public DateTime? DeletedAt { get; set; }

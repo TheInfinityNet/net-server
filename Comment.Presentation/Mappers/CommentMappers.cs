@@ -1,3 +1,4 @@
+using Bogus;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Comment;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
@@ -13,6 +14,8 @@ public class CommentMappers : AutoMapper.Profile
 
         CreateMap<Domain.Entities.CommentContent, BuildingBlocks.Application.Protos.CommentContent>();
 
+        CreateMap<Domain.Entities.CommentContent, BuildingBlocks.Application.DTOs.Others.CommentContent>();
+
         CreateMap<Domain.Entities.Comment, BuildingBlocks.Application.Protos.PreviewCommentResponse>();
 
         CreateMap<Domain.Entities.Comment, BuildingBlocks.Application.Protos.CommentResponse>();
@@ -20,7 +23,8 @@ public class CommentMappers : AutoMapper.Profile
         CreateMap<Domain.Entities.Comment, CommentResponse>()
             .AfterMap((src, dest) =>
             {
-                dest.Profile = new PreviewProfileResponse { Id = src.ProfileId };
+                dest.Owner = new PreviewProfileResponse { Id = src.ProfileId };
+                dest.OwnerId = src.ProfileId;
                 //dest.Type = src.Type.ToString();
                 if (src.Type.Equals(CommentType.Photo))
                     dest.Photo = new PhotoMetadataResponse { Id = src.FileMetadataId.Value };

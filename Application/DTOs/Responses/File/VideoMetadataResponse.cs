@@ -3,9 +3,9 @@
     public sealed record VideoMetadataResponse : PhotoMetadataResponse
     {
 
-        public PhotoMetadataResponse Thumbnail { get; set; }
+        public PhotoMetadataResponse Thumbnail { get; set; } = new PhotoMetadataResponse();
 
-        public int Duration { get; set; }
+        public int Duration { get; set; } = 500;
 
     }
 }

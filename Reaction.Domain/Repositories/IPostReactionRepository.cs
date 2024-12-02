@@ -10,7 +10,7 @@ namespace InfinityNetServer.Services.Reaction.Domain.Repositories
     public interface IPostReactionRepository : ISqlRepository<PostReaction, Guid>
     {
 
-        public Task<int> CountByPostIdAndType(Guid postId, ReactionType type);
+        public Task<IList<(Guid postId, IDictionary<ReactionType, int> countDetails)>> CountByPostIdAsync(IList<Guid> postIds);
 
         public Task<IList<PostReaction>> GetAllByPostIdsAndProfileIdsAsync(IList<(Guid postId, Guid profileId)> postIdsAndProfileIds);
 

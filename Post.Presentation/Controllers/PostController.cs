@@ -186,35 +186,37 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             var result = await postService.GetNewsFeed(currentProfileId.ToString(), cursor, limit);
 
             // Popular comments and Reactions
-            (IList<string> postIds, List<string> ownerIds) =
-                (result.Items.Select(item => item.Id.ToString()).Distinct().ToList(),
-                 result.Items.Select(item => item.OwnerId.ToString()).Distinct().ToList());
+            IList<string> postIds = result.Items.Select(item => item.Id.ToString()).Distinct().ToList();
 
             var popularCommentsTasks = postIds.Select(async id =>
             {
                 var comments = await commentClient.GetPopularComments(id.ToString());
-                return new { Id = id, comments };
+                return comments;
             });
 
-            var popularCommentsDict = (await Task.WhenAll(popularCommentsTasks)).ToDictionary(x => x.Id, x => x.comments);
+            var popularCommentsDict = (await Task.WhenAll(popularCommentsTasks))
+                .Where(comments => comments.Count > 0).ToDictionary(x => x[0].PostId);
 
-            IList<(string postId, string profileId)> postIdsAndProfileIds = postIds
-                .SelectMany(postId => ownerIds.Select(ownerId => (postId, ownerId)))
-                .ToList();
+            IList<(string postId, string profileId)> postIdsAndProfileIds = postIds.Select(p => (p, currentProfileId.ToString())).ToList();
             var postReactionTypes = await reactionClient.GetPostReactionsByProfileIds(postIdsAndProfileIds);
-            var postReactionTypesDict = postReactionTypes.Select((type, index) => new { index = postIdsAndProfileIds[index], type })
-                .ToDictionary(x => x.index, x => x.type);
+            var postReactionTypesDict = postReactionTypes.ToDictionary(
+                previewReaction  => new { previewReaction.OwnerId, previewReaction.ProfileId }, previewReaction => previewReaction.Type);
 
-            (IList<string> commentIds, List<string> mProfileIds) =
-                (popularCommentsDict.Values.SelectMany(comment => comment.Select(c => c.Id.ToString())).Distinct().ToList(),
-                 popularCommentsDict.Values.SelectMany(comment => comment.Select(c => c.Profile.Id.ToString())).Distinct().ToList());
+            var postReactionCounts = await reactionClient.GetPostReactionsCount(postIds);
+            var postReactionCountsDict = postReactionCounts.ToDictionary(
+                reactionCount => Guid.Parse(reactionCount.postId), reactionCount => reactionCount.countDetails);
 
-            IList<(string commentId, string profileId)> commentIdsAndProfileIds = commentIds
-                .SelectMany(commentId => mProfileIds.Select(profileId => (commentId, profileId)))
-                .ToList();
+            IList<string> commentIds = popularCommentsDict.Values
+                .SelectMany(comment => comment.Select(c => c.Id.ToString())).Distinct().ToList();
+
+            IList<(string commentId, string profileId)> commentIdsAndProfileIds = commentIds.Select(p => (p, currentProfileId.ToString())).ToList();
             var commentReactionTypes = await reactionClient.GetCommentReactionByProfileId(commentIdsAndProfileIds);
-            var commentReactionTypesDict = commentReactionTypes.Select((type, index) => new { index = commentIdsAndProfileIds[index], type })
-                .ToDictionary(x => x.index, x => x.type);
+            var commentReactionTypesDict = commentReactionTypes.ToDictionary(
+                previewReaction => new { previewReaction.OwnerId, previewReaction.ProfileId }, previewReaction => previewReaction.Type);
+
+            var commentReactionCounts = await reactionClient.GetCommentReactionsCount(commentIds);
+            var commentReactionCountsDict = commentReactionCounts.ToDictionary(
+                reactionCount => Guid.Parse(reactionCount.commentId), reactionCount => reactionCount.countDetails);
 
             // Profiles
             var profileIds = result.Items
@@ -229,7 +231,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                 .Concat(result.Items
                     .Where(item => item.Type == PostType.Share && item.Parent.Type == PostType.MultiMedia)
                     .SelectMany(item => item.Parent.SubPosts.Select(p => p.OwnerId)))
-                .Concat(mProfileIds.Select(Guid.Parse).ToList())
+                .Concat(popularCommentsDict.Values.SelectMany(comment => comment.Select(c => c.Owner.Id)).Distinct().ToList())
                 .Concat([currentProfileId])
                 .Distinct();
 
@@ -282,19 +284,19 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                 var metadata = await fileClient.GetPhotoMetadata(id.ToString());
                 return new { Id = id, Metadata = metadata ??= new PhotoMetadataResponse { Id = id } };
             });
-            var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
+            var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(photo => photo.Id, photo => photo.Metadata);
 
             var videoMetadataTasks = videoMetadataIds.Select(async id =>
             {
                 var metadata = await fileClient.GetVideoMetadata(id.ToString());
                 return new { Id = id, Metadata = metadata ??= new VideoMetadataResponse { Id = id } };
             });
-            var videoMetadataDict = (await Task.WhenAll(videoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
+            var videoMetadataDict = (await Task.WhenAll(videoMetadataTasks)).ToDictionary(video => video.Id, video => video.Metadata);
 
             // Xử lý response
             CursorPagedResult<BasePostResponse> response = new()
             {
-                Items = await Task.WhenAll(result.Items.Select(async postItem =>
+                Items = result.Items.Select(postItem =>
                 {
                     logger.LogError("Post ID: {PostId}", postItem.Id.ToString());
                     var postResponse = mapper.Map<BasePostResponse>(postItem);
@@ -318,21 +320,29 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                         postResponse.Owner = ownerProfile;
                     }
 
-                    if (postReactionTypesDict.TryGetValue((postItem.Id.ToString(), postItem.OwnerId.ToString()), out var reactionTypes))
-                        postResponse.Reaction = reactionTypes;
+                    if (postReactionCountsDict.TryGetValue(postItem.Id, out var reactionCounts))
+                        postResponse.ReactionCounts = reactionCounts;
 
-                    if (popularCommentsDict.TryGetValue(postItem.Id.ToString(), out var comments))
+                    if (postReactionTypesDict.TryGetValue(
+                        new { OwnerId = postItem.Id, ProfileId = currentProfileId }, out var reactionType))
+                        postResponse.Reaction = reactionType;
+
+                    if (popularCommentsDict.TryGetValue(postItem.Id, out var comments))
                         postResponse.PopularComments = comments.Select(comment =>
                         {
-                            if (profileDict.TryGetValue(comment.Profile.Id, out var profile))
+                            if (profileDict.TryGetValue(comment.Owner.Id, out var profile))
                             {
                                 var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
                                 profile.Avatar = avatar;
-                                comment.Profile = profile;
+                                comment.Owner = profile;
                             }
 
-                            if (commentReactionTypesDict.TryGetValue((comment.Id.ToString(), comment.Profile.Id.ToString()), out var reactionTypes))
-                                comment.Reaction = reactionTypes;
+                            if (commentReactionTypesDict.TryGetValue(
+                                new { OwnerId = comment.Id, ProfileId = currentProfileId }, out var reactionType))
+                                comment.Reaction = reactionType;
+
+                            if (commentReactionCountsDict.TryGetValue(comment.Id, out var reactionCounts))
+                                comment.ReactionCounts = reactionCounts;
 
                             return comment;
                         }).ToList();
@@ -351,7 +361,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                             break;
 
                         case PostType.MultiMedia:
-                            postResponse.Aggregates = await Task.WhenAll(postItem.SubPosts.Select(subPost =>
+                            postResponse.Aggregates = postItem.SubPosts.Select(subPost =>
                             {
                                 var subPostResponse = mapper.Map<BasePostResponse>(subPost);
 
@@ -388,8 +398,8 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                                         break;
                                 }
                                 subPostResponse.Audience = postResponse.Audience;
-                                return Task.FromResult(subPostResponse);
-                            }));
+                                return subPostResponse;
+                            }).ToList();
                             break;
 
                         case PostType.Share:
@@ -430,7 +440,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                                         break;
 
                                     case PostType.MultiMedia:
-                                        parentResponse.Aggregates = await Task.WhenAll(postItem.Parent.SubPosts.Select(subPost =>
+                                        parentResponse.Aggregates = postItem.Parent.SubPosts.Select(subPost =>
                                         {
                                             var subPostResponse = mapper.Map<BasePostResponse>(subPost);
 
@@ -467,8 +477,8 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                                                     break;
                                             }
                                             subPostResponse.Audience = parentResponse.Audience;
-                                            return Task.FromResult(subPostResponse);
-                                        }));
+                                            return subPostResponse;
+                                        }).ToList();
                                         break;
                                 }
 
@@ -478,7 +488,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                     }
 
                     return postResponse;
-                })),
+                }).ToList(),
                 NextCursor = result.NextCursor
             };
 
