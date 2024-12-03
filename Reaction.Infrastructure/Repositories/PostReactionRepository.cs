@@ -14,6 +14,9 @@ namespace InfinityNetServer.Services.Reaction.Infrastructure.Repositories
     public class PostReactionRepository(ReactionDbContext dbContext) : SqlRepository<PostReaction, Guid>(dbContext), IPostReactionRepository
     {
 
+        public async Task<PostReaction> GetByPostIdAndProfileIdAsync(Guid postId, Guid profileId)
+            => await DbSet.FirstOrDefaultAsync(reaction => !reaction.IsDeleted && reaction.PostId == postId && reaction.ProfileId == profileId);
+
         public async Task<IList<(Guid postId, IDictionary<ReactionType, int> countDetails)>> CountByPostIdAsync(IList<Guid> postIds)
         {
             var reactions = await DbSet

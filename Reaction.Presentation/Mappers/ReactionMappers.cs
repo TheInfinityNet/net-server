@@ -1,5 +1,4 @@
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
-using InfinityNetServer.Services.Reaction.Application.DTOs.Requests;
 using InfinityNetServer.Services.Reaction.Application.DTOs.Responses;
 using InfinityNetServer.Services.Reaction.Domain.Entities;
 
@@ -9,9 +8,6 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Mappers
     {
         public ReactionMappers()
         {
-            CreateMap<PostReaction, AddPostReactionRequest>().ReverseMap();
-            CreateMap<CommentReaction, AddCommentReactionRequest>().ReverseMap();
-
             // Entity -> DTO
             CreateMap<PostReaction, BuildingBlocks.Application.Protos.PreviewReaction>()
                 .AfterMap((src, dest) => dest.OwnerId = src.PostId.ToString());

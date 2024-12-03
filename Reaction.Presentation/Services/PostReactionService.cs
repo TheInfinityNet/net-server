@@ -1,4 +1,6 @@
 using AutoMapper;
+using Elastic.CommonSchema;
+using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
@@ -8,6 +10,7 @@ using InfinityNetServer.Services.Reaction.Application.Services;
 using InfinityNetServer.Services.Reaction.Domain.Entities;
 using InfinityNetServer.Services.Reaction.Domain.Repositories;
 using InfinityNetServer.Services.Reaction.Infrastructure.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -22,6 +25,12 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Services
         IPostReactionRepository repository, 
         IMapper mapper, ReactionDbContext context) : IPostReactionService
     {
+
+        public async Task<PostReaction> GetById(string id)
+            => await repository.GetByIdAsync(Guid.Parse(id));
+
+        public async Task<PostReaction> GetByPostIdAndProfileId(string postId, string profileId)
+            => await repository.GetByPostIdAndProfileIdAsync(Guid.Parse(postId), Guid.Parse(profileId));
 
         public async Task<IList<(string postId, IDictionary<ReactionType, int> countDetails)>> CountByPostIdAsync(IList<string> postIds)
         {
@@ -53,27 +62,37 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Services
             return await repository.GetPagedAsync(specification);
         }
 
-        public async Task<PostReaction> Create(AddPostReactionRequest request)
+        public async Task<PostReaction> Save(PostReaction entity)
         {
-            var model = mapper.Map<PostReaction>(request);
-            return await repository.CreateAsync(model);
+            var existedReaction = await GetByPostIdAndProfileId(entity.PostId.ToString(), entity.ProfileId.ToString());
+
+            if (existedReaction != null)
+            {
+                if (entity.ProfileId != existedReaction.ProfileId)
+                    throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
+
+                logger.LogInformation("Update reaction");
+                existedReaction.Type = entity.Type;
+                return await repository.UpdateAsync(existedReaction);
+            }
+            else
+            {
+                logger.LogInformation("Creating reaction");
+                return await repository.CreateAsync(entity);
+            }
         }
 
-        public async Task<List<PostReactionGroupResult>> GetPostReactions(string lstPostId)
+        public async Task<PostReaction> Delete(string postId, string profileId)
         {
-            var lstId = lstPostId.Split(',').Select(q => Guid.TryParse(q, out Guid postId) ? postId : Guid.Empty)
-                .Where(q => q != Guid.Empty).ToList();
-            if (lstId.Count == 0) return [];
-            var request = await context.PostReactions
-                .Where(q => lstId.Any(p => p.Equals(q.PostId)))
-                .GroupBy(q => new { q.PostId, q.Type })
-                .Select(q => new PostReactionGroupResult()
-                {
-                    Count = q.Count(),
-                    PostId = q.Key.PostId,
-                    Type = q.Key.Type,
-                }).ToListAsync();
-            return request;
+            logger.LogInformation("Deleting reaction");
+            var existedReaction = await GetByPostIdAndProfileId(postId, profileId)
+                ?? throw new BaseException(BaseError.REACTION_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            if (existedReaction.ProfileId != Guid.Parse(profileId))
+                throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
+
+            return await repository.DeleteAsync(existedReaction.Id);
         }
+
     }
 }

@@ -10,7 +10,9 @@ using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.Reaction.Application;
 using InfinityNetServer.Services.Reaction.Application.DTOs.Requests;
 using InfinityNetServer.Services.Reaction.Application.DTOs.Responses;
+using InfinityNetServer.Services.Reaction.Application.Exceptions;
 using InfinityNetServer.Services.Reaction.Application.Services;
+using InfinityNetServer.Services.Reaction.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -100,20 +102,65 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
             return Ok(response);
         }
 
-        [HttpPost]
+        [EndpointDescription("Create reaction")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [Authorize]
-        public async Task<IActionResult> Add(AddCommentReactionRequest request)
+        [HttpPost("{commentId}")]
+        public async Task<IActionResult> Save(string commentId, [FromBody] CreateReactionRequest request)
         {
             try
             {
-                var model = await service.Create(request);
-                return Ok(model);
+                Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
+                    : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+
+                var reaction = await service.Save(new CommentReaction
+                {
+                    CommentId = Guid.Parse(commentId),
+                    ProfileId = currentProfileId,
+                    Type = Enum.Parse<ReactionType>(request.Type)
+                });
+
+                var reactionCounts = await service.CountByCommentId([commentId]);
+
+                return Ok(new
+                {
+                    Reaction = request.Type,
+                    ReactionCounts = reactionCounts[0]
+                });
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Đã có lỗi xảy ra" + ex.Message.ToString());
+                logger.LogError(ex.Message);
+                throw new ReactionException(ReactionError.CREATE_REACTION_FAILED, StatusCodes.Status422UnprocessableEntity);
             }
-            return BadRequest(new { Message = "Lỗi không xác định" });
+        }
+
+        [EndpointDescription("Delete reaction")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [Authorize]
+        [HttpDelete("{commentId}")]
+        public async Task<IActionResult> Delete(string commentId)
+        {
+            try
+            {
+                Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
+                    : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+
+                var reaction = await service.Delete(commentId, currentProfileId.ToString());
+
+                var reactionCounts = await service.CountByCommentId([commentId]);
+
+                return Ok(new
+                {
+                    ReactionCounts = reactionCounts[0]
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                throw new ReactionException(ReactionError.DELETE_REACTION_FAILED, StatusCodes.Status422UnprocessableEntity);
+            }
+
         }
 
     }

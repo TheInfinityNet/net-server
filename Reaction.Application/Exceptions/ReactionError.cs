@@ -7,19 +7,9 @@ namespace InfinityNetServer.Services.Reaction.Application.Exceptions
 
         private ReactionError(ErrorType type, string code) : base(type, code) { }
 
-        /*
-        
-        Chỗ này định nghĩa tất cả các lỗi CÓ LIÊN QUAN đến các chức năng/nghiệp vụ của service, mỗi loại lỗi gồm:
-        - code: mã lỗi để frontend nhận biết, tạm thời cứ đặt ngẫu hứng, sau kết hợp vs frontend rồi refactor lại
+        public static readonly ReactionError CREATE_REACTION_FAILED = new(ErrorType.UnExpected, $"{ErrorType.UnExpected}.CreateReactionFailed");
 
-        - message: ĐÂY LÀ KEY của message được định nghiã trong "Resources/SharedResource.[lang-code].resx", 
-                    dùng để map với value của message tương ứng theo ngôn ngữ hiện tại trong Application Context.
-
-         */
-
-        // Static instances to represent each error code
-
-
+        public static readonly ReactionError DELETE_REACTION_FAILED = new(ErrorType.UnExpected, $"{ErrorType.UnExpected}.DeleteReactionFailed");
     }
 
 }

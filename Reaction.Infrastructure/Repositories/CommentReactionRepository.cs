@@ -13,6 +13,10 @@ namespace InfinityNetServer.Services.Reaction.Infrastructure.Repositories
 {
     public class CommentReactionRepository(ReactionDbContext dbContext) : SqlRepository<CommentReaction, Guid>(dbContext), ICommentReactionRepository
     {
+
+        public async Task<CommentReaction> GetByCommentIdAndProfileIdAsync(Guid commentId, Guid profileId)
+            => await DbSet.FirstOrDefaultAsync(reaction => !reaction.IsDeleted && reaction.CommentId == commentId && reaction.ProfileId == profileId);
+
         public async Task<IList<(Guid commentId, IDictionary<ReactionType, int> countDetails)>> CountByCommentIdAsync(IList<Guid> commentIds)
         {
             var reactions = await DbSet

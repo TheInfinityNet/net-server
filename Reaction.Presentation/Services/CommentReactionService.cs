@@ -1,14 +1,13 @@
 using AutoMapper;
+using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
-using InfinityNetServer.Services.Reaction.Application.DTOs.Requests;
-using InfinityNetServer.Services.Reaction.Application.DTOs.Results;
 using InfinityNetServer.Services.Reaction.Application.Services;
 using InfinityNetServer.Services.Reaction.Domain.Entities;
 using InfinityNetServer.Services.Reaction.Domain.Repositories;
 using InfinityNetServer.Services.Reaction.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -23,7 +22,10 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Services
         ReactionDbContext context, IMapper mapper) : ICommentReactionService
     {
 
-        public async Task<IList<(string commentId, IDictionary<ReactionType, int> countDetails)>> CountByCommentIdAsync(IList<string> commentIds)
+        public async Task<CommentReaction> GetByCommentIdAndProfileId(string commentId, string profileId)
+            => await repository.GetByCommentIdAndProfileIdAsync(Guid.Parse(commentId), Guid.Parse(profileId));
+
+        public async Task<IList<(string commentId, IDictionary<ReactionType, int> countDetails)>> CountByCommentId(IList<string> commentIds)
         {
             var reactionCounts = await repository.CountByCommentIdAsync(commentIds.Select(Guid.Parse).ToList());
             return reactionCounts.Select(q => (q.commentId.ToString(), q.countDetails)).ToList();
@@ -53,27 +55,37 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Services
             return await repository.GetPagedAsync(specification);
         }
 
-        public async Task<CommentReaction> Create(AddCommentReactionRequest request)
+        public async Task<CommentReaction> Save(CommentReaction entity)
         {
-            var model = mapper.Map<CommentReaction>(request);
-            return await repository.CreateAsync(model);
+            var existedReaction = await GetByCommentIdAndProfileId(entity.CommentId.ToString(), entity.ProfileId.ToString());
+
+            if (existedReaction != null)
+            {
+                if (entity.ProfileId != existedReaction.ProfileId)
+                    throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
+
+                logger.LogInformation("Update reaction");
+                existedReaction.Type = entity.Type;
+                return await repository.UpdateAsync(existedReaction);
+            }
+            else
+            {
+                logger.LogInformation("Creating reaction");
+                return await repository.CreateAsync(entity);
+            }
         }
 
-        public async Task<List<CommandReacionGroupResult>> GetCommandReaction(string lstCommandId)
+        public async Task<CommentReaction> Delete(string postId, string profileId)
         {
-            var lstId = lstCommandId.Split(',').Select(q => Guid.TryParse(q, out Guid postId) ? postId : Guid.Empty)
-                .Where(q => q != Guid.Empty).ToList();
-            if (lstId.Count == 0) return [];
-            var request = await context.CommentReactions
-                .Where(q => lstId.Any(p => p.Equals(q.CommentId)))
-                .GroupBy(q => new { q.CommentId, q.Type })
-                .Select(q => new CommandReacionGroupResult()
-                {
-                    Count = q.Count(),
-                    CommentId = q.Key.CommentId,
-                    Type = q.Key.Type,
-                }).ToListAsync();
-            return request;
+            logger.LogInformation("Deleting reaction");
+            var existedReaction = await GetByCommentIdAndProfileId(postId, profileId)
+                ?? throw new BaseException(BaseError.REACTION_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            if (existedReaction.ProfileId != Guid.Parse(profileId))
+                throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
+
+            return await repository.DeleteAsync(existedReaction.Id);
         }
+
     }
 }

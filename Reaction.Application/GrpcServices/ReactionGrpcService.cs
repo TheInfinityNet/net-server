@@ -44,7 +44,7 @@ namespace InfinityNetServer.Services.Reaction.Application.GrpcServices
             logger.LogInformation("Handling GRPC call for getCommentReactionsCounts");
 
             IList<(string commentId, IDictionary<ReactionType, int> countDetails)>
-                reactionsCounts = await commentReactionService.CountByCommentIdAsync(request.OwnerIds);
+                reactionsCounts = await commentReactionService.CountByCommentId(request.OwnerIds);
 
             var response = new ReactionCountsResponse();
             response.ReactionCounts.AddRange(reactionsCounts.Select(q => new ReactionCountWithOwnerId
