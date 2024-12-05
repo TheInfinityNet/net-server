@@ -11,7 +11,7 @@ namespace InfinityNetServer.Services.Profile.Domain.Repositories
 
         public Task<IList<Entities.Profile>> GetAllByTypeAsync(ProfileType type);
 
-        public Task<IList<Entities.Profile>> GetByIdsAsync(IEnumerable<Guid> ids);
+        public Task<IList<Entities.Profile>> GetAllByIdsAsync(IEnumerable<Guid> ids);
 
         public Task<IList<Entities.Profile>> GetPotentialByLocationAsync(string location, int limit);
 

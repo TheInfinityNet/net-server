@@ -103,6 +103,33 @@ message UserProfileResponse {
 
 }
 
+message PageProfileResponse {
+
+	string id = 1;
+
+	string name = 5;
+
+	string mobileNumber = 6;
+
+	string accountId = 7;
+
+	string avatarId = 8;
+
+	string coverId = 9;
+
+	ProfileType type = 10;
+
+	string location = 11;
+
+	string description = 12;
+
+	google.protobuf.Timestamp createdAt = 13;
+
+	google.protobuf.Timestamp updatedAt = 14;
+
+	google.protobuf.Timestamp deletedAt = 15;
+}
+
 message ProfileIdsWithNamesResponse {
   repeated ProfileIdWithName profileIdsWithNames = 1;
 }

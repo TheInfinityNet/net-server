@@ -7,12 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Application\Application.csproj" />
-    <ProjectReference Include="..\Relationship.Domain\Relationship.Domain.csproj" />
+    <Compile Remove="DTOs\Requests\**" />
+    <EmbeddedResource Remove="DTOs\Requests\**" />
+    <None Remove="DTOs\Requests\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\Requests\" />
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Relationship.Domain\Relationship.Domain.csproj" />
   </ItemGroup>
 
 </Project>

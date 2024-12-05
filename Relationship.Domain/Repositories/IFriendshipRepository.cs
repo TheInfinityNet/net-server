@@ -15,7 +15,7 @@ namespace InfinityNetServer.Services.Relationship.Domain.Repositories
         Task<Friendship> GetByStatus(FriendshipStatus status, Guid senderId, Guid receiverId);
         Task<Friendship> HasFriendship(Guid senderId, Guid receiverId);
         Task<IList<Guid>> GetAllFriendIdsAsync(Guid profile);
-        Task<IList<Guid>> GetPendingRequestsAsync(Guid? currentUserId);
+        Task<IList<Guid>> GetAllPendingRequestIdsByProfileIdAsync(Guid? currentUserId);
         Task<int> CountFriendshipsAsync(Guid profileId);
         Task<IList<Friendship>> GetAllFriendshipsAsync(Guid profileId, int? limit);
         Task<int> GetMutualFriendsCount(Guid profileId, Guid currentProfile);

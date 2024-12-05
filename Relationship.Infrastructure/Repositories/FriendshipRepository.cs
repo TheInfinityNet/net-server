@@ -83,7 +83,7 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
                 .Select(f => f.SenderId == currentUserId ? f.ReceiverId : f.SenderId)
                 .ToListAsync();
         }
-        public async Task<IList<Guid>> GetPendingRequestsAsync(Guid? currentUserId)
+        public async Task<IList<Guid>> GetAllPendingRequestIdsByProfileIdAsync(Guid? currentUserId)
         {
             return await context.Friendships
                 .Where(f => (f.SenderId == currentUserId || f.ReceiverId == currentUserId) && f.Status == FriendshipStatus.Pending)

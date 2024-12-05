@@ -106,7 +106,7 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Authorize]
         [HttpPost("{postId}")]
-        public async Task<IActionResult> Save(string postId, [FromBody] CreateReactionRequest request)
+        public async Task<IActionResult> Save(string postId, [FromBody] ReactionRequest request)
         {
             try
             {
@@ -117,15 +117,15 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
                 {
                     PostId = Guid.Parse(postId),
                     ProfileId = currentProfileId,
-                    Type = Enum.Parse<ReactionType>(request.Type)
+                    Type = Enum.Parse<ReactionType>(request.Reaction)
                 });
 
                 var reactionCounts = await service.CountByPostIdAsync([postId]);
-
+                logger.LogInformation("Reaction counts: {ReactionCounts}", reactionCounts);
                 return Ok(new
                 {
-                    Reaction = request.Type,
-                    ReactionCounts = reactionCounts[0]
+                    Reaction = request.Reaction,
+                    ReactionCounts = reactionCounts[0].countDetails
                 });
             }
             catch (Exception ex)
@@ -152,7 +152,7 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
 
                 return Ok(new
                 {
-                    ReactionCounts = reactionCounts[0]
+                    ReactionCounts = reactionCounts[0].countDetails
                 });
             }
             catch (Exception ex)

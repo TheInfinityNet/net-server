@@ -116,61 +116,63 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
             var query = context.Set<TEntity>().AsQueryable();
 
             // Áp dụng các điều kiện lọc nếu có
-            if (spec.Criteria != null) query = query.Where(spec.Criteria);
+            if (spec.Criteria != null)
+                query = query.Where(spec.Criteria);
 
             // Kiểm tra nếu không có điều kiện sắp xếp nào được truyền vào
             if (spec.OrderFields == null || !spec.OrderFields.Any())
-                query = query.OrderByDescending(x => x.CreatedAt);
+            {
+                query = query.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id);
+            }
             else
+            {
                 // Nếu có OrderFields, áp dụng các điều kiện sắp xếp đã truyền vào
                 foreach (var orderField in spec.OrderFields)
+                {
                     query = orderField.Direction == SortDirection.Descending
-                        ? query.OrderByDescending(orderField.Field)
-                        : query.OrderBy(orderField.Field);
-
-            // Áp dụng phân trang với cursor, giả sử Cursor là ID của item
-            //if (!string.IsNullOrEmpty(spec.Cursor))
-            //    query = query.Where(x => x.Id.ToString().CompareTo(spec.Cursor) > 0);
+                        ? query.OrderByDescending(orderField.Field).ThenByDescending(x => x.Id)
+                        : query.OrderBy(orderField.Field).ThenBy(x => x.Id);
+                }
+            }
 
             // Áp dụng điều kiện Cursor
             if (!string.IsNullOrEmpty(spec.Cursor))
             {
-                var cursorDateTime = DateTime.Parse(spec.Cursor);
-                if (spec.OrderFields == null || spec.OrderFields.First().Direction == SortDirection.Descending)
-                    query = query.Where(x => x.CreatedAt < cursorDateTime);
+                var cursorParts = spec.Cursor.Split('|');
+                var cursorDateTime = DateTime.Parse(cursorParts[0]);
+                var cursorId = cursorParts[1];
 
-                else query = query.Where(x => x.CreatedAt > cursorDateTime);
+                if (spec.OrderFields == null || spec.OrderFields.First().Direction == SortDirection.Descending)
+                {
+                    query = query.Where(x => x.CreatedAt < cursorDateTime
+                                             || (x.CreatedAt == cursorDateTime && x.Id.ToString().CompareTo(cursorId) < 0));
+                }
+                else
+                {
+                    query = query.Where(x => x.CreatedAt > cursorDateTime
+                                             || (x.CreatedAt == cursorDateTime && x.Id.ToString().CompareTo(cursorId) > 0));
+                }
             }
 
             // Lấy dữ liệu phân trang
             var items = await query.Take(spec.PageSize).ToListAsync();
 
-            // Xác định cursor tiếp theo và cursor trước
-            //string nextCursor = null;
-            //string prevCursor = null;
-
-            //if (items.Count > 0)
-            //{
-            //    var firstItem = items.First();
-            //    var lastItem = items.Last();
-
-            //    // Sinh cursor tiếp theo từ ID của item cuối cùng
-            //    nextCursor = lastItem.Id.ToString();
-
-            //    // Sinh cursor trước từ ID của item đầu tiên
-            //    prevCursor = firstItem.Id.ToString();
-            //}
-
             // Xác định Cursor tiếp theo
-            string nextCursor = items.Count > 0
-                ? items.Last().CreatedAt.ToString("O")  // ISO 8601 format
+            string nextCursor = items.Count == spec.PageSize
+                ? $"{items.Last().CreatedAt:O}|{items.Last().Id}"
                 : null;
 
+            // Xác định Cursor trước
+            string prevCursor = items.Count > 0 && !string.IsNullOrEmpty(spec.Cursor)
+                ? $"{items.First().CreatedAt:O}|{items.First().Id}"
+                : null;
+
+            // Trả về kết quả
             return new CursorPagedResult<TEntity>
             {
                 Items = items,
                 NextCursor = nextCursor,
-                PrevCursor = spec.Cursor
+                PrevCursor = prevCursor
             };
         }
 

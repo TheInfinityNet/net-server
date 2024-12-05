@@ -11,7 +11,7 @@ namespace InfinityNetServer.Services.Profile.Application.Services
 
         Task<UserProfile> GetByAccountId(string id);
 
-        Task<IList<UserProfile>> GetByIds(IList<string> ids);
+        Task<IList<UserProfile>> GetAllByIds(IList<string> ids);
 
         Task<UserProfile> Update(UserProfile userProfile);
 

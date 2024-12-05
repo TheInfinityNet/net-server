@@ -67,6 +67,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
             };
             return await _userProfileRepository.GetPagedAsync(specification);
         }
+
         public async Task<CursorPagedResult<UserProfile>> GetFollowingList(string profileId, string cursor, int pageSize)
         {
             var profile = await GetById(profileId);
@@ -88,6 +89,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
             };
             return await _userProfileRepository.GetPagedAsync(specification);
         }
+
         public async Task<CursorPagedResult<UserProfile>> GetFriendRequests(string profileId, string cursor, int pageSize)
         {
             var profile = await GetById(profileId);
@@ -180,6 +182,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
                 Criteria = userProfile =>
                         !friendIds.Contains(userProfile.Id.ToString())
                         && !pendingRequests.Contains(userProfile.Id.ToString())
+                        && !blockerIds.Concat(blockeeIds).Contains(userProfile.Id.ToString())
                         && !blockerIds.Concat(blockeeIds).Contains(userProfile.Id.ToString()),
 
                 OrderFields = [
@@ -196,13 +199,13 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
         }
 
         public async Task<UserProfile> GetByAccountId(string id)
-            => await _userProfileRepository.GetUserProfileByAccountIdAsync(Guid.Parse(id));
+            => await _userProfileRepository.GetByAccountIdAsync(Guid.Parse(id));
 
         public async Task<UserProfile> GetById(string id)
             => await _userProfileRepository.GetByIdAsync(Guid.Parse(id));
 
-        public async Task<IList<UserProfile>> GetByIds(IList<string> ids)
-            => await _userProfileRepository.GetUserProfilesByIdsAsync(ids.Select(Guid.Parse).ToList());
+        public async Task<IList<UserProfile>> GetAllByIds(IList<string> ids)
+            => await _userProfileRepository.GetAllByIdsAsync(ids.Select(Guid.Parse).ToList());
 
         public async Task<UserProfile> Update(UserProfile userProfile)
         {

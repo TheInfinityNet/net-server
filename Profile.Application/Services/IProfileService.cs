@@ -9,7 +9,7 @@ namespace InfinityNetServer.Services.Profile.Application.Services
 
         public Task<Domain.Entities.Profile> GetById(string id);
 
-        public Task<IList<Domain.Entities.Profile>> GetByIds(IList<string> ids);
+        public Task<IList<Domain.Entities.Profile>> GetAllByIds(IList<string> ids);
 
         public Task<IList<Domain.Entities.Profile>> GetAll();
 

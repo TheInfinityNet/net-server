@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Relationship;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.Services;
@@ -35,7 +36,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
     {
 
         [EndpointDescription("Retrieve friend suggestions")]
-        [ProducesResponseType(typeof(CursorPagedResult<FriendSuggestionResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CursorPagedResult<FriendshipResponse>), StatusCodes.Status200OK)]
         [Authorize]
         [HttpGet("suggestions")]
         public async Task<IActionResult> GetFriendSuggestions([FromQuery] string nextCursor, [FromQuery] int limit = 10)
@@ -45,15 +46,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
 
             var suggestions = await userProfileService.GetFriendSuggestions(currentProfileId, nextCursor, limit);
 
-            // Tập hợp toàn bộ các ID cần nạp trước
-            var profileIds = suggestions.Items.Select(item => item.Id.ToString()).Distinct();
-            profileIds.ToList().Add(currentProfileId);
-
-            // Nạp toàn bộ profiles cần thiết
-            var profiles = await profileService.GetByIds(profileIds.ToList());
-            var profileDict = profiles.ToDictionary(p => p.Id, mapper.Map<PreviewProfileResponse>);
-
-            var photoMetadataIds = profiles
+            var photoMetadataIds = suggestions.Items
                 .Where(profile => profile.AvatarId != null)
                     .Select(profile => profile.AvatarId)
                 .Distinct();
@@ -70,17 +63,16 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
 
             var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
 
-            IList<FriendSuggestionResponse> result = []; 
+            IList<FriendshipResponse> result = [];
             foreach (var item in suggestions.Items)
             {
-                var previewProfile = mapper.Map<UserProfileResponse>(item);
-                if (profileDict.TryGetValue(previewProfile.Id, out var profile))
+                var userProfile = mapper.Map<UserProfileResponse>(item);
+                if (photoMetadataDict.TryGetValue(item.AvatarId, out var avatar))
                 {
-                    var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
-                    previewProfile.Avatar = avatar;
+                    userProfile.Avatar = avatar;
                 }
 
-                var itemResponse =  mapper.Map<FriendSuggestionResponse>(previewProfile);
+                var itemResponse = mapper.Map<FriendshipResponse>(userProfile);
                 itemResponse.Status = "NotConnected";
                 if (resultHasCountDict.TryGetValue(item.Id.ToString(), out var rs))
                     if (rs.Count > 0) itemResponse.MutualFriendsCount = rs.Count;
@@ -88,192 +80,192 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 result.Add(itemResponse);
             }
 
-            return Ok(new CursorPagedResult<FriendSuggestionResponse>()
+            return Ok(new CursorPagedResult<FriendshipResponse>()
             {
                 Items = result,
                 NextCursor = suggestions.NextCursor
             });
         }
 
-        [EndpointDescription("Retrieve requests")]
-        [ProducesResponseType(typeof(CursorPagedResult<FriendSuggestionResponse>), StatusCodes.Status200OK)]
-        [Authorize]
-        [HttpGet("requests")]
-        public async Task<IActionResult> GetFriendRequests([FromQuery] string nextCursor, [FromQuery] int limit = 10)
-        {
-            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString() 
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+        //[EndpointDescription("Retrieve requests")]
+        //[ProducesResponseType(typeof(CursorPagedResult<FriendSuggestionResponse>), StatusCodes.Status200OK)]
+        //[Authorize]
+        //[HttpGet("requests")]
+        //public async Task<IActionResult> GetFriendRequests([FromQuery] string nextCursor, [FromQuery] int limit = 10)
+        //{
+        //    string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString() 
+        //        : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            var friendRequests = await userProfileService.GetFriendRequests(currentProfileId, nextCursor, limit);
+        //    var friendRequests = await userProfileService.GetFriendRequests(currentProfileId, nextCursor, limit);
 
-            // Tập hợp toàn bộ các ID cần nạp trước
-            var profileIds = friendRequests.Items.Select(item => item.Id.ToString()).Distinct();
-            profileIds.ToList().Add(currentProfileId);
+        //    // Tập hợp toàn bộ các ID cần nạp trước
+        //    var profileIds = friendRequests.Items.Select(item => item.Id.ToString()).Distinct();
+        //    profileIds.ToList().Add(currentProfileId);
 
-            // Nạp toàn bộ profiles cần thiết
-            var profiles = await profileService.GetByIds(profileIds.ToList());
-            var profileDict = profiles.ToDictionary(p => p.Id, mapper.Map<PreviewProfileResponse>);
+        //    // Nạp toàn bộ profiles cần thiết
+        //    var profiles = await profileService.GetAllByIds(profileIds.ToList());
+        //    var profileDict = profiles.ToDictionary(p => p.Id, mapper.Map<PreviewProfileResponse>);
 
-            var photoMetadataIds = profiles
-                .Where(profile => profile.AvatarId != null)
-                    .Select(profile => profile.AvatarId)
-                .Distinct();
+        //    var photoMetadataIds = profiles
+        //        .Where(profile => profile.AvatarId != null)
+        //            .Select(profile => profile.AvatarId)
+        //        .Distinct();
 
-            var photoMetadataTasks = photoMetadataIds.Select(async id =>
-            {
-                var metadata = await fileClient.GetPhotoMetadata(id.ToString());
-                return new { Id = id, Metadata = metadata ??= new PhotoMetadataResponse { Id = id.Value } };
-            });
-            var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
+        //    var photoMetadataTasks = photoMetadataIds.Select(async id =>
+        //    {
+        //        var metadata = await fileClient.GetPhotoMetadata(id.ToString());
+        //        return new { Id = id, Metadata = metadata ??= new PhotoMetadataResponse { Id = id.Value } };
+        //    });
+        //    var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
 
-            var resultHasCount = await relationshipClient.GetMutualCount(currentProfileId, friendRequests.Items.Select(f => f.Id.ToString()).ToList());
+        //    var resultHasCount = await relationshipClient.GetMutualCount(currentProfileId, friendRequests.Items.Select(f => f.Id.ToString()).ToList());
 
-            var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
+        //    var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
 
-            IList<FriendSuggestionResponse> result = [];
-            foreach (var item in friendRequests.Items)
-            {
-                var previewProfile = mapper.Map<UserProfileResponse>(item);
-                if (profileDict.TryGetValue(previewProfile.Id, out var profile))
-                {
-                    var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
-                    previewProfile.Avatar = avatar;
-                }
+        //    IList<FriendSuggestionResponse> result = [];
+        //    foreach (var item in friendRequests.Items)
+        //    {
+        //        var previewProfile = mapper.Map<UserProfileResponse>(item);
+        //        if (profileDict.TryGetValue(previewProfile.Id, out var profile))
+        //        {
+        //            var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
+        //            previewProfile.Avatar = avatar;
+        //        }
 
-                var itemResponse = mapper.Map<FriendSuggestionResponse>(previewProfile);
-                itemResponse.Status = "RequestReceived";
-                if(resultHasCountDict.TryGetValue(item.Id.ToString(), out var rs))
-                    if (rs.Count > 0) itemResponse.MutualFriendsCount = rs.Count;
+        //        var itemResponse = mapper.Map<FriendSuggestionResponse>(previewProfile);
+        //        itemResponse.Status = "RequestReceived";
+        //        if(resultHasCountDict.TryGetValue(item.Id.ToString(), out var rs))
+        //            if (rs.Count > 0) itemResponse.MutualFriendsCount = rs.Count;
 
-                result.Add(itemResponse);
-            }
+        //        result.Add(itemResponse);
+        //    }
 
-            return Ok(new CursorPagedResult<FriendSuggestionResponse>()
-            {
-                Items = result,
-                NextCursor = friendRequests.NextCursor
-            });
-        }
+        //    return Ok(new CursorPagedResult<FriendSuggestionResponse>()
+        //    {
+        //        Items = result,
+        //        NextCursor = friendRequests.NextCursor
+        //    });
+        //}
 
-        [EndpointDescription("Retrieve sent requests ")]
-        [ProducesResponseType(typeof(CursorPagedResult<FriendSuggestionResponse>), StatusCodes.Status200OK)]
-        [Authorize]
-        [HttpGet("sent-requests")]
-        public async Task<IActionResult> GetFriendSentRequests([FromQuery] string nextCursor, [FromQuery] int limit = 10)
-        {
-            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+        //[EndpointDescription("Retrieve sent requests ")]
+        //[ProducesResponseType(typeof(CursorPagedResult<FriendSuggestionResponse>), StatusCodes.Status200OK)]
+        //[Authorize]
+        //[HttpGet("sent-requests")]
+        //public async Task<IActionResult> GetFriendSentRequests([FromQuery] string nextCursor, [FromQuery] int limit = 10)
+        //{
+        //    string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
+        //        : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            var friendSentRequests = await userProfileService.GetFriendSentRequests(currentProfileId, nextCursor, limit);
+        //    var friendSentRequests = await userProfileService.GetFriendSentRequests(currentProfileId, nextCursor, limit);
 
-            // Tập hợp toàn bộ các ID cần nạp trước
-            var profileIds = friendSentRequests.Items.Select(item => item.Id.ToString()).Distinct();
-            profileIds.ToList().Add(currentProfileId);
+        //    // Tập hợp toàn bộ các ID cần nạp trước
+        //    var profileIds = friendSentRequests.Items.Select(item => item.Id.ToString()).Distinct();
+        //    profileIds.ToList().Add(currentProfileId);
 
-            // Nạp toàn bộ profiles cần thiết
-            var profiles = await profileService.GetByIds(profileIds.ToList());
-            var profileDict = profiles.ToDictionary(p => p.Id, mapper.Map<PreviewProfileResponse>);
+        //    // Nạp toàn bộ profiles cần thiết
+        //    var profiles = await profileService.GetAllByIds(profileIds.ToList());
+        //    var profileDict = profiles.ToDictionary(p => p.Id, mapper.Map<PreviewProfileResponse>);
 
-            var photoMetadataIds = profiles
-                .Where(profile => profile.AvatarId != null)
-                    .Select(profile => profile.AvatarId)
-                .Distinct();
+        //    var photoMetadataIds = profiles
+        //        .Where(profile => profile.AvatarId != null)
+        //            .Select(profile => profile.AvatarId)
+        //        .Distinct();
 
-            var photoMetadataTasks = photoMetadataIds.Select(async id =>
-            {
-                var metadata = await fileClient.GetPhotoMetadata(id.ToString());
-                return new { Id = id, Metadata = metadata ??= new PhotoMetadataResponse { Id = id.Value } };
-            });
-            var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
+        //    var photoMetadataTasks = photoMetadataIds.Select(async id =>
+        //    {
+        //        var metadata = await fileClient.GetPhotoMetadata(id.ToString());
+        //        return new { Id = id, Metadata = metadata ??= new PhotoMetadataResponse { Id = id.Value } };
+        //    });
+        //    var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
 
-            var resultHasCount = await relationshipClient.GetMutualCount(currentProfileId, friendSentRequests.Items.Select(f => f.Id.ToString()).ToList());
+        //    var resultHasCount = await relationshipClient.GetMutualCount(currentProfileId, friendSentRequests.Items.Select(f => f.Id.ToString()).ToList());
 
-            var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
+        //    var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
 
-            IList<FriendSuggestionResponse> result = [];
-            foreach (var item in friendSentRequests.Items)
-            {
-                var previewProfile = mapper.Map<UserProfileResponse>(item);
-                if (profileDict.TryGetValue(previewProfile.Id, out var profile))
-                {
-                    var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
-                    previewProfile.Avatar = avatar;
-                }
+        //    IList<FriendSuggestionResponse> result = [];
+        //    foreach (var item in friendSentRequests.Items)
+        //    {
+        //        var previewProfile = mapper.Map<UserProfileResponse>(item);
+        //        if (profileDict.TryGetValue(previewProfile.Id, out var profile))
+        //        {
+        //            var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
+        //            previewProfile.Avatar = avatar;
+        //        }
 
-                var itemResponse = mapper.Map<FriendSuggestionResponse>(previewProfile);
-                itemResponse.Status = "RequestSent";
-                if (resultHasCountDict.TryGetValue(item.Id.ToString(), out var rs))
-                    if (rs.Count > 0) itemResponse.MutualFriendsCount = rs.Count;
+        //        var itemResponse = mapper.Map<FriendSuggestionResponse>(previewProfile);
+        //        itemResponse.Status = "RequestSent";
+        //        if (resultHasCountDict.TryGetValue(item.Id.ToString(), out var rs))
+        //            if (rs.Count > 0) itemResponse.MutualFriendsCount = rs.Count;
 
-                result.Add(itemResponse);
-            }
+        //        result.Add(itemResponse);
+        //    }
 
-            return Ok(new CursorPagedResult<FriendSuggestionResponse>()
-            {
-                Items = result,
-                NextCursor = friendSentRequests.NextCursor
-            });
-        }
+        //    return Ok(new CursorPagedResult<FriendSuggestionResponse>()
+        //    {
+        //        Items = result,
+        //        NextCursor = friendSentRequests.NextCursor
+        //    });
+        //}
 
-        [EndpointDescription("Retrieve friends")]
-        [ProducesResponseType(typeof(CursorPagedResult<FriendSuggestionResponse>), StatusCodes.Status200OK)]
-        [Authorize]
-        [HttpGet]
-        public async Task<IActionResult> GetFriends([FromQuery] string nextCursor, [FromQuery] int limit = 10)
-        {
-            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+        //[EndpointDescription("Retrieve friends")]
+        //[ProducesResponseType(typeof(CursorPagedResult<FriendSuggestionResponse>), StatusCodes.Status200OK)]
+        //[Authorize]
+        //[HttpGet]
+        //public async Task<IActionResult> GetFriends([FromQuery] string nextCursor, [FromQuery] int limit = 10)
+        //{
+        //    string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
+        //        : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            var friends = await userProfileService.GetFriends(currentProfileId, nextCursor, limit);
+        //    var friends = await userProfileService.GetFriends(currentProfileId, nextCursor, limit);
 
-            // Tập hợp toàn bộ các ID cần nạp trước
-            var profileIds = friends.Items.Select(item => item.Id.ToString()).Distinct();
-            profileIds.ToList().Add(currentProfileId);
+        //    // Tập hợp toàn bộ các ID cần nạp trước
+        //    var profileIds = friends.Items.Select(item => item.Id.ToString()).Distinct();
+        //    profileIds.ToList().Add(currentProfileId);
 
-            // Nạp toàn bộ profiles cần thiết
-            var profiles = await profileService.GetByIds(profileIds.ToList());
-            var profileDict = profiles.ToDictionary(p => p.Id, mapper.Map<PreviewProfileResponse>);
+        //    // Nạp toàn bộ profiles cần thiết
+        //    var profiles = await profileService.GetAllByIds(profileIds.ToList());
+        //    var profileDict = profiles.ToDictionary(p => p.Id, mapper.Map<PreviewProfileResponse>);
 
-            var photoMetadataIds = profiles
-                .Where(profile => profile.AvatarId != null)
-                    .Select(profile => profile.AvatarId)
-                .Distinct();
+        //    var photoMetadataIds = profiles
+        //        .Where(profile => profile.AvatarId != null)
+        //            .Select(profile => profile.AvatarId)
+        //        .Distinct();
 
-            var photoMetadataTasks = photoMetadataIds.Select(async id =>
-            {
-                var metadata = await fileClient.GetPhotoMetadata(id.ToString());
-                return new { Id = id, Metadata = metadata ??= new PhotoMetadataResponse { Id = id.Value } };
-            });
-            var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
+        //    var photoMetadataTasks = photoMetadataIds.Select(async id =>
+        //    {
+        //        var metadata = await fileClient.GetPhotoMetadata(id.ToString());
+        //        return new { Id = id, Metadata = metadata ??= new PhotoMetadataResponse { Id = id.Value } };
+        //    });
+        //    var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
 
-            var resultHasCount = await relationshipClient.GetMutualCount(currentProfileId, friends.Items.Select(f => f.Id.ToString()).ToList());
+        //    var resultHasCount = await relationshipClient.GetMutualCount(currentProfileId, friends.Items.Select(f => f.Id.ToString()).ToList());
 
-            var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
+        //    var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
 
-            IList<FriendSuggestionResponse> result = [];
-            foreach (var item in friends.Items)
-            {
-                var previewProfile = mapper.Map<UserProfileResponse>(item);
-                if (profileDict.TryGetValue(previewProfile.Id, out var profile))
-                {
-                    var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
-                    previewProfile.Avatar = avatar;
-                }
+        //    IList<FriendSuggestionResponse> result = [];
+        //    foreach (var item in friends.Items)
+        //    {
+        //        var previewProfile = mapper.Map<UserProfileResponse>(item);
+        //        if (profileDict.TryGetValue(previewProfile.Id, out var profile))
+        //        {
+        //            var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
+        //            previewProfile.Avatar = avatar;
+        //        }
 
-                var itemResponse = mapper.Map<FriendSuggestionResponse>(previewProfile);
-                itemResponse.Status = "Connected";
-                if (resultHasCountDict.TryGetValue(item.Id.ToString(), out var rs))
-                    if (rs.Count > 0) itemResponse.MutualFriendsCount = rs.Count;
+        //        var itemResponse = mapper.Map<FriendSuggestionResponse>(previewProfile);
+        //        itemResponse.Status = "Connected";
+        //        if (resultHasCountDict.TryGetValue(item.Id.ToString(), out var rs))
+        //            if (rs.Count > 0) itemResponse.MutualFriendsCount = rs.Count;
 
-                result.Add(itemResponse);
-            }
+        //        result.Add(itemResponse);
+        //    }
 
-            return Ok(new CursorPagedResult<FriendSuggestionResponse>()
-            {
-                Items = result,
-                NextCursor = friends.NextCursor
-            });
-        }
+        //    return Ok(new CursorPagedResult<FriendSuggestionResponse>()
+        //    {
+        //        Items = result,
+        //        NextCursor = friends.NextCursor
+        //    });
+        //}
 
         [EndpointDescription("Retrieve blocked list")]
         [ProducesResponseType(typeof(CursorPagedResult<BlockeeResponse>), StatusCodes.Status200OK)]
@@ -291,7 +283,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             profileIds.ToList().Add(currentProfileId);
 
             // Nạp toàn bộ profiles cần thiết
-            var profiles = await profileService.GetByIds(profileIds.ToList());
+            var profiles = await profileService.GetAllByIds(profileIds.ToList());
             var profileDict = profiles.ToDictionary(p => p.Id, mapper.Map<PreviewProfileResponse>);
 
             var photoMetadataIds = profiles

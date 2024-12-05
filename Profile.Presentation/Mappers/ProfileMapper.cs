@@ -98,7 +98,62 @@ public class ProfileMapper : AutoMapper.Profile
                 dest.Name = dest.GenerateName();
             });
 
+        CreateMap<PageProfile, PageProfileResponse>()
+            .AfterMap((src, dest) =>
+            {
+                dest.Type = src.Type.ToString();
+                //chỗ này custome nếu trg hợp đích (dest) và nguồn (src) khác tên thuộc tính
+                if (src.AvatarId == null)
+                {
+                    dest.Avatar = new PhotoMetadataResponse
+                    {
+                        Id = Guid.Empty,
+                        Name = "cover.jpg",
+                        Width = 500,
+                        Height = 500,
+                        Size = 1000,
+                        Type = FileMetadataType.Photo.ToString(),
+                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
+                        CreatedAt = DateTime.Now
+                    };
+                }
+                else
+                {
+                    dest.Avatar = new PhotoMetadataResponse
+                    {
+                        Id = src.AvatarId.Value,
+                    };
+                }
+
+                if (src.CoverId == null)
+                {
+                    dest.Cover = new PhotoMetadataResponse
+                    {
+                        Id = Guid.Empty,
+                        Name = "cover.jpg",
+                        Width = 500,
+                        Height = 500,
+                        Size = 1000,
+                        Type = FileMetadataType.Photo.ToString(),
+                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
+                        CreatedAt = DateTime.Now
+                    };
+                }
+                else
+                {
+                    dest.Cover = new PhotoMetadataResponse
+                    {
+                        Id = src.CoverId.Value,
+                    };
+                }
+                dest.Name = dest.GenerateName();
+            });
+
         // DTO -> Entity
         CreateMap<UpdateUserProfileRequest, UserProfile>();
+
+        CreateMap<UpdatePageProfileRequest, PageProfile>();
     }
+
+
 }

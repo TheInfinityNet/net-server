@@ -32,7 +32,7 @@ namespace InfinityNetServer.Services.Notification.Presentation.Controllers
     {
         [Authorize]
         [EndpointDescription("Get notifications")]
-        [HttpGet("getNotifications")]
+        [HttpGet("/")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult> GetReadOrMentionNotifications(string cursor = null, int limit = 10, string type = "All")
         {
@@ -65,6 +65,7 @@ namespace InfinityNetServer.Services.Notification.Presentation.Controllers
                     var response = mapper.Map<NotificationResponse>(noti);
                     response.Title = localizer[$"{noti.Type}.Title", noti.TitleParams];
                     response.Content = localizer[$"{noti.Type}.Content", noti.ContentParams];
+                    response.Permalink = string.Empty;
 
                     // chỗ này duyệt để map kết quả sang dto thì đến lúc map cái thumnail 
                     // dùng thumnailId để lấy giá trị trong dictionary rồi xuất value ra biến "photo"

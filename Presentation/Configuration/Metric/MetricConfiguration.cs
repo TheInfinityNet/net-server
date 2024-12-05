@@ -19,6 +19,7 @@ public static class ValidationHandlerConfiguration
                 options.Url = metricOptions.Url;
                 options.Hostname = metricOptions.Hostname;
             });
+            services.AddOpenTelemetry();
         }
 
         services.AddSingleton<IMetricFactory>(Metrics.DefaultFactory);

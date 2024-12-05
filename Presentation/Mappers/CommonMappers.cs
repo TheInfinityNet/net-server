@@ -3,6 +3,7 @@ using Google.Protobuf.WellKnownTypes;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Relationship;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Presentation.Mappers.Converters;
 using InfinityNetServer.Services.Profile.Application.DTOs.Responses;
@@ -197,10 +198,13 @@ public class CommonMappers : Profile
         // DTO -> DTO
         CreateMap<BaseProfileResponse, PreviewProfileResponse>();
 
-        CreateMap<UserProfileResponse, FriendSuggestionResponse>()
+        CreateMap<UserProfileResponse, BlockeeResponse>();
+
+        CreateMap<BaseProfileResponse, FriendshipResponse>()
             .ForMember(dest => dest.Status, opt => opt.Ignore());
 
-        CreateMap<UserProfileResponse, BlockeeResponse>();
+        CreateMap<UserProfileResponse, FriendshipResponse>()
+            .ForMember(dest => dest.Status, opt => opt.Ignore());
 
         // Entity -> DTO
         CreateMap<Domain.Entities.TagFacet, TagFacet>()

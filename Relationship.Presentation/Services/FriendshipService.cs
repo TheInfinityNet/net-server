@@ -1,12 +1,10 @@
-﻿using AutoMapper;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
+﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
-using InfinityNetServer.BuildingBlocks.Domain.Repositories;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications;
+using InfinityNetServer.Services.Profile.Domain.Entities;
 using InfinityNetServer.Services.Relationship.Application;
 using InfinityNetServer.Services.Relationship.Application.DTOs.Responses;
-using InfinityNetServer.Services.Relationship.Application.GrpcClients;
 using InfinityNetServer.Services.Relationship.Application.Services;
 using InfinityNetServer.Services.Relationship.Domain.Entities;
 using InfinityNetServer.Services.Relationship.Domain.Enums;
@@ -17,17 +15,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static StackExchange.Redis.Role;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 
 namespace InfinityNetServer.Services.Relationship.Presentation.Services
 {
     public class FriendshipService(
-        CommonProfileClient profileClient,
-        IFriendshipRepository friendshipRepository, 
+        IFriendshipRepository friendshipRepository,
+        IProfileFollowService followService,
+        IProfileBlockService blockService,
         ILogger<FriendshipService> logger,
-        IProfileFollowService profileFollowService,
-        IProfileBlockService profileBlockService,
         IStringLocalizer<RelationshipSharedResource> localizer) : IFriendshipService
     {
 
@@ -40,7 +35,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
         public async Task<Friendship> GetByStatus(FriendshipStatus status, string senderId, string receiverId)
             => await friendshipRepository.GetByStatus(status, Guid.Parse(senderId), Guid.Parse(receiverId));
 
-        public async Task<IList<string>> GetFriendIds(string profile)
+        public async Task<IList<string>> GetAllFriendIds(string profile)
         {
             var list = await friendshipRepository.GetAllFriendIdsAsync(Guid.Parse(profile));
             return list.Select(x => x.ToString()).ToList();
@@ -97,9 +92,85 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
         //    };
         //}
 
+        public async Task<CursorPagedResult<Friendship>> GetFriendRequests(string profileId, string cursor, int pageSize)
+        {
+            IList<string> blockerIds = await blockService.GetBlockerIds(profileId);
+            IList<string> blockeeIds = await blockService.GetBlockeeIds(profileId);
+
+            var specification = new SpecificationWithCursor<Friendship>
+            {
+                Criteria = friendship =>
+                        friendship.Status == FriendshipStatus.Pending
+                        && friendship.ReceiverId.Equals(Guid.Parse(profileId))
+                        && !blockerIds.Concat(blockeeIds).Contains(friendship.SenderId.ToString()),
+
+                OrderFields = [
+                        new OrderField<Friendship>
+                        {
+                            Field = x => x.CreatedAt,
+                            Direction = SortDirection.Descending
+                        }
+                    ],
+                Cursor = cursor,
+                PageSize = pageSize
+            };
+            return await friendshipRepository.GetPagedAsync(specification);
+        }
+
+        public async Task<CursorPagedResult<Friendship>> GetFriends(string profileId, string cursor, int pageSize)
+        {
+            IList<string> blockerIds = await blockService.GetBlockerIds(profileId);
+            IList<string> blockeeIds = await blockService.GetBlockeeIds(profileId);
+
+            var specification = new SpecificationWithCursor<Friendship>
+            {
+                Criteria = friendship =>
+                        friendship.Status == FriendshipStatus.Connected
+                        && (friendship.SenderId.Equals(Guid.Parse(profileId)) || friendship.ReceiverId.Equals(Guid.Parse(profileId)))
+                        && !blockerIds.Concat(blockeeIds).Contains(friendship.SenderId.ToString())
+                        && !blockerIds.Concat(blockeeIds).Contains(friendship.ReceiverId.ToString()),
+
+                OrderFields = [
+                        new OrderField<Friendship>
+                        {
+                            Field = x => x.CreatedAt,
+                            Direction = SortDirection.Descending
+                        }
+                    ],
+                Cursor = cursor,
+                PageSize = pageSize
+            };
+            return await friendshipRepository.GetPagedAsync(specification);
+        }
+
+        public async Task<CursorPagedResult<Friendship>> GetFriendSentRequests(string profileId, string cursor, int pageSize)
+        {
+            IList<string> blockerIds = await blockService.GetBlockerIds(profileId);
+            IList<string> blockeeIds = await blockService.GetBlockeeIds(profileId);
+
+            var specification = new SpecificationWithCursor<Friendship>
+            {
+                Criteria = friendship =>
+                        friendship.Status == FriendshipStatus.Pending
+                        && friendship.SenderId.Equals(Guid.Parse(profileId))
+                        && !blockerIds.Concat(blockeeIds).Contains(friendship.SenderId.ToString()),
+
+                OrderFields = [
+                        new OrderField<Friendship>
+                        {
+                            Field = x => x.CreatedAt,
+                            Direction = SortDirection.Descending
+                        }
+                    ],
+                Cursor = cursor,
+                PageSize = pageSize
+            };
+            return await friendshipRepository.GetPagedAsync(specification);
+        }
+
         public async Task<SendRequestResponse> SendRequest(string senderId, string receiverId)
         {
-            Friendship friendship = new Friendship
+            Friendship friendship = new ()
             {
                 SenderId = Guid.Parse(senderId),
                 ReceiverId = Guid.Parse(receiverId),
@@ -110,11 +181,12 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
 
             {
                 UserId = friendship.Id.ToString(),
-                Message = "Friend request sent",
+                Message = localizer["Friend request sent"].ToString(),
                 Status = "RequestSent"
             };
         }
-        public async Task<RejectRequestResponse> RejectRequest(Guid requestId)
+
+        public async Task<RejectRequestResponse> DeclineRequest(Guid requestId)
         {
             await friendshipRepository.DeleteAsync(requestId);
             return new RejectRequestResponse
@@ -124,6 +196,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
                 Status = "NotConnected"
             };
         }
+
         public async Task<CancelRequestResponse> CancelRequest(Guid requestId)
         {
             await friendshipRepository.DeleteAsync(requestId);
@@ -134,6 +207,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
                 Status = "NotConnected"
             };
         }
+
         public async Task<AcceptRequestResponse> AcceptRequest(Friendship friendship)
         {
             friendship.Status = FriendshipStatus.Connected;
@@ -145,6 +219,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
                 Status = "Connected"
             };
         }
+
         public async Task<UnfriendResponse> Unfriend(Guid friendshipId)
         {
             await friendshipRepository.DeleteAsync(friendshipId);
@@ -155,13 +230,14 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
                 Status = "NotConnected"
             };
         }
-        public async Task<IList<string>> GetPendingRequestProfiles(string profile)
+
+        public async Task<IList<string>> GetAllPendingRequestIdsByProfileId(string profileId)
         {
-            var list = await friendshipRepository.GetPendingRequestsAsync(Guid.Parse(profile));
+            var list = await friendshipRepository.GetAllPendingRequestIdsByProfileIdAsync(Guid.Parse(profileId));
             return list.Select(x => x.ToString()).ToList();
         }
 
-        public async Task<IList<ProfileIdWithMutualCount>> GetCountMutualFriend(string currentProfileId, IList<string> profileIds)
+        public async Task<IList<ProfileIdWithMutualCount>> CountMutualFriend(string currentProfileId, IList<string> profileIds)
         {
             var list = await friendshipRepository.GetMutualFriendCount(profileIds, Guid.Parse(currentProfileId));
             return list.Select(item => new ProfileIdWithMutualCount
@@ -171,18 +247,17 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Services
             }).ToList();
         }
 
-        public async Task<IList<string>> GetRequests(string profile)
+        public async Task<IList<string>> GetRequestIds(string profile)
         {
             var list = await friendshipRepository.GetRequestsAsync(Guid.Parse(profile));
             return list.Select(x => x.ToString()).ToList();
         }
 
-        public async Task<IList<string>> GetSentRequests(string profile)
+        public async Task<IList<string>> GetSentRequestIds(string profile)
         {
             var list = await friendshipRepository.GetSentRequestsAsync(Guid.Parse(profile));
             return list.Select(x => x.ToString()).ToList();
         }
 
-        
     }
 }

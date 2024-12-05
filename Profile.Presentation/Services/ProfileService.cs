@@ -17,8 +17,8 @@ namespace InfinityNetServer.Services.Profile.Presentation.Services
         public async Task<Domain.Entities.Profile> GetById(string id)
             => await profileRepository.GetByIdAsync(Guid.Parse(id));
 
-        public async Task<IList<Domain.Entities.Profile>> GetByIds(IList<string> ids)
-            => await profileRepository.GetByIdsAsync(ids.Select(Guid.Parse));
+        public async Task<IList<Domain.Entities.Profile>> GetAllByIds(IList<string> ids)
+            => await profileRepository.GetAllByIdsAsync(ids.Select(Guid.Parse));
 
         public async Task<IList<Domain.Entities.Profile>> GetAll()
             => await profileRepository.GetAllAsync();

@@ -10,7 +10,7 @@ namespace InfinityNetServer.Services.Notification.Application.DTOs.Responses
 
         public string Type { get; set; }
 
-        public string Permalink { get; set; }
+        public string Permalink { get; set; } = string.Empty;
 
         public PhotoMetadataResponse Thumbnail { get; set; }
 

@@ -16,7 +16,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Repositories
         public async Task<IList<Domain.Entities.Profile>> GetAllByTypeAsync(ProfileType type)
             => await context.Profiles.Where(p => p.Type == type).ToListAsync();
 
-        public async Task<IList<Domain.Entities.Profile>> GetByIdsAsync(IEnumerable<Guid> ids)
+        public async Task<IList<Domain.Entities.Profile>> GetAllByIdsAsync(IEnumerable<Guid> ids)
             => await context.Profiles.Where(p => ids.Contains(p.Id)).ToListAsync();
 
         public async Task<IList<Domain.Entities.Profile>> GetPotentialByLocationAsync(string location, int limit = 100)

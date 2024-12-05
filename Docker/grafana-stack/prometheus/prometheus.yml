@@ -10,9 +10,44 @@ scrape_configs:
   - job_name: 'GatewayService'
     scrape_interval: 2s
     static_configs:
-      - targets: ['localhost:9999']
+      - targets: ['localhost:61000']
 
   - job_name: 'IdentityService'
     scrape_interval: 2s
     static_configs:
-      - targets: ['localhost:8282']
+      - targets: ['localhost:61001']
+
+  - job_name: 'ProfileService'
+    scrape_interval: 2s
+    static_configs:
+      - targets: ['localhost:61002']
+
+  - job_name: 'RelationshipService'
+    scrape_interval: 2s
+    static_configs:
+      - targets: ['localhost:61003']
+
+  - job_name: 'PostService'
+    scrape_interval: 2s
+    static_configs:
+      - targets: ['localhost:61005']
+
+  - job_name: 'CommentService'
+    scrape_interval: 2s
+    static_configs:
+      - targets: ['localhost:61006']
+
+  - job_name: 'ReactionService'
+    scrape_interval: 2s
+    static_configs:
+      - targets: ['localhost:61007']
+
+  - job_name: 'NotificationService'
+    scrape_interval: 2s
+    static_configs:
+      - targets: ['localhost:61008']
+
+  - job_name: 'FileService'
+    scrape_interval: 2s
+    static_configs:
+      - targets: ['localhost:61010']
