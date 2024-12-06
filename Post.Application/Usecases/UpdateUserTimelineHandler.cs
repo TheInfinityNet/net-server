@@ -1,5 +1,5 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
-using InfinityNetServer.Services.Post.Application.Services;
+using InfinityNetServer.Services.Post.Application.IServices;
 using InfinityNetServer.Services.Post.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;

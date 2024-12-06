@@ -43,7 +43,7 @@ namespace InfinityNetServer.Services.Notification.Presentation.Services
                     }
                     ],
                 Cursor = cursor,
-                PageSize = pageSize
+                Limit = pageSize
             };
 
             return notificationRepository.GetPagedDataAsync(cursor, specification);
@@ -94,7 +94,7 @@ namespace InfinityNetServer.Services.Notification.Presentation.Services
                                 }
                     ],
                             Cursor = cursor,
-                            PageSize = pageSize
+                            Limit = pageSize
                         };
                     }
                     break;
@@ -118,7 +118,7 @@ namespace InfinityNetServer.Services.Notification.Presentation.Services
                                 }
                     ],
                             Cursor = cursor,
-                            PageSize = pageSize
+                            Limit = pageSize
                         };
                     }
                     break;
@@ -140,7 +140,7 @@ namespace InfinityNetServer.Services.Notification.Presentation.Services
                                 }
                     ],
                             Cursor = cursor,
-                            PageSize = pageSize
+                            Limit = pageSize
                         };
                     }
                     break;

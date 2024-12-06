@@ -4,12 +4,12 @@ using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Relationship;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
-using InfinityNetServer.BuildingBlocks.Application.Services;
+using InfinityNetServer.BuildingBlocks.Application.IServices;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.Profile.Application;
 using InfinityNetServer.Services.Profile.Application.DTOs.Responses;
-using InfinityNetServer.Services.Profile.Application.Services;
+using InfinityNetServer.Services.Profile.Application.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -59,7 +59,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
 
             var resultHasCount = await relationshipClient
-                .GetMutualCount(currentProfileId, suggestions.Items.Select(f => f.Id.ToString()).ToList());
+                .CountMutualFriends(currentProfileId, suggestions.Items.Select(f => f.Id.ToString()).ToList());
 
             var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
 

@@ -1,7 +1,7 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
-using InfinityNetServer.BuildingBlocks.Application.Services;
+using InfinityNetServer.BuildingBlocks.Application.IServices;
 using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL;
 using InfinityNetServer.Services.Post.Domain.Entities;
 using InfinityNetServer.Services.Post.Domain.Enums;
@@ -150,10 +150,10 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
             PostAudience privacy = entity.Audience;
             DateTime createdAt = entity.CreatedAt;
 
-            IList<string> followerIds = await relationshipClient.GetFollowerIds(ownerId.ToString());
-            IList<string> friendIds = await relationshipClient.GetFriendIds(ownerId.ToString());
-            IList<string> blockerIds = await relationshipClient.GetBlockerIds(ownerId.ToString());
-            IList<string> blockeeIds = await relationshipClient.GetBlockeeIds(ownerId.ToString());
+            IList<string> followerIds = await relationshipClient.GetAllFollowerIds(ownerId.ToString());
+            IList<string> friendIds = await relationshipClient.GetAllFriendIds(ownerId.ToString());
+            IList<string> blockerIds = await relationshipClient.GetAllBlockerIds(ownerId.ToString());
+            IList<string> blockeeIds = await relationshipClient.GetAllBlockeeIds(ownerId.ToString());
             IList<string> includeIds = privacy.Includes.Select(i => i.ProfileId.ToString()).ToList();
             IList<string> excludeIds = privacy.Excludes.Select(i => i.ProfileId.ToString()).ToList();
 

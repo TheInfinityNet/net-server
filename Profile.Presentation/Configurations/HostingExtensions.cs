@@ -15,7 +15,6 @@ using System;
 using Microsoft.Extensions.Hosting;
 using InfinityNetServer.Services.Profile.Presentation.Exceptions;
 using InfinityNetServer.Services.Profile.Application;
-using InfinityNetServer.Services.Profile.Presentation.Services;
 using InfinityNetServer.Services.Profile.Infrastructure.DependencyInjection;
 using InfinityNetServer.Services.Profile.Infrastructure.Data;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.CORS;
@@ -23,7 +22,6 @@ using InfinityNetServer.BuildingBlocks.Presentation.Configuration.HealthCheck;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Grpc;
 using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
 using InfinityNetServer.Services.Profile.Presentation.Mappers;
-using InfinityNetServer.BuildingBlocks.Presentation.Services;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Web;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Configurations;

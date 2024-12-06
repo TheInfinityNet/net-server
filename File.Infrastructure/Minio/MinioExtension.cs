@@ -7,10 +7,6 @@ namespace InfinityNetServer.Services.File.Infrastructure.Minio
     public static class MinioExtension
     {
 
-        public static readonly string MAIN_BUCKET_NAME = "infinity-net-bucket";
-
-        public static readonly string TEMP_BUCKET_NAME = "infinity-net-temp-bucket";
-
         public static IServiceCollection AddMinioClient(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton(sp =>

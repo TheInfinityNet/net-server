@@ -1,8 +1,8 @@
 ﻿
 using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
-using InfinityNetServer.BuildingBlocks.Application.Services;
+using InfinityNetServer.BuildingBlocks.Application.IServices;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
-using InfinityNetServer.Services.File.Application.Services;
+using InfinityNetServer.Services.File.Application.IServices;
 using InfinityNetServer.Services.File.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;

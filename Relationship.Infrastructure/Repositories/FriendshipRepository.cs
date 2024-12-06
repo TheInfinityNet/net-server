@@ -1,6 +1,4 @@
-﻿using Grpc.Core;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
-using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositories;
+﻿using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositories;
 using InfinityNetServer.Services.Relationship.Domain.Entities;
 using InfinityNetServer.Services.Relationship.Domain.Enums;
 using InfinityNetServer.Services.Relationship.Domain.Repositories;
@@ -34,20 +32,6 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
             => await context.Friendships.FirstOrDefaultAsync(f =>
                     f.SenderId.Equals(senderId) && f.ReceiverId.Equals(receiverId) && f.Status == status);
 
-        //public async Task<IList<Friendship>> GetAllMyFriendInvitationsAsync(Guid profile, int? limit)
-        //{
-        //    var query = context.Friendships.Where(f => f.ReceiverId == profile && f.Status == FriendshipStatus.Pending);
-        //    if (limit.HasValue) query = query.Take(limit.Value);
-        //    return await query.ToListAsync();
-        //}
-
-        //public async Task<IList<Friendship>> GetAllSentFriendInvitationsAsync(Guid profile, int? limit)
-        //{
-        //    var query = context.Friendships.Where(f => f.SenderId == profile && f.Status == FriendshipStatus.Pending);
-        //    if (limit.HasValue) query = query.Take(limit.Value);
-        //    return await query.ToListAsync();
-        //}
-
         public async Task<IList<Guid>> GetAllFriendIdsAsync(Guid profile)
             => await context.Friendships
                 .Where(f => (f.SenderId == profile || f.ReceiverId == profile) && f.Status == FriendshipStatus.Connected)
@@ -60,13 +44,13 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
                     && f.Status == FriendshipStatus.Connected)
                 .Take(limit ?? context.Friendships.Count()).ToListAsync();
 
-        public async Task<int> GetMutualFriendsCount(Guid profileId, Guid currentProfile)
+        public async Task<int> CountMutualFriends(Guid profileId, Guid currentProfile)
             => await context.Friendships
                 .CountAsync(f => (f.SenderId == profileId || f.ReceiverId == profileId) &&
                             (f.SenderId == currentProfile || f.ReceiverId == currentProfile) &&
                             f.Status == FriendshipStatus.Connected);
 
-        public async Task<IList<Guid>> GetMutualFriendsAsync(Guid? currentUserId, IList<Guid> friendsOfCurrentUser)
+        public async Task<IList<Guid>> GetAllMutualFriendIdsAsync(Guid currentUserId, IList<Guid> friendsOfCurrentUser)
         {
             return await context.Friendships
                 .Where(f => friendsOfCurrentUser.Contains(f.SenderId) || friendsOfCurrentUser.Contains(f.ReceiverId))
@@ -76,73 +60,40 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
                 .Distinct()
                 .ToListAsync();
         }
-        public async Task<IList<Guid>> GetFriendsOfCurrentUserAsync(Guid? currentUserId)
+        
+        public async Task<IList<Guid>> GetAllFriendIdsOfCurrentUserAsync(Guid currentUserId)
         {
             return await context.Friendships
                 .Where(f => (f.SenderId == currentUserId || f.ReceiverId == currentUserId) && f.Status == FriendshipStatus.Connected )
                 .Select(f => f.SenderId == currentUserId ? f.ReceiverId : f.SenderId)
                 .ToListAsync();
         }
-        public async Task<IList<Guid>> GetAllPendingRequestIdsByProfileIdAsync(Guid? currentUserId)
+
+        public async Task<IList<Guid>> GetAllPendingRequestIdsAsync(Guid currentUserId)
         {
             return await context.Friendships
                 .Where(f => (f.SenderId == currentUserId || f.ReceiverId == currentUserId) && f.Status == FriendshipStatus.Pending)
                 .Select(f => f.SenderId == currentUserId ? f.ReceiverId : f.SenderId)
                 .ToListAsync();
         }
-        public async Task<IList<Guid>> GetRequestsAsync(Guid? currentUserId)
+
+        public async Task<IList<Guid>> GetAllRequestIdsAsync(Guid currentUserId)
         {
             return await context.Friendships
                 .Where(f => (f.ReceiverId == currentUserId) && f.Status == FriendshipStatus.Pending)
                 .Select(f => f.SenderId)
                 .ToListAsync();
         }
-        public async Task<IList<Guid>> GetSentRequestsAsync(Guid? currentUserId)
+
+        public async Task<IList<Guid>> GetAllSentRequestIdsAsync(Guid currentUserId)
         {
             return await context.Friendships
                 .Where(f => (f.SenderId == currentUserId) && f.Status == FriendshipStatus.Pending)
                 .Select(f => f.ReceiverId)
                 .ToListAsync();
         }
-        public async Task<IQueryable<Friendship>> GetMutualFriendsQueryAsync(Guid? currentUserId, IList<Guid> friendsOfCurrentUser, Guid? cursor)
-        {
-            IQueryable<Friendship> query = context.Friendships
-                .Where(f => friendsOfCurrentUser.Contains(f.SenderId) || friendsOfCurrentUser.Contains(f.ReceiverId))
-                .Where(f => f.Status == FriendshipStatus.Connected)
-                .Where(f => f.SenderId != currentUserId && f.ReceiverId != currentUserId);
 
-            if (cursor.HasValue)
-            {
-                query = query.Where(f => EF.Property<Guid>(f, "Id").CompareTo(cursor.Value) > 0);
-            }
-
-            return query;
-        }
-        public async Task<IList<Friendship>> GetPagedResultsAsync(IQueryable<Friendship> query, int pageSize)
-        {
-            var results = await query.Take(pageSize + 1).ToListAsync();
-            return results;
-        }
-        public (bool hasNext, bool hasPrevious, IList<Friendship> results) ProcessPagedResults(IList<Friendship> results, int pageSize, Guid? cursor)
-        {
-            bool hasNext = results.Count > pageSize;
-            bool hasPrevious = cursor != null;
-
-            if (hasNext)
-            {
-                results.RemoveAt(results.Count - 1);  // Loại bỏ phần tử thừa nếu có trang tiếp theo
-            }
-
-            return (hasNext, hasPrevious, results);
-        }
-        public async Task<IList<Guid>> GetCommonFriendsIds(IList<Friendship> results, Guid? currentUserId)
-        {
-            return results
-                .Select(f => f.SenderId == currentUserId ? f.ReceiverId : f.SenderId)
-                .Distinct()
-                .ToList();
-        }
-        public async Task<IList<(Guid FriendId, int MutualFriendCount)>> GetMutualFriendCount(IList<string> results, Guid? currentUserId)
+        public async Task<IList<(Guid FriendId, int MutualFriendCount)>> CountMutualFriends(IList<string> results, Guid currentUserId)
         {
             var resultGuids = results.Select(Guid.Parse).ToList();
             var queryResult = await context.Friendships

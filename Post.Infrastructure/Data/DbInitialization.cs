@@ -3,7 +3,7 @@ using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Domain.Entities;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
-using InfinityNetServer.Services.Post.Application.Services;
+using InfinityNetServer.Services.Post.Application.IServices;
 using InfinityNetServer.Services.Post.Domain.Entities;
 using InfinityNetServer.Services.Post.Domain.Enums;
 using InfinityNetServer.Services.Post.Domain.Repositories;
@@ -212,9 +212,9 @@ public static class DbInitialization
         var tasks = profileIds.ToDictionary(
             id => id,
             id => Task.WhenAll(
-                relationshipClient.GetFriendIds(id),
-                relationshipClient.GetFollowerIds(id),
-                relationshipClient.GetFolloweeIds(id)
+                relationshipClient.GetAllFriendIds(id),
+                relationshipClient.GetAllFollowerIds(id),
+                relationshipClient.GetAllFolloweeIds(id)
             ));
 
         var results = await Task.WhenAll(tasks.Values);
@@ -320,9 +320,9 @@ public static class DbInitialization
     {
         var tasks = new[]
         {
-            relationshipClient.GetFollowerIds(ownerId),
-            relationshipClient.GetFolloweeIds(ownerId),
-            relationshipClient.GetFriendIds(ownerId)
+            relationshipClient.GetAllFollowerIds(ownerId),
+            relationshipClient.GetAllFolloweeIds(ownerId),
+            relationshipClient.GetAllFriendIds(ownerId)
         };
 
         var results = await Task.WhenAll(tasks);

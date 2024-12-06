@@ -120,8 +120,8 @@ public static class DbInitialization
                     : faker.PickRandom(new CommentType[] { CommentType.Photo, CommentType.Video });
 
                 // Lấy danh sách bạn bè và người theo dõi (nếu cần tạo content phụ thuộc)
-                var friendIds = await relationshipClient.GetFriendIds(comment.ProfileId.ToString());
-                var followerIds = await relationshipClient.GetFollowerIds(comment.ProfileId.ToString());
+                var friendIds = await relationshipClient.GetAllFriendIds(comment.ProfileId.ToString());
+                var followerIds = await relationshipClient.GetAllFollowerIds(comment.ProfileId.ToString());
                 var combinedIds = friendIds.Concat(followerIds).Distinct().ToList();
 
                 // Lấy thông tin profileId và tên
@@ -193,8 +193,8 @@ public static class DbInitialization
                     : faker.PickRandom(new CommentType[] { CommentType.Photo, CommentType.Video });
 
                 // Lấy danh sách bạn bè và người theo dõi
-                var friendIds = await relationshipClient.GetFriendIds(comment.ProfileId.ToString());
-                var followerIds = await relationshipClient.GetFollowerIds(comment.ProfileId.ToString());
+                var friendIds = await relationshipClient.GetAllFriendIds(comment.ProfileId.ToString());
+                var followerIds = await relationshipClient.GetAllFollowerIds(comment.ProfileId.ToString());
                 var combinedIds = friendIds.Concat(followerIds).Distinct().ToList();
 
                 // Lấy danh sách profile với tên từ combinedIds

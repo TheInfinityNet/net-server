@@ -3,7 +3,7 @@ using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
 using InfinityNetServer.Services.Profile.Application.Exceptions;
-using InfinityNetServer.Services.Profile.Application.Services;
+using InfinityNetServer.Services.Profile.Application.IServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;

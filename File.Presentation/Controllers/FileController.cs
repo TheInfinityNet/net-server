@@ -1,11 +1,11 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
-using InfinityNetServer.BuildingBlocks.Application.Services;
+using InfinityNetServer.BuildingBlocks.Application.IServices;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.File.Application;
 using InfinityNetServer.Services.File.Application.Exceptions;
-using InfinityNetServer.Services.File.Application.Services;
+using InfinityNetServer.Services.File.Application.IServices;
 using InfinityNetServer.Services.File.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -17,7 +17,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using static InfinityNetServer.Services.File.Application.Helper.FileHelper;
+using static InfinityNetServer.Services.File.Application.Helpers.FileHelper;
 using static InfinityNetServer.Services.File.Infrastructure.Minio.MinioExtension;
 
 namespace InfinityNetServer.Services.File.Presentation.Controllers

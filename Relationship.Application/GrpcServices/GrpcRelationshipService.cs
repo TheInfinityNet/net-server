@@ -1,11 +1,11 @@
-﻿using Grpc.Core;
-using Microsoft.Extensions.Logging;
+﻿using AutoMapper;
+using Grpc.Core;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
-using System.Threading.Tasks;
-using AutoMapper;
-using InfinityNetServer.Services.Relationship.Application.Services;
-using System.Linq;
+using InfinityNetServer.Services.Relationship.Application.IServices;
 using InfinityNetServer.Services.Relationship.Domain.Enums;
+using Microsoft.Extensions.Logging;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Relationship.Application.GrpcServices
 {
@@ -61,7 +61,7 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcServices
             return response;
         }
 
-        public override async Task<ProfileIdsResponse> getFriendIds(ProfileRequest request, ServerCallContext context)
+        public override async Task<ProfileIdsResponse> getAllFriendIds(ProfileRequest request, ServerCallContext context)
         {
             logger.LogInformation("Get friends for ProfileId: {ProfileId}", request.Id);
             var source = await friendshipService.GetAllFriendIds(request.Id);
@@ -69,31 +69,35 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcServices
             response.Ids.AddRange(source);
             return response;
         }
-        public override async Task<ProfileIdsResponse> getPendingRequestProfiles(ProfileRequest request, ServerCallContext context)
+
+        public override async Task<ProfileIdsResponse> getAllPendingRequestIds(ProfileRequest request, ServerCallContext context)
         {
             logger.LogInformation("Get pending request profiles of ProfileId: {ProfileId}", request.Id);
-            var source = await friendshipService.GetAllPendingRequestIdsByProfileId(request.Id);
+            var source = await friendshipService.GetAllPendingRequestIds(request.Id);
             var response = new ProfileIdsResponse();
             response.Ids.AddRange(source);
             return response;
         }
-        public override async Task<ProfileIdsResponse> getRequestProfiles(ProfileRequest request, ServerCallContext context)
+
+        public override async Task<ProfileIdsResponse> getAllRequestIds(ProfileRequest request, ServerCallContext context)
         {
             logger.LogInformation("Get friend requests profiles of ProfileId: {ProfileId}", request.Id);
-            var source = await friendshipService.GetRequestIds(request.Id);
+            var source = await friendshipService.GetAllRequestIds(request.Id);
             var response = new ProfileIdsResponse();
             response.Ids.AddRange(source);
             return response;
         }
-        public override async Task<ProfileIdsResponse> getSentRequestProfiles(ProfileRequest request, ServerCallContext context)
+
+        public override async Task<ProfileIdsResponse> getAllSentRequestIds(ProfileRequest request, ServerCallContext context)
         {
             logger.LogInformation("Get friend requests profiles of ProfileId: {ProfileId}", request.Id);
-            var source = await friendshipService.GetSentRequestIds(request.Id);
+            var source = await friendshipService.GetAllSentRequestIds(request.Id);
             var response = new ProfileIdsResponse();
             response.Ids.AddRange(source);
             return response;
         }
-        public override async Task<ProfileIdsResponse> getFollowerIds(ProfileRequest request, ServerCallContext context)
+
+        public override async Task<ProfileIdsResponse> getAllFollowerIds(ProfileRequest request, ServerCallContext context)
         {
             logger.LogInformation("Get followers for ProfileId: {ProfileId}", request.Id);
             var source = await profileFollowService.GetAllFollowerIds(request.Id);
@@ -102,7 +106,7 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcServices
             return response;
         }
 
-        public override async Task<ProfileIdsResponse> getFolloweeIds(ProfileRequest request, ServerCallContext context)
+        public override async Task<ProfileIdsResponse> getAllFolloweeIds(ProfileRequest request, ServerCallContext context)
         {
             logger.LogInformation("Get followers for ProfileId: {ProfileId}", request.Id);
             var source = await profileFollowService.GetAllFolloweeIds(request.Id);
@@ -111,31 +115,32 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcServices
             return response;
         }
 
-        public override async Task<ProfileIdsResponse> getBlockerIds(ProfileRequest request, ServerCallContext context)
+        public override async Task<ProfileIdsResponse> getAllBlockerIds(ProfileRequest request, ServerCallContext context)
         {
             logger.LogInformation("Get blockers for ProfileId: {ProfileId}", request.Id);
-            var source = await profileBlockService.GetBlockerIds(request.Id);
+            var source = await profileBlockService.GetAllBlockerIds(request.Id);
             var response = new ProfileIdsResponse();
             response.Ids.AddRange(source);
             return response;
         }
 
-        public override async Task<ProfileIdsResponse> getBlockeeIds(ProfileRequest request, ServerCallContext context)
+        public override async Task<ProfileIdsResponse> getAllBlockeeIds(ProfileRequest request, ServerCallContext context)
         {
             logger.LogInformation("Get blockees for ProfileId: {ProfileId}", request.Id);
-            var source = await profileBlockService.GetBlockeeIds(request.Id);
+            var source = await profileBlockService.GetAllBlockeeIds(request.Id);
             var response = new ProfileIdsResponse();
             response.Ids.AddRange(source);
             return response;
         }
 
-        public override async Task<MutualFriendCountResponse> getMutualFriendCount(MutualFriendCountRequest request, ServerCallContext context)
+        public override async Task<MutualFriendCountResponse> countMutualFriends(MutualFriendCountRequest request, ServerCallContext context)
         {
             logger.LogInformation("Get mutual friend count for ProfileId: {ProfileId}", request.CurrentProfileId);
-            var source = await friendshipService.CountMutualFriend(request.CurrentProfileId, request.ProfileIds);
+            var source = await friendshipService.CountMutualFriends(request.CurrentProfileId, request.ProfileIds);
             var response = new MutualFriendCountResponse();
             response.ProfileIdsWithMutualCounts.AddRange(source.Select(mapper.Map<ProfileIdWithMutualCount>));
             return response;
         }
+
     }
 }

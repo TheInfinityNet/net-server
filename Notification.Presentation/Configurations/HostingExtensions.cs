@@ -11,7 +11,6 @@ using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Swagger;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.ValidationHandler;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Web;
 using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
-using InfinityNetServer.BuildingBlocks.Presentation.Services;
 using InfinityNetServer.Services.Notification.Application;
 using InfinityNetServer.Services.Notification.Application.Consumers;
 using InfinityNetServer.Services.Notification.Application.Usecases;

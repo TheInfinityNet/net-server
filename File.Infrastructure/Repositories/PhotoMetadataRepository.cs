@@ -1,4 +1,4 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Services;
+﻿using InfinityNetServer.BuildingBlocks.Application.IServices;
 using InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB.Repositories;
 using InfinityNetServer.Services.File.Domain.Entities;
 using InfinityNetServer.Services.File.Domain.Repositories;

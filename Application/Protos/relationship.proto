@@ -8,9 +8,9 @@ import "Protos/base.proto";
 
 message ProfilesRelationshipRequest {
 
-  string currentProfileId = 1;
+	string currentProfileId = 1;
 
-  string targetProfileId = 2;
+	string targetProfileId = 2;
 
 }
 
@@ -38,41 +38,42 @@ message MutualFriendCountResponse {
 
 message ProfileRelationshipResponse {
 
-  bool result = 1;
+	bool result = 1;
 
 }
 
 message ProfileInteractionIdsResponse {
 	
-  repeated string profileInteractionIds = 1;
+	repeated string profileInteractionIds = 1;
 
 }
 
 service RelationshipService {
 
-  rpc hasFriendship(ProfilesRelationshipRequest) returns (ProfileRelationshipResponse) {}
+	rpc hasFriendship(ProfilesRelationshipRequest) returns (ProfileRelationshipResponse) {}
 
-  rpc hasBlocked(ProfilesRelationshipRequest) returns (ProfileRelationshipResponse) {}
+	rpc hasBlocked(ProfilesRelationshipRequest) returns (ProfileRelationshipResponse) {}
 
-  rpc hasFollowed(ProfilesRelationshipRequest) returns (ProfileRelationshipResponse) {}
+	rpc hasFollowed(ProfilesRelationshipRequest) returns (ProfileRelationshipResponse) {}
 
-  rpc hasFriendRequest(ProfilesRelationshipRequest) returns (ProfileRelationshipResponse) {}
+	rpc hasFriendRequest(ProfilesRelationshipRequest) returns (ProfileRelationshipResponse) {}
 
-  rpc getFriendIds(ProfileRequest) returns (ProfileIdsResponse) {}
+	rpc getAllFriendIds(ProfileRequest) returns (ProfileIdsResponse) {}
 
-  rpc getFollowerIds(ProfileRequest) returns (ProfileIdsResponse) {}
+	rpc getAllFollowerIds(ProfileRequest) returns (ProfileIdsResponse) {}
 
-  rpc getFolloweeIds(ProfileRequest) returns (ProfileIdsResponse) {}
+	rpc getAllFolloweeIds(ProfileRequest) returns (ProfileIdsResponse) {}
 
-  rpc getBlockerIds(ProfileRequest) returns (ProfileIdsResponse) {}
+	rpc getAllBlockerIds(ProfileRequest) returns (ProfileIdsResponse) {}
 
-  rpc getBlockeeIds(ProfileRequest) returns (ProfileIdsResponse) {}
+	rpc getAllBlockeeIds(ProfileRequest) returns (ProfileIdsResponse) {}
 
-  rpc getMutualFriendCount(MutualFriendCountRequest) returns (MutualFriendCountResponse) {}
+	rpc countMutualFriends(MutualFriendCountRequest) returns (MutualFriendCountResponse) {}
 
-  rpc getPendingRequestProfiles(ProfileRequest) returns (ProfileIdsResponse) {}
+	rpc getAllPendingRequestIds(ProfileRequest) returns (ProfileIdsResponse) {}
 
-  rpc getRequestProfiles(ProfileRequest) returns (ProfileIdsResponse) {}
+	rpc getAllRequestIds(ProfileRequest) returns (ProfileIdsResponse) {}
 
-  rpc getSentRequestProfiles(ProfileRequest) returns (ProfileIdsResponse) {}
+	rpc getAllSentRequestIds(ProfileRequest) returns (ProfileIdsResponse) {}
+
 }

@@ -90,13 +90,13 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB.Repositories
             // Execute query with filter and sorting, apply pagination
             var query = _collection.Find(filter)
                 .Sort(sortDefinition)
-                .Limit(specification.PageSize + 1); // Fetch one extra to check if there's a next page
+                .Limit(specification.Limit + 1); // Fetch one extra to check if there's a next page
 
             var items = await query.ToListAsync();
 
             // Determine if there's a next page
-            var hasNext = items.Count > specification.PageSize;
-            if (hasNext) items = items.Take(specification.PageSize).ToList(); // Remove extra item if there is a next page
+            var hasNext = items.Count > specification.Limit;
+            if (hasNext) items = items.Take(specification.Limit).ToList(); // Remove extra item if there is a next page
 
             // Determine the next and previous cursors
             var nextCursor = hasNext ? items.Last().CreatedAt.ToString("o") : null;

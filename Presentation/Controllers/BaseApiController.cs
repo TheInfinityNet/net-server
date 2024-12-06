@@ -1,4 +1,4 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Services;
+﻿using InfinityNetServer.BuildingBlocks.Application.IServices;
 using Microsoft.AspNetCore.Mvc;
 using System;
 

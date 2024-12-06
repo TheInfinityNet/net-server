@@ -2,7 +2,7 @@
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
-using InfinityNetServer.Services.Post.Application.Services;
+using InfinityNetServer.Services.Post.Application.IServices;
 using InfinityNetServer.Services.Post.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using System;

@@ -18,7 +18,6 @@ using InfinityNetServer.BuildingBlocks.Presentation.Configuration.HealthCheck;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Grpc;
 using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
 using InfinityNetServer.Services.Group.Infrastructure.Data;
-using InfinityNetServer.BuildingBlocks.Presentation.Services;
 using InfinityNetServer.Services.Group.Application;
 using InfinityNetServer.Services.Group.Infrastructure.DependencyInjection;
 using InfinityNetServer.Services.Group.Presentation.Services;

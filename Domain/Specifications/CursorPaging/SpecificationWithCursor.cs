@@ -14,7 +14,7 @@ namespace InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging
 
         public string Cursor { get; set; }
 
-        public int PageSize { get; set; }
+        public int Limit { get; set; }
 
     }
 }

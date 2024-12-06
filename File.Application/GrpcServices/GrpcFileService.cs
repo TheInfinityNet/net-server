@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Grpc.Core;
 using InfinityNetServer.BuildingBlocks.Application.Protos;
-using InfinityNetServer.Services.File.Application.Services;
+using InfinityNetServer.Services.File.Application.IServices;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 

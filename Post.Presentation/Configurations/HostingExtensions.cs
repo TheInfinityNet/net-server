@@ -20,8 +20,6 @@ using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
 using InfinityNetServer.Services.Post.Application;
 using InfinityNetServer.Services.Post.Infrastructure.DependencyInjection;
 using InfinityNetServer.Services.Post.Infrastructure.Data;
-using InfinityNetServer.BuildingBlocks.Presentation.Services;
-using InfinityNetServer.Services.Post.Presentation.Services;
 using InfinityNetServer.Services.Post.Presentation.Exceptions;
 using InfinityNetServer.Services.Post.Presentation.Mappers;
 using InfinityNetServer.Services.Post.Application.Usecases;
