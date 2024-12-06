@@ -9,6 +9,8 @@ namespace InfinityNetServer.Services.Profile.Domain.Entities
     public class UserProfile : Profile
     {
 
+        public UserProfile() => Type = ProfileType.User;
+
         [Required]
         [Column("username")]
         [MaxLength(50)]

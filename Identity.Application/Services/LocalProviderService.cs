@@ -1,7 +1,7 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.Services.Identity.Application;
 using InfinityNetServer.Services.Identity.Application.Exceptions;
-using InfinityNetServer.Services.Identity.Application.Services;
+using InfinityNetServer.Services.Identity.Application.IServices;
 using InfinityNetServer.Services.Identity.Domain.Entities;
 using InfinityNetServer.Services.Identity.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
-namespace InfinityNetServer.Services.Identity.Presentation.Services
+namespace InfinityNetServer.Services.Identity.Application.Services
 {
     public class LocalProviderService : ILocalProviderService
     {
@@ -31,9 +31,6 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
         }
 
         public async Task<LocalProvider> GetByEmail(string email)
-        {
-            var localProvider = await _localProviderRepository.GetByEmailAsync(email);
-            return localProvider ?? throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status404NotFound);
-        }
+            => await _localProviderRepository.GetByEmailAsync(email);
     }
 }

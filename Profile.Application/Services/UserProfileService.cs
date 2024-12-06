@@ -15,8 +15,8 @@ using System.Threading.Tasks;
 namespace InfinityNetServer.Services.Profile.Application.Services
 {
     public class UserProfileService(
-        IUserProfileRepository _userProfileRepository,
-        ILogger<UserProfileService> _logger,
+        IUserProfileRepository userProfileRepository,
+        ILogger<UserProfileService> logger,
         CommonRelationshipClient relationshipClient) : IUserProfileService
     {
         public async Task<CursorPagedResult<UserProfile>> GetBlockedList(string profileId, string cursor, int limit)
@@ -38,7 +38,7 @@ namespace InfinityNetServer.Services.Profile.Application.Services
                 Cursor = cursor,
                 Limit = limit
             };
-            return await _userProfileRepository.GetPagedAsync(specification);
+            return await userProfileRepository.GetPagedAsync(specification);
         }
 
         public async Task<CursorPagedResult<UserProfile>> GetFollowedList(string profileId, string cursor, int limit)
@@ -60,7 +60,7 @@ namespace InfinityNetServer.Services.Profile.Application.Services
                 Cursor = cursor,
                 Limit = limit
             };
-            return await _userProfileRepository.GetPagedAsync(specification);
+            return await userProfileRepository.GetPagedAsync(specification);
         }
 
         public async Task<CursorPagedResult<UserProfile>> GetFollowingList(string profileId, string cursor, int limit)
@@ -82,7 +82,7 @@ namespace InfinityNetServer.Services.Profile.Application.Services
                 Cursor = cursor,
                 Limit = limit
             };
-            return await _userProfileRepository.GetPagedAsync(specification);
+            return await userProfileRepository.GetPagedAsync(specification);
         }
 
         public async Task<CursorPagedResult<UserProfile>> GetFriendRequests(string profileId, string cursor, int limit)
@@ -108,7 +108,7 @@ namespace InfinityNetServer.Services.Profile.Application.Services
                 Cursor = cursor,
                 Limit = limit
             };
-            return await _userProfileRepository.GetPagedAsync(specification);
+            return await userProfileRepository.GetPagedAsync(specification);
         }
 
         public async Task<CursorPagedResult<UserProfile>> GetFriends(string profileId, string cursor, int limit)
@@ -134,7 +134,7 @@ namespace InfinityNetServer.Services.Profile.Application.Services
                 Cursor = cursor,
                 Limit = limit
             };
-            return await _userProfileRepository.GetPagedAsync(specification);
+            return await userProfileRepository.GetPagedAsync(specification);
         }
 
         public async Task<CursorPagedResult<UserProfile>> GetFriendSentRequests(string profileId, string cursor, int limit)
@@ -160,12 +160,11 @@ namespace InfinityNetServer.Services.Profile.Application.Services
                 Cursor = cursor,
                 Limit = limit
             };
-            return await _userProfileRepository.GetPagedAsync(specification);
+            return await userProfileRepository.GetPagedAsync(specification);
         }
 
         public async Task<CursorPagedResult<UserProfile>> GetFriendSuggestions(string profileId, string cursor, int limit)
         {
-            var profile = await GetById(profileId);
             IList<string> followeeIds = await relationshipClient.GetAllFolloweeIds(profileId);
             IList<string> friendIds = await relationshipClient.GetAllFriendIds(profileId);
             IList<string> pendingRequests = await relationshipClient.GetAllPendingRequestIds(profileId);
@@ -175,24 +174,25 @@ namespace InfinityNetServer.Services.Profile.Application.Services
             var specification = new SpecificationWithCursor<UserProfile>
             {
                 Criteria = userProfile =>
-                        !friendIds.Contains(userProfile.Id.ToString())
+                        !userProfile.Id.Equals(Guid.Parse(profileId))
+                        && !friendIds.Contains(userProfile.Id.ToString())
                         && !pendingRequests.Contains(userProfile.Id.ToString())
                         && !blockerIds.Concat(blockeeIds).Contains(userProfile.Id.ToString())
                         && !blockerIds.Concat(blockeeIds).Contains(userProfile.Id.ToString()),
                 Cursor = cursor,
                 Limit = limit
             };
-            return await _userProfileRepository.GetPagedAsync(specification);
+            return await userProfileRepository.GetPagedAsync(specification);
         }
 
         public async Task<UserProfile> GetByAccountId(string id)
-            => await _userProfileRepository.GetByAccountIdAsync(Guid.Parse(id));
+            => await userProfileRepository.GetByAccountIdAsync(Guid.Parse(id));
 
         public async Task<UserProfile> GetById(string id)
-            => await _userProfileRepository.GetByIdAsync(Guid.Parse(id));
+            => await userProfileRepository.GetByIdAsync(Guid.Parse(id));
 
         public async Task<IList<UserProfile>> GetAllByIds(IList<string> ids)
-            => await _userProfileRepository.GetAllByIdsAsync(ids.Select(Guid.Parse).ToList());
+            => await userProfileRepository.GetAllByIdsAsync(ids.Select(Guid.Parse).ToList());
 
         public async Task<UserProfile> Update(UserProfile userProfile)
         {
@@ -204,11 +204,17 @@ namespace InfinityNetServer.Services.Profile.Application.Services
             existedProfile.Username = userProfile.Username;
             existedProfile.Birthdate = userProfile.Birthdate;
             existedProfile.Gender = userProfile.Gender;
-            existedProfile.MobileNumber = userProfile.MobileNumber;
+            existedProfile.Bio = userProfile.Bio;
 
-            await _userProfileRepository.UpdateAsync(existedProfile);
+            await userProfileRepository.UpdateAsync(existedProfile);
 
             return existedProfile;
+        }
+
+        public async Task<UserProfile> Create(UserProfile userProfile)
+        {
+            logger.LogInformation("Create user profile");
+            return await userProfileRepository.CreateAsync(userProfile);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using InfinityNetServer.BuildingBlocks.Domain.Enums;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace InfinityNetServer.Services.Identity.Application.DTOs.Requests
@@ -33,10 +32,9 @@ namespace InfinityNetServer.Services.Identity.Application.DTOs.Requests
         [Phone(ErrorMessage = "Phone.MobileNumber")]
         public string MobileNumber { get; set; }
 
-        public DateTime Birthdate { get; set; }
+        public DateOnly Birthdate { get; set; }
 
-        [EnumDataType(typeof(Gender), ErrorMessage = "EnumDataType.Gender")]
-        public Gender Gender { get; set; }
+        public string Gender { get; set; } = BuildingBlocks.Domain.Enums.Gender.Other.ToString();
 
         public bool AcceptTerms { get; set; }
 

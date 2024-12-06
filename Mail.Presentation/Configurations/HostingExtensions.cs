@@ -21,9 +21,9 @@ internal static class HostingExtensions
 
         builder.Services.AddLocalization(builder.Configuration);
 
-        builder.Services.AddMessageBus(builder.Configuration, typeof(SendMailWithCodeEventConsumer));
+        builder.Services.AddMessageBus(builder.Configuration, typeof(SendMailWithCodeConsumer));
 
-        builder.Services.AddMediatR(typeof(SendMailWithCodeEventHandler));
+        builder.Services.AddMediatR(typeof(SendMailWithCodeHandler));
 
         builder.AddCommonSerilog();
 

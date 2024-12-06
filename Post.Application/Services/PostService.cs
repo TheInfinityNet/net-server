@@ -78,7 +78,6 @@ namespace InfinityNetServer.Services.Post.Application.Services
 
         public async Task<CursorPagedResult<Domain.Entities.Post>> GetNewsFeed(string profileId, string cursor, int pageSize)
         {
-            var profile = await profileClient.GetProfile(profileId);
             IList<string> followeeIds = await relationshipClient.GetAllFolloweeIds(profileId);
             IList<string> friendIds = await relationshipClient.GetAllFriendIds(profileId);
             IList<string> blockerIds = await relationshipClient.GetAllBlockerIds(profileId.ToString());

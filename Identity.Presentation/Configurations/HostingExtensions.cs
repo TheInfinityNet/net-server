@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using InfinityNetServer.Services.Identity.Presentation.Exceptions;
 using InfinityNetServer.Services.Identity.Application;
-using InfinityNetServer.Services.Identity.Presentation.Services;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.ValidationHandler;
 using InfinityNetServer.BuildingBlocks.Application;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Swagger;

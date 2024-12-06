@@ -1,19 +1,19 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
+﻿using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
 using MediatR;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using System.Threading;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Mail.Application.Usecases
 {
-    public class SendMailWithCodeEventHandler
-        (ILogger<SendMailWithCodeEventHandler> logger,
-        IStringLocalizer<MailSharedResource> localizer) : IRequestHandler<DomainEvent.SendMailWithCodeEvent>
+    public class SendMailWithCodeHandler
+        (ILogger<SendMailWithCodeHandler> logger,
+        IStringLocalizer<MailSharedResource> localizer) : IRequestHandler<DomainCommand.SendMailWithCodeCommand>
     {
 
-        public async Task Handle(DomainEvent.SendMailWithCodeEvent request, CancellationToken cancellationToken)
+        public async Task Handle(DomainCommand.SendMailWithCodeCommand request, CancellationToken cancellationToken)
         {
             logger.LogInformation(request.AcceptLanguage);
             Thread.CurrentThread.CurrentCulture = new CultureInfo(request.AcceptLanguage);
@@ -22,7 +22,7 @@ namespace InfinityNetServer.Services.Mail.Application.Usecases
             logger.LogInformation(Thread.CurrentThread.CurrentCulture.Name);
             var message = request;
             logger.LogInformation(localizer["Hello"].ToString());
-            logger.LogInformation($"Processing SendMailMessage: {message.ToMail} at {message.Type}");
+            logger.LogInformation($"Processing SendMailMessage: {message.ToMail} at {message.Type} with code {message.Code}");
             await Task.CompletedTask;
         }
 

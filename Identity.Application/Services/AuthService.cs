@@ -1,22 +1,26 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
+using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.IServices;
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Jwt;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
+using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
 using InfinityNetServer.Services.Identity.Application.Exceptions;
 using InfinityNetServer.Services.Identity.Application.Helpers;
-using InfinityNetServer.Services.Identity.Application.Services;
+using InfinityNetServer.Services.Identity.Application.IServices;
 using InfinityNetServer.Services.Identity.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InfinityNetServer.Services.Identity.Presentation.Services
+namespace InfinityNetServer.Services.Identity.Application.Services
 {
     public class AuthService : IAuthService
     {
@@ -33,6 +37,8 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
 
         private readonly ILocalProviderService _localProviderService;
 
+        private readonly IVerificationService _verificationService;
+
         private readonly ILogger<AuthService> _logger;
 
         private readonly IConfiguration _configuration;
@@ -41,25 +47,28 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             IBaseRedisService<string, string> baseRedisService,
             IAccountService accountService,
             ILocalProviderService localProviderService,
+            IVerificationService verificationService,
             IConfiguration configuration,
             ILogger<AuthService> logger)
         {
             _baseRedisService = baseRedisService;
             _accountService = accountService;
             _localProviderService = localProviderService;
+            _verificationService = verificationService;
             _configuration = configuration;
             _jwtOptions = _configuration.GetSection("Jwt").Get<JwtOptions>();
             _logger = logger;
         }
 
-        public async Task<LocalProvider> SignIn(string email, string password)
+        public async Task<Account> SignIn(string email, string password)
         {
-            var localProvider = await _localProviderService.GetByEmail(email);
+            var localProvider = await _localProviderService.GetByEmail(email) 
+                ?? throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status404NotFound);
 
             if (!PasswordHelper.VerifyPassword(localProvider.PasswordHash, password))
                 throw new IdentityException(IdentityError.WRONG_PASSWORD, StatusCodes.Status401Unauthorized);
 
-            return localProvider;
+            return await _accountService.GetById(localProvider.AccountId.ToString());
         }
 
         public async Task<bool> Introspect(string token)
@@ -118,18 +127,10 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
 
             string accountId = signedJwt.Subject ??
                 throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized);
-            Guid profileId = Guid.Parse(signedJwt.Claims.FirstOrDefault(c => c.Type == "profile_id")?.Value 
+            Guid profileId = Guid.Parse(signedJwt.Claims.FirstOrDefault(c => c.Type == "profile_id")?.Value
                 ?? throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized));
-            Account account;
-
-            try
-            {
-                account = await _accountService.GetById(accountId);
-            }
-            catch (Exception)
-            {
-                throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status404NotFound);
-            }
+            Account account = await _accountService.GetById(accountId)
+                ?? throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status404NotFound);
 
             return GenerateToken(account, profileId, false);
         }
@@ -177,14 +178,9 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
 
                 var subject = ((JwtSecurityToken)jwtToken).Subject ??
                                 throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized);
-                try
-                {
-                    await _accountService.GetById(subject);
-                }
-                catch (Exception)
-                {
-                    throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized);
-                }
+
+                var _ = await _accountService.GetById(subject)
+                    ?? throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized);
 
                 return (JwtSecurityToken)jwtToken;
             }
@@ -220,6 +216,93 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             {
                 throw new BaseException(BaseError.INVALID_SIGNATURE, StatusCodes.Status401Unauthorized);
             }
+        }
+
+        public async Task SendMailWithCode(string toMail, VerificationType type, IMessageBus messageBus)
+        {
+
+            LocalProvider localProvider = await _localProviderService.GetByEmail(toMail)
+                ?? throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status404NotFound);
+            
+            Verification verification = await _verificationService.Create(new Verification
+            {
+                Code = "123456",
+                Token = Guid.NewGuid() + "123456",
+                ExpiresAt = DateTime.Now.AddMinutes(5),
+                AccountId = localProvider.Account.Id,
+                CreatedBy = localProvider.Account.Id
+            });
+
+            await messageBus.Publish(new DomainCommand.SendMailWithCodeCommand
+            {
+                Id = Guid.NewGuid(),
+                ToMail = toMail,
+                Type = type,
+                AcceptLanguage = CultureInfo.CurrentCulture.ToString(),
+                Code = verification.Code,
+                CreatedAt = DateTime.Now,
+                CreatedBy = verification.CreatedBy
+            });
+        }
+
+        public async Task SignUp(SignUpRequest request, IMessageBus messageBus)
+        {
+
+            if (request.PasswordConfirmation != request.Password)
+                throw new IdentityException(IdentityError.PASSWORD_MISMATCH, StatusCodes.Status400BadRequest);
+
+            if (!request.AcceptTerms)
+                throw new IdentityException(IdentityError.TERMS_NOT_ACCEPTED, StatusCodes.Status400BadRequest);
+
+            if (request.Birthdate.Year < 1900 || request.Birthdate > DateOnly.FromDateTime(DateTime.Now.AddYears(-18)))
+                throw new IdentityException(IdentityError.INVALID_BIRTHDATE, StatusCodes.Status400BadRequest);
+
+            LocalProvider existingLocalProvider = await _localProviderService.GetByEmail(request.Email);
+
+            if (existingLocalProvider != null)
+                throw new IdentityException(IdentityError.EMAIL_ALREADY_IN_USE, StatusCodes.Status400BadRequest);
+
+            Account account = await _accountService.Create(new()
+            {
+                DefaultUserProfileId = Guid.NewGuid(),
+                AccountProviders = [
+                    new LocalProvider()
+                    {
+                        Email = request.Email,
+                        PasswordHash = PasswordHelper.HashPassword(request.Password),
+                    }]
+            });
+
+            await messageBus.Publish(new DomainCommand.CreateUserProfileCommand
+            {
+                AccountId = account.Id,
+                ProfileId = account.DefaultUserProfileId,
+                FirstName = request.FirstName,
+                MiddleName = request.MiddleName,
+                LastName = request.LastName,
+                MobileNumber = request.MobileNumber,
+                Birthdate = request.Birthdate,
+                Gender = Enum.Parse<Gender>(request.Gender),
+            });
+        }
+
+        public async Task VerifyEmailByCode(string email, string code, IMessageBus messageBus)
+        {
+            LocalProvider localProvider = await _localProviderService.GetByEmail(email)
+                ?? throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status404NotFound); ;
+            Verification verification = await _verificationService.GetByCodeAndAccountId(code, localProvider.AccountId.ToString())
+                ?? throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            if (verification.ExpiresAt < DateTime.Now)
+                throw new IdentityException(IdentityError.INVALID_ACTIVATION_CODE, StatusCodes.Status400BadRequest);
+
+            await messageBus.Publish(new DomainCommand.ActiveProfileCommand
+            {
+                Id = Guid.NewGuid(),
+                ProfileId = localProvider.Account.DefaultUserProfileId,
+            });
+
+            await _verificationService.Delete(verification.Id.ToString());
         }
     }
 }

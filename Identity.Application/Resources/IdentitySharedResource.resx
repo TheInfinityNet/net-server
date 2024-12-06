@@ -231,4 +231,7 @@
   <data name="ResourceNotFound.Account" xml:space="preserve">
     <value>Account not found</value>
   </data>
+  <data name="ValidationError.InvalidBirthdate" xml:space="preserve">
+    <value>Must older than 18 years old</value>
+  </data>
 </root>

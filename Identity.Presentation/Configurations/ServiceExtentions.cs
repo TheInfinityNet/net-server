@@ -1,7 +1,8 @@
-﻿using InfinityNetServer.Services.Identity.Application.Services;
+﻿using InfinityNetServer.Services.Identity.Application.IServices;
+using InfinityNetServer.Services.Identity.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace InfinityNetServer.Services.Identity.Presentation.Services
+namespace InfinityNetServer.Services.Identity.Presentation.Configurations
 {
     public static class ServiceExtentions
     {
@@ -11,6 +12,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Services
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ILocalProviderService, LocalProviderService>();
+            services.AddScoped<IVerificationService, VerificationService>();
         }
 
     }

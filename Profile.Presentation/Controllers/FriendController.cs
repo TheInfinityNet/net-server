@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -67,9 +68,12 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             foreach (var item in suggestions.Items)
             {
                 var userProfile = mapper.Map<UserProfileResponse>(item);
-                if (photoMetadataDict.TryGetValue(item.AvatarId, out var avatar))
+                if (userProfile.Avatar.Id != Guid.Empty)
                 {
-                    userProfile.Avatar = avatar;
+                    if (photoMetadataDict.TryGetValue(item.AvatarId, out var avatar))
+                    {
+                        userProfile.Avatar = avatar;
+                    }
                 }
 
                 var itemResponse = mapper.Map<FriendshipResponse>(userProfile);

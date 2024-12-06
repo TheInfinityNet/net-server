@@ -7,26 +7,28 @@ namespace InfinityNetServer.Services.Profile.Application.IServices
 {
     public interface IUserProfileService
     {
-        Task<UserProfile> GetById(string id);
+        public Task<UserProfile> GetById(string id);
 
-        Task<UserProfile> GetByAccountId(string id);
+        public Task<UserProfile> GetByAccountId(string id);
 
-        Task<IList<UserProfile>> GetAllByIds(IList<string> ids);
+        public Task<IList<UserProfile>> GetAllByIds(IList<string> ids);
 
-        Task<UserProfile> Update(UserProfile userProfile);
+        public Task<UserProfile> Create(UserProfile userProfile);
 
-        Task<CursorPagedResult<UserProfile>> GetFriendSuggestions(string profileId, string cursor, int limit);
+        public Task<UserProfile> Update(UserProfile userProfile);
 
-        Task<CursorPagedResult<UserProfile>> GetFriendRequests(string profileId, string cursor, int limit);
+        public Task<CursorPagedResult<UserProfile>> GetFriendSuggestions(string profileId, string cursor, int limit);
 
-        Task<CursorPagedResult<UserProfile>> GetFriendSentRequests(string profileId, string cursor, int limit);
+        public Task<CursorPagedResult<UserProfile>> GetFriendRequests(string profileId, string cursor, int limit);
 
-        Task<CursorPagedResult<UserProfile>> GetFriends(string profileId, string cursor, int limit);
+        public Task<CursorPagedResult<UserProfile>> GetFriendSentRequests(string profileId, string cursor, int limit);
 
-        Task<CursorPagedResult<UserProfile>> GetBlockedList(string profileId, string cursor, int limit);
+        public Task<CursorPagedResult<UserProfile>> GetFriends(string profileId, string cursor, int limit);
 
-        Task<CursorPagedResult<UserProfile>> GetFollowingList(string profileId, string cursor, int limit);
+        public Task<CursorPagedResult<UserProfile>> GetBlockedList(string profileId, string cursor, int limit);
 
-        Task<CursorPagedResult<UserProfile>> GetFollowedList(string profileId, string cursor, int limit);
+        public Task<CursorPagedResult<UserProfile>> GetFollowingList(string profileId, string cursor, int limit);
+
+        public Task<CursorPagedResult<UserProfile>> GetFollowedList(string profileId, string cursor, int limit);
     }
 }

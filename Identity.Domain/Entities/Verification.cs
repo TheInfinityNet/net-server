@@ -24,6 +24,7 @@ namespace InfinityNetServer.Services.Identity.Domain.Entities
         [Column("expires_at")]
         public DateTime ExpiresAt { get; set; }
 
+        [Required]
         [Column("account_id")]
         public Guid AccountId { get; set; }
 

@@ -3,7 +3,7 @@ using System;
 
 namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Messages
 {
-    public interface IMetadataEvent : IMessage
+    public interface IMetadataCommand : IMessage
     {
 
         public Guid FileMetadataId { get; set; }

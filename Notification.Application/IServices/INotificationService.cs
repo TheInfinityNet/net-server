@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace InfinityNetServer.Services.Notification.Application.Services
+namespace InfinityNetServer.Services.Notification.Application.IServices
 {
     public interface INotificationService
     {
@@ -17,9 +17,9 @@ namespace InfinityNetServer.Services.Notification.Application.Services
 
         Task<Domain.Entities.Notification> GetById(string id);
 
-        Task<CursorPagedResult<Domain.Entities.Notification>> GetNewestNotifications(string accountId, string? cursor, int pageSize = 10);
+        Task<CursorPagedResult<Domain.Entities.Notification>> GetNewestNotifications(string accountId, string cursor, int pageSize = 10);
 
-        Task<CursorPagedResult<Domain.Entities.Notification>> GetNewestUnreadOrMentionNotifications(string accountId, string? cursor, int pageSize = 10, string type = "All");
+        Task<CursorPagedResult<Domain.Entities.Notification>> GetNewestUnreadOrMentionNotifications(string accountId, string cursor, int pageSize = 10, string type = "All");
 
 
         Task<Domain.Entities.Notification> ChangeReadStatusNotification(Guid notificationId);

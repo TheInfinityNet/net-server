@@ -69,6 +69,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
             };
             source.AvatarId ??= Guid.Empty;
             source.CoverId ??= Guid.Empty;
+            source.Location ??= string.Empty;
             var response = mapper.Map<ProfileResponse>(source);
             response.Name = name;
             return response;
@@ -80,6 +81,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
             var source = await userProfileService.GetById(request.Id);
             source.AvatarId ??= Guid.Empty;
             source.CoverId ??= Guid.Empty;
+            source.Location ??= string.Empty;
             return mapper.Map<UserProfileResponse>(source);
         }
 
@@ -146,7 +148,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
             {
                 profile.AvatarId ??= Guid.Empty;
                 profile.CoverId ??= Guid.Empty;
-
+                profile.Location ??= string.Empty;
                 var result = mapper.Map<ProfileResponse>(profile);
                 result.Name = profile.Type switch
                 {

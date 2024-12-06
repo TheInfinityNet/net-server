@@ -141,5 +141,60 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Commands
 
         }
 
+        public sealed record SendMailWithCodeCommand : IMailCommand
+        {
+
+            public string ToMail { get; set; }
+
+            public VerificationType Type { get; set; } = VerificationType.VerifyByCode;
+
+            public string AcceptLanguage { get; set; }
+
+            public string Code { get; set; }
+
+            public Guid Id { get; set; }
+
+            public DateTime CreatedAt { get; set; }
+
+            public Guid? CreatedBy { get; set; }
+
+        }
+
+        public sealed record CreateUserProfileCommand : IProfileCommand
+        {
+
+            public Guid Id { get; set; } = Guid.NewGuid();
+
+            public Guid ProfileId { get; set; }
+
+            public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+            public Guid AccountId { get; set; }
+
+            public string FirstName { get; set; }
+
+            public string MiddleName { get; set; }
+
+            public string LastName { get; set; }
+
+            public string MobileNumber { get; set; }
+
+            public DateOnly Birthdate { get; set; }
+
+            public Gender Gender { get; set; }
+
+        }
+
+        public sealed record ActiveProfileCommand : IProfileCommand
+        {
+
+            public Guid Id { get; set; } = Guid.NewGuid();
+
+            public Guid ProfileId { get; set; }
+
+            public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        }
+
     }
 }

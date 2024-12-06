@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using InfinityNetServer.Services.Identity.Domain.Repositories;
 using System.Linq;
-using InfinityNetServer.Services.Identity.Application.Services;
 using System;
+using InfinityNetServer.Services.Identity.Application.IServices;
 
 namespace InfinityNetServer.Services.Identity.Application.GrpcServices
 {

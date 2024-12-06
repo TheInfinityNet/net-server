@@ -1,28 +1,30 @@
+using InfinityNetServer.BuildingBlocks.Application;
+using InfinityNetServer.BuildingBlocks.Infrastructure.Bus;
+using InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.CORS;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Grpc;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Jwt;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Localization;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Metric;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Serilog;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Swagger;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.ValidationHandler;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Web;
+using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
+using InfinityNetServer.Services.Profile.Application;
+using InfinityNetServer.Services.Profile.Application.Consumers;
+using InfinityNetServer.Services.Profile.Application.Usecases;
+using InfinityNetServer.Services.Profile.Infrastructure.Data;
+using InfinityNetServer.Services.Profile.Infrastructure.DependencyInjection;
+using InfinityNetServer.Services.Profile.Presentation.Exceptions;
+using InfinityNetServer.Services.Profile.Presentation.Mappers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using Serilog;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Localization;
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.ValidationHandler;
-using InfinityNetServer.BuildingBlocks.Application;
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Swagger;
-using InfinityNetServer.BuildingBlocks.Infrastructure.Bus;
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Localization;
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Jwt;
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Metric;
-using System;
 using Microsoft.Extensions.Hosting;
-using InfinityNetServer.Services.Profile.Presentation.Exceptions;
-using InfinityNetServer.Services.Profile.Application;
-using InfinityNetServer.Services.Profile.Infrastructure.DependencyInjection;
-using InfinityNetServer.Services.Profile.Infrastructure.Data;
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.CORS;
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.HealthCheck;
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Grpc;
-using InfinityNetServer.BuildingBlocks.Presentation.Mappers;
-using InfinityNetServer.Services.Profile.Presentation.Mappers;
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Web;
+using Microsoft.Extensions.Localization;
+using Serilog;
+using System;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Configurations;
 
@@ -39,7 +41,15 @@ internal static class HostingExtensions
 
         builder.Services.AddDbContext();
 
-        builder.Services.AddMessageBus(builder.Configuration);
+        builder.Services.AddMessageBus(builder.Configuration, 
+            typeof(CreateUserProfileConsumer), 
+            typeof(ActiveProfileConsumer));
+
+        builder.Services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(typeof(CreateUserProfileHandler).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(ActiveProfileHandler).Assembly);
+        });
 
         builder.Services.AddRepositories();
 

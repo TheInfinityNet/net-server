@@ -12,6 +12,7 @@ namespace InfinityNetServer.Services.Identity.Application.Exceptions
         public static readonly IdentityError WEAK_PASSWORD = new(ErrorType.ValidationError, $"{ErrorType.ValidationError}.WeakPassword");
         public static readonly IdentityError PASSWORD_MISMATCH = new(ErrorType.ValidationError, $"{ErrorType.ValidationError}.PasswordMismatch");
         public static readonly IdentityError TERMS_NOT_ACCEPTED = new(ErrorType.ValidationError, $"{ErrorType.ValidationError}.TermsNotAccepted");
+        public static readonly IdentityError INVALID_BIRTHDATE = new(ErrorType.ValidationError, $"{ErrorType.ValidationError}.InvalidBirthdate");
 
         // Authentication Errors
         public static readonly IdentityError WRONG_PASSWORD = new(ErrorType.Unauthorized, $"{ErrorType.Unauthorized}.WrongPassword");
@@ -32,6 +33,8 @@ namespace InfinityNetServer.Services.Identity.Application.Exceptions
         public static readonly IdentityError EMAIL_ALREADY_IN_USE = new(ErrorType.ValidationError, $"{ErrorType.ValidationError}.EmailAlreadyInUse");
         public static readonly IdentityError USERNAME_ALREADY_IN_USE = new(ErrorType.ValidationError, $"{ErrorType.ValidationError}.UsernameAlreadyInUse");
         public static readonly IdentityError CANNOT_SEND_EMAIL = new(ErrorType.UnExpected, $"{ErrorType.UnExpected}.CannotSendEmail");
+
+        public static readonly IdentityError EMAIL_WAS_NOT_VERIFIED = new(ErrorType.Unauthorized, $"{ErrorType.Unauthorized}.EmailWasNotVerified");
 
     }
 

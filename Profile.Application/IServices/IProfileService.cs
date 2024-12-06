@@ -17,6 +17,8 @@ namespace InfinityNetServer.Services.Profile.Application.IServices
 
         public Task<IList<Domain.Entities.Profile>> GetPotentialByLocation(string location, int? limit);
 
+        public Task<Domain.Entities.Profile> Update(Domain.Entities.Profile profile);
+
 
     }
 }

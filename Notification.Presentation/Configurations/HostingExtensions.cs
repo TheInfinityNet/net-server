@@ -17,7 +17,6 @@ using InfinityNetServer.Services.Notification.Application.Usecases;
 using InfinityNetServer.Services.Notification.Infrastructure.DependencyInjection;
 using InfinityNetServer.Services.Notification.Presentation.Exceptions;
 using InfinityNetServer.Services.Notification.Presentation.Mappers;
-using InfinityNetServer.Services.Notification.Presentation.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

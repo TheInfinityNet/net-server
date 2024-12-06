@@ -1,11 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 
 namespace InfinityNetServer.Services.Profile.Domain.Entities
 {
     [Table("page_profiles")]
     public class PageProfile : Profile
     {
+
+        public PageProfile() => Type = ProfileType.Page;
 
         [Column("name")]
         [MaxLength(100)]

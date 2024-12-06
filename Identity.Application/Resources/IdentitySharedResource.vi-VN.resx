@@ -126,6 +126,9 @@
   <data name="Required.Email" xml:space="preserve">
     <value>Email là bắt buộc</value>
   </data>
+  <data name="Required.Password" xml:space="preserve">
+    <value>Mật khẩu là bắt buộc</value>
+  </data>
   <data name="StringLength.Password" xml:space="preserve">
     <value>Mật khẩu phải có ít nhất 6 ký tự và tối đa 20 ký tự</value>
   </data>
@@ -173,6 +176,9 @@
   </data>
   <data name="Unauthorized.WrongPassword" xml:space="preserve">
     <value>Mật khẩu không chính xác</value>
+  </data>
+  <data name="Unauthorized.ExpiredPassword" xml:space="preserve">
+    <value>Mật khẩu hết hạn</value>
   </data>
   <data name="Unauthorized.TwoFactorRequired" xml:space="preserve">
     <value>Yêu cầu xác thực hai yếu tố</value>
@@ -224,5 +230,8 @@
   </data>
   <data name="ResourceNotFound.Account" xml:space="preserve">
     <value>Account not found</value>
+  </data>
+  <data name="ValidationError.InvalidBirthdate" xml:space="preserve">
+    <value>Phải trên 18 tuổi</value>
   </data>
 </root>

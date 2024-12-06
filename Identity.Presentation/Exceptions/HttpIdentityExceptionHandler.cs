@@ -94,19 +94,21 @@ namespace InfinityNetServer.Services.Identity.Presentation.Exceptions
                 {
                     { "token", localizer[error.Code].ToString() }
                 },
-                IdentityError e when e == IdentityError.EMAIL_ALREADY_IN_USE => new Dictionary<string, string>
+                IdentityError e when e == IdentityError.INVALID_EMAIL || 
+                    e == IdentityError.EMAIL_ALREADY_IN_USE => new Dictionary<string, string>
                 {
                     { "email", localizer[error.Code].ToString() }
                 },
-                IdentityError e when e == IdentityError.INVALID_EMAIL => new Dictionary<string, string>
+                IdentityError e when e == IdentityError.INVALID_BIRTHDATE => new Dictionary<string, string>
                 {
-                    { "email", localizer[error.Code].ToString() }
+                    { "birthdate", localizer[error.Code].ToString() }
                 },
                 IdentityError e when e == IdentityError.TERMS_NOT_ACCEPTED => new Dictionary<string, string>
                 {
                     { "termsAccepted", localizer[error.Code].ToString() }
                 },
-                IdentityError e when e == IdentityError.CODE_INVALID => new Dictionary<string, string>
+                IdentityError e when e == IdentityError.CODE_INVALID ||
+                    e == IdentityError.INVALID_ACTIVATION_CODE  => new Dictionary<string, string>
                 {
                     { "code", localizer[error.Code].ToString() }
                 },

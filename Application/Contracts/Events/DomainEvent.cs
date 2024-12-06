@@ -7,7 +7,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Events
     public static class DomainEvent
     {
 
-        public sealed record PhotoMetadataEvent : IMetadataEvent
+        public sealed record PhotoMetadataEvent : IMetadataCommand
         {
 
             public Guid Id { get; set; } = Guid.NewGuid();
@@ -26,7 +26,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Events
 
         }
 
-        public sealed record VideoMetadataEvent : IMetadataEvent
+        public sealed record VideoMetadataEvent : IMetadataCommand
         {
 
             public Guid Id { get; set; } = Guid.NewGuid();
@@ -42,25 +42,6 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Events
             public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
             public Guid UpdatedBy { get; set; }
-
-        }
-
-        public sealed record SendMailWithCodeEvent : IMailEvent
-        {
-
-            public string ToMail { get; set; }
-
-            public VerificationType Type { get; set; }
-
-            public string AcceptLanguage { get; set; }
-
-            public string Code { get; set; }
-
-            public Guid Id { get; set; }
-
-            public DateTime CreatedAt { get; set; }
-
-            public Guid? CreatedBy { get; set; }
 
         }
 

@@ -2,7 +2,7 @@
 
 namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Messages
 {
-    public interface IMailEvent : IMessage
+    public interface IMailCommand : IMessage
     {
 
         public string ToMail { get; set; }

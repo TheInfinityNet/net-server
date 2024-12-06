@@ -9,7 +9,7 @@ using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.Notification.Application;
 using InfinityNetServer.Services.Notification.Application.DTOs.Responses;
-using InfinityNetServer.Services.Notification.Application.Services;
+using InfinityNetServer.Services.Notification.Application.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

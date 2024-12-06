@@ -1,6 +1,6 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
-using InfinityNetServer.Services.Notification.Application.Services;
+using InfinityNetServer.Services.Notification.Application.IServices;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System;

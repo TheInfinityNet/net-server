@@ -1,20 +1,20 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
-using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.IServices;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.Identity.Application;
 using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
 using InfinityNetServer.Services.Identity.Application.DTOs.Responses;
-using InfinityNetServer.Services.Identity.Application.Services;
+using InfinityNetServer.Services.Identity.Application.Exceptions;
+using InfinityNetServer.Services.Identity.Application.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Globalization;
 using System.Threading.Tasks;
 
@@ -27,7 +27,6 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             ILogger<AuthController> logger,
             IStringLocalizer<IdentitySharedResource> localizer,
             IAuthService authService,
-            IAccountService accountService,
             CommonProfileClient profileClient,
             CommonFileClient fileClient,
             IMessageBus messageBus) : BaseApiController(authenticatedUserService)
@@ -36,9 +35,10 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
         [EndpointDescription("Sign up a new user")]
         [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
         [HttpPost("sign-up")]
-        public IActionResult SignUp([FromBody] SignUpRequest request)
+        public async Task<IActionResult> SignUp([FromBody] SignUpRequest request)
         {
-            logger.LogInformation(request.Gender.ToString());
+            await authService.SignUp(request, messageBus);
+
             return Ok(new CommonMessageResponse
             (
                 localizer["Message.SignUpSuccess"].ToString()
@@ -47,21 +47,12 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 
         [EndpointDescription("Send verification email")]
         [ProducesResponseType(typeof(SendMailResponse), StatusCodes.Status200OK)]
-        [Authorize]
         [HttpPost("send-mail")]
         public async Task<IActionResult> SendMail([FromBody] SendMailRequest request)
         {
             logger.LogInformation(CultureInfo.CurrentCulture.ToString());
-            await messageBus.Publish(new DomainEvent.SendMailWithCodeEvent
-            {
-                Id = Guid.NewGuid(),
-                ToMail = request.Email,
-                Type = request.Type,
-                AcceptLanguage = CultureInfo.CurrentCulture.ToString(),
-                Code = "123456",
-                CreatedAt = DateTime.UtcNow,
-                CreatedBy = GetCurrentProfileId()
-            });
+
+            await authService.SendMailWithCode(request.Email, VerificationType.VerifyByCode, messageBus);
 
             return Ok(new SendMailResponse
             (
@@ -73,8 +64,10 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
         [EndpointDescription("Verify email by code")]
         [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
         [HttpPost("verify")]
-        public IActionResult Verify([FromBody] VerifyEmailByCodeRequest request)
+        public async Task<IActionResult> Verify([FromBody] VerifyEmailByCodeRequest request)
         {
+
+            await authService.VerifyEmailByCode(request.Email, request.Code, messageBus);
 
             return Ok(new CommonMessageResponse
             (
@@ -99,14 +92,15 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
         [HttpPost("sign-in")]
         public async Task<IActionResult> SignIn(SignInRequest request)
         {
-            var localProvider = await authService.SignIn(request.Email, request.Password);
-            var account = await accountService.GetById(localProvider.AccountId.ToString());
-            logger.LogInformation(localProvider.AccountId.ToString());
+            var account = await authService.SignIn(request.Email, request.Password);
             var AccessToken = authService.GenerateToken(account, account.DefaultUserProfileId, false);
             var RefreshToken = authService.GenerateToken(account, account.DefaultUserProfileId, true);
 
             var userProfile = await profileClient.GetUserProfile(account.DefaultUserProfileId.ToString());
             userProfile.AccountId = account.Id;
+
+            if (userProfile.Status == "Locked")
+                throw new IdentityException(IdentityError.EMAIL_WAS_NOT_VERIFIED, StatusCodes.Status401Unauthorized);
 
             if (userProfile.Avatar != null)
                 userProfile.Avatar = await fileClient.GetPhotoMetadata(userProfile.Avatar.Id.ToString());
