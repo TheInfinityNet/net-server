@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Mail.Application\Mail.Application.csproj" />
+      <ProjectReference Include="..\Mail.Infrastructure\Mail.Infrastructure.csproj" />
       <ProjectReference Include="..\Presentation\Presentation.csproj" />
     </ItemGroup>
 

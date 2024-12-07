@@ -120,4 +120,37 @@
   <data name="Hello" xml:space="preserve">
     <value>Xin chao {0}</value>
   </data>
+  <data name="Subject.VerifyEmail" xml:space="preserve">
+    <value>Xác minh Email</value>
+  </data>
+  <data name="Subject.ResetPassword" xml:space="preserve">
+    <value>Yêu cầu đặt lại mật khẩu</value>
+  </data>
+  <data name="Content.VerifyEmailWithCode" xml:space="preserve">
+    <value>Cảm ơn bạn đã đăng ký với chúng tôi. Vui lòng sử dụng mã xác minh dưới đây để hoàn tất quá trình xác minh email:</value>
+  </data>
+  <data name="Content.VerifyEmailWithToken" xml:space="preserve">
+    <value>Cảm ơn bạn đã đăng ký với chúng tôi. Vui lòng nhấn vào liên kết dưới đây để hoàn tất quá trình xác minh email:</value>
+  </data>
+  <data name="Content.ResetPassword" xml:space="preserve">
+    <value>Bạn đã yêu cầu đặt lại mật khẩu. Vui lòng sử dụng mã dưới đây để đặt lại mật khẩu của bạn:</value>
+  </data>
+  <data name="SubContent.ResetPassword" xml:space="preserve">
+    <value>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</value>
+  </data>
+  <data name="SubContent.VerifyEmail" xml:space="preserve">
+    <value>Nếu bạn không yêu cầu xác minh này, vui lòng bỏ qua email này.</value>
+  </data>
+  <data name="Footer.VerifyEmail" xml:space="preserve">
+    <value>Email này được gửi đến bạn vì bạn đã đăng ký trên nền tảng của chúng tôi. Nếu bạn không thực hiện yêu cầu này, vui lòng liên hệ với chúng tôi.</value>
+  </data>
+  <data name="Footer.ResetPassword" xml:space="preserve">
+    <value>&amp;copy; 2024 Infinity Net. Bảo lưu mọi quyền.</value>
+  </data>
+  <data name="Message.Thank" xml:space="preserve">
+    <value>Cảm ơn</value>
+  </data>
+  <data name="Message.Dear" xml:space="preserve">
+    <value>Chào {0},</value>
+  </data>
 </root>

@@ -1,15 +1,15 @@
-using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Serilog;
 using InfinityNetServer.BuildingBlocks.Infrastructure.Bus;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Serilog;
-using Microsoft.Extensions.Configuration;
+using InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Localization;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Metric;
-using InfinityNetServer.Services.Mail.Application.Consumers;
-using InfinityNetServer.BuildingBlocks.Infrastructure.RabbitMQ;
-using InfinityNetServer.Services.Mail.Application.Usecases;
+using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Serilog;
 using InfinityNetServer.BuildingBlocks.Presentation.Configuration.Web;
+using InfinityNetServer.Services.Mail.Application.Consumers;
+using InfinityNetServer.Services.Mail.Application.Usecases;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 namespace InfinityNetServer.Services.Mail.Presentation.Configurations;
 
@@ -20,6 +20,8 @@ internal static class HostingExtensions
         builder.AddSettings();
 
         builder.Services.AddLocalization(builder.Configuration);
+
+        builder.Services.AddServices();
 
         builder.Services.AddMessageBus(builder.Configuration, typeof(SendMailWithCodeConsumer));
 

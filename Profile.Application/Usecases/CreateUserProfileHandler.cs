@@ -30,7 +30,7 @@ namespace InfinityNetServer.Services.Profile.Application.Usecases
                 LastName = request.LastName,
                 Birthdate = request.Birthdate,
                 Gender = request.Gender,
-                Status = ProfileStatus.Locked
+                Status = request.IsActive ? ProfileStatus.Active : ProfileStatus.Locked
             };
 
             await userProfileService.Create(userProfile);

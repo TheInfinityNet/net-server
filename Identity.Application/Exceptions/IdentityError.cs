@@ -13,6 +13,7 @@ namespace InfinityNetServer.Services.Identity.Application.Exceptions
         public static readonly IdentityError PASSWORD_MISMATCH = new(ErrorType.ValidationError, $"{ErrorType.ValidationError}.PasswordMismatch");
         public static readonly IdentityError TERMS_NOT_ACCEPTED = new(ErrorType.ValidationError, $"{ErrorType.ValidationError}.TermsNotAccepted");
         public static readonly IdentityError INVALID_BIRTHDATE = new(ErrorType.ValidationError, $"{ErrorType.ValidationError}.InvalidBirthdate");
+        public static readonly IdentityError INVALID_PROVIDER = new(ErrorType.ValidationError, $"{ErrorType.ValidationError}.InvalidProvider");
 
         // Authentication Errors
         public static readonly IdentityError WRONG_PASSWORD = new(ErrorType.Unauthorized, $"{ErrorType.Unauthorized}.WrongPassword");

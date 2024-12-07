@@ -148,7 +148,7 @@
     <value>Token là bắt buộc</value>
   </data>
   <data name="Message.SignUpSuccess" xml:space="preserve">
-    <value>Đăng ký người dùng thành công, vui lòng xác minh email của bạn</value>
+    <value>Phải xác minh email của bạn trước khi đăng nhập</value>
   </data>
   <data name="Message.SendForgotEmailSuccess" xml:space="preserve">
     <value>Email quên mật khẩu đã được gửi, vui lòng kiểm tra hộp thư đến của bạn</value>

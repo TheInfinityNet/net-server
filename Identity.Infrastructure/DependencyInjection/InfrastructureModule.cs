@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using InfinityNetServer.Services.Identity.Infrastructure.Data;
-using InfinityNetServer.Services.Identity.Domain.Repositories;
-using InfinityNetServer.Services.Identity.Infrastructure.Repositories;
-using InfinityNetServer.BuildingBlocks.Domain.Repositories;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Repositories;
 using InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositories;
+using InfinityNetServer.Services.Identity.Domain.Repositories;
+using InfinityNetServer.Services.Identity.Infrastructure.Data;
+using InfinityNetServer.Services.Identity.Infrastructure.Repositories;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace InfinityNetServer.Services.Identity.Infrastructure.DependencyInjection;
 
@@ -20,6 +20,8 @@ public static class InfrastructureModule
         services.AddScoped(typeof(ISqlRepository<,>), typeof(SqlRepository<,>));
         services.AddScoped<IAccountRepository, AccountRepository>();
         services.AddScoped<ILocalProviderRepository, LocalProviderRepository>();
+        services.AddScoped<IGoogleProviderRepository, GoogleProviderRepository>();
+        services.AddScoped<IFacebookProviderRepository, FacebookProviderRepository>();
         services.AddScoped<IVerificationRepository, VerificationRepository>();
     }
 

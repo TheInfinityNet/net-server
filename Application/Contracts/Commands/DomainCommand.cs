@@ -183,6 +183,8 @@ namespace InfinityNetServer.BuildingBlocks.Application.Contracts.Commands
 
             public Gender Gender { get; set; }
 
+            public bool IsActive { get; set; }
+
         }
 
         public sealed record ActiveProfileCommand : IProfileCommand

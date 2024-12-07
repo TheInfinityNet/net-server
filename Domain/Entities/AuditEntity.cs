@@ -16,7 +16,7 @@ namespace InfinityNetServer.BuildingBlocks.Domain.Entities
         public Guid? CreatedBy { get; set; } = null;
 
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         [Column("updated_by")]
         [MaxLength(255)]

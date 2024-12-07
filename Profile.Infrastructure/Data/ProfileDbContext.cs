@@ -26,12 +26,13 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data
             var profile = modelBuilder.Entity<Domain.Entities.Profile>();
             var pageProfile = modelBuilder.Entity<PageProfile>();
 
-            profile.HasIndex(p => p.MobileNumber).IsUnique();
+            profile.HasIndex(p => p.MobileNumber);
             profile.HasIndex(p => p.AccountId);
             profile.HasIndex(p => p.Type);
             profile.HasIndex(p => p.Status);
+            profile.HasIndex(p => p.Location);
 
-            userProfile.HasIndex(p => p.Username).IsUnique();
+            userProfile.HasIndex(p => p.Username);
 
             userProfile
                 .HasOne(p => p.Profile)

@@ -148,7 +148,7 @@
     <value>Token cannot is required</value>
   </data>
   <data name="Message.SignUpSuccess" xml:space="preserve">
-    <value>User registered successfully, please verify your email</value>
+    <value>You have to verify email before sign-in</value>
   </data>
   <data name="Message.SendForgotEmailSuccess" xml:space="preserve">
     <value>Forgot password email sent, please check your inbox</value>

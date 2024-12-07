@@ -117,6 +117,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notification.Infrastructure
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notification.Presentation", "Notification.Presentation\Notification.Presentation.csproj", "{D437294D-B4D3-4736-9B4D-CEDF5F2AE6E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mail.Infrastructure", "Mail.Infrastructure\Mail.Infrastructure.csproj", "{EC9C1071-2303-4118-8833-AECF85D170E3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -295,6 +297,10 @@ Global
 		{D437294D-B4D3-4736-9B4D-CEDF5F2AE6E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D437294D-B4D3-4736-9B4D-CEDF5F2AE6E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D437294D-B4D3-4736-9B4D-CEDF5F2AE6E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC9C1071-2303-4118-8833-AECF85D170E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC9C1071-2303-4118-8833-AECF85D170E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC9C1071-2303-4118-8833-AECF85D170E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC9C1071-2303-4118-8833-AECF85D170E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -354,6 +360,7 @@ Global
 		{6CB3F95C-8025-4E6E-9DB0-D7BD5FF8C2E1} = {19A6881D-CBD6-4259-91CD-E78A38660AE9}
 		{FE9D43A3-1F92-4C8D-B54C-80CB8AF9E82E} = {19A6881D-CBD6-4259-91CD-E78A38660AE9}
 		{D437294D-B4D3-4736-9B4D-CEDF5F2AE6E6} = {19A6881D-CBD6-4259-91CD-E78A38660AE9}
+		{EC9C1071-2303-4118-8833-AECF85D170E3} = {95E98F24-EFAF-43F2-932D-C9765BC65CC0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F10CF1A7-D5F0-46C6-9718-6BFD0C791875}

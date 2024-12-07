@@ -2,6 +2,7 @@
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
 using InfinityNetServer.Services.Identity.Domain.Entities;
+using InfinityNetServer.Services.Identity.Domain.Enums;
 using System;
 using System.Threading.Tasks;
 
@@ -10,19 +11,23 @@ namespace InfinityNetServer.Services.Identity.Application.IServices
     public interface IAuthService
     {
 
-        Task SignUp(SignUpRequest request, IMessageBus messageBus);
+        public Task<Account> SignUp(SignUpRequest request, bool isActive, IMessageBus messageBus);
 
-        Task<Account> SignIn(string email, string password);
+        public Task<Account> SignIn(string email, string password);
 
-        Task<bool> Introspect(string token);
+        public Task<bool> Introspect(string token);
 
-        string GenerateToken(Account account, Guid profileId, bool isRefresh);
+        public string GenerateToken(Account account, Guid profileId, bool isRefresh);
 
-        Task<string> Refresh(string refreshToken);
+        public Task<string> Refresh(string refreshToken);
 
-        Task SendMailWithCode(string toMail, VerificationType type, IMessageBus messageBus);
+        public Task SendMailWithCode(string toMail, VerificationType type, IMessageBus messageBus);
 
-        Task VerifyEmailByCode(string email, string code, IMessageBus messageBus);
+        public Task VerifyEmailByCode(string email, string code, IMessageBus messageBus);
+
+        public string GenerateSocialAuthUrl(ProviderType providerType);
+
+        public Task<Account> SocialCallback(string code, ProviderType providerType, IMessageBus messageBus);
 
     }
 }

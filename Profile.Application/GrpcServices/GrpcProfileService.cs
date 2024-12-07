@@ -81,6 +81,7 @@ namespace InfinityNetServer.Services.Profile.Application.GrpcServices
             var source = await userProfileService.GetById(request.Id);
             source.AvatarId ??= Guid.Empty;
             source.CoverId ??= Guid.Empty;
+            source.MiddleName ??= string.Empty;
             source.Location ??= string.Empty;
             return mapper.Map<UserProfileResponse>(source);
         }

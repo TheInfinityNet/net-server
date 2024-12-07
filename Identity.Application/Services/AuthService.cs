@@ -4,20 +4,29 @@ using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.IServices;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
+using InfinityNetServer.Services.Identity.Application.DTOs.Responses;
 using InfinityNetServer.Services.Identity.Application.Exceptions;
 using InfinityNetServer.Services.Identity.Application.Helpers;
 using InfinityNetServer.Services.Identity.Application.IServices;
 using InfinityNetServer.Services.Identity.Domain.Entities;
+using InfinityNetServer.Services.Identity.Domain.Enums;
+using InfinityNetServer.Services.Identity.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Identity.Application.Services
@@ -31,11 +40,21 @@ namespace InfinityNetServer.Services.Identity.Application.Services
 
         private readonly JwtOptions _jwtOptions;
 
+        private readonly SocialOauth2Options _googleOptions;
+
+        private readonly SocialOauth2Options _facebookOptions;
+
+        private readonly HttpClient _httpClient;
+
         private readonly IBaseRedisService<string, string> _baseRedisService;
 
         private readonly IAccountService _accountService;
 
         private readonly ILocalProviderService _localProviderService;
+
+        private IGoogleProviderRepository _googleProviderRepository;
+
+        private IFacebookProviderRepository _facebookProviderRepository;
 
         private readonly IVerificationService _verificationService;
 
@@ -47,22 +66,30 @@ namespace InfinityNetServer.Services.Identity.Application.Services
             IBaseRedisService<string, string> baseRedisService,
             IAccountService accountService,
             ILocalProviderService localProviderService,
+            IGoogleProviderRepository googleProviderRepository,
+            IFacebookProviderRepository facebookProviderRepository,
             IVerificationService verificationService,
             IConfiguration configuration,
+            HttpClient httpClient,
             ILogger<AuthService> logger)
         {
             _baseRedisService = baseRedisService;
             _accountService = accountService;
             _localProviderService = localProviderService;
             _verificationService = verificationService;
+            _googleProviderRepository = googleProviderRepository;
+            _facebookProviderRepository = facebookProviderRepository;
             _configuration = configuration;
             _jwtOptions = _configuration.GetSection("Jwt").Get<JwtOptions>();
+            _googleOptions = _configuration.GetSection("SocialOauth2:Google").Get<SocialOauth2Options>();
+            _facebookOptions = _configuration.GetSection("SocialOauth2:Facebook").Get<SocialOauth2Options>();
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _logger = logger;
         }
 
         public async Task<Account> SignIn(string email, string password)
         {
-            var localProvider = await _localProviderService.GetByEmail(email) 
+            var localProvider = await _localProviderService.GetByEmail(email)
                 ?? throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status404NotFound);
 
             if (!PasswordHelper.VerifyPassword(localProvider.PasswordHash, password))
@@ -223,11 +250,12 @@ namespace InfinityNetServer.Services.Identity.Application.Services
 
             LocalProvider localProvider = await _localProviderService.GetByEmail(toMail)
                 ?? throw new BaseException(BaseError.ACCOUNT_NOT_FOUND, StatusCodes.Status404NotFound);
-            
+
+            string secret = GenerateVerificationCode(6);
             Verification verification = await _verificationService.Create(new Verification
             {
-                Code = "123456",
-                Token = Guid.NewGuid() + "123456",
+                Code = secret,
+                Token = $"{Guid.NewGuid()}???{secret}",
                 ExpiresAt = DateTime.Now.AddMinutes(5),
                 AccountId = localProvider.Account.Id,
                 CreatedBy = localProvider.Account.Id
@@ -245,7 +273,7 @@ namespace InfinityNetServer.Services.Identity.Application.Services
             });
         }
 
-        public async Task SignUp(SignUpRequest request, IMessageBus messageBus)
+        public async Task<Account> SignUp(SignUpRequest request, bool isActive, IMessageBus messageBus)
         {
 
             if (request.PasswordConfirmation != request.Password)
@@ -283,7 +311,10 @@ namespace InfinityNetServer.Services.Identity.Application.Services
                 MobileNumber = request.MobileNumber,
                 Birthdate = request.Birthdate,
                 Gender = Enum.Parse<Gender>(request.Gender),
+                IsActive = isActive
             });
+
+            return account;
         }
 
         public async Task VerifyEmailByCode(string email, string code, IMessageBus messageBus)
@@ -304,5 +335,221 @@ namespace InfinityNetServer.Services.Identity.Application.Services
 
             await _verificationService.Delete(verification.Id.ToString());
         }
+
+        public string GenerateSocialAuthUrl(ProviderType providerType)
+        {
+            return providerType switch
+            {
+                ProviderType.Google =>
+                    $"{_googleOptions.AuthUri}" +
+                    $"?client_id={_googleOptions.ClientId}" +
+                    $"&redirect_uri={_googleOptions.RedirectUri}" +
+                    $"&scope={(_googleOptions.Scopes.Length > 0 ? string.Join(" ", _googleOptions.Scopes) : "openid")}&response_type=code",
+
+                ProviderType.Facebook =>
+                    $"{_facebookOptions.AuthUri}" +
+                    $"?client_id={_facebookOptions.ClientId}" +
+                    $"&redirect_uri={_facebookOptions.RedirectUri}" +
+                    $"&scope={(_facebookOptions.Scopes.Length > 0 ? string.Join(",", _facebookOptions.Scopes) : "email")}&response_type=code",
+
+                _ => throw new IdentityException(IdentityError.INVALID_PROVIDER, StatusCodes.Status400BadRequest)
+            };
+        }
+
+        public async Task<Account> SocialCallback(string code, ProviderType providerType, IMessageBus messageBus)
+        {
+            // Fetch user info from social provider
+            var userInfo = await FetchSocialUserAsync(code, providerType)
+                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound); ;
+            string email = userInfo.GetValueOrDefault("email")?.ToString()
+                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            string name = userInfo.GetValueOrDefault("name")?.ToString()
+                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            // Check if user already exists
+            var randomPassword = PasswordHelper.HashPassword(_googleOptions.ClientSecret + _facebookOptions.ClientSecret);
+            var nameParts = name.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+
+            LocalProvider existingLocalProvider = await _localProviderService.GetByEmail(email);
+            Account existingAccount = existingLocalProvider?.Account;
+
+            if (existingLocalProvider == null)
+            {
+                // Create new user
+                var signUpRequest = new SignUpRequest
+                {
+                    Email = email,
+                    FirstName = nameParts.ElementAtOrDefault(0),
+                    LastName = nameParts.ElementAtOrDefault(1) ?? nameParts.ElementAtOrDefault(0),
+                    MobileNumber = "not provided",
+                    Gender = Gender.Other.ToString(),
+                    Birthdate = DateOnly.FromDateTime(DateTime.Now.AddYears(-18)),
+                    Password = randomPassword,
+                    PasswordConfirmation = randomPassword,
+                    AcceptTerms = true
+                };
+
+                existingAccount = await SignUp(signUpRequest, true, messageBus);
+                
+                switch (providerType)
+                {
+                    case ProviderType.Google:
+                        await _googleProviderRepository.CreateAsync(new GoogleProvider
+                        {
+                            AccountId = existingAccount.Id,
+                            CreatedBy = existingAccount.Id,
+                            GoogleId = Guid.NewGuid(),
+                        });
+                        break;
+
+                    case ProviderType.Facebook:
+                        await _facebookProviderRepository.CreateAsync(new FacebookProvider
+                        {
+                            AccountId = existingAccount.Id,
+                            CreatedBy = existingAccount.Id,
+                            FacebookId = Guid.NewGuid(),
+                        });
+                        break;
+                }
+            }
+            else
+            {
+                switch (providerType)
+                {
+                    case ProviderType.Google:
+                        var googleProvider = await _googleProviderRepository.GetByAccountIdAsync(existingAccount.Id);
+                        if (googleProvider == null)
+                        {
+                            _logger.LogInformation("Google provider not found for existing account.");
+                            await _googleProviderRepository.CreateAsync(new GoogleProvider
+                            {
+                                AccountId = existingAccount.Id,
+                                CreatedBy = existingAccount.Id,
+                                GoogleId = Guid.NewGuid(),
+                            });
+                        }
+                        break;
+
+                    case ProviderType.Facebook:
+                        var facebookProvider = await _facebookProviderRepository.GetByAccountIdAsync(existingAccount.Id);
+                        if (facebookProvider == null)
+                        {
+                            await _facebookProviderRepository.CreateAsync(new FacebookProvider
+                            {
+                                AccountId = existingAccount.Id,
+                                CreatedBy = existingAccount.Id,
+                                FacebookId = Guid.NewGuid(),
+                            });
+                        }
+                        break;
+                }
+            }
+            // Authenticate user
+            var signInUser = existingAccount;
+            return signInUser;
+        }
+
+        private async Task<Dictionary<string, object>> FetchSocialUserAsync(string code, ProviderType providerType)
+        {
+            string accessToken;
+            switch (providerType)
+            {
+                case ProviderType.Google:
+                    accessToken = await GetGoogleAccessTokenAsync(code);
+                    return await FetchGoogleUserInfoAsync(accessToken);
+
+                case ProviderType.Facebook:
+                    accessToken = await GetFacebookAccessTokenAsync(code);
+                    return await FetchFacebookUserInfoAsync(accessToken);
+
+                default:
+                    throw new IdentityException(IdentityError.INVALID_PROVIDER, StatusCodes.Status400BadRequest);
+            }
+        }
+
+        private async Task<string> GetGoogleAccessTokenAsync(string code)
+        {
+            var parameters = new Dictionary<string, string>
+            {
+                { "client_id", _googleOptions.ClientId },
+                { "client_secret", _googleOptions.ClientSecret },
+                { "code", code },
+                { "redirect_uri", _googleOptions.RedirectUri },
+                { "grant_type", "authorization_code" }
+            };
+
+            var response = await _httpClient.PostAsync(_googleOptions.TokenUri, new FormUrlEncodedContent(parameters));
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadFromJsonAsync<JsonElement>();
+            if (jsonResponse.TryGetProperty("access_token", out var accessToken))
+            {
+                return accessToken.GetString();
+            }
+
+            _logger.LogError("Failed to fetch Google access token.");
+            throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized);
+        }
+
+        private async Task<Dictionary<string, object>> FetchGoogleUserInfoAsync(string accessToken)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await _httpClient.GetFromJsonAsync<Dictionary<string, object>>(_googleOptions.UserInfoUri) 
+                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            return response;
+        }
+
+        private async Task<string> GetFacebookAccessTokenAsync(string code)
+        {
+            var url = $"{_facebookOptions.TokenUri}" +
+                $"?client_id={_facebookOptions.ClientId}" +
+                $"&client_secret={_facebookOptions.ClientSecret}" +
+                $"&redirect_uri={_facebookOptions.RedirectUri}&code={code}";
+
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadFromJsonAsync<JsonElement>();
+            if (jsonResponse.TryGetProperty("access_token", out var accessToken))
+            {
+                return accessToken.GetString();
+            }
+
+            _logger.LogError("Failed to fetch Facebook access token.");
+            throw new IdentityException(IdentityError.INVALID_TOKEN, StatusCodes.Status401Unauthorized);
+        }
+
+        private async Task<Dictionary<string, object>> FetchFacebookUserInfoAsync(string accessToken)
+        {
+            var url = $"{_facebookOptions.UserInfoUri}?access_token={accessToken}";
+            var response = await _httpClient.GetFromJsonAsync<Dictionary<string, object>>(url) 
+                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            return response;
+        }
+
+        private static string GenerateVerificationCode(int length)
+        {
+            string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            StringBuilder code = new ();
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                byte[] buffer = new byte[1];
+
+                for (int i = 0; i < length; i++)
+                {
+                    int randomIndex;
+                    do
+                    {
+                        rng.GetBytes(buffer);
+                        randomIndex = buffer[0] % characters.Length;
+                    } while (randomIndex < 0);
+
+                    code.Append(characters[randomIndex]);
+                }
+            }
+
+            return code.ToString();
+        }
+
     }
 }

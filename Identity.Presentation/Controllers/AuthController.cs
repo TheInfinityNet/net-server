@@ -10,11 +10,13 @@ using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
 using InfinityNetServer.Services.Identity.Application.DTOs.Responses;
 using InfinityNetServer.Services.Identity.Application.Exceptions;
 using InfinityNetServer.Services.Identity.Application.IServices;
-using Microsoft.AspNetCore.Authorization;
+using InfinityNetServer.Services.Identity.Domain.Entities;
+using InfinityNetServer.Services.Identity.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Globalization;
 using System.Threading.Tasks;
 
@@ -37,7 +39,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
         [HttpPost("sign-up")]
         public async Task<IActionResult> SignUp([FromBody] SignUpRequest request)
         {
-            await authService.SignUp(request, messageBus);
+            await authService.SignUp(request, false, messageBus);
 
             return Ok(new CommonMessageResponse
             (
@@ -101,6 +103,62 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
 
             if (userProfile.Status == "Locked")
                 throw new IdentityException(IdentityError.EMAIL_WAS_NOT_VERIFIED, StatusCodes.Status401Unauthorized);
+
+            if (userProfile.Avatar != null)
+                userProfile.Avatar = await fileClient.GetPhotoMetadata(userProfile.Avatar.Id.ToString());
+
+            if (userProfile.Cover != null)
+                userProfile.Cover = await fileClient.GetPhotoMetadata(userProfile.Cover.Id.ToString());
+
+            return Ok(new SignInResponse
+            (
+                new TokensResponse
+                (
+                    AccessToken,
+                    RefreshToken
+                ),
+                userProfile
+            ));
+        }
+
+        [EndpointDescription("Sign in with social provider")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet("social")]
+        public IActionResult SignInWithSocial([FromQuery] string provider = "Google")
+        {
+            if (!Enum.TryParse<ProviderType>(provider, true, out var providerType))
+            {
+                logger.LogError("Invalid provider type");
+                throw new IdentityException(IdentityError.INVALID_PROVIDER, StatusCodes.Status400BadRequest);
+            }
+
+            string url = authService.GenerateSocialAuthUrl(providerType);
+
+            return Ok(new { Url = url });
+        }
+
+        [EndpointDescription("Social callback")]
+        [ProducesResponseType(typeof(SignInResponse), StatusCodes.Status200OK)]
+        [HttpPost("social-callback")]
+        public async Task<IActionResult> SocialCallback([FromBody] SocialCallbackRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Code) || string.IsNullOrWhiteSpace(request.Provider))
+            {
+                logger.LogError("Invalid provider type");
+                throw new IdentityException(IdentityError.INVALID_PROVIDER, StatusCodes.Status400BadRequest);
+            }
+            if (!Enum.TryParse<ProviderType>(request.Provider.Trim(), true, out var providerType))
+            {
+                logger.LogError("Invalid provider type");
+                throw new IdentityException(IdentityError.INVALID_PROVIDER, StatusCodes.Status400BadRequest);
+            }
+
+            var account = await authService.SocialCallback(request.Code, providerType, messageBus);
+            var AccessToken = authService.GenerateToken(account, account.DefaultUserProfileId, false);
+            var RefreshToken = authService.GenerateToken(account, account.DefaultUserProfileId, true);
+
+            var userProfile = await profileClient.GetUserProfile(account.DefaultUserProfileId.ToString());
+            userProfile.AccountId = account.Id;
 
             if (userProfile.Avatar != null)
                 userProfile.Avatar = await fileClient.GetPhotoMetadata(userProfile.Avatar.Id.ToString());
