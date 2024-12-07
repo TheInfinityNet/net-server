@@ -4,18 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node dev.js",
-    "comment:dev": "dotnet run --launch-profile https --project Comment.Presentation",
-    "file:dev": "dotnet run --launch-profile https --project File.Presentation",
-    "group:dev": "dotnet run --launch-profile https --project Group.Presentation",
-    "identity:dev": "dotnet run --launch-profile https --project Identity.Presentation",
-    "mail:dev": "dotnet run --launch-profile https --project Mail.Presentation",
-    "notification:dev": "dotnet run --launch-profile https --project Notification.Presentation",
-    "ocelot:dev": "dotnet run --launch-profile https --project Ocelot.Presentaition",
-    "post:dev": "dotnet run --launch-profile https --project Post.Presentation",
-    "profile:dev": "dotnet run --launch-profile https --project Profile.Presentation",
-    "reaction:dev": "dotnet run --launch-profile https --project Reaction.Presentation",
-    "relationship:dev": "dotnet run --launch-profile https --project Relationship.Presentation",
+    "dev": "node dev.mjs",
     "build": "dotnet build",
     "test": "dotnet test",
     "clean": "dotnet clean",
@@ -26,5 +15,9 @@
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^9.1.0"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "inquirer": "^12.1.0"
   }
 }
