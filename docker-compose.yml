@@ -1,4 +1,4 @@
-﻿version: '3.9'
+﻿version: "3.9"
 
 services:
   infinity-net-redis-insight:
@@ -28,13 +28,13 @@ services:
     container_name: infinity-net-rabbitmq
     command: rabbitmq-server
     environment:
-      RABBITMQ_DEFAULT_USER: infinitynetUser      
-      RABBITMQ_DEFAULT_PASS: Password@123     
+      RABBITMQ_DEFAULT_USER: infinitynetUser
+      RABBITMQ_DEFAULT_PASS: Password@123
     volumes:
       - infinity-net-rabbitmq-data:/var/lib/rabbitmq
     ports:
-      - "5672:5672"      # Port for producer & consumer
-      - "15672:15672"    # UI dashboard
+      - "5672:5672" # Port for producer & consumer
+      - "15672:15672" # UI dashboard
     networks:
       - infinity-net-network
     restart: unless-stopped
@@ -42,12 +42,11 @@ services:
   infinity-net-pgadmin:
     image: dpage/pgadmin4:snapshot
     container_name: infinity-net-pgadmin
-    depends_on:
-      [ infinity-net-postgres ]
+    depends_on: [infinity-net-postgres]
     environment:
       PGADMIN_DEFAULT_EMAIL: infinitynet@admin.com
       PGADMIN_DEFAULT_PASSWORD: Password@123
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_SERVER_MODE: "False"
     volumes:
       - infinity-net-pgadmin-data:/var/lib/pgadmin
     ports:
@@ -75,8 +74,7 @@ services:
   infinity-net-express:
     image: mongo-express:1.0.2-20-alpine3.19
     container_name: infinity-net-express
-    depends_on:
-      [ infinity-net-mongodb ]
+    depends_on: [infinity-net-mongodb]
     environment:
       ME_CONFIG_BASICAUTH: false
       ME_CONFIG_MONGODB_ADMINUSERNAME: infinitynetUser
@@ -123,7 +121,7 @@ services:
   infinity-net-tempo:
     image: grafana/tempo:main-bbe0435
     container_name: infinity-net-tempo
-    command: [ "-config.file=/etc/tempo.yaml" ]
+    command: ["-config.file=/etc/tempo.yaml"]
     volumes:
       - ./Docker/grafana-stack/tempo/tempo.yml:/etc/tempo.yaml:ro
       - ./Docker/grafana-stack/tempo/tempo-data:/tmp/tempo
@@ -138,7 +136,7 @@ services:
   infinity-net-loki:
     image: grafana/loki:main
     container_name: infinity-net-loki
-    command: [ "-config.file=/etc/loki/local-config.yaml" ]
+    command: ["-config.file=/etc/loki/local-config.yaml"]
     volumes:
       - ./Docker/grafana-stack/loki/loki-config.yaml:/etc/loki/loki-local-config.yaml
     ports:
@@ -214,8 +212,7 @@ services:
   infinity-net-kibana:
     image: kibana:8.15.0
     container_name: infinity-net-kibana
-    depends_on:
-      [ infinity-net-elasticsearch ]
+    depends_on: [infinity-net-elasticsearch]
     environment:
       ELASTICSEARCH_HOSTS: http://infinity-net-elasticsearch:9200
     ports:
@@ -227,8 +224,7 @@ services:
   infinity-net-logstash:
     image: logstash:8.15.0
     container_name: infinity-net-logstash
-    depends_on:
-      [ infinity-net-elasticsearch ]
+    depends_on: [infinity-net-elasticsearch]
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
@@ -256,3 +252,4 @@ volumes:
   infinity-net-mongodb-data:
   infinity-net-minio-data:
   infinity-net-elasticsearch-data:
+
