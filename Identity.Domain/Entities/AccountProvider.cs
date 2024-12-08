@@ -23,9 +23,7 @@ namespace InfinityNetServer.Services.Identity.Domain.Entities
         [ForeignKey("AccountId")]
         public virtual Account Account { get; set; }
 
-        public virtual GoogleProvider GoogleProvider { get; set; }
-
-        public virtual FacebookProvider FacebookProvider { get; set; }
+        public virtual ExternalProvider GoogleProvider { get; set; }
 
         public virtual LocalProvider LocalProvider { get; set; }
 

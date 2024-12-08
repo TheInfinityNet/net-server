@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
@@ -35,6 +36,8 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
         IStringLocalizer<ReactionSharedResource> localizer,
         CommonProfileClient profileClient,
         CommonFileClient fileClient,
+        CommonPostClient postClient,
+        IMessageBus messageBus,
         IPostReactionService service) : BaseApiController(authenticatedUserService)
     {
 
@@ -118,7 +121,7 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
                     PostId = Guid.Parse(postId),
                     ProfileId = currentProfileId,
                     Type = Enum.Parse<ReactionType>(request.Reaction)
-                });
+                }, postClient, messageBus);
 
                 var reactionCounts = await service.CountByPostIdAsync([postId]);
                 logger.LogInformation("Reaction counts: {ReactionCounts}", reactionCounts);

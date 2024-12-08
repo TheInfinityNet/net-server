@@ -20,8 +20,7 @@ public static class InfrastructureModule
         services.AddScoped(typeof(ISqlRepository<,>), typeof(SqlRepository<,>));
         services.AddScoped<IAccountRepository, AccountRepository>();
         services.AddScoped<ILocalProviderRepository, LocalProviderRepository>();
-        services.AddScoped<IGoogleProviderRepository, GoogleProviderRepository>();
-        services.AddScoped<IFacebookProviderRepository, FacebookProviderRepository>();
+        services.AddScoped<IExternalProviderRepository, ExternalProviderRepository>();
         services.AddScoped<IVerificationRepository, VerificationRepository>();
     }
 

@@ -4,7 +4,6 @@ using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.IServices;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
-using InfinityNetServer.Services.Identity.Application.DTOs.Responses;
 using InfinityNetServer.Services.Identity.Application.Exceptions;
 using InfinityNetServer.Services.Identity.Application.Helpers;
 using InfinityNetServer.Services.Identity.Application.IServices;
@@ -26,7 +25,6 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Identity.Application.Services
@@ -52,9 +50,7 @@ namespace InfinityNetServer.Services.Identity.Application.Services
 
         private readonly ILocalProviderService _localProviderService;
 
-        private IGoogleProviderRepository _googleProviderRepository;
-
-        private IFacebookProviderRepository _facebookProviderRepository;
+        private IExternalProviderRepository _externalProviderRepository;
 
         private readonly IVerificationService _verificationService;
 
@@ -66,8 +62,7 @@ namespace InfinityNetServer.Services.Identity.Application.Services
             IBaseRedisService<string, string> baseRedisService,
             IAccountService accountService,
             ILocalProviderService localProviderService,
-            IGoogleProviderRepository googleProviderRepository,
-            IFacebookProviderRepository facebookProviderRepository,
+            IExternalProviderRepository googleProviderRepository,
             IVerificationService verificationService,
             IConfiguration configuration,
             HttpClient httpClient,
@@ -77,8 +72,7 @@ namespace InfinityNetServer.Services.Identity.Application.Services
             _accountService = accountService;
             _localProviderService = localProviderService;
             _verificationService = verificationService;
-            _googleProviderRepository = googleProviderRepository;
-            _facebookProviderRepository = facebookProviderRepository;
+            _externalProviderRepository = googleProviderRepository;
             _configuration = configuration;
             _jwtOptions = _configuration.GetSection("Jwt").Get<JwtOptions>();
             _googleOptions = _configuration.GetSection("SocialOauth2:Google").Get<SocialOauth2Options>();
@@ -336,17 +330,17 @@ namespace InfinityNetServer.Services.Identity.Application.Services
             await _verificationService.Delete(verification.Id.ToString());
         }
 
-        public string GenerateSocialAuthUrl(ProviderType providerType)
+        public string GenerateSocialAuthUrl(ExternalProviderName externalName)
         {
-            return providerType switch
+            return externalName switch
             {
-                ProviderType.Google =>
+                ExternalProviderName.Google =>
                     $"{_googleOptions.AuthUri}" +
                     $"?client_id={_googleOptions.ClientId}" +
                     $"&redirect_uri={_googleOptions.RedirectUri}" +
                     $"&scope={(_googleOptions.Scopes.Length > 0 ? string.Join(" ", _googleOptions.Scopes) : "openid")}&response_type=code",
 
-                ProviderType.Facebook =>
+                ExternalProviderName.Facebook =>
                     $"{_facebookOptions.AuthUri}" +
                     $"?client_id={_facebookOptions.ClientId}" +
                     $"&redirect_uri={_facebookOptions.RedirectUri}" +
@@ -356,10 +350,10 @@ namespace InfinityNetServer.Services.Identity.Application.Services
             };
         }
 
-        public async Task<Account> SocialCallback(string code, ProviderType providerType, IMessageBus messageBus)
+        public async Task<Account> SocialCallback(string code, ExternalProviderName externalName, IMessageBus messageBus)
         {
             // Fetch user info from social provider
-            var userInfo = await FetchSocialUserAsync(code, providerType)
+            var userInfo = await FetchSocialUserAsync(code, externalName)
                 ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound); ;
             string email = userInfo.GetValueOrDefault("email")?.ToString()
                 ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
@@ -391,54 +385,54 @@ namespace InfinityNetServer.Services.Identity.Application.Services
 
                 existingAccount = await SignUp(signUpRequest, true, messageBus);
                 
-                switch (providerType)
+                switch (externalName)
                 {
-                    case ProviderType.Google:
-                        await _googleProviderRepository.CreateAsync(new GoogleProvider
+                    case ExternalProviderName.Google:
+                        await _externalProviderRepository.CreateAsync(new ExternalProvider
                         {
                             AccountId = existingAccount.Id,
-                            CreatedBy = existingAccount.Id,
-                            GoogleId = Guid.NewGuid(),
+                            ExternalName = externalName,
+                            CreatedBy = existingAccount.Id
                         });
                         break;
 
-                    case ProviderType.Facebook:
-                        await _facebookProviderRepository.CreateAsync(new FacebookProvider
+                    case ExternalProviderName.Facebook:
+                        await _externalProviderRepository.CreateAsync(new ExternalProvider
                         {
                             AccountId = existingAccount.Id,
-                            CreatedBy = existingAccount.Id,
-                            FacebookId = Guid.NewGuid(),
+                            ExternalName = externalName,
+                            CreatedBy = existingAccount.Id
                         });
                         break;
                 }
             }
             else
             {
-                switch (providerType)
+                switch (externalName)
                 {
-                    case ProviderType.Google:
-                        var googleProvider = await _googleProviderRepository.GetByAccountIdAsync(existingAccount.Id);
+                    case ExternalProviderName.Google:
+                        var googleProvider = await _externalProviderRepository.GetByAccountIdAndExternalNameAsync(existingAccount.Id, externalName);
                         if (googleProvider == null)
                         {
                             _logger.LogInformation("Google provider not found for existing account.");
-                            await _googleProviderRepository.CreateAsync(new GoogleProvider
+                            await _externalProviderRepository.CreateAsync(new ExternalProvider
                             {
                                 AccountId = existingAccount.Id,
-                                CreatedBy = existingAccount.Id,
-                                GoogleId = Guid.NewGuid(),
+                                ExternalName = externalName,
+                                CreatedBy = existingAccount.Id
                             });
                         }
                         break;
 
-                    case ProviderType.Facebook:
-                        var facebookProvider = await _facebookProviderRepository.GetByAccountIdAsync(existingAccount.Id);
+                    case ExternalProviderName.Facebook:
+                        var facebookProvider = await _externalProviderRepository.GetByAccountIdAndExternalNameAsync(existingAccount.Id, externalName);
                         if (facebookProvider == null)
                         {
-                            await _facebookProviderRepository.CreateAsync(new FacebookProvider
+                            await _externalProviderRepository.CreateAsync(new ExternalProvider
                             {
                                 AccountId = existingAccount.Id,
-                                CreatedBy = existingAccount.Id,
-                                FacebookId = Guid.NewGuid(),
+                                ExternalName = externalName,
+                                CreatedBy = existingAccount.Id
                             });
                         }
                         break;
@@ -449,16 +443,16 @@ namespace InfinityNetServer.Services.Identity.Application.Services
             return signInUser;
         }
 
-        private async Task<Dictionary<string, object>> FetchSocialUserAsync(string code, ProviderType providerType)
+        private async Task<Dictionary<string, object>> FetchSocialUserAsync(string code, ExternalProviderName externalName)
         {
             string accessToken;
-            switch (providerType)
+            switch (externalName)
             {
-                case ProviderType.Google:
+                case ExternalProviderName.Google:
                     accessToken = await GetGoogleAccessTokenAsync(code);
                     return await FetchGoogleUserInfoAsync(accessToken);
 
-                case ProviderType.Facebook:
+                case ExternalProviderName.Facebook:
                     accessToken = await GetFacebookAccessTokenAsync(code);
                     return await FetchFacebookUserInfoAsync(accessToken);
 

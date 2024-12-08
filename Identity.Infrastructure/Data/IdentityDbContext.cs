@@ -18,9 +18,7 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data
 
         public DbSet<AccountProvider> AccountProviders { get; set; }
 
-        public DbSet<GoogleProvider> GoogleProviders { get; set; }
-
-        public DbSet<FacebookProvider> FacebookProviders { get; set; }
+        public DbSet<ExternalProvider> GoogleProviders { get; set; }
 
         public DbSet<LocalProvider> LocalProviders { get; set; }
 
@@ -29,39 +27,60 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
-            modelBuilder.Entity<Account>()
+            var account = modelBuilder.Entity<Account>();
+            var accountProvider = modelBuilder.Entity<AccountProvider>();
+            var verification = modelBuilder.Entity<Verification>();
+            var localProvider = modelBuilder.Entity<LocalProvider>();
+            var externalProvider = modelBuilder.Entity<ExternalProvider>();
+
+            account
                 .HasIndex(p => p.DefaultUserProfileId)
                 .IsUnique();
 
-            modelBuilder.Entity<LocalProvider>()
-                .HasIndex(p => p.Email)
-                .IsUnique();
+            accountProvider
+                .HasIndex(p => p.AccountId);
 
-            modelBuilder.Entity<AccountProvider>()
+            accountProvider
                 .HasOne(p => p.Account)
                 .WithMany(b => b.AccountProviders)
                 .HasForeignKey(p => p.AccountId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Verification>()
-                .HasOne(p => p.Account)
-                .WithMany(b => b.Verifications)
-                .HasForeignKey(p => p.AccountId)
-                .OnDelete(DeleteBehavior.Cascade);
+            externalProvider
+                .HasIndex(p => p.UserId);
 
-            modelBuilder.Entity<GoogleProvider>()
+            externalProvider
+                .HasIndex(p => p.ExternalName);
+
+            externalProvider
                 .HasOne(p => p.AccountProvider)
                 .WithOne(b => b.GoogleProvider)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<FacebookProvider>()
-                .HasOne(p => p.AccountProvider)
-                .WithOne(b => b.FacebookProvider)
-                .OnDelete(DeleteBehavior.Cascade);
+            localProvider
+                .HasIndex(p => p.Email)
+                .IsUnique();
 
-            modelBuilder.Entity<LocalProvider>()
+            localProvider
                 .HasOne(p => p.AccountProvider)
                 .WithOne(b => b.LocalProvider)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            verification
+                .HasIndex(p => p.Token)
+                .IsUnique();
+
+            verification
+                .HasIndex(p => p.Code)
+                .IsUnique();
+
+            verification
+                .HasIndex(p => p.AccountId);
+
+            verification
+                .HasOne(p => p.Account)
+                .WithMany(b => b.Verifications)
+                .HasForeignKey(p => p.AccountId)
                 .OnDelete(DeleteBehavior.Cascade);
 
         }

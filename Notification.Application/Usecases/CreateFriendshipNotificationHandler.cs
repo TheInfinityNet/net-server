@@ -3,7 +3,6 @@ using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.Services.Notification.Application.IServices;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,7 +23,7 @@ namespace InfinityNetServer.Services.Notification.Application.Usecases
             var notification = new Domain.Entities.Notification
             {
                 AccountId = profile.AccountId,
-                ThumbnailId = !profile.Avatar.Id.Equals(Guid.Empty.ToString()) ? profile.Avatar.Id : null,
+                ThumbnailId = triggerProfile.Avatar?.Id,
                 EntityId = request.FriendshipId.ToString(),
                 Type = request.Type,
                 Permalink = "https://localhost:61000/profiles/users/" + request.TriggeredBy.ToString(),

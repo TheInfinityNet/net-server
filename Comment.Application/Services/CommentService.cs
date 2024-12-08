@@ -1,11 +1,14 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
 using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.Services.Comment.Application.Exceptions;
 using InfinityNetServer.Services.Comment.Application.IServices;
+using InfinityNetServer.Services.Comment.Domain.Entities;
 using InfinityNetServer.Services.Comment.Domain.Enums;
 using InfinityNetServer.Services.Comment.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
@@ -123,10 +126,12 @@ namespace InfinityNetServer.Services.Comment.Application.Services
             }
         }
 
-        public async Task<Domain.Entities.Comment> Create(Domain.Entities.Comment entity)
+        public async Task<Domain.Entities.Comment> Create(Domain.Entities.Comment entity, CommonPostClient postClient, IMessageBus messageBus)
         {
             logger.LogInformation("Create comment");
-            return await commentRepository.CreateAsync(entity);
+            var comment = await commentRepository.CreateAsync(entity);
+            await PublishCommentNotificationCommands(comment, postClient, messageBus);
+            return comment;
         }
 
         public async Task<Domain.Entities.Comment> SoftDelete(string commentId)
@@ -135,7 +140,7 @@ namespace InfinityNetServer.Services.Comment.Application.Services
             return await commentRepository.SoftDeleteAsync(Guid.Parse(commentId));
         }
 
-        public async Task<Domain.Entities.Comment> Update(Domain.Entities.Comment entity)
+        public async Task<Domain.Entities.Comment> Update(Domain.Entities.Comment entity, CommonPostClient postClient, IMessageBus messageBus)
         {
             logger.LogInformation("Update comment");
             var existedComment = await GetById(entity.Id.ToString())
@@ -153,7 +158,63 @@ namespace InfinityNetServer.Services.Comment.Application.Services
                 // Delete file
             }
 
-            return await commentRepository.UpdateAsync(entity);
+            var comment = await commentRepository.UpdateAsync(entity);
+            await PublishCommentNotificationCommands(comment, postClient, messageBus);
+            return comment;
+        }
+
+        public async Task PublishCommentNotificationCommands(Domain.Entities.Comment entity, CommonPostClient postClient, IMessageBus messageBus)
+        {
+            Guid id = entity.Id;
+            Guid profileId = entity.ProfileId;
+            DateTime createdAt = entity.CreatedAt;
+
+            // tagged in comment
+            CommentContent content = entity.Content;
+            if (content.TagFacets.Count > 0)
+            {
+                foreach (var tag in content.TagFacets)
+                {
+                    Guid taggedProfileId = tag.ProfileId;
+                    await messageBus.Publish(new DomainCommand.CreateCommentNotificationCommand
+                    {
+                        TriggeredBy = profileId.ToString(),
+                        TargetProfileId = taggedProfileId,
+                        CommentId = id,
+                        Type = NotificationType.TaggedInComment,
+                        CreatedAt = createdAt
+                    });
+                }
+            }
+
+            // reply to comment
+            if (entity.ParentId != null)
+            {
+                Guid parentCommentId = entity.ParentId.Value;
+                Domain.Entities.Comment parentComment = await GetById(parentCommentId.ToString());
+                await messageBus.Publish(new DomainCommand.CreateCommentNotificationCommand
+                {
+                    TriggeredBy = profileId.ToString(),
+                    TargetProfileId = parentComment.ProfileId,
+                    CommentId = id,
+                    Type = NotificationType.ReplyToComment,
+                    CreatedAt = createdAt
+                });
+            }
+
+            //Comment to Post
+            if (entity.ParentId == null)
+            {
+                var post = await postClient.GetPreviewPost(entity.PostId.ToString());
+                await messageBus.Publish(new DomainCommand.CreateCommentNotificationCommand
+                {
+                    TriggeredBy = profileId.ToString(),
+                    TargetProfileId = post.OwnerId,
+                    CommentId = id,
+                    Type = NotificationType.CommentToPost,
+                    CreatedAt = createdAt
+                });
+            }
         }
 
     }

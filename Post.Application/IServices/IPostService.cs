@@ -22,9 +22,9 @@ namespace InfinityNetServer.Services.Post.Application.IServices
 
         public Task<Domain.Entities.Post> GetById(string id);
 
-        public Task<Domain.Entities.Post> Create(Domain.Entities.Post entity);
+        public Task<Domain.Entities.Post> Create(Domain.Entities.Post entity, IMessageBus messageBus);
 
-        public Task<Domain.Entities.Post> Update(Domain.Entities.Post entity);
+        public Task<Domain.Entities.Post> Update(Domain.Entities.Post entity, IMessageBus messageBus);
 
         public Task<Domain.Entities.Post> SoftDelete(string id);
 

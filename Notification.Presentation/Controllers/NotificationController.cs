@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.IServices;
-using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.Notification.Application;
@@ -41,7 +39,7 @@ namespace InfinityNetServer.Services.Notification.Presentation.Controllers
 
             // chỗ này là duyệt kết quả truy vấn notification xong map sang list các photo id cần lấy
             var photoMetadataIds = notifications.Items
-                .Select(noti => noti.ThumbnailId).Distinct().ToList();
+                .Where(noti => noti.ThumbnailId != null).Select(noti => noti.ThumbnailId).Distinct().ToList();
 
             // tạo 1 list các task bất đồng bộ để call grpc sang file service
             var photoMetadataTasks = photoMetadataIds.Select(async id =>
@@ -69,9 +67,12 @@ namespace InfinityNetServer.Services.Notification.Presentation.Controllers
 
                     // chỗ này duyệt để map kết quả sang dto thì đến lúc map cái thumnail 
                     // dùng thumnailId để lấy giá trị trong dictionary rồi xuất value ra biến "photo"
-                    if (photoMetadataDict.TryGetValue(noti.ThumbnailId, out var photo))
-                        // lấy đc là gán vô dto
-                        response.Thumbnail = photo;
+                    if (noti.ThumbnailId != null)
+                    {
+                        if (photoMetadataDict.TryGetValue(noti.ThumbnailId, out var photo))
+                            // lấy đc là gán vô dto
+                            response.Thumbnail = photo;
+                    }
 
                     return response;
                 }).ToList(),
@@ -87,9 +88,8 @@ namespace InfinityNetServer.Services.Notification.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult> ChangeReadStatusNotification(Guid notificationId)
         {
-            var notification = await notificationService.ChangeReadStatusNotification(notificationId);
-            if (notification == null) throw new BaseException(BaseError.NOTIFICATION_NOT_FOUND, StatusCodes.Status404NotFound);
-
+            var notification = await notificationService.ChangeReadStatusNotification(notificationId) 
+                ?? throw new BaseException(BaseError.NOTIFICATION_NOT_FOUND, StatusCodes.Status404NotFound);
             var dto = mapper.Map<ChangeReadStatusNotificationResponse>(notification);
             dto.Message = localizer["Message.ChangeStatusSuccess"];
             return Ok(dto);
@@ -97,14 +97,13 @@ namespace InfinityNetServer.Services.Notification.Presentation.Controllers
 
         [Authorize]
         [EndpointDescription("Remove a Notification")]
-        [HttpDelete("remove/{notificationId}")]
+        [HttpDelete("{notificationId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult> RemoveNotification(Guid notificationId)
         {
             Console.WriteLine(notificationId);
-            var notification = await notificationService.RemoveNotification(notificationId);
-            if (notification == null) throw new BaseException(BaseError.NOTIFICATION_NOT_FOUND, StatusCodes.Status404NotFound);
-
+            var notification = await notificationService.RemoveNotification(notificationId) 
+                ?? throw new BaseException(BaseError.NOTIFICATION_NOT_FOUND, StatusCodes.Status404NotFound);
             var dto = mapper.Map<RemoveNotificationResponse>(notification);
             dto.Message = localizer["Message.RemoveNotificationSuccess"];
             return Ok(dto);

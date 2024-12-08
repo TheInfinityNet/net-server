@@ -1,4 +1,5 @@
 using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using System.Collections.Generic;
@@ -29,9 +30,9 @@ namespace InfinityNetServer.Services.Comment.Application.IServices
 
         public Task ConfirmSave(string id, string profileId, string fileMetadataId, IMessageBus messageBus);
 
-        public Task<Domain.Entities.Comment> Create(Domain.Entities.Comment entity);
+        public Task<Domain.Entities.Comment> Create(Domain.Entities.Comment entity, CommonPostClient postClient, IMessageBus messageBus);
 
-        public Task<Domain.Entities.Comment> Update(Domain.Entities.Comment entity);
+        public Task<Domain.Entities.Comment> Update(Domain.Entities.Comment entity, CommonPostClient postClient, IMessageBus messageBus);
 
         public Task<Domain.Entities.Comment> SoftDelete(string commentId);
 

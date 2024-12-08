@@ -39,7 +39,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data
                 .WithOne(b => b.UserProfile)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            pageProfile.HasIndex(p => p.Name).IsUnique();
+            pageProfile.HasIndex(p => p.Name);
 
             pageProfile
                 .HasOne(p => p.Profile)

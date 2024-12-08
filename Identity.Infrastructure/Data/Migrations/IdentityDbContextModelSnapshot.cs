@@ -191,29 +191,32 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
 
                     b.HasIndex("AccountId");
 
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
                     b.ToTable("verifications");
                 });
 
-            modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.FacebookProvider", b =>
+            modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.ExternalProvider", b =>
                 {
                     b.HasBaseType("InfinityNetServer.Services.Identity.Domain.Entities.AccountProvider");
 
-                    b.Property<Guid>("FacebookId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("facebook_id");
+                    b.Property<int>("ExternalName")
+                        .HasColumnType("integer")
+                        .HasColumnName("external_name");
 
-                    b.ToTable("facebook_providers");
-                });
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
 
-            modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.GoogleProvider", b =>
-                {
-                    b.HasBaseType("InfinityNetServer.Services.Identity.Domain.Entities.AccountProvider");
+                    b.HasIndex("ExternalName");
 
-                    b.Property<Guid>("GoogleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("google_id");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("google_providers");
+                    b.ToTable("external_providers");
                 });
 
             modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.LocalProvider", b =>
@@ -259,22 +262,11 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.FacebookProvider", b =>
-                {
-                    b.HasOne("InfinityNetServer.Services.Identity.Domain.Entities.AccountProvider", "AccountProvider")
-                        .WithOne("FacebookProvider")
-                        .HasForeignKey("InfinityNetServer.Services.Identity.Domain.Entities.FacebookProvider", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AccountProvider");
-                });
-
-            modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.GoogleProvider", b =>
+            modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.ExternalProvider", b =>
                 {
                     b.HasOne("InfinityNetServer.Services.Identity.Domain.Entities.AccountProvider", "AccountProvider")
                         .WithOne("GoogleProvider")
-                        .HasForeignKey("InfinityNetServer.Services.Identity.Domain.Entities.GoogleProvider", "Id")
+                        .HasForeignKey("InfinityNetServer.Services.Identity.Domain.Entities.ExternalProvider", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -301,8 +293,6 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("InfinityNetServer.Services.Identity.Domain.Entities.AccountProvider", b =>
                 {
-                    b.Navigation("FacebookProvider");
-
                     b.Navigation("GoogleProvider");
 
                     b.Navigation("LocalProvider");

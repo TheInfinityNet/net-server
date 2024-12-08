@@ -84,8 +84,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_page_profiles_name",
                 table: "page_profiles",
-                column: "name",
-                unique: true);
+                column: "name");
 
             migrationBuilder.CreateIndex(
                 name: "IX_profiles_account_id",
@@ -93,10 +92,14 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                 column: "account_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_profiles_location",
+                table: "profiles",
+                column: "location");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_profiles_mobile_number",
                 table: "profiles",
-                column: "mobile_number",
-                unique: true);
+                column: "mobile_number");
 
             migrationBuilder.CreateIndex(
                 name: "IX_profiles_status",
@@ -111,8 +114,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_user_profiles_username",
                 table: "user_profiles",
-                column: "username",
-                unique: true);
+                column: "username");
         }
 
         /// <inheritdoc />

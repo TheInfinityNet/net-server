@@ -35,6 +35,7 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
         IMessageBus messageBus,
         ICommentService commentService,
         CommonProfileClient profileClient,
+        CommonPostClient postClient,
         CommonFileClient fileClient,
         CommonReactionClient reactionClient) : BaseApiController(authenticatedUserService)
     {
@@ -264,7 +265,7 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
 
             commentService.ValidateType(comment);
 
-            var response = await commentService.Create(comment);
+            var response = await commentService.Create(comment, postClient, messageBus);
 
             if (request.FileMetadataId != null)
                 await commentService.ConfirmSave(
@@ -313,7 +314,7 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
 
             commentService.ValidateType(comment);
 
-            var response = await commentService.Update(comment);
+            var response = await commentService.Update(comment, postClient, messageBus);
             if (request.FileMetadataId != null)
                 await commentService.ConfirmSave(
                     response.Id.ToString(),

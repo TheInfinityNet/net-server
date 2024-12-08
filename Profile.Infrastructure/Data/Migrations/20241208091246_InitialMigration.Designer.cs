@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ProfileDbContext))]
-    [Migration("20241114143046_InitialMigration")]
+    [Migration("20241208091246_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -107,8 +107,9 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.HasIndex("MobileNumber")
-                        .IsUnique();
+                    b.HasIndex("Location");
+
+                    b.HasIndex("MobileNumber");
 
                     b.HasIndex("Status");
 
@@ -133,8 +134,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
+                    b.HasIndex("Name");
 
                     b.ToTable("page_profiles");
                 });
@@ -179,8 +179,7 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("username");
 
-                    b.HasIndex("Username")
-                        .IsUnique();
+                    b.HasIndex("Username");
 
                     b.ToTable("user_profiles");
                 });

@@ -25,9 +25,9 @@ namespace InfinityNetServer.Services.Identity.Application.IServices
 
         public Task VerifyEmailByCode(string email, string code, IMessageBus messageBus);
 
-        public string GenerateSocialAuthUrl(ProviderType providerType);
+        public string GenerateSocialAuthUrl(ExternalProviderName externalName);
 
-        public Task<Account> SocialCallback(string code, ProviderType providerType, IMessageBus messageBus);
+        public Task<Account> SocialCallback(string code, ExternalProviderName externalName, IMessageBus messageBus);
 
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
 using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
@@ -31,13 +32,15 @@ namespace InfinityNetServer.Services.Post.Application.Services
             ILogger<PostService> logger) : IPostService
     {
 
-        public async Task<Domain.Entities.Post> Create(Domain.Entities.Post entity)
+        public async Task<Domain.Entities.Post> Create(Domain.Entities.Post entity, IMessageBus messageBus)
         {
             logger.LogInformation("Creating post");
-            return await postRepository.CreateAsync(entity);
+            var post = await postRepository.CreateAsync(entity);
+            await PublishPostNotificationCommands(post, messageBus);
+            return post;
         }
 
-        public async Task<Domain.Entities.Post> Update(Domain.Entities.Post entity)
+        public async Task<Domain.Entities.Post> Update(Domain.Entities.Post entity, IMessageBus messageBus)
         {
             var existingPost = await GetById(entity.Id.ToString())
                 ?? throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status404NotFound);
@@ -45,9 +48,10 @@ namespace InfinityNetServer.Services.Post.Application.Services
             existingPost.Content = entity.Content;
             existingPost.Audience = entity.Audience;
             logger.LogInformation("Updating post");
-            await postRepository.UpdateAsync(existingPost);
+            var post = await postRepository.UpdateAsync(existingPost);
             logger.LogInformation("Updating post");
-            return existingPost;
+            await PublishPostNotificationCommands(post, messageBus);
+            return post;
         }
 
         public async Task<Domain.Entities.Post> SoftDelete(string id)
@@ -889,6 +893,34 @@ namespace InfinityNetServer.Services.Post.Application.Services
             }
 
             return postResponse;
+        }
+
+        private async Task PublishPostNotificationCommands(Domain.Entities.Post entity, IMessageBus messageBus)
+        {
+            Guid id = entity.Id;
+            Guid ownerId = entity.OwnerId;
+            DateTime createdAt = entity.CreatedAt;
+            Domain.Entities.PostContent content = entity.Content;
+
+            if (content.TagFacets.Count > 0)
+            {
+                foreach (var tag in content.TagFacets)
+                {
+                    Guid taggedProfileId = tag.ProfileId;
+
+                    var notificationCommand = new DomainCommand.CreatePostNotificationCommand
+                    {
+                        Id = Guid.NewGuid(),
+                        TriggeredBy = ownerId.ToString(),
+                        TargetProfileId = taggedProfileId,
+                        PostId = id,
+                        Type = NotificationType.TaggedInPost,
+                        CreatedAt = createdAt
+                    };
+
+                    await messageBus.Publish(notificationCommand);
+                }
+            }
         }
 
     }

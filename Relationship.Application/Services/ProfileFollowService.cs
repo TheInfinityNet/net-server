@@ -1,4 +1,6 @@
-﻿using InfinityNetServer.BuildingBlocks.Domain.Specifications;
+﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
+using InfinityNetServer.BuildingBlocks.Domain.Specifications;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.Services.Relationship.Application.DTOs.Responses;
 using InfinityNetServer.Services.Relationship.Application.IServices;
@@ -16,6 +18,7 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
 {
     public class ProfileFollowService(
     IProfileFollowRepository profileFollowRepository,
+    IMessageBus messageBus,
     ILogger<ProfileFollowService> logger,
     IStringLocalizer<RelationshipSharedResource> localizer) : IProfileFollowService
     {
@@ -79,11 +82,15 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
         }
 
         public async Task<ProfileFollow> Follow(string followerId, string followeeId)
-            => await profileFollowRepository.CreateAsync(new ProfileFollow
-            {
-                FollowerId = Guid.Parse(followerId),
-                FolloweeId = Guid.Parse(followeeId)
-            });
+        { 
+            var follow = await profileFollowRepository.CreateAsync(new ProfileFollow
+               {
+                   FollowerId = Guid.Parse(followerId),
+                   FolloweeId = Guid.Parse(followeeId)
+               });
+            await PublishProfileFollowNotificationCommands(follow);
+            return follow;
+        }
 
         public async Task<UnFollowResponse> UnFollow(string followId)
         {
@@ -94,6 +101,25 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
                 Status = "UnFollowed",
                 UserId = followId
             };
+        }
+
+        private async Task PublishProfileFollowNotificationCommands(ProfileFollow entity)
+        {
+            Guid id = entity.Id;
+            Guid followerId = entity.FollowerId;
+            Guid followeeId = entity.FolloweeId;
+            DateTime createdAt = entity.CreatedAt;
+
+            var notificationCommand = new DomainCommand.CreateProfileFollowNotificationCommand
+            {
+                TriggeredBy = followerId.ToString(),
+                TargetProfileId = followeeId,
+                ProfileFollowId = id,
+                Type = BuildingBlocks.Domain.Enums.NotificationType.NewProfileFollower,
+                CreatedAt = createdAt
+            };
+
+            await messageBus.Publish(notificationCommand);
         }
 
     }

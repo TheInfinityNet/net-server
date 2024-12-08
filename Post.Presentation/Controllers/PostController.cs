@@ -52,7 +52,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
 
             logger.LogInformation("Create media post: {0}", post);
 
-            var response = await postService.Create(post);
+            var response = await postService.Create(post, messageBus);
             return Created(string.Empty, new
             {
                 id = response.Id,
@@ -75,7 +75,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             var post = mapper.Map<Domain.Entities.Post>(request);
             post.OwnerId = currentProfileId;
 
-            var response = await postService.Create(post);
+            var response = await postService.Create(post, messageBus);
             return Created(string.Empty, new
             {
                 id = response.Id,
@@ -100,7 +100,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
 
             logger.LogInformation("Create media post: {0}", post);
 
-            var response = await postService.Create(post);
+            var response = await postService.Create(post, messageBus);
 
             await postService.ConfirmSave(
                 response.Id.ToString(),
@@ -138,7 +138,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             }
             post.SubPosts = subPosts;
 
-            var response = await postService.Create(post);
+            var response = await postService.Create(post, messageBus);
 
             foreach (var subPost in response.SubPosts)
                 await postService.ConfirmSave(
@@ -166,7 +166,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             var post = mapper.Map<Domain.Entities.Post>(request);
             post.Id = postId;
 
-            await postService.Update(post);
+            await postService.Update(post, messageBus);
             return Ok(new CommonMessageResponse(
                 localizer["Message.UpdatedPostSuccess", id].ToString()
             ));

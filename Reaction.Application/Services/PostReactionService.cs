@@ -1,6 +1,8 @@
+using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
-using InfinityNetServer.BuildingBlocks.Domain.Specifications;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.Services.Reaction.Application.IServices;
 using InfinityNetServer.Services.Reaction.Domain.Entities;
@@ -47,7 +49,7 @@ namespace InfinityNetServer.Services.Reaction.Application.Services
             return await repository.GetPagedAsync(specification);
         }
 
-        public async Task<PostReaction> Save(PostReaction entity)
+        public async Task<PostReaction> Save(PostReaction entity, CommonPostClient postClient, IMessageBus messageBus)
         {
             var existedReaction = await GetByPostIdAndProfileId(entity.PostId.ToString(), entity.ProfileId.ToString());
 
@@ -58,12 +60,16 @@ namespace InfinityNetServer.Services.Reaction.Application.Services
 
                 logger.LogInformation("Update reaction");
                 existedReaction.Type = entity.Type;
-                return await repository.UpdateAsync(existedReaction);
+                var rs =  await repository.UpdateAsync(existedReaction);
+                await PublishPostReactionCommands(rs, postClient, messageBus);
+                return rs;
             }
             else
             {
                 logger.LogInformation("Creating reaction");
-                return await repository.CreateAsync(entity);
+                var rs = await repository.CreateAsync(entity);
+                await PublishPostReactionCommands(rs, postClient, messageBus);
+                return rs;
             }
         }
 
@@ -77,6 +83,31 @@ namespace InfinityNetServer.Services.Reaction.Application.Services
                 throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
 
             return await repository.DeleteAsync(existedReaction.Id);
+        }
+
+        private async Task PublishPostReactionCommands(PostReaction entity, CommonPostClient postClient, IMessageBus messageBus)
+        {
+            //Post Reaction
+            var previewPost = await postClient.GetPreviewPost(entity.PostId.ToString());
+
+            Guid postReactionId = entity.Id;
+            Guid profileId = entity.ProfileId;
+            Guid relatedProfileId = previewPost.OwnerId;
+            Guid postId = entity.PostId;
+            ReactionType postReactionType = entity.Type;
+            DateTime createdAt = entity.CreatedAt;
+
+            var notificationCommand = new DomainCommand.CreatePostReactionNotificationCommand
+            {
+                TriggeredBy = profileId.ToString(),
+                TargetProfileId = relatedProfileId,
+                Type = NotificationType.PostReaction,
+                PostReactionId = postReactionId,
+                PostId = postId,
+                ReactionType = postReactionType,
+                CreatedAt = createdAt,
+            };
+            await messageBus.Publish(notificationCommand);
         }
 
     }

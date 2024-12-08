@@ -1,6 +1,8 @@
+using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
-using InfinityNetServer.BuildingBlocks.Domain.Specifications;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.Services.Reaction.Application.IServices;
 using InfinityNetServer.Services.Reaction.Domain.Entities;
@@ -44,7 +46,7 @@ namespace InfinityNetServer.Services.Reaction.Application.Services
             return await repository.GetPagedAsync(specification);
         }
 
-        public async Task<CommentReaction> Save(CommentReaction entity)
+        public async Task<CommentReaction> Save(CommentReaction entity, CommonCommentClient commentClient, IMessageBus messageBus)
         {
             var existedReaction = await GetByCommentIdAndProfileId(entity.CommentId.ToString(), entity.ProfileId.ToString());
 
@@ -55,12 +57,16 @@ namespace InfinityNetServer.Services.Reaction.Application.Services
 
                 logger.LogInformation("Update reaction");
                 existedReaction.Type = entity.Type;
-                return await repository.UpdateAsync(existedReaction);
+                var rs = await repository.UpdateAsync(existedReaction);
+                await PublicCommentReactionCommands(rs, commentClient, messageBus);
+                return rs;
             }
             else
             {
                 logger.LogInformation("Creating reaction");
-                return await repository.CreateAsync(entity);
+                var rs = await repository.CreateAsync(entity);
+                await PublicCommentReactionCommands(rs, commentClient, messageBus);
+                return rs;
             }
         }
 
@@ -74,6 +80,31 @@ namespace InfinityNetServer.Services.Reaction.Application.Services
                 throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
 
             return await repository.DeleteAsync(existedReaction.Id);
+        }
+
+        private async Task PublicCommentReactionCommands(CommentReaction entity, CommonCommentClient commentClient, IMessageBus messageBus)
+        {
+            //Comment Reaction
+            var previewComment = await commentClient.GetPreviewComment(entity.CommentId.ToString());
+
+            Guid commentReactionId = entity.Id;
+            Guid profileId = entity.ProfileId;
+            Guid relatedProfileId = previewComment.ProfileId;
+            Guid commentId = entity.CommentId;
+            ReactionType commentReactionType = entity.Type;
+            DateTime createdAt = entity.CreatedAt;
+
+            var notificationCommand = new DomainCommand.CreateCommentReactionNotificationCommand
+            {
+                TriggeredBy = profileId.ToString(),
+                TargetProfileId = relatedProfileId,
+                Type = NotificationType.CommentReaction,
+                CommentReactionId = commentReactionId,
+                CommentId = commentId,
+                ReactionType = commentReactionType,
+                CreatedAt = createdAt,
+            };
+            await messageBus.Publish(notificationCommand);
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
@@ -34,6 +35,8 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
         IMapper mapper,
         IStringLocalizer<ReactionSharedResource> localizer,
         CommonProfileClient profileClient,
+        CommonCommentClient commentClient,
+        IMessageBus messageBus,
         CommonFileClient fileClient,
         ICommentReactionService service) : BaseApiController(authenticatedUserService)
     {
@@ -118,13 +121,13 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
                     CommentId = Guid.Parse(commentId),
                     ProfileId = currentProfileId,
                     Type = Enum.Parse<ReactionType>(request.Reaction)
-                });
+                }, commentClient, messageBus);
 
                 var reactionCounts = await service.CountByCommentId([commentId]);
 
                 return Ok(new
                 {
-                    Reaction = request.Reaction,
+                    request.Reaction,
                     ReactionCounts = reactionCounts[0].countDetails
                 });
             }

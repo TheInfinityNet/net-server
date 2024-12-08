@@ -42,27 +42,27 @@ namespace InfinityNetServer.Services.Reaction.Infrastructure.Data
 
         }
 
-        //public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        //{
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
 
-        //    var postReactionEntries = ChangeTracker.Entries<PostReaction>();
+            var postReactionEntries = ChangeTracker.Entries<PostReaction>();
 
-        //    var commentReactionEntries = ChangeTracker.Entries<CommentReaction>();
+            var commentReactionEntries = ChangeTracker.Entries<CommentReaction>();
 
 
-        //    int result = await base.SaveChangesAsync(cancellationToken);
+            int result = await base.SaveChangesAsync(cancellationToken);
 
-        //    if (result > 0)
-        //    {
-        //        foreach (var entry in postReactionEntries)
-        //            await PublishPostReactionCommands(entry);
+            if (result > 0)
+            {
+                foreach (var entry in postReactionEntries)
+                    await PublishPostReactionCommands(entry);
 
-        //        foreach (var entry in commentReactionEntries)
-        //            await PublicCommentReactionCommands(entry);
-        //    }
+                foreach (var entry in commentReactionEntries)
+                    await PublicCommentReactionCommands(entry);
+            }
 
-        //    return result;
-        //}
+            return result;
+        }
 
         private async Task PublishPostReactionCommands(EntityEntry<PostReaction> entry)
         {

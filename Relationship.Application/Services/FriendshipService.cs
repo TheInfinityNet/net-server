@@ -1,4 +1,6 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
+﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.Contracts.Commands;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.Services.Relationship.Application.DTOs.Responses;
 using InfinityNetServer.Services.Relationship.Application.IServices;
@@ -19,6 +21,7 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
         IProfileFollowService followService,
         IProfileBlockService blockService,
         ILogger<FriendshipService> logger,
+        IMessageBus messageBus,
         IStringLocalizer<RelationshipSharedResource> localizer) : IFriendshipService
     {
 
@@ -148,7 +151,8 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
                 ReceiverId = Guid.Parse(receiverId),
                 Status = FriendshipStatus.Pending
             };
-            await friendshipRepository.CreateAsync(friendship);
+            var rs = await friendshipRepository.CreateAsync(friendship);
+            await PublishFriendshipNotificationCommands(friendship);
             return new SendRequestResponse
 
             {
@@ -183,7 +187,8 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
         public async Task<AcceptRequestResponse> AcceptRequest(Friendship friendship)
         {
             friendship.Status = FriendshipStatus.Connected;
-            await friendshipRepository.UpdateAsync(friendship);
+            var rs = await friendshipRepository.UpdateAsync(friendship);
+            await PublishFriendshipNotificationCommands(friendship);
             return new AcceptRequestResponse
             {
                 UserId = friendship.Id.ToString(),
@@ -229,6 +234,42 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
         {
             var list = await friendshipRepository.GetAllSentRequestIdsAsync(Guid.Parse(profile));
             return list.Select(x => x.ToString()).ToList();
+        }
+
+        private async Task PublishFriendshipNotificationCommands(Friendship entity)
+        {
+            Guid id = entity.Id;
+            Guid senderId = entity.SenderId;
+            Guid receiverId = entity.ReceiverId;
+            DateTime createdAt = entity.CreatedAt;
+
+            var notificationCommand = new DomainCommand.CreateFriendshipNotificationCommand
+            {
+                FriendshipId = id,
+                CreatedAt = createdAt
+            };
+
+            switch (entity.Status)
+            {
+                case FriendshipStatus.Pending:
+                    // Friend invitation
+                    notificationCommand.TriggeredBy = senderId.ToString();
+                    notificationCommand.TargetProfileId = receiverId;
+                    notificationCommand.Type = BuildingBlocks.Domain.Enums.NotificationType.FriendInvitation;
+                    break;
+
+                case FriendshipStatus.Connected:
+                    // Friend invitation accepted
+                    notificationCommand.TriggeredBy = receiverId.ToString();
+                    notificationCommand.TargetProfileId = senderId;
+                    notificationCommand.Type = BuildingBlocks.Domain.Enums.NotificationType.FriendInvitationAccepted;
+                    break;
+
+                default:
+                    return; // Do nothing if the status doesn't match
+            }
+
+            await messageBus.Publish(notificationCommand);
         }
 
     }

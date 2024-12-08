@@ -85,35 +85,18 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "facebook_providers",
+                name: "external_providers",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    facebook_id = table.Column<Guid>(type: "uuid", nullable: false)
+                    user_id = table.Column<string>(type: "text", nullable: true),
+                    external_name = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_facebook_providers", x => x.id);
+                    table.PrimaryKey("PK_external_providers", x => x.id);
                     table.ForeignKey(
-                        name: "FK_facebook_providers_account_providers_id",
-                        column: x => x.id,
-                        principalTable: "account_providers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "google_providers",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    google_id = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_google_providers", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_google_providers_account_providers_id",
+                        name: "FK_external_providers_account_providers_id",
                         column: x => x.id,
                         principalTable: "account_providers",
                         principalColumn: "id",
@@ -151,6 +134,16 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_external_providers_external_name",
+                table: "external_providers",
+                column: "external_name");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_external_providers_user_id",
+                table: "external_providers",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_local_providers_email",
                 table: "local_providers",
                 column: "email",
@@ -160,16 +153,25 @@ namespace InfinityNetServer.Services.Identity.Infrastructure.Data.Migrations
                 name: "IX_verifications_account_id",
                 table: "verifications",
                 column: "account_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_verifications_code",
+                table: "verifications",
+                column: "code",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_verifications_token",
+                table: "verifications",
+                column: "token",
+                unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "facebook_providers");
-
-            migrationBuilder.DropTable(
-                name: "google_providers");
+                name: "external_providers");
 
             migrationBuilder.DropTable(
                 name: "local_providers");

@@ -10,7 +10,6 @@ using InfinityNetServer.Services.Identity.Application.DTOs.Requests;
 using InfinityNetServer.Services.Identity.Application.DTOs.Responses;
 using InfinityNetServer.Services.Identity.Application.Exceptions;
 using InfinityNetServer.Services.Identity.Application.IServices;
-using InfinityNetServer.Services.Identity.Domain.Entities;
 using InfinityNetServer.Services.Identity.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -126,13 +125,13 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
         [HttpGet("social")]
         public IActionResult SignInWithSocial([FromQuery] string provider = "Google")
         {
-            if (!Enum.TryParse<ProviderType>(provider, true, out var providerType))
+            if (!Enum.TryParse<ExternalProviderName>(provider, true, out var externalName))
             {
                 logger.LogError("Invalid provider type");
                 throw new IdentityException(IdentityError.INVALID_PROVIDER, StatusCodes.Status400BadRequest);
             }
 
-            string url = authService.GenerateSocialAuthUrl(providerType);
+            string url = authService.GenerateSocialAuthUrl(externalName);
 
             return Ok(new { Url = url });
         }
@@ -147,13 +146,13 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
                 logger.LogError("Invalid provider type");
                 throw new IdentityException(IdentityError.INVALID_PROVIDER, StatusCodes.Status400BadRequest);
             }
-            if (!Enum.TryParse<ProviderType>(request.Provider.Trim(), true, out var providerType))
+            if (!Enum.TryParse<ExternalProviderName>(request.Provider.Trim(), true, out var externalName))
             {
                 logger.LogError("Invalid provider type");
                 throw new IdentityException(IdentityError.INVALID_PROVIDER, StatusCodes.Status400BadRequest);
             }
 
-            var account = await authService.SocialCallback(request.Code, providerType, messageBus);
+            var account = await authService.SocialCallback(request.Code, externalName, messageBus);
             var AccessToken = authService.GenerateToken(account, account.DefaultUserProfileId, false);
             var RefreshToken = authService.GenerateToken(account, account.DefaultUserProfileId, true);
 
