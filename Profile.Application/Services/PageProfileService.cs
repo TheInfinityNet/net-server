@@ -100,9 +100,14 @@ namespace InfinityNetServer.Services.Profile.Application.Services
             PageProfile existedProfile = await GetById(pageProfile.Id.ToString())
                 ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
+            existedProfile.AvatarId = pageProfile.AvatarId;
+            existedProfile.CoverId = pageProfile.CoverId;
+            existedProfile.Location = pageProfile.Location;
+            existedProfile.MobileNumber = pageProfile.MobileNumber;
+            existedProfile.Status = pageProfile.Status;
+
             existedProfile.Name = pageProfile.Name;
             existedProfile.Description = pageProfile.Description;
-            existedProfile.MobileNumber = pageProfile.MobileNumber;
 
             await _pageProfileRepository.UpdateAsync(existedProfile);
 

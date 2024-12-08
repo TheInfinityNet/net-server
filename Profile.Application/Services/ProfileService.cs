@@ -1,4 +1,6 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+﻿using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
+using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Profile.Application.IServices;
 using InfinityNetServer.Services.Profile.Domain.Entities;
@@ -46,6 +48,26 @@ namespace InfinityNetServer.Services.Profile.Application.Services
             await profileRepository.UpdateAsync(existedProfile);
 
             return existedProfile;
+        }
+
+        public async Task ConfirmSave(string id, string fileMetadataId, bool isAvatar, IMessageBus messageBus)
+        {
+            Domain.Entities.Profile profile = await GetById(id)
+                ?? throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            Guid? fileMetadataGuid = (isAvatar ? profile.AvatarId : profile.CoverId) 
+                ?? throw new BaseException(BaseError.FILE_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            await messageBus.Publish(new DomainEvent.CreatePhotoMetadataEvent
+            {
+                FileMetadataId = fileMetadataGuid.Value,
+                TempId = Guid.Parse(fileMetadataId),
+                OwnerId = Guid.Parse(id),
+                OwnerType = FileOwnerType.Post,
+                UpdatedAt = DateTime.Now,
+                UpdatedBy = profile.Id
+            });
+            
         }
 
     }

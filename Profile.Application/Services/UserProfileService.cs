@@ -1,4 +1,5 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+﻿using AutoMapper;
+using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
@@ -198,6 +199,12 @@ namespace InfinityNetServer.Services.Profile.Application.Services
         {
             UserProfile existedProfile = await GetById(userProfile.Id.ToString())
                 ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            existedProfile.AvatarId = userProfile.AvatarId;
+            existedProfile.CoverId = userProfile.CoverId;
+            existedProfile.Location = userProfile.Location;
+            existedProfile.MobileNumber = userProfile.MobileNumber;
+            existedProfile.Status = userProfile.Status;
 
             existedProfile.FirstName = userProfile.FirstName;
             existedProfile.LastName = userProfile.LastName;

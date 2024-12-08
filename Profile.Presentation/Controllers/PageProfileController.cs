@@ -106,8 +106,8 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
 
             return Ok(new
             {
-                Message = localizer["Message.ProfileUpdatedSuccess", request.Name],
-                User = pageProfile
+                Message = localizer["Message.ProfileUpdatedSuccess", request.Name].ToString(),
+                User = mapper.Map<PageProfileResponse>(pageProfile)
             });
         }
 

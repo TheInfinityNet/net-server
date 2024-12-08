@@ -1,4 +1,5 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
+﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.Services.Profile.Application.DTOs.Requests;
 using InfinityNetServer.Services.Profile.Domain.Entities;
@@ -98,6 +99,12 @@ public class ProfileMapper : AutoMapper.Profile
             });
 
         // DTO -> Entity
+        CreateMap<BaseProfileRequest, Domain.Entities.Profile>();
+
+        CreateMap<UpdateUserProfileRequest, Domain.Entities.Profile>();
+
+        CreateMap<UpdatePageProfileRequest, Domain.Entities.Profile>();
+
         CreateMap<UpdateUserProfileRequest, UserProfile>();
 
         CreateMap<UpdatePageProfileRequest, PageProfile>();
