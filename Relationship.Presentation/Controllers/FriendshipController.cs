@@ -106,8 +106,11 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
             {
                 if (profileDict.TryGetValue(item.SenderId, out var profile))
                 {
-                    var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
-                    profile.Avatar = avatar;
+                    if (profile.Avatar != null)
+                    {
+                        var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
+                        profile.Avatar = avatar;
+                    }
                 }
 
                 var itemResponse = mapper.Map<FriendshipResponse>(profile);
@@ -166,8 +169,11 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
             {
                 if (profileDict.TryGetValue(item.ReceiverId, out var profile))
                 {
-                    var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
-                    profile.Avatar = avatar;
+                    if (profile.Avatar != null)
+                    {
+                        var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
+                        profile.Avatar = avatar;
+                    }
                 }
 
                 var itemResponse = mapper.Map<FriendshipResponse>(profile);
@@ -225,8 +231,11 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
             {
                 if (profileDict.TryGetValue(item.SenderId, out var profile))
                 {
-                    var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
-                    profile.Avatar = avatar;
+                    if (profile.Avatar != null)
+                    {
+                        var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
+                        profile.Avatar = avatar;
+                    }
                 }
 
                 var itemResponse = mapper.Map<FriendshipResponse>(profile);

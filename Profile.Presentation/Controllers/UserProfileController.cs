@@ -1,14 +1,11 @@
 ﻿using AutoMapper;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.IServices;
-using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.Profile.Application;
 using InfinityNetServer.Services.Profile.Application.DTOs.Requests;
-using InfinityNetServer.Services.Profile.Application.DTOs.Responses;
 using InfinityNetServer.Services.Profile.Application.Exceptions;
 using InfinityNetServer.Services.Profile.Application.IServices;
 using InfinityNetServer.Services.Profile.Domain.Entities;
@@ -19,7 +16,6 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Controllers
@@ -29,6 +25,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
     [Route("users")]
     public class UserProfileController(
         IAuthenticatedUserService authenticatedUserService,
+        CommonFileClient fileClient,
         IStringLocalizer<ProfileSharedResource> localizer,
         ILogger<UserProfileController> logger,
         IMapper mapper,
@@ -49,6 +46,20 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
             UserProfile currentProfile = await userProfileService.GetById(id);
+
+            var response = mapper.Map<UserProfileResponse>(currentProfile);
+
+            if (currentProfile.AvatarId != null)
+            {
+                var avatar = await fileClient.GetPhotoMetadata(currentProfile.AvatarId.Value.ToString());
+                response.Avatar = avatar;
+            }
+
+            if (currentProfile.CoverId != null)
+            {
+                var cover = await fileClient.GetPhotoMetadata(currentProfile.CoverId.Value.ToString());
+                response.Cover = cover;
+            }
 
             List<string> actions = [];
 
@@ -73,7 +84,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             //    [ProfileActions.ProfileCoverPhotoUpload.ToString(),
             //        ProfileActions.ProfileCoverPhotoDelete.ToString()]);
 
-            return Ok(mapper.Map<UserProfileResponse>(currentProfile));
+            return Ok(response);
         }
 
         [EndpointDescription("Update user profile")]

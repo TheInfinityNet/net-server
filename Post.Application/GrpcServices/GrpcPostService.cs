@@ -51,11 +51,11 @@ namespace InfinityNetServer.Services.Post.Application.GrpcServices
             return mapper.Map<PreviewPostResponse>(post);
         }
 
-        public override async Task<ProfileIdsResponse> whoCantSee(PostRequest request, ServerCallContext context)
+        public override async Task<ProfileIdsResponse> whoCantSee(PostAudienceRequest request, ServerCallContext context)
         {
             logger.LogInformation("Received whoCantSee request");
             var response = new ProfileIdsResponse();
-            var profileIds = await postService.WhoCantSee(request.Id);
+            var profileIds = await postService.WhoCantSee(request.Id, request.ProfileId);
             response.Ids.AddRange(profileIds);
             return await Task.FromResult(response);
         }

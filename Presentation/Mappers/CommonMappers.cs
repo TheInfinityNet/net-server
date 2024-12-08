@@ -32,17 +32,18 @@ public class CommonMappers : Profile
                 dest.DeletedAt = dest.DeletedAt?.ToLocalTime();
                 if (src.AvatarId.Equals(Guid.Empty.ToString()))
                 {
-                    dest.Avatar = new PhotoMetadataResponse
-                    {
-                        Id = Guid.Empty,
-                        Name = "cover.jpg",
-                        Width = 500,
-                        Height = 500,
-                        Size = 1000,
-                        Type = FileMetadataType.Photo.ToString(),
-                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
-                        CreatedAt = DateTime.Now
-                    };
+                    //dest.Avatar = new PhotoMetadataResponse
+                    //{
+                    //    Id = Guid.Empty,
+                    //    Name = "cover.jpg",
+                    //    Width = 500,
+                    //    Height = 500,
+                    //    Size = 1000,
+                    //    Type = FileMetadataType.Photo.ToString(),
+                    //    Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
+                    //    CreatedAt = DateTime.Now
+                    //};
+                    dest.Avatar = null;
                 }
                 else
                 {
@@ -54,17 +55,18 @@ public class CommonMappers : Profile
 
                 if (src.CoverId.Equals(Guid.Empty.ToString()))
                 {
-                    dest.Cover = new PhotoMetadataResponse
-                    {
-                        Id = Guid.Empty,
-                        Name = "cover.jpg",
-                        Width = 500,
-                        Height = 500,
-                        Size = 1000,
-                        Type = FileMetadataType.Photo.ToString(),
-                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
-                        CreatedAt = DateTime.Now
-                    };
+                    //dest.Cover = new PhotoMetadataResponse
+                    //{
+                    //    Id = Guid.Empty,
+                    //    Name = "cover.jpg",
+                    //    Width = 500,
+                    //    Height = 500,
+                    //    Size = 1000,
+                    //    Type = FileMetadataType.Photo.ToString(),
+                    //    Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
+                    //    CreatedAt = DateTime.Now
+                    //};
+                    dest.Cover = null;
                 }
                 else
                 {
@@ -86,17 +88,7 @@ public class CommonMappers : Profile
                 dest.DeletedAt = dest.DeletedAt?.ToLocalTime();
                 if (src.AvatarId.Equals(Guid.Empty.ToString()))
                 {
-                    dest.Avatar = new PhotoMetadataResponse
-                    {
-                        Id = Guid.Empty,
-                        Name = "demo.jpg",
-                        Width = 500,
-                        Height = 500,
-                        Size = 1000,
-                        Type = FileMetadataType.Photo.ToString(),
-                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
-                        CreatedAt = DateTime.Now
-                    };
+                    dest.Avatar = null;
                 }
                 else
                 {
@@ -108,17 +100,7 @@ public class CommonMappers : Profile
 
                 if (src.CoverId.Equals(Guid.Empty.ToString()))
                 {
-                    dest.Cover = new PhotoMetadataResponse
-                    {
-                        Id = Guid.Empty,
-                        Name = "demo.jpg",
-                        Width = 500,
-                        Height = 500,
-                        Size = 1000,
-                        Type = FileMetadataType.Photo.ToString(),
-                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
-                        CreatedAt = DateTime.Now
-                    };
+                    dest.Cover = null;
                 }
                 else
                 {

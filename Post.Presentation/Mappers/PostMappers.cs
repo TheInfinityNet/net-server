@@ -154,7 +154,7 @@ public class PostMappers : AutoMapper.Profile
                 switch (dest.Type) {
                     case PostAudienceType.Include:
                         dest.Includes = src.Include.Select(i =>
-                        new Domain.Entities.PostAudienceInclude { ProfileId = i.Id }).ToList();
+                        new PostAudienceInclude { ProfileId = i.Id }).ToList();
                         break;
 
                     case PostAudienceType.Exclude:
@@ -194,5 +194,7 @@ public class PostMappers : AutoMapper.Profile
             {
                 dest.ParentId = Guid.Parse(src.ShareId);
             });
+
+        CreateMap<UpdatePostRequest, Domain.Entities.Post>();
     }
 }

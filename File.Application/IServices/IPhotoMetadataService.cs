@@ -6,13 +6,15 @@ namespace InfinityNetServer.Services.File.Application.IServices
     public interface IPhotoMetadataService
     {
 
-        Task Create(PhotoMetadata photoMetadata);
+        public Task Create(PhotoMetadata photoMetadata);
 
-        Task Update(PhotoMetadata photoMetadata);
+        public Task Update(PhotoMetadata photoMetadata);
 
-        Task Delete(string id);
+        public Task SoftDelete(string id);
 
-        Task<PhotoMetadata> GetById(string id);
+        public Task Delete(string id);
+
+        public Task<PhotoMetadata> GetById(string id);
 
     }
 }

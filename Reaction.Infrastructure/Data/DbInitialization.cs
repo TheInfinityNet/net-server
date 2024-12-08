@@ -195,7 +195,7 @@ public static class DbInitialization
         // Gọi API một lần cho mỗi bài đăng để lấy thông tin ai không thể xem bài đăng đó
         var tasks = postIds.Select(async postId =>
         {
-            var whoCantSeeForPost = await postClient.WhoCantSee(postId);
+            var whoCantSeeForPost = await postClient.WhoCantSee(postId, Guid.Empty.ToString());
 
             // Lưu kết quả vào dictionary với key là postId
             whoCantSeeDict[postId] = whoCantSeeForPost.Select(Guid.Parse).ToList();

@@ -20,10 +20,10 @@ namespace InfinityNetServer.Services.Comment.Application.IServices
         public Task<IList<Domain.Entities.Comment>> GetPopularComments(string postId);
 
         public Task<CursorPagedResult<Domain.Entities.Comment>> GetByPostId
-            (string postId, string cursor, int pageSize, SortDirection sortDirection);
+            (string postId, string cursor, int limit, SortDirection sortDirection);
 
         public Task<CursorPagedResult<Domain.Entities.Comment>> GetReplies
-            (string parentId, string cursor, int pageSize);
+            (string parentId, string cursor, int limit);
 
         public void ValidateType(Domain.Entities.Comment entity);
 

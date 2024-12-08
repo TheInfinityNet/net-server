@@ -1,9 +1,7 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
-using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Profile.Application.DTOs.Requests;
 using InfinityNetServer.Services.Profile.Domain.Entities;
-using System;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Mappers;
 
@@ -22,17 +20,7 @@ public class ProfileMapper : AutoMapper.Profile
                 //chỗ này custome nếu trg hợp đích (dest) và nguồn (src) khác tên thuộc tính
                 if (src.AvatarId == null)
                 {
-                    dest.Avatar = new PhotoMetadataResponse
-                    {
-                        Id = Guid.Empty,
-                        Name = "cover.jpg",
-                        Width = 500,
-                        Height = 500,
-                        Size = 1000,
-                        Type = FileMetadataType.Photo.ToString(),
-                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
-                        CreatedAt = DateTime.Now
-                    };
+                    dest.Avatar = null;
                 }
                 else
                 {
@@ -54,17 +42,7 @@ public class ProfileMapper : AutoMapper.Profile
                 //chỗ này custome nếu trg hợp đích (dest) và nguồn (src) khác tên thuộc tính
                 if (src.AvatarId == null)
                 {
-                    dest.Avatar = new PhotoMetadataResponse
-                    {
-                        Id = Guid.Empty,
-                        Name = "cover.jpg",
-                        Width = 500,
-                        Height = 500,
-                        Size = 1000,
-                        Type = FileMetadataType.Photo.ToString(),
-                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
-                        CreatedAt = DateTime.Now
-                    };
+                    dest.Avatar = null;
                 }
                 else
                 {
@@ -76,17 +54,7 @@ public class ProfileMapper : AutoMapper.Profile
 
                 if (src.CoverId == null)
                 {
-                    dest.Cover = new PhotoMetadataResponse
-                    {
-                        Id = Guid.Empty,
-                        Name = "cover.jpg",
-                        Width = 500,
-                        Height = 500,
-                        Size = 1000,
-                        Type = FileMetadataType.Photo.ToString(),
-                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
-                        CreatedAt = DateTime.Now
-                    };
+                    dest.Cover = null;
                 }
                 else
                 {
@@ -105,17 +73,7 @@ public class ProfileMapper : AutoMapper.Profile
                 //chỗ này custome nếu trg hợp đích (dest) và nguồn (src) khác tên thuộc tính
                 if (src.AvatarId == null)
                 {
-                    dest.Avatar = new PhotoMetadataResponse
-                    {
-                        Id = Guid.Empty,
-                        Name = "cover.jpg",
-                        Width = 500,
-                        Height = 500,
-                        Size = 1000,
-                        Type = FileMetadataType.Photo.ToString(),
-                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
-                        CreatedAt = DateTime.Now
-                    };
+                    dest.Avatar = null;
                 }
                 else
                 {
@@ -127,17 +85,7 @@ public class ProfileMapper : AutoMapper.Profile
 
                 if (src.CoverId == null)
                 {
-                    dest.Cover = new PhotoMetadataResponse
-                    {
-                        Id = Guid.Empty,
-                        Name = "cover.jpg",
-                        Width = 500,
-                        Height = 500,
-                        Size = 1000,
-                        Type = FileMetadataType.Photo.ToString(),
-                        Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmCy16nhIbV3pI1qLYHMJKwbH2458oiC9EmA&s",
-                        CreatedAt = DateTime.Now
-                    };
+                    dest.Cover = null;
                 }
                 else
                 {

@@ -38,26 +38,26 @@ namespace InfinityNetServer.Services.Comment.Application.Services
             => await commentRepository.GetPopularCommentsAsync(Guid.Parse(postId));
 
         public async Task<CursorPagedResult<Domain.Entities.Comment>> GetByPostId
-            (string postId, string cursor, int pageSize, SortDirection sortDirection)
+            (string postId, string cursor, int limit, SortDirection sortDirection)
         {
             var specification = new SpecificationWithCursor<Domain.Entities.Comment>
             {
                 Criteria = comment => comment.ParentId == null && comment.PostId == Guid.Parse(postId) && !comment.IsDeleted,
                 Cursor = cursor,
-                Limit = pageSize
+                Limit = limit
             };
 
             return await commentRepository.GetPagedAsync(specification);
         }
 
         public async Task<CursorPagedResult<Domain.Entities.Comment>> GetReplies
-            (string parentId, string cursor, int pageSize)
+            (string parentId, string cursor, int limit)
         {
             var specification = new SpecificationWithCursor<Domain.Entities.Comment>
             {
                 Criteria = comment => comment.ParentId == Guid.Parse(parentId) && !comment.IsDeleted,
                 Cursor = cursor,
-                Limit = pageSize
+                Limit = limit
             };
 
             return await commentRepository.GetPagedAsync(specification);
@@ -95,7 +95,7 @@ namespace InfinityNetServer.Services.Comment.Application.Services
             switch (comment.Type)
             {
                 case CommentType.Photo:
-                    await messageBus.Publish(new DomainEvent.PhotoMetadataEvent
+                    await messageBus.Publish(new DomainEvent.CreatePhotoMetadataEvent
                     {
                         FileMetadataId = fileMetadataGuid,
                         TempId = Guid.Parse(fileMetadataId),
@@ -107,7 +107,7 @@ namespace InfinityNetServer.Services.Comment.Application.Services
                     break;
 
                 case CommentType.Video:
-                    await messageBus.Publish(new DomainEvent.VideoMetadataEvent
+                    await messageBus.Publish(new DomainEvent.CreateVideoMetadataEvent
                     {
                         FileMetadataId = fileMetadataGuid,
                         TempId = Guid.Parse(fileMetadataId),

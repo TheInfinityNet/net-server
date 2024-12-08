@@ -7,23 +7,25 @@
 
         ProfileCoverPhotoDelete,
 
-        AddFriend,
+        ProfileAvatarUpload,
 
-        RemoveFriend,
+        ProfileAvatarDelete,
 
-        Block,
+        ProfileDetailsUpdate,
 
-        Unblock,
+        ProfilePostSearch,
 
-        Follow,
+        ProfilePostCreate,
 
-        Unfollow,
+        ProfileActivityLog,
 
-        Mute,
+        ProfileStatusLock,
 
-        UnMute,
+        ProfileReport,
 
-        AcceptOrRejectFriendRequest,
+        ProfileDelete,
+
+        ProfileCreate
 
     }
 }

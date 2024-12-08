@@ -64,19 +64,20 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
             }
         }
 
-        public async Task<List<string>> WhoCantSee(string id)
+        public async Task<List<string>> WhoCantSee(string id, string profileId)
         {
             try
             {
                 logger.LogInformation("Starting who cant see");
-                var response = await client.whoCantSeeAsync(new PostRequest { Id = id });
+                var response = await client.whoCantSeeAsync(new PostAudienceRequest { Id = id, ProfileId = profileId });
                 // Call the gRPC server to introspect the token
                 return new List<string>(response.Ids);
             }
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status404NotFound);
+                //throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status404NotFound);
+                return [ profileId ];
             }
         }
 

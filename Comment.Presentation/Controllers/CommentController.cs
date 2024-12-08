@@ -153,35 +153,101 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
         [HttpGet("{parentId}/replies")]
         public async Task<IActionResult> GetReplies(string parentId, [FromQuery] string cursor = null, [FromQuery] int limit = 10)
         {
-            //if (commentId == Guid.Empty)
-            //{
-            //    return BadRequest("Parent Comment ID is required.");
-            //}
+            Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
+                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            //var childComments = await commentService.GetChildCommentsAsync(commentId);
+            var result = await commentService.GetReplies(parentId, cursor, limit);
 
-            //var profilesTasks = childComments.Select(async comment =>
-            //{
-            //    try
-            //    {
-            //        var profileResponse = await commonProfileClient.GetProfile(comment.ProfileId.ToString());
+            IList<string> commentIds = result.Items.Select(item => item.Id.ToString()).Distinct().ToList();
 
-            //        comment.Profile = new SimpleProfileResponse
-            //        {
-            //            Username = profileResponse.Name,
-            //            AvatarId = profileResponse.Avatar?.Id.ToString()
-            //        };
-            //    }
-            //    catch (BaseException ex)
-            //    {
-            //        comment.Profile = null;
-            //    }
-            //    return comment;
-            //});
+            IList<(string commentId, string profileId)> commentIdsAndProfileIds =
+                commentIds.Select(p => (p, currentProfileId.ToString())).ToList();
+            var commentReactionTypes = await reactionClient.GetCommentReactionByProfileId(commentIdsAndProfileIds);
+            var commentReactionTypesDict = commentReactionTypes.ToDictionary(
+                previewReaction => new { previewReaction.OwnerId, previewReaction.ProfileId }, previewReaction => previewReaction.Type);
 
-            //await Task.WhenAll(profilesTasks);
+            var commentReactionCounts = await reactionClient.GetCommentReactionsCount(commentIds);
+            var commentReactionCountsDict = commentReactionCounts.ToDictionary(
+                reactionCount => Guid.Parse(reactionCount.commentId), reactionCount => reactionCount.countDetails);
 
-            return Ok();
+            // Profiles
+            var profileIds = result.Items
+                .SelectMany(item => item.Content.TagFacets.Select(t => t.ProfileId))
+                .Concat(result.Items.Select(item => item.ProfileId))
+                .Concat([currentProfileId])
+                .Distinct();
+
+            var profiles = await profileClient.GetProfiles(profileIds.Select(id => id.ToString()).ToList());
+            var profileDict = profiles.ToDictionary(p => p.Id, mapper.Map<PreviewProfileResponse>);
+
+            // File Metadatas
+            var photoMetadataIds = profiles
+                .Where(profile => profile.Avatar != null)
+                    .Select(profile => profile.Avatar.Id)
+                .Concat(result.Items
+                    .Where(item => item.Type == CommentType.Photo)
+                    .Select(item => item.FileMetadataId.Value))
+                .Distinct();
+
+            var videoMetadataIds = result.Items
+                .Where(item => item.Type == CommentType.Video)
+                    .Select(item => item.FileMetadataId.Value)
+                .Distinct();
+
+            // Nạp metadata files trước nếu cần
+            var photoMetadataTasks = photoMetadataIds.Select(async id =>
+            {
+                var metadata = await fileClient.GetPhotoMetadata(id.ToString());
+                return new { Id = id, Metadata = metadata ??= new PhotoMetadataResponse { Id = id } };
+            });
+            var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(photo => photo.Id, photo => photo.Metadata);
+
+            var videoMetadataTasks = videoMetadataIds.Select(async id =>
+            {
+                var metadata = await fileClient.GetVideoMetadata(id.ToString());
+                return new { Id = id, Metadata = metadata ??= new VideoMetadataResponse { Id = id } };
+            });
+            var videoMetadataDict = (await Task.WhenAll(videoMetadataTasks)).ToDictionary(video => video.Id, video => video.Metadata);
+
+            CursorPagedResult<CommentResponse> response = new()
+            {
+                Items = result.Items.Select(commentItem =>
+                {
+                    logger.LogError("Post ID: {PostId}", commentItem.Id.ToString());
+                    var commentResponse = mapper.Map<CommentResponse>(commentItem);
+
+                    // Map TagFacets
+                    commentResponse.Content.TagFacets = commentResponse.Content.TagFacets.Select(tagFacet =>
+                    {
+                        if (profileDict.TryGetValue(tagFacet.Profile.Id, out var profile))
+                        {
+                            tagFacet.Profile.Id = profile.Id;
+                            tagFacet.Profile.Type = profile.Type;
+                        }
+                        return tagFacet;
+                    }).ToList();
+
+                    // Process Owner
+                    if (profileDict.TryGetValue(commentItem.ProfileId, out var ownerProfile))
+                    {
+                        var avatar = photoMetadataDict.GetValueOrDefault(ownerProfile.Avatar.Id);
+                        ownerProfile.Avatar = avatar;
+                        commentResponse.Owner = ownerProfile;
+                    }
+
+                    if (commentReactionCountsDict.TryGetValue(commentItem.Id, out var reactionCounts))
+                        commentResponse.ReactionCounts = reactionCounts;
+
+                    if (commentReactionTypesDict.TryGetValue(
+                        new { OwnerId = commentItem.Id, ProfileId = currentProfileId }, out var reactionType))
+                        commentResponse.Reaction = reactionType;
+                    return commentResponse;
+                }).ToList(),
+
+                NextCursor = result.NextCursor
+            };
+
+            return Ok(response);
         }
 
         [EndpointDescription("Create a new comment")]

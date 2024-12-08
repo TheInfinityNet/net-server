@@ -9,28 +9,40 @@ import "google/protobuf/empty.proto";
 import "Protos/base.proto";
 
 message GetByOwnerIdRequest{
+
 	string ownerId = 1;
+
 }
 
 
 message GetByOwnerIdResponse{
+
 	repeated PostResponse posts = 1;
+
 }
 
 message GetByParentIdRequest{
+
 	string parentId = 1;
+
 }
 
 message GetByParentIdResponse{
+
 	repeated PostResponse posts = 1;
+
 }
 
 message GetByGroupIdRequest{
+
 	string groupId = 1;
+
 }
 
 message GetByGroupIdResponse{
+
 	repeated PostResponse posts = 1;
+
 }
 
 message PostRequest {
@@ -38,6 +50,15 @@ message PostRequest {
 	string id = 1;
 
 }
+
+message PostAudienceRequest {
+
+	string id = 1;
+
+	string profileId = 2;
+
+}
+
 
 message PostIdsResponse {
 
@@ -60,13 +81,21 @@ message PreviewPostResponse {
 message PostResponse {
 	
     string id = 1;
+
     string content = 2;
+
     string type = 3;
+
     string presentationId = 4;
+
     string parentId = 5;
+
     string ownerId = 6;
+
     string groupId = 7;
+
     string fileMetadataId = 8;
+
     string audience = 9;
 	
 }
@@ -79,7 +108,7 @@ service PostService {
 
   rpc getPreviewPost (PostRequest) returns (PreviewPostResponse) {}
 
-  rpc whoCantSee (PostRequest) returns (ProfileIdsResponse) {}
+  rpc whoCantSee (PostAudienceRequest) returns (ProfileIdsResponse) {}
 
   rpc GetAllByOwnerId (GetByOwnerIdRequest) returns (GetByOwnerIdResponse) {}
 

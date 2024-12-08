@@ -1,5 +1,4 @@
-﻿
-using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
+﻿using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
 using InfinityNetServer.BuildingBlocks.Application.IServices;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.File.Application.IServices;
@@ -15,10 +14,10 @@ namespace InfinityNetServer.Services.File.Application.Usecases
         (ILogger<CreatePhotoMetadataEventHandler> logger,
         IBaseRedisService<string, PhotoMetadata> baseRedisService,
         IMinioClientService minioClientService,
-        IPhotoMetadataService photoMetadataService) : IRequestHandler<DomainEvent.PhotoMetadataEvent>
+        IPhotoMetadataService photoMetadataService) : IRequestHandler<DomainEvent.CreatePhotoMetadataEvent>
     {
 
-        public async Task Handle(DomainEvent.PhotoMetadataEvent request, CancellationToken cancellationToken)
+        public async Task Handle(DomainEvent.CreatePhotoMetadataEvent request, CancellationToken cancellationToken)
         {
             logger.LogInformation("Handling message with file name: {Id}", request.FileMetadataId);
 

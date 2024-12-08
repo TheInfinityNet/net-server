@@ -144,7 +144,7 @@ public static class DbInitialization
         {
             var sharedPost = sharedPostFaker.Generate();
 
-            var whoCantSeeIds = await postService.WhoCantSee(sharedPost.ParentId.ToString());
+            var whoCantSeeIds = await postService.WhoCantSee(sharedPost.ParentId.ToString(), Guid.Empty.ToString());
             var filteredProfileIds = profileIds.Except(whoCantSeeIds).ToList();
 
             if (filteredProfileIds.Count == 0) return null; // Bỏ qua nếu không còn profile nào
@@ -275,13 +275,10 @@ public static class DbInitialization
             PostAudienceType.Friends,
 
             PostAudienceType.Include, // 10%
-            PostAudienceType.Include,
 
             PostAudienceType.Exclude, // 10%
-            PostAudienceType.Exclude,
 
             PostAudienceType.Custom, // 10%
-            PostAudienceType.Custom,
 
             PostAudienceType.OnlyMe // 10%
         };

@@ -6,13 +6,15 @@ namespace InfinityNetServer.Services.File.Application.IServices
     public interface IVideoMetadataService
     {
 
-        Task Create(VideoMetadata videoMetadata);
+        public Task Create(VideoMetadata videoMetadata);
 
-        Task Update(VideoMetadata videoMetadata);
+        public Task Update(VideoMetadata videoMetadata);
 
-        Task Delete(string id);
+        public Task SoftDelete(string id);
 
-        Task<VideoMetadata> GetById(string id);
+        public Task Delete(string id);
+
+        public Task<VideoMetadata> GetById(string id);
 
     }
 }

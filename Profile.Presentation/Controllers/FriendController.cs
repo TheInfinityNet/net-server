@@ -68,7 +68,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             foreach (var item in suggestions.Items)
             {
                 var userProfile = mapper.Map<UserProfileResponse>(item);
-                if (userProfile.Avatar.Id != Guid.Empty)
+                if (userProfile.Avatar != null)
                 {
                     if (photoMetadataDict.TryGetValue(item.AvatarId, out var avatar))
                     {

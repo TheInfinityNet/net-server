@@ -45,12 +45,19 @@ internal static class HostingExtensions
 
         builder.Services.AddDbContext(builder.Configuration);
 
-        builder.Services.AddMessageBus(builder.Configuration, typeof(CreatePhotoMetadataEventConsumer), typeof(CreateVideoMetadataEventConsumer));
+        builder.Services.AddMessageBus(builder.Configuration, 
+            typeof(CreatePhotoMetadataEventConsumer), 
+            typeof(CreateVideoMetadataEventConsumer),
+            typeof(DeletePhotoMetadataEventConsumer),
+            typeof(DeleteVideoMetadataEventConsumer)
+            );
 
         builder.Services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(typeof(CreatePhotoMetadataEventHandler).Assembly);
             cfg.RegisterServicesFromAssembly(typeof(CreateVideoMetadataEventHandler).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(DeletePhotoMetadataEventHandler).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(DeleteVideoMetadataEventHandler).Assembly);
         });
 
         builder.Services.AddRedisConnection(builder.Configuration);

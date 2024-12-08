@@ -4,8 +4,8 @@ using MediatR;
 
 namespace InfinityNetServer.Services.File.Application.Consumers
 {
-    public class CreatePhotoMetadataEventConsumer
-        (ISender sender) : BaseConsumer<DomainEvent.CreatePhotoMetadataEvent>(sender)
+    public class DeleteVideoMetadataEventConsumer
+        (ISender sender) : BaseConsumer<DomainEvent.DeleteVideoMetadataEvent>(sender)
     {
 
     }

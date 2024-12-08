@@ -63,7 +63,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             switch (post.Type)
             {
                 case PostType.Photo:
-                    await messageBus.Publish(new DomainEvent.PhotoMetadataEvent
+                    await messageBus.Publish(new DomainEvent.CreatePhotoMetadataEvent
                     {
                         Id = fileMetadataId,
                         TempId = Guid.Parse(request.FileMetadataId),
@@ -75,7 +75,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                     break;
 
                 case PostType.Video:
-                    await messageBus.Publish(new DomainEvent.VideoMetadataEvent
+                    await messageBus.Publish(new DomainEvent.CreateVideoMetadataEvent
                     {
                         Id = fileMetadataId,
                         TempId = Guid.Parse(request.FileMetadataId),
@@ -120,7 +120,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         public async Task<IActionResult> GetNewsFeed([FromQuery] string cursor = null, [FromQuery] int pageSize = 10)
         {
             var profileId = GetCurrentProfileId().Value;
-            var result = await postService.GetNewsFeed(profileId.ToString(), cursor, pageSize);
+            var result = await postService.GetTimeline(profileId.ToString(), cursor, pageSize);
 
             // Tập hợp toàn bộ các ID cần nạp trước
             var profileIds = result.Items
@@ -359,7 +359,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         [ProducesResponseType(typeof(CursorPagedResult<>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTimeline([FromQuery] string cursor = null, [FromQuery] int pageSize = 10)
         {
-            var result = await postService.GetNewsFeed("d2ae9499-cf46-4687-b560-7fe7aafa7d28", cursor, pageSize);
+            var result = await postService.GetTimeline("d2ae9499-cf46-4687-b560-7fe7aafa7d28", cursor, pageSize);
 
             // Tập hợp toàn bộ các ID cần nạp trước
             var profileIds = result.Items
