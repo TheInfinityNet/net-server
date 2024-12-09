@@ -112,82 +112,42 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
 
         public async Task<CursorPagedResult<TEntity>> GetPagedAsync(SpecificationWithCursor<TEntity> spec)
         {
-            // Truy vấn cơ bản
             var query = context.Set<TEntity>().AsQueryable();
 
-            // Áp dụng các điều kiện lọc nếu có
             if (spec.Criteria != null)
                 query = query.Where(spec.Criteria);
 
-            // Áp dụng sắp xếp
-            if (spec.OrderFields == null || !spec.OrderFields.Any())
-            {
-                query = query.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id); // Mặc định
-            }
-            else
-            {
-                var isFirstField = true;
-                foreach (var orderField in spec.OrderFields)
-                {
-                    query = isFirstField
-                        ? (orderField.Direction == SortDirection.Descending
-                            ? query.OrderByDescending(orderField.Field)
-                            : query.OrderBy(orderField.Field))
-                        : (orderField.Direction == SortDirection.Descending
-                            ? ((IOrderedQueryable<TEntity>)query).ThenByDescending(orderField.Field)
-                            : ((IOrderedQueryable<TEntity>)query).ThenBy(orderField.Field));
-                    isFirstField = false;
-                }
+            query = query.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id);
 
-                // Luôn thêm `ThenByDescending(x => x.Id)` để đảm bảo thứ tự duy nhất
-                query = ((IOrderedQueryable<TEntity>)query).ThenByDescending(x => x.Id);
-            }
-
-            // Áp dụng điều kiện Cursor
             if (!string.IsNullOrEmpty(spec.Cursor))
             {
                 var cursorParts = spec.Cursor.Split('|');
-                var cursorId = cursorParts.Length == 2 ? cursorParts[1] : null;
-                if (cursorParts.Length == 2 &&
-                    DateTime.TryParse(cursorParts[0], out var cursorDateTime))
+                if (cursorParts.Length == 2 && DateTime.TryParse(cursorParts[0], out var cursorDateTime))
                 {
-                    // Điều kiện Cursor dựa trên hướng sắp xếp
-                    if (spec.OrderFields == null)
-                    {
-                        query = query.Where(x =>
-                            x.CreatedAt < cursorDateTime ||
-                            (x.CreatedAt == cursorDateTime && x.Id.ToString().CompareTo(cursorId) < 0));
-                    }
-                    else
-                    {
-                        query = query.Where(x =>
-                            x.CreatedAt > cursorDateTime ||
-                            (x.CreatedAt == cursorDateTime && x.Id.ToString().CompareTo(cursorId) > 0));
-                    }
+                    var cursorId = cursorParts[1];
+                    query = query.Where(x =>
+                        x.CreatedAt < cursorDateTime ||
+                        (x.CreatedAt == cursorDateTime && x.Id.ToString().CompareTo(cursorId) < 0));
                 }
             }
 
-            // Lấy dữ liệu phân trang
             var items = await query.Take(spec.Limit + 1).ToListAsync();
 
-            // Xác định Cursor tiếp theo (chỉ khi có đủ dữ liệu để phân trang)
-            string nextCursor = items.Count == spec.Limit + 1
+            var hasMoreItems = items.Count > spec.Limit;
+            var nextCursor = hasMoreItems
                 ? $"{items.Last().CreatedAt:O}|{items.Last().Id}"
                 : null;
 
-            // Xác định Cursor trước (chỉ khi có dữ liệu và có cursor đầu vào)
-            string prevCursor = items.Count > 0 && !string.IsNullOrEmpty(spec.Cursor)
-                ? $"{items.First().CreatedAt:O}|{items.First().Id}"
-                : null;
-
-            // Trả về kết quả phân trang
             return new CursorPagedResult<TEntity>
             {
                 Items = items.Take(spec.Limit).ToList(),
                 NextCursor = nextCursor,
-                PrevCursor = prevCursor
+                PrevCursor = !string.IsNullOrEmpty(spec.Cursor)
+                    ? $"{items.First().CreatedAt:O}|{items.First().Id}"
+                    : null
             };
         }
+
 
         private IQueryable<TEntity> ApplySpecification(ISqlSpecification<TEntity> spec)
         {

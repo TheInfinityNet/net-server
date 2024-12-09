@@ -166,6 +166,7 @@ namespace InfinityNetServer.Services.Profile.Application.Services
 
         public async Task<CursorPagedResult<UserProfile>> GetFriendSuggestions(string profileId, string cursor, int limit)
         {
+            
             //IList<string> followeeIds = await relationshipClient.GetAllFolloweeIds(profileId);
             //IList<string> friendIds = await relationshipClient.GetAllFriendIds(profileId);
             //var friendsOfMutualFriends = await relationshipClient.GetFriendsOfMutualFriends(profileId);
@@ -184,8 +185,8 @@ namespace InfinityNetServer.Services.Profile.Application.Services
             var specification = new SpecificationWithCursor<UserProfile>
             {
                 Criteria = userProfile =>
-                        //suggestionIds.Contains(userProfile.Id)
-                         !userProfile.Id.Equals(Guid.Parse(profileId))
+                        suggestionIds.Contains(userProfile.Id)
+                         & !userProfile.Id.Equals(Guid.Parse(profileId))
                         //&& !friendIds.Contains(userProfile.Id.ToString())
                         & !pendingRequests.Contains(userProfile.Id.ToString())
                         & !blockerIds.Concat(blockeeIds).Contains(userProfile.Id.ToString())
