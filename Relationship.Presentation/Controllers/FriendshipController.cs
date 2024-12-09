@@ -71,12 +71,12 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         [ProducesResponseType(typeof(CursorPagedResult<FriendshipResponse>), StatusCodes.Status200OK)]
         [Authorize]
         [HttpGet("requests")]
-        public async Task<IActionResult> GetFriendRequests([FromQuery] string nextCursor, [FromQuery] int limit = 10)
+        public async Task<IActionResult> GetFriendRequests([FromQuery] string cursor, [FromQuery] int limit = 10)
         {
             string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
                 : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            var friendRequests = await friendshipService.GetFriendRequests(currentProfileId, nextCursor, limit);
+            var friendRequests = await friendshipService.GetFriendRequests(currentProfileId, cursor, limit);
 
             // Tập hợp toàn bộ các ID cần nạp trước
             var profileIds = friendRequests.Items.Select(item => item.SenderId.ToString()).Distinct();
@@ -133,12 +133,12 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         [ProducesResponseType(typeof(CursorPagedResult<FriendshipResponse>), StatusCodes.Status200OK)]
         [Authorize]
         [HttpGet("sent-requests")]
-        public async Task<IActionResult> GetFriendSentRequests([FromQuery] string nextCursor, [FromQuery] int limit = 10)
+        public async Task<IActionResult> GetFriendSentRequests([FromQuery] string cursor, [FromQuery] int limit = 10)
         {
             string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
                 : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            var friendSentRequests = await friendshipService.GetFriendSentRequests(currentProfileId, nextCursor, limit);
+            var friendSentRequests = await friendshipService.GetFriendSentRequests(currentProfileId, cursor, limit);
 
             // Tập hợp toàn bộ các ID cần nạp trước
             var profileIds = friendSentRequests.Items.Select(item => item.ReceiverId.ToString()).Distinct();
@@ -195,12 +195,12 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         [ProducesResponseType(typeof(CursorPagedResult<FriendshipResponse>), StatusCodes.Status200OK)]
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> GetFriends([FromQuery] string nextCursor, [FromQuery] int limit = 10)
+        public async Task<IActionResult> GetFriends([FromQuery] string cursor, [FromQuery] int limit = 10)
         {
             string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
                 : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            var friends = await friendshipService.GetFriends(currentProfileId, nextCursor, limit);
+            var friends = await friendshipService.GetFriends(currentProfileId, cursor, limit);
 
             // Tập hợp toàn bộ các ID cần nạp trước
             var profileIds = friends.Items.Select(item => currentProfileId.Equals(item.SenderId.ToString()) ? item.ReceiverId.ToString() : item.SenderId.ToString()).Distinct();
