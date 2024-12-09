@@ -473,8 +473,11 @@ namespace InfinityNetServer.Services.Post.Application.Services
                     // Process Owner
                     if (profileDict.TryGetValue(postItem.OwnerId, out var ownerProfile))
                     {
-                        var avatar = photoMetadataDict.GetValueOrDefault(ownerProfile.Avatar.Id);
-                        ownerProfile.Avatar = avatar;
+                        if (ownerProfile.Avatar != null)
+                        {
+                            var avatar = photoMetadataDict.GetValueOrDefault(ownerProfile.Avatar.Id);
+                            ownerProfile.Avatar = avatar;
+                        }
                         postResponse.Owner = ownerProfile;
                     }
 
@@ -490,8 +493,11 @@ namespace InfinityNetServer.Services.Post.Application.Services
                         {
                             if (profileDict.TryGetValue(comment.Owner.Id, out var profile))
                             {
-                                var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
-                                profile.Avatar = avatar;
+                                if (profile.Avatar != null)
+                                {
+                                    var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
+                                    profile.Avatar = avatar;
+                                }
                                 comment.Owner = profile;
                             }
 
@@ -537,8 +543,11 @@ namespace InfinityNetServer.Services.Post.Application.Services
                                 // Process SubPost Owner
                                 if (profileDict.TryGetValue(subPost.OwnerId, out var subOwnerProfile))
                                 {
-                                    var avatar = photoMetadataDict.GetValueOrDefault(subOwnerProfile.Avatar.Id);
-                                    subOwnerProfile.Avatar = avatar;
+                                    if (subOwnerProfile.Avatar != null)
+                                    {
+                                        var avatar = photoMetadataDict.GetValueOrDefault(subOwnerProfile.Avatar.Id);
+                                        subOwnerProfile.Avatar = avatar;
+                                    }
                                     subPostResponse.Owner = subOwnerProfile;
                                 }
 
@@ -579,8 +588,11 @@ namespace InfinityNetServer.Services.Post.Application.Services
                                 // Process Parent's Owner
                                 if (profileDict.TryGetValue(postItem.Parent.OwnerId, out var parentOwnerProfile))
                                 {
-                                    var avatar = photoMetadataDict.GetValueOrDefault(parentOwnerProfile.Avatar.Id);
-                                    parentOwnerProfile.Avatar = avatar;
+                                    if (parentOwnerProfile.Avatar != null)
+                                    {
+                                        var avatar = photoMetadataDict.GetValueOrDefault(parentOwnerProfile.Avatar.Id);
+                                        parentOwnerProfile.Avatar = avatar;
+                                    }
                                     parentResponse.Owner = parentOwnerProfile;
                                 }
 

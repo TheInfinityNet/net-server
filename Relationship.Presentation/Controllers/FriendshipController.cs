@@ -360,6 +360,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
                 : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
             var friendship = await friendshipService.GetByStatus(FriendshipStatus.Connected, userId, currentProfileId.ToString())
+                ?? await friendshipService.GetByStatus(FriendshipStatus.Connected, currentProfileId.ToString(), userId) 
                 ?? throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
 
             if (friendship.ReceiverId != Guid.Parse(currentProfileId) && friendship.SenderId != Guid.Parse(currentProfileId))

@@ -7,7 +7,7 @@
 
         Public,
 
-        Friends,
+        Friend,
 
         Include,
 

@@ -342,7 +342,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Authorize]
         [HttpPost("upload/photo")]
-        public async Task<IActionResult> UploadRawImage(IFormFile photo, [FromForm] bool isTemporarily = false)
+        public async Task<IActionResult> UploadRawImage(IFormFile photo, [FromForm] bool isTemporarily = true)
         {
             ValidateImage(photo);
 
@@ -407,7 +407,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
             //int thumbnailHeight,
 
             [FromForm]
-            bool isTemporarily = false)
+            bool isTemporarily = true)
         {
             if (video == null || video.Length == 0)
                 throw new FileException(FileError.FILE_EMPTY, StatusCodes.Status400BadRequest);
@@ -475,8 +475,8 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                     Thumbnail = new PhotoMetadataResponse
                     {
                         Name = thumbnailFileName,
-                        Width = thumbnailWidth,
-                        Height = thumbnailHeight,
+                        Width = width,
+                        Height = height,
                         Size = thumbnailSize,
                         Url = await minioClientService.GetObjectUrl(isTemporarily ? TEMP_BUCKET_NAME : MAIN_BUCKET_NAME, thumbnailFileName)
                     }
