@@ -1,4 +1,5 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.IServices;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
@@ -377,15 +378,17 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                     }, TimeSpan.FromMinutes(30));
             }
 
-            return Ok(new
+            var response = new PhotoMetadataResponse
             {
-                id,
-                fileName,
-                size,
-                width,
-                height
+                Id = id,
+                Type = FileMetadataType.Photo.ToString(),
+                Size = size,
+                Width = width,
+                Height = height,
+                Url = await minioClientService.GetObjectUrl(isTemporarily ? TEMP_BUCKET_NAME : MAIN_BUCKET_NAME, fileName)
+            };
 
-            });
+            return Ok(response);
         }
 
         [EndpointDescription("Upload raw video")]
@@ -461,22 +464,26 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
                         }
                     }, TimeSpan.FromMinutes(30));
 
-                return Ok(new
+                var response = new VideoMetadataResponse
                 {
-                    id,
-                    fileName = videoFileName,
-                    size,
-                    width,
-                    height,
-                    duration,
-                    thumbnail = new
+                    Id = id,
+                    Type = FileMetadataType.Video.ToString(),
+                    Size = size,
+                    Width = width,
+                    Height = height,
+                    Duration = duration.Seconds,
+                    Url = await minioClientService.GetObjectUrl(isTemporarily ? TEMP_BUCKET_NAME : MAIN_BUCKET_NAME, videoFileName),
+                    Thumbnail = new PhotoMetadataResponse
                     {
-                        name = thumbnailFileName,
-                        width = thumbnailWidth,
-                        height = thumbnailHeight,
-                        size = thumbnailSize
+                        Name = thumbnailFileName,
+                        Width = thumbnailWidth,
+                        Height = thumbnailHeight,
+                        Size = thumbnailSize,
+                        Url = await minioClientService.GetObjectUrl(isTemporarily ? TEMP_BUCKET_NAME : MAIN_BUCKET_NAME, thumbnailFileName)
                     }
-                });
+                };
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
