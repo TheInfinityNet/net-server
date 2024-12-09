@@ -19,7 +19,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using static InfinityNetServer.Services.File.Application.Helpers.FileHelper;
-using static InfinityNetServer.Services.File.Infrastructure.Minio.MinioExtension;
 
 namespace InfinityNetServer.Services.File.Presentation.Controllers
 {
@@ -397,15 +396,15 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         [HttpPost("upload/video")]
         public async Task<IActionResult> UploadRawVideo(
             IFormFile video,
-            [FromForm]
-            [Required(ErrorMessage = "Required.ThumbnailWidth")]
-            [Range(1, 1920, ErrorMessage = "Range.ThumbnailWidth")]
-            int thumbnailWidth,
+            //[FromForm]
+            //[Required(ErrorMessage = "Required.ThumbnailWidth")]
+            //[Range(1, 1920, ErrorMessage = "Range.ThumbnailWidth")]
+            //int thumbnailWidth,
 
-            [FromForm]
-            [Required(ErrorMessage = "Required.ThumbnailHeight")]
-            [Range(1, 1080, ErrorMessage = "Range.ThumbnailHeight")]
-            int thumbnailHeight,
+            //[FromForm]
+            //[Required(ErrorMessage = "Required.ThumbnailHeight")]
+            //[Range(1, 1080, ErrorMessage = "Range.ThumbnailHeight")]
+            //int thumbnailHeight,
 
             [FromForm]
             bool isTemporarily = false)
@@ -429,7 +428,7 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
 
                 // Tạo thumbnail từ video với kích thước tùy chỉnh
                 var thumbnailTime = TimeSpan.FromSeconds(1);
-                var thumbnailPath = await CreateThumbnail(tempFilePath, thumbnailWidth, thumbnailHeight, thumbnailTime);
+                var thumbnailPath = await CreateThumbnail(tempFilePath, width, height, thumbnailTime);
 
                 // Lưu video lên MinIO
                 var videoFileName = GenerateFileName(filetype, extension);
