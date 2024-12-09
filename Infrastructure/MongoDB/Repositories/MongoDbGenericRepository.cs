@@ -30,7 +30,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB.Repositories
             => await _collection.DeleteOneAsync(e => e.Id.Equals(id)); // Use DeleteOneAsync for deletion
 
         public virtual async Task<TEntity> GetByIdAsync(TId id)
-            => await _collection.Find(e => e.Id.Equals(id)).FirstOrDefaultAsync();
+            => await _collection?.Find(e => e.Id.Equals(id)).FirstOrDefaultAsync();
 
         public virtual async Task<IList<TEntity>> GetAllAsync()
             => await _collection.Find(_ => true).ToListAsync(); // Directly use Find for better efficiency

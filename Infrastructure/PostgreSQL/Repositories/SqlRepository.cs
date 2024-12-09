@@ -152,7 +152,7 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.PostgreSQL.Repositorie
                     DateTime.TryParse(cursorParts[0], out var cursorDateTime))
                 {
                     // Điều kiện Cursor dựa trên hướng sắp xếp
-                    if (spec.OrderFields == null || spec.OrderFields.First().Direction == SortDirection.Descending)
+                    if (spec.OrderFields == null)
                     {
                         query = query.Where(x =>
                             x.CreatedAt < cursorDateTime ||

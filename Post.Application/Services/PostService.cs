@@ -142,6 +142,54 @@ namespace InfinityNetServer.Services.Post.Application.Services
             return await postRepository.GetPagedAsync(specification);
         }
 
+        public async Task<CursorPagedResult<Domain.Entities.Post>> Search(string profileId, string keywords, string cursor, int pageSize)
+        {
+            IList<string> followeeIds = await relationshipClient.GetAllFolloweeIds(profileId);
+            IList<string> friendIds = await relationshipClient.GetAllFriendIds(profileId);
+            IList<string> blockerIds = await relationshipClient.GetAllBlockerIds(profileId);
+            IList<string> blockeeIds = await relationshipClient.GetAllBlockeeIds(profileId);
+
+            Guid profileUuid = Guid.Parse(profileId);
+            var specification = new SpecificationWithCursor<Domain.Entities.Post>
+            {
+
+                Criteria = post =>
+                        post.Presentation == null && post.GroupId == null && !post.IsDeleted
+                        && string.IsNullOrEmpty(keywords) 
+                            || post.Content.Text.Contains(keywords, StringComparison.CurrentCultureIgnoreCase)
+
+                        && (post.Audience.Type == PostAudienceType.Public
+
+                            || post.OwnerId.Equals(profileId)
+
+                            || followeeIds.Contains(post.OwnerId.ToString()) && friendIds.Contains(post.OwnerId.ToString())
+
+                            || post.Audience.Type == PostAudienceType.Friends && friendIds.Contains(post.OwnerId.ToString())
+
+                            || post.Audience.Type == PostAudienceType.Include
+                                && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))
+                                && friendIds.Contains(post.OwnerId.ToString())
+
+                            || post.Audience.Type == PostAudienceType.Exclude
+                                && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))
+                                && friendIds.Contains(post.OwnerId.ToString())
+
+                            || post.Audience.Type == PostAudienceType.Custom
+                                && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))
+                                && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))
+                                && friendIds.Contains(post.OwnerId.ToString())
+
+                            || post.Audience.Type == PostAudienceType.OnlyMe && post.OwnerId.Equals(profileUuid)
+                            )
+
+                        && !blockerIds.Concat(blockeeIds).Contains(post.OwnerId.ToString()),
+                Cursor = cursor,
+                Limit = pageSize
+            };
+
+            return await postRepository.GetPagedAsync(specification);
+        }
+
         public async Task<CursorPagedResult<Domain.Entities.Post>> GetProfilePost(string currentProfileId, string profileId, string cursor, int pageSize)
         {
             bool isMyProfile = currentProfileId.Equals(profileId);
@@ -156,10 +204,10 @@ namespace InfinityNetServer.Services.Post.Application.Services
 
                 Criteria = post =>
                         post.Presentation == null && post.GroupId == null && !post.IsDeleted
-                        && isMyProfile ? post.OwnerId.Equals(profileUuid) 
+                        && isMyProfile ? post.OwnerId.Equals(profileUuid)
 
-                        : post.OwnerId.Equals(profileUuid) 
-                            && (post.Audience.Type.Equals(PostAudienceType.Public) 
+                        : post.OwnerId.Equals(profileUuid)
+                            && (post.Audience.Type.Equals(PostAudienceType.Public)
 
                                 && followeeIds.Contains(post.OwnerId.ToString()) && friendIds.Contains(post.OwnerId.ToString())
 

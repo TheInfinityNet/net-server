@@ -196,6 +196,7 @@ namespace InfinityNetServer.Services.Profile.Application.Services
             var ok =  await userProfileRepository.GetPagedAsync(specification);
             return ok;
         }
+
         public async Task<CursorPagedResult<UserProfile>> SearchFriend(string keywords, string profileId, string cursor, int limit)
         {
 
@@ -215,6 +216,7 @@ namespace InfinityNetServer.Services.Profile.Application.Services
             };
             return await userProfileRepository.GetPagedAsync(specification);
         }
+
         public async Task<UserProfile> GetByAccountId(string id)
             => await userProfileRepository.GetByAccountIdAsync(Guid.Parse(id));
 
