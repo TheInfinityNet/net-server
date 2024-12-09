@@ -123,7 +123,7 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcServices
             response.Ids.AddRange(source);
             return response;
         }
-
+        
         public override async Task<ProfileIdsResponse> getAllBlockeeIds(ProfileRequest request, ServerCallContext context)
         {
             logger.LogInformation("Get blockees for ProfileId: {ProfileId}", request.Id);
@@ -132,7 +132,14 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcServices
             response.Ids.AddRange(source);
             return response;
         }
-
+        public override async Task<MutualFriendCountResponse> getFriendsOfMutualFriends(ProfileRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("Get mutual friend count for ProfileId: {ProfileId}", request.Id);
+            var source = await friendshipService.GetAllMutualFriendsWithCount(request.Id);
+            var response = new MutualFriendCountResponse();
+            response.ProfileIdsWithMutualCounts.AddRange(source.Select(mapper.Map<ProfileIdWithMutualCount>));
+            return response;
+        }
         public override async Task<MutualFriendCountResponse> countMutualFriends(MutualFriendCountRequest request, ServerCallContext context)
         {
             logger.LogInformation("Get mutual friend count for ProfileId: {ProfileId}", request.CurrentProfileId);

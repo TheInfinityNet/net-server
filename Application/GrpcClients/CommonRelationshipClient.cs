@@ -218,7 +218,7 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
                 throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
-
+        
         public async Task<IList<string>> GetAllBlockeeIds(string profileId)
         {
             try
@@ -230,6 +230,24 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
                 });
                 // Call the gRPC server to introspect the token
                 return response.Ids;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
+        public async Task<IList<ProfileIdWithMutualCount>> GetFriendsOfMutualFriends(string profileId)
+        {
+            try
+            {
+                logger.LogInformation("Starting get mutual friend list");
+                var response = await client.getFriendsOfMutualFriendsAsync(new ProfileRequest
+                {
+                    Id = profileId
+                });
+                // Call the gRPC server to introspect the token
+                return response.ProfileIdsWithMutualCounts;
             }
             catch (Exception e)
             {

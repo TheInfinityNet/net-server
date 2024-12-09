@@ -3,7 +3,6 @@ import inquirer from "inquirer";
 import chalk from "chalk";
 
 const services = [
-  { name: "POST", profile: "Post.Presentation", prefixColor: "blue" },
   { name: "COMMENT", profile: "Comment.Presentation", prefixColor: "green" },
   { name: "FILE", profile: "File.Presentation", prefixColor: "yellow" },
   { name: "GROUP", profile: "Group.Presentation", prefixColor: "magenta" },
@@ -16,9 +15,10 @@ const services = [
   },
   {
     name: "OCELOT",
-    profile: "Ocelot.Presentation",
+    profile: "Ocelot.Presentaition",
     prefixColor: "greenBright",
   },
+  { name: "POST", profile: "Post.Presentation", prefixColor: "blue" },
   {
     name: "PROFILE",
     profile: "Profile.Presentation",
