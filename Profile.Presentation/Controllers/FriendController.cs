@@ -91,6 +91,60 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             });
         }
 
+        [EndpointDescription("Retrieve friend suggestions")]
+        [ProducesResponseType(typeof(CursorPagedResult<FriendshipResponse>), StatusCodes.Status200OK)]
+        [Authorize]
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchFriends([FromQuery] string nextCursor, [FromQuery] int limit = 10)
+        {
+            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
+                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            var suggestions = await userProfileService.GetFriendSuggestions(currentProfileId, nextCursor, limit);
+
+            var photoMetadataIds = suggestions.Items
+                .Where(profile => profile.AvatarId != null)
+                    .Select(profile => profile.AvatarId)
+                .Distinct();
+
+            var photoMetadataTasks = photoMetadataIds.Select(async id =>
+            {
+                var metadata = await fileClient.GetPhotoMetadata(id.ToString());
+                return new { Id = id, Metadata = metadata ??= new PhotoMetadataResponse { Id = id.Value } };
+            });
+            var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
+
+            var resultHasCount = await relationshipClient
+                .CountMutualFriends(currentProfileId, suggestions.Items.Select(f => f.Id.ToString()).ToList());
+
+            var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
+
+            IList<FriendshipResponse> result = [];
+            foreach (var item in suggestions.Items)
+            {
+                var userProfile = mapper.Map<UserProfileResponse>(item);
+                if (userProfile.Avatar != null)
+                {
+                    if (photoMetadataDict.TryGetValue(item.AvatarId, out var avatar))
+                    {
+                        userProfile.Avatar = avatar;
+                    }
+                }
+
+                var itemResponse = mapper.Map<FriendshipResponse>(userProfile);
+                itemResponse.Status = "NotConnected";
+                if (resultHasCountDict.TryGetValue(item.Id.ToString(), out var rs))
+                    if (rs.Count > 0) itemResponse.MutualFriendsCount = rs.Count;
+
+                result.Add(itemResponse);
+            }
+
+            return Ok(new CursorPagedResult<FriendshipResponse>()
+            {
+                Items = result,
+                NextCursor = suggestions.NextCursor
+            });
+        }
         //[EndpointDescription("Retrieve requests")]
         //[ProducesResponseType(typeof(CursorPagedResult<FriendSuggestionResponse>), StatusCodes.Status200OK)]
         //[Authorize]

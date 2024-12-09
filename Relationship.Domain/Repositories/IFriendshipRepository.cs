@@ -27,9 +27,11 @@ namespace InfinityNetServer.Services.Relationship.Domain.Repositories
 
         Task<int> CountMutualFriends(Guid profileId, Guid currentProfile);
 
-        Task<IList<Guid>> GetAllFriendIdsOfCurrentUserAsync(Guid currentUserId);
-
         Task<IList<Guid>> GetAllMutualFriendIdsAsync(Guid currentUserId, IList<Guid> friendsOfCurrentUser);
+
+        Task<IList<(Guid MutualFriendId, int MutualFriendCount)>> GetMutualFriendsAndCount(Guid currentUserId, IList<Guid> friendsOfMutualFriend);
+
+        Task<IList<Guid>> GetFriendsOfMutualFriend(Guid currentUserId);
 
         Task<IList<(Guid FriendId, int MutualFriendCount)>> CountMutualFriends(IList<string> results, Guid currentUserId);
 

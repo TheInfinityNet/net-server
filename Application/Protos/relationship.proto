@@ -70,6 +70,8 @@ service RelationshipService {
 
 	rpc countMutualFriends(MutualFriendCountRequest) returns (MutualFriendCountResponse) {}
 
+	rpc getFriendsOfMutualFriends(ProfileRequest) returns (MutualFriendCountResponse) {}
+
 	rpc getAllPendingRequestIds(ProfileRequest) returns (ProfileIdsResponse) {}
 
 	rpc getAllRequestIds(ProfileRequest) returns (ProfileIdsResponse) {}
