@@ -1,5 +1,6 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
+using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -21,6 +22,8 @@ namespace InfinityNetServer.Services.Profile.Application.IServices
         public Task<Domain.Entities.Profile> Update(Domain.Entities.Profile profile);
 
         public Task ConfirmSave(string id, string fileMetadataId, bool isAvatar, IMessageBus messageBus);
+
+        public Task<CursorPagedResult<Domain.Entities.Profile>> Search(string keywords, string profileId, string cursor, int limit);
 
 
     }

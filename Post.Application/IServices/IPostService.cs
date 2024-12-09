@@ -50,6 +50,8 @@ namespace InfinityNetServer.Services.Post.Application.IServices
 
         public Task<CursorPagedResult<Domain.Entities.Post>> GetProfilePost(string currentProfileId, string profileId, string cursor, int pageSize);
 
+        public Task<CursorPagedResult<Domain.Entities.Post>> Search(string profileId, string keywords, string cursor, int pageSize);
+
         public Task<IList<BasePostResponse>> ToResponse(
             IList<Domain.Entities.Post> posts,
             Guid currentProfileId,

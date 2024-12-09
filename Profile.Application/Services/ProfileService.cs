@@ -1,9 +1,10 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
-using InfinityNetServer.BuildingBlocks.Application.Contracts;
+﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
+using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
+using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.Services.Profile.Application.IServices;
-using InfinityNetServer.Services.Profile.Domain.Entities;
 using InfinityNetServer.Services.Profile.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -16,6 +17,7 @@ namespace InfinityNetServer.Services.Profile.Application.Services
 {
     public class ProfileService(
         IProfileRepository profileRepository,
+        CommonRelationshipClient relationshipClient,
         ILogger<ProfileService> logger) : IProfileService
     {
 
@@ -68,6 +70,27 @@ namespace InfinityNetServer.Services.Profile.Application.Services
                 UpdatedBy = profile.Id
             });
             
+        }
+
+        public async Task<CursorPagedResult<Domain.Entities.Profile>> Search(string keywords, string profileId, string cursor, int limit)
+        {
+
+            IList<string> blockerIds = await relationshipClient.GetAllBlockerIds(profileId.ToString());
+            IList<string> blockeeIds = await relationshipClient.GetAllBlockeeIds(profileId.ToString());
+
+            var specification = new SpecificationWithCursor<Domain.Entities.Profile>
+            {
+                Criteria = userProfile =>
+                        (string.IsNullOrEmpty(keywords) ||
+                         userProfile.UserProfile.FirstName.Contains(keywords, StringComparison.CurrentCultureIgnoreCase) ||
+                         userProfile.UserProfile.LastName.Contains(keywords, StringComparison.CurrentCultureIgnoreCase) ||
+                         userProfile.UserProfile.Username.Contains(keywords, StringComparison.CurrentCultureIgnoreCase) ||
+                         userProfile.PageProfile.Name.Contains(keywords, StringComparison.CurrentCultureIgnoreCase))
+                        & !blockerIds.Concat(blockeeIds).Contains(userProfile.Id.ToString()),
+                Cursor = cursor,
+                Limit = limit
+            };
+            return await profileRepository.GetPagedAsync(specification);
         }
 
     }

@@ -553,6 +553,26 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
 
         }
 
+        [EndpointDescription("Get news feed")]
+        [Authorize]
+        [HttpGet("search")]
+        [ProducesResponseType(typeof(CursorPagedResult<>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Search([FromQuery] string keywords, [FromQuery] string cursor = null, [FromQuery] int limit = 10)
+        {
+            Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
+                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            var result = await postService.Search(currentProfileId.ToString(), keywords, cursor, limit);
+
+            var response = new CursorPagedResult<BasePostResponse>
+            {
+                Items = await postService.ToResponse(result.Items, currentProfileId, commentClient, reactionClient, fileClient, mapper),
+                NextCursor = result.NextCursor
+            };
+
+            return Ok(response);
+        }
+
         [HttpGet("group-post/{groupId}")]
         public async Task<IActionResult> GetPostsByGroupId(string groupId)
         {
