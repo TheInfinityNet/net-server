@@ -17,5 +17,14 @@ namespace InfinityNetServer.Services.Profile.Infrastructure.Repositories
 
         public async Task<IList<UserProfile>> GetAllByIdsAsync(IEnumerable<Guid> ids)
             => await DbSet.Where(profile => ids.Contains(profile.Id)).ToListAsync();
+
+        public async Task<IList<Guid>> GetTopProfileAsync(int limit)
+        {
+            return await DbSet
+            .OrderBy(u => u.Id) 
+            .Take(limit)
+            .Select(u=> u.Id)
+            .ToListAsync();
+        }
     }
 }

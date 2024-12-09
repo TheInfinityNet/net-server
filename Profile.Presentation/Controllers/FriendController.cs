@@ -40,12 +40,11 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         [ProducesResponseType(typeof(CursorPagedResult<FriendshipResponse>), StatusCodes.Status200OK)]
         [Authorize]
         [HttpGet("suggestions")]
-        public async Task<IActionResult> GetFriendSuggestions([FromQuery] string nextCursor, [FromQuery] int limit = 10)
+        public async Task<IActionResult> GetFriendSuggestions([FromQuery] string cursor, [FromQuery] int limit = 10)
         {
             string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
                 : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
-
-            var suggestions = await userProfileService.GetFriendSuggestions(currentProfileId, nextCursor, limit);
+            var suggestions = await userProfileService.GetFriendSuggestions(currentProfileId, cursor, limit);
 
             var photoMetadataIds = suggestions.Items
                 .Where(profile => profile.AvatarId != null)
@@ -91,18 +90,18 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             });
         }
 
-        [EndpointDescription("Retrieve friend suggestions")]
+        [EndpointDescription("search friend suggestions")]
         [ProducesResponseType(typeof(CursorPagedResult<FriendshipResponse>), StatusCodes.Status200OK)]
         [Authorize]
         [HttpGet("search")]
-        public async Task<IActionResult> SearchFriends([FromQuery] string nextCursor, [FromQuery] int limit = 10)
+        public async Task<IActionResult> SearchFriends([FromQuery] string query, [FromQuery] string nextCursor, [FromQuery] int limit = 10)
         {
             string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
                 : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            var suggestions = await userProfileService.GetFriendSuggestions(currentProfileId, nextCursor, limit);
+            var searchResult = await userProfileService.SearchFriend(query, currentProfileId, nextCursor, limit);
 
-            var photoMetadataIds = suggestions.Items
+            var photoMetadataIds = searchResult.Items
                 .Where(profile => profile.AvatarId != null)
                     .Select(profile => profile.AvatarId)
                 .Distinct();
@@ -115,12 +114,12 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
 
             var resultHasCount = await relationshipClient
-                .CountMutualFriends(currentProfileId, suggestions.Items.Select(f => f.Id.ToString()).ToList());
+                .CountMutualFriends(currentProfileId, searchResult.Items.Select(f => f.Id.ToString()).ToList());
 
             var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
 
             IList<FriendshipResponse> result = [];
-            foreach (var item in suggestions.Items)
+            foreach (var item in searchResult.Items)
             {
                 var userProfile = mapper.Map<UserProfileResponse>(item);
                 if (userProfile.Avatar != null)
@@ -142,7 +141,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
             return Ok(new CursorPagedResult<FriendshipResponse>()
             {
                 Items = result,
-                NextCursor = suggestions.NextCursor
+                NextCursor = searchResult.NextCursor
             });
         }
         //[EndpointDescription("Retrieve requests")]

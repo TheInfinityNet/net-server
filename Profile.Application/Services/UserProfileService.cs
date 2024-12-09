@@ -168,19 +168,24 @@ namespace InfinityNetServer.Services.Profile.Application.Services
         {
             //IList<string> followeeIds = await relationshipClient.GetAllFolloweeIds(profileId);
             //IList<string> friendIds = await relationshipClient.GetAllFriendIds(profileId);
-            var friendsOfMutualFriends = await relationshipClient.GetFriendsOfMutualFriends(profileId);
+            //var friendsOfMutualFriends = await relationshipClient.GetFriendsOfMutualFriends(profileId);
             IList<string> pendingRequests = await relationshipClient.GetAllPendingRequestIds(profileId);
             IList<string> blockerIds = await relationshipClient.GetAllBlockerIds(profileId.ToString());
             IList<string> blockeeIds = await relationshipClient.GetAllBlockeeIds(profileId.ToString());
-            var mutualFriendIds = friendsOfMutualFriends
-            .Select(item => item.ProfileId)
-            .ToList();
+            //var mutualFriendIds = friendsOfMutualFriends
+            //.Select(item => item.ProfileId)
+            //.ToList();
+            var suggestionIds = await userProfileRepository.GetTopProfileAsync(50);
+            var suggestionIdStrings = suggestionIds.Select(id => id.ToString()).ToList();
+            //var mergedIds = mutualFriendIds
+            //    .Union(suggestionIdStrings) 
+            //    .ToList();
 
             var specification = new SpecificationWithCursor<UserProfile>
             {
                 Criteria = userProfile =>
-                        mutualFriendIds.Contains(userProfile.Id.ToString())
-                        & !userProfile.Id.Equals(Guid.Parse(profileId))
+                        //suggestionIds.Contains(userProfile.Id)
+                         !userProfile.Id.Equals(Guid.Parse(profileId))
                         //&& !friendIds.Contains(userProfile.Id.ToString())
                         & !pendingRequests.Contains(userProfile.Id.ToString())
                         & !blockerIds.Concat(blockeeIds).Contains(userProfile.Id.ToString())
@@ -188,7 +193,8 @@ namespace InfinityNetServer.Services.Profile.Application.Services
                 Cursor = cursor,
                 Limit = limit
             };
-            return await userProfileRepository.GetPagedAsync(specification);
+            var ok =  await userProfileRepository.GetPagedAsync(specification);
+            return ok;
         }
         public async Task<CursorPagedResult<UserProfile>> SearchFriend(string keywords, string profileId, string cursor, int limit)
         {

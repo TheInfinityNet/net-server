@@ -148,6 +148,5 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcServices
             response.ProfileIdsWithMutualCounts.AddRange(source.Select(mapper.Map<ProfileIdWithMutualCount>));
             return response;
         }
-
     }
 }
