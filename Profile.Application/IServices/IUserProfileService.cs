@@ -17,6 +17,8 @@ namespace InfinityNetServer.Services.Profile.Application.IServices
 
         public Task<UserProfile> Update(UserProfile userProfile);
 
+        public Task<CursorPagedResult<UserProfile>> SearchFriend(string keyword, string profileId, string cursor, int limit);
+
         public Task<CursorPagedResult<UserProfile>> GetFriendSuggestions(string profileId, string cursor, int limit);
 
         public Task<CursorPagedResult<UserProfile>> GetFriendRequests(string profileId, string cursor, int limit);

@@ -203,8 +203,8 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
             var friends = await friendshipService.GetFriends(currentProfileId, nextCursor, limit);
 
             // Tập hợp toàn bộ các ID cần nạp trước
-            var profileIds = friends.Items.Select(item => item.SenderId.ToString()).Distinct();
-            profileIds.ToList().Add(currentProfileId);
+            var profileIds = friends.Items.Select(item => currentProfileId.Equals(item.SenderId.ToString()) ? item.ReceiverId.ToString() : item.SenderId.ToString()).Distinct();
+            //profileIds.ToList().Add(currentProfileId);
 
             // Nạp toàn bộ profiles cần thiết
             var profiles = await commonProfileClient.GetProfiles(profileIds.ToList());
@@ -222,14 +222,15 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
             });
             var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
 
-            var resultHasCount = await friendshipService.CountMutualFriends(currentProfileId, friends.Items.Select(f => f.SenderId.ToString()).ToList());
+            var resultHasCount = await friendshipService.CountMutualFriends(currentProfileId, friends.Items.Select(f => currentProfileId.Equals(f.SenderId.ToString()) ? f.ReceiverId.ToString() : f.SenderId.ToString()).ToList());
 
             var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
 
             IList<FriendshipResponse> result = [];
             foreach (var item in friends.Items)
             {
-                if (profileDict.TryGetValue(item.SenderId, out var profile))
+                var profileId = currentProfileId.Equals(item.SenderId.ToString()) ? item.ReceiverId : item.SenderId;
+                if (profileDict.TryGetValue(profileId, out var profile))
                 {
                     if (profile.Avatar != null)
                     {

@@ -216,10 +216,11 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
 
         public async Task<IList<ProfileIdWithMutualCount>> CountMutualFriends(string currentProfileId, IList<string> profileIds)
         {
-            var list = await friendshipRepository.CountMutualFriends(profileIds, Guid.Parse(currentProfileId));
-            return list.Select(item => new ProfileIdWithMutualCount
+            var list = profileIds.Select(x => Guid.Parse(x)).ToList();
+            var friendsOfMutualFriends = await friendshipRepository.GetMutualFriendsAndCount(Guid.Parse(currentProfileId), list);
+            return friendsOfMutualFriends.Select(item => new ProfileIdWithMutualCount
             {
-                ProfileId = item.FriendId.ToString(),
+                ProfileId = item.MutualFriendId.ToString(),
                 Count = item.MutualFriendCount
             }).ToList();
         }
@@ -271,6 +272,21 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
 
             await messageBus.Publish(notificationCommand);
         }
+        public async Task<IList<ProfileIdWithMutualCount>> GetAllMutualFriendsWithCount(string profile)
+        {
+            
+            var list = await friendshipRepository.GetFriendsOfMutualFriend(Guid.Parse(profile));
+            var friendsOfMutualFriends = await friendshipRepository.GetMutualFriendsAndCount(Guid.Parse(profile), list);
+            return friendsOfMutualFriends.Select(item => new ProfileIdWithMutualCount
+            {
+                ProfileId = item.MutualFriendId.ToString(),
+                Count = item.MutualFriendCount
+            }).ToList();
+        }
 
+        public Task<IList<string>> GetAllMutualFriendIds(string profile)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -60,13 +60,48 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
                 .Distinct()
                 .ToListAsync();
         }
-        
-        public async Task<IList<Guid>> GetAllFriendIdsOfCurrentUserAsync(Guid currentUserId)
+
+        public async Task<IList<Guid>> GetFriendsOfMutualFriend(Guid currentUserId)
         {
-            return await context.Friendships
-                .Where(f => (f.SenderId == currentUserId || f.ReceiverId == currentUserId) && f.Status == FriendshipStatus.Connected )
-                .Select(f => f.SenderId == currentUserId ? f.ReceiverId : f.SenderId)
+            var friendsOfUser = await DbSet
+                .Where(f1 => (f1.SenderId == currentUserId || f1.ReceiverId == currentUserId) && f1.Status == FriendshipStatus.Connected)
+                .Select(f1 => f1.SenderId == currentUserId ? f1.ReceiverId : f1.SenderId)
+                .ToListAsync(); 
+
+            var mutualFriends = await DbSet
+                .Where(f2 => friendsOfUser.Contains(f2.SenderId) || friendsOfUser.Contains(f2.ReceiverId))
+                .Where(f2 => f2.Status == FriendshipStatus.Connected && f2.SenderId != currentUserId && f2.ReceiverId != currentUserId)
+                .Select(f2 => friendsOfUser.Contains(f2.SenderId) ? f2.ReceiverId : f2.SenderId) 
+                .Distinct() 
                 .ToListAsync();
+
+            return mutualFriends;
+        }
+
+        public int GetMutualFriendCount(IList<Guid> currentUserFiends, IList<Guid> friendOfFriends)
+        {
+            var mutualFriends = currentUserFiends.Intersect(friendOfFriends).ToList();
+
+            int mutualFriendCount = mutualFriends.Count;
+
+            return mutualFriendCount;
+        }
+
+        public async Task<IList<(Guid MutualFriendId, int MutualFriendCount)>> GetMutualFriendsAndCount(Guid currentUserId, IList<Guid> friendsOfMutualFriend)
+        {
+            var friendsOfUser = await GetAllFriendIdsAsync(currentUserId);
+
+            var friendsOfMutualFriendAndCount = new List<(Guid MutualFriendId, int MutualFriendCount)>();
+
+            foreach (var friend in friendsOfMutualFriend)
+            {
+                var mutualFriendFriends = await GetAllFriendIdsAsync(friend);
+
+                var mutualFriendCount = GetMutualFriendCount(friendsOfUser, mutualFriendFriends);
+
+                friendsOfMutualFriendAndCount.Add((MutualFriendId: friend, MutualFriendCount: mutualFriendCount));
+            }
+            return friendsOfMutualFriendAndCount;
         }
 
         public async Task<IList<Guid>> GetAllPendingRequestIdsAsync(Guid currentUserId)
@@ -93,22 +128,26 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IList<(Guid FriendId, int MutualFriendCount)>> CountMutualFriends(IList<string> results, Guid currentUserId)
+        public async Task<IList<(Guid FriendId, int MutualFriendCount)>> CountMutualFriends(IList<string> friendIds, Guid currentUserId)
         {
-            var resultGuids = results.Select(Guid.Parse).ToList();
-            var queryResult = await context.Friendships
-                .Where(f => resultGuids.Contains(f.SenderId) || resultGuids.Contains(f.ReceiverId)) 
-                .Where(f => f.SenderId != currentUserId && f.ReceiverId != currentUserId) 
-                .Select(f => f.SenderId == currentUserId ? f.ReceiverId : f.SenderId)
-                .GroupBy(friendId => friendId) 
-                .Select(group => new 
-                {
-                    FriendId = group.Key,
-                    Count = group.Count()
-                })
-                .ToListAsync(); 
+            var mutualFriendCounts = await context.Friendships
+        .Where(f1 => (f1.SenderId == currentUserId || f1.ReceiverId == currentUserId) && f1.Status == FriendshipStatus.Connected)
+        .Join(
+            context.Friendships,
+            f1 => f1.SenderId == currentUserId ? f1.ReceiverId : f1.SenderId,
+            f2 => f2.SenderId == currentUserId ? f2.ReceiverId : f2.SenderId,
+            (f1, f2) => new { FriendA = f1.SenderId == currentUserId ? f1.ReceiverId : f1.SenderId, FriendB = f2.SenderId == currentUserId ? f2.ReceiverId : f2.SenderId }
+        )
+        .Where(match => friendIds.Contains(match.FriendB.ToString())) 
+        .GroupBy(match => match.FriendB) 
+        .Select(group => new
+        {
+            FriendId = group.Key,
+            MutualFriendCount = group.Count() 
+        })
+        .ToListAsync();
 
-            return queryResult.Select(x => (x.FriendId, x.Count)).ToList();
+            return mutualFriendCounts.Select(x => (x.FriendId, x.MutualFriendCount)).ToList();
         }
 
     }
