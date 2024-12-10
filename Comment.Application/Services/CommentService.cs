@@ -22,6 +22,8 @@ namespace InfinityNetServer.Services.Comment.Application.Services
 {
     public class CommentService(
         ICommentRepository commentRepository,
+        CommonPostClient postClient,
+        IMessageBus messageBus,
         ILogger<CommentService> logger) : ICommentService
     {
 
@@ -73,6 +75,8 @@ namespace InfinityNetServer.Services.Comment.Application.Services
                 case CommentType.Text:
                     if (entity.FileMetadataId != null)
                         throw new CommentException(CommentError.INVALID_COMMENT_TYPE, StatusCodes.Status400BadRequest);
+                    if (string.IsNullOrEmpty(entity.Content.Text))
+                        throw new CommentException(CommentError.REQUIRED_TEXT, StatusCodes.Status400BadRequest);
                     break;
 
                 case CommentType.Photo:
@@ -87,7 +91,7 @@ namespace InfinityNetServer.Services.Comment.Application.Services
             }
         }
 
-        public async Task ConfirmSave(string id, string profileId, string fileMetadataId, IMessageBus messageBus)
+        public async Task ConfirmSave(string id, string profileId, string fileMetadataId)
         {
             Domain.Entities.Comment comment = await GetById(id)
                 ?? throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
@@ -126,11 +130,16 @@ namespace InfinityNetServer.Services.Comment.Application.Services
             }
         }
 
-        public async Task<Domain.Entities.Comment> Create(Domain.Entities.Comment entity, CommonPostClient postClient, IMessageBus messageBus)
+        public async Task<Domain.Entities.Comment> Create(Domain.Entities.Comment entity)
         {
             logger.LogInformation("Create comment");
             var comment = await commentRepository.CreateAsync(entity);
-            await PublishCommentNotificationCommands(comment, postClient, messageBus);
+            if (comment.FileMetadataId != null)
+                await ConfirmSave(
+                    comment.Id.ToString(),
+                    comment.ProfileId.ToString(),
+                    comment.FileMetadataId.ToString());
+            await PublishCommentNotificationCommands(comment);
             return comment;
         }
 
@@ -140,7 +149,7 @@ namespace InfinityNetServer.Services.Comment.Application.Services
             return await commentRepository.SoftDeleteAsync(Guid.Parse(commentId));
         }
 
-        public async Task<Domain.Entities.Comment> Update(Domain.Entities.Comment entity, CommonPostClient postClient, IMessageBus messageBus)
+        public async Task<Domain.Entities.Comment> Update(Domain.Entities.Comment entity)
         {
             logger.LogInformation("Update comment");
             var existedComment = await GetById(entity.Id.ToString())
@@ -159,11 +168,18 @@ namespace InfinityNetServer.Services.Comment.Application.Services
             }
 
             var comment = await commentRepository.UpdateAsync(entity);
-            await PublishCommentNotificationCommands(comment, postClient, messageBus);
+
+            if (comment.FileMetadataId != null)
+                await ConfirmSave(
+                    comment.Id.ToString(),
+                    comment.ProfileId.ToString(),
+                    comment.FileMetadataId.ToString());
+
+            await PublishCommentNotificationCommands(comment);
             return comment;
         }
 
-        public async Task PublishCommentNotificationCommands(Domain.Entities.Comment entity, CommonPostClient postClient, IMessageBus messageBus)
+        public async Task PublishCommentNotificationCommands(Domain.Entities.Comment entity)
         {
             Guid id = entity.Id;
             Guid profileId = entity.ProfileId;

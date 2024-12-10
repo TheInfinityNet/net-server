@@ -11,6 +11,8 @@ namespace InfinityNetServer.Services.Comment.Application.Exceptions
 
         public static readonly CommentError REQUIRED_VIDEO_ID = new(ErrorType.ValidationError, "Comment.RequiredVideoId");
 
+        public static readonly CommentError REQUIRED_TEXT = new(ErrorType.ValidationError, "Comment.RequiredText");
+
         public static readonly CommentError INVALID_COMMENT_TYPE = new(ErrorType.ValidationError, "Comment.InvalidCommentType");
 
     }

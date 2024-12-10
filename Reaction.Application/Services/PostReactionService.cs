@@ -17,7 +17,9 @@ using System.Threading.Tasks;
 namespace InfinityNetServer.Services.Reaction.Application.Services
 {
     public class PostReactionService(
-        ILogger<PostReactionService> logger,
+        ILogger<PostReactionService> logger, 
+        CommonPostClient postClient, 
+        IMessageBus messageBus,
         IPostReactionRepository repository) : IPostReactionService
     {
 
@@ -49,7 +51,7 @@ namespace InfinityNetServer.Services.Reaction.Application.Services
             return await repository.GetPagedAsync(specification);
         }
 
-        public async Task<PostReaction> Save(PostReaction entity, CommonPostClient postClient, IMessageBus messageBus)
+        public async Task<PostReaction> Save(PostReaction entity)
         {
             var existedReaction = await GetByPostIdAndProfileId(entity.PostId.ToString(), entity.ProfileId.ToString());
 
@@ -60,16 +62,16 @@ namespace InfinityNetServer.Services.Reaction.Application.Services
 
                 logger.LogInformation("Update reaction");
                 existedReaction.Type = entity.Type;
-                var rs =  await repository.UpdateAsync(existedReaction);
-                await PublishPostReactionCommands(rs, postClient, messageBus);
-                return rs;
+                var reaction =  await repository.UpdateAsync(existedReaction);
+                await PublishPostReactionCommands(reaction);
+                return reaction;
             }
             else
             {
                 logger.LogInformation("Creating reaction");
-                var rs = await repository.CreateAsync(entity);
-                await PublishPostReactionCommands(rs, postClient, messageBus);
-                return rs;
+                var reaction = await repository.CreateAsync(entity);
+                await PublishPostReactionCommands(reaction);
+                return reaction;
             }
         }
 
@@ -85,7 +87,7 @@ namespace InfinityNetServer.Services.Reaction.Application.Services
             return await repository.DeleteAsync(existedReaction.Id);
         }
 
-        private async Task PublishPostReactionCommands(PostReaction entity, CommonPostClient postClient, IMessageBus messageBus)
+        private async Task PublishPostReactionCommands(PostReaction entity)
         {
             //Post Reaction
             var previewPost = await postClient.GetPreviewPost(entity.PostId.ToString());

@@ -7,7 +7,7 @@ namespace InfinityNetServer.Services.Identity.Application.DTOs.Responses
 
         TokensResponse Tokens,
 
-        UserProfileResponse User
+        BaseProfileResponse User
 
     );
 }

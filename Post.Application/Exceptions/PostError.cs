@@ -15,6 +15,10 @@ namespace InfinityNetServer.Services.Post.Application.Exceptions
 
         public static readonly PostError REQUIRED_VIDEO_ID = new(ErrorType.ValidationError, $"{ErrorType.ValidationError}.RequiredVideoId");
 
+        public static readonly PostError REQUIRED_TEXT = new(ErrorType.ValidationError, $"{ErrorType.ValidationError}.RequiredText");
+
+        public static readonly PostError REQUIRED_AGGREGATES = new(ErrorType.ValidationError, $"{ErrorType.ValidationError}.RequiredAggregates");
+
         public static readonly PostError REQUIRED_INCLUDE = new(ErrorType.ValidationError, $"{ErrorType.ValidationError}.RequiredInclude");
 
         public static readonly PostError REQUIRED_EXCLUDE = new(ErrorType.ValidationError, $"{ErrorType.ValidationError}.RequiredExclude");

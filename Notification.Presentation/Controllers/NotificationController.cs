@@ -35,7 +35,7 @@ namespace InfinityNetServer.Services.Notification.Presentation.Controllers
         public async Task<ActionResult> GetReadOrMentionNotifications(string cursor = null, int limit = 10, string type = "All")
         {
             var notifications = await notificationService
-                .GetNewestUnreadOrMentionNotifications(GetCurrentAccountId().Value.ToString(), cursor, limit, type);
+                .GetNewestUnreadOrMentionNotifications(GetCurrentAccountId().ToString(), cursor, limit, type);
 
             // chỗ này là duyệt kết quả truy vấn notification xong map sang list các photo id cần lấy
             var photoMetadataIds = notifications.Items

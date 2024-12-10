@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
-using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.IServices;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
@@ -36,8 +34,6 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
         IStringLocalizer<ReactionSharedResource> localizer,
         CommonProfileClient profileClient,
         CommonFileClient fileClient,
-        CommonPostClient postClient,
-        IMessageBus messageBus,
         IPostReactionService service) : BaseApiController(authenticatedUserService)
     {
 
@@ -51,8 +47,7 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
             [FromQuery] int limit = 10,
             [FromQuery] string type = "Like")
         {
-            Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
 
             ReactionType reactionType = Enum.Parse<ReactionType>(type);
 
@@ -91,8 +86,11 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
                     // Process Owner
                     if (profileDict.TryGetValue(commentItem.ProfileId, out var ownerProfile))
                     {
-                        var avatar = photoMetadataDict.GetValueOrDefault(ownerProfile.Avatar.Id);
-                        ownerProfile.Avatar = avatar;
+                        if (ownerProfile.Avatar != null)
+                        {
+                            var avatar = photoMetadataDict.GetValueOrDefault(ownerProfile.Avatar.Id);
+                            ownerProfile.Avatar = avatar;
+                        }
                         commentReactionResponse.Profile = ownerProfile;
                     }
 
@@ -113,21 +111,20 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
         {
             try
             {
-                Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
-                    : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+                Guid currentProfileId = GetCurrentProfileId();
 
                 var reaction = await service.Save(new PostReaction
                 {
                     PostId = Guid.Parse(postId),
                     ProfileId = currentProfileId,
                     Type = Enum.Parse<ReactionType>(request.Reaction)
-                }, postClient, messageBus);
+                });
 
                 var reactionCounts = await service.CountByPostIdAsync([postId]);
                 logger.LogInformation("Reaction counts: {ReactionCounts}", reactionCounts);
                 return Ok(new
                 {
-                    Reaction = request.Reaction,
+                    request.Reaction,
                     ReactionCounts = reactionCounts[0].countDetails
                 });
             }
@@ -146,16 +143,15 @@ namespace InfinityNetServer.Services.Reaction.Presentation.Controllers
         {
             try
             {
-                Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
-                    : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+                Guid currentProfileId = GetCurrentProfileId();
 
                 var reaction = await service.Delete(postId, currentProfileId.ToString());
 
                 var reactionCounts = await service.CountByPostIdAsync([postId]);
-
+                logger.LogInformation("Reaction counts: {ReactionCounts}", reactionCounts);
                 return Ok(new
                 {
-                    ReactionCounts = reactionCounts[0].countDetails
+                    ReactionCounts = reactionCounts.Count > 0 ? reactionCounts[0].countDetails : new Dictionary<ReactionType, int>()
                 });
             }
             catch (Exception ex)

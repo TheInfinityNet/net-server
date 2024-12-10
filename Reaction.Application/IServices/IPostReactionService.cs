@@ -1,6 +1,4 @@
-﻿using InfinityNetServer.BuildingBlocks.Application.Contracts;
-using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
-using InfinityNetServer.BuildingBlocks.Domain.Enums;
+﻿using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.Services.Reaction.Domain.Entities;
 using System.Collections.Generic;
@@ -21,7 +19,7 @@ namespace InfinityNetServer.Services.Reaction.Application.IServices
 
         public Task<CursorPagedResult<PostReaction>> GetByPostId(string postId, string cursor, int pageSize, ReactionType type);
 
-        public Task<PostReaction> Save(PostReaction entity, CommonPostClient postClient, IMessageBus messageBus);
+        public Task<PostReaction> Save(PostReaction entity);
 
         public Task<PostReaction> Delete(string postId, string profileId);
 

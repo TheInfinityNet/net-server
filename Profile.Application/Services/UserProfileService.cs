@@ -1,12 +1,9 @@
-﻿using AutoMapper;
-using InfinityNetServer.BuildingBlocks.Application.Exceptions;
-using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
+﻿using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.Services.Profile.Application.IServices;
 using InfinityNetServer.Services.Profile.Domain.Entities;
 using InfinityNetServer.Services.Profile.Domain.Repositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -229,25 +226,23 @@ namespace InfinityNetServer.Services.Profile.Application.Services
 
         public async Task<UserProfile> Update(UserProfile userProfile)
         {
-            UserProfile existedProfile = await GetById(userProfile.Id.ToString())
-                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            //UserProfile existedProfile = await GetById(userProfile.Id.ToString())
+            //    ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            existedProfile.AvatarId = userProfile.AvatarId;
-            existedProfile.CoverId = userProfile.CoverId;
-            existedProfile.Location = userProfile.Location;
-            existedProfile.MobileNumber = userProfile.MobileNumber;
-            existedProfile.Status = userProfile.Status;
+            //existedProfile.AvatarId = userProfile.AvatarId;
+            //existedProfile.CoverId = userProfile.CoverId;
+            //existedProfile.Location = userProfile.Location;
+            //existedProfile.MobileNumber = userProfile.MobileNumber;
+            //existedProfile.Status = userProfile.Status;
 
-            existedProfile.FirstName = userProfile.FirstName;
-            existedProfile.LastName = userProfile.LastName;
-            existedProfile.Username = userProfile.Username;
-            existedProfile.Birthdate = userProfile.Birthdate;
-            existedProfile.Gender = userProfile.Gender;
-            existedProfile.Bio = userProfile.Bio;
+            //existedProfile.FirstName = userProfile.FirstName;
+            //existedProfile.LastName = userProfile.LastName;
+            //existedProfile.Username = userProfile.Username;
+            //existedProfile.Birthdate = userProfile.Birthdate;
+            //existedProfile.Gender = userProfile.Gender;
+            //existedProfile.Bio = userProfile.Bio;
 
-            await userProfileRepository.UpdateAsync(existedProfile);
-
-            return existedProfile;
+            return await userProfileRepository.UpdateAsync(userProfile);
         }
 
         public async Task<UserProfile> Create(UserProfile userProfile)

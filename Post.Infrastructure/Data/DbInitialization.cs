@@ -271,8 +271,8 @@ public static class DbInitialization
             PostAudienceType.Public,
             PostAudienceType.Public,
 
-            PostAudienceType.Friends, // 20%
-            PostAudienceType.Friends,
+            PostAudienceType.Friend, // 20%
+            PostAudienceType.Friend,
 
             PostAudienceType.Include, // 10%
 

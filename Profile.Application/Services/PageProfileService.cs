@@ -15,8 +15,8 @@ using System.Threading.Tasks;
 namespace InfinityNetServer.Services.Profile.Application.Services
 {
     public class PageProfileService(
-        IPageProfileRepository _pageProfileRepository,
-        ILogger<PageProfileService> _logger,
+        IPageProfileRepository pageProfileRepository,
+        ILogger<PageProfileService> logger,
         CommonRelationshipClient relationshipClient
         ) : IPageProfileService
     {
@@ -39,7 +39,7 @@ namespace InfinityNetServer.Services.Profile.Application.Services
                 Cursor = cursor,
                 Limit = pageSize
             };
-            return await _pageProfileRepository.GetPagedAsync(specification);
+            return await pageProfileRepository.GetPagedAsync(specification);
         }
 
         public async Task<CursorPagedResult<PageProfile>> GetFollowedList(string profileId, string cursor, int pageSize)
@@ -61,7 +61,7 @@ namespace InfinityNetServer.Services.Profile.Application.Services
                 Cursor = cursor,
                 Limit = pageSize
             };
-            return await _pageProfileRepository.GetPagedAsync(specification);
+            return await pageProfileRepository.GetPagedAsync(specification);
         }
 
         public async Task<CursorPagedResult<PageProfile>> GetFollowingList(string profileId, string cursor, int pageSize)
@@ -83,35 +83,33 @@ namespace InfinityNetServer.Services.Profile.Application.Services
                 Cursor = cursor,
                 Limit = pageSize
             };
-            return await _pageProfileRepository.GetPagedAsync(specification);
+            return await pageProfileRepository.GetPagedAsync(specification);
         }
 
         public async Task<PageProfile> GetByAccountId(string id)
-            => await _pageProfileRepository.GetByAccountIdAsync(Guid.Parse(id));
+            => await pageProfileRepository.GetByAccountIdAsync(Guid.Parse(id));
 
         public async Task<PageProfile> GetById(string id)
-            => await _pageProfileRepository.GetByIdAsync(Guid.Parse(id));
+            => await pageProfileRepository.GetByIdAsync(Guid.Parse(id));
 
         public async Task<IList<PageProfile>> GetAllByIds(IList<string> ids)
-            => await _pageProfileRepository.GetAllByIdsAsync(ids.Select(Guid.Parse).ToList());
+            => await pageProfileRepository.GetAllByIdsAsync(ids.Select(Guid.Parse).ToList());
 
         public async Task<PageProfile> Update(PageProfile pageProfile)
         {
-            PageProfile existedProfile = await GetById(pageProfile.Id.ToString())
-                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            //PageProfile existedProfile = await GetById(pageProfile.Id.ToString())
+            //    ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            existedProfile.AvatarId = pageProfile.AvatarId;
-            existedProfile.CoverId = pageProfile.CoverId;
-            existedProfile.Location = pageProfile.Location;
-            existedProfile.MobileNumber = pageProfile.MobileNumber;
-            existedProfile.Status = pageProfile.Status;
+            //existedProfile.AvatarId = pageProfile.AvatarId;
+            //existedProfile.CoverId = pageProfile.CoverId;
+            //existedProfile.Location = pageProfile.Location;
+            //existedProfile.MobileNumber = pageProfile.MobileNumber;
+            //existedProfile.Status = pageProfile.Status;
 
-            existedProfile.Name = pageProfile.Name;
-            existedProfile.Description = pageProfile.Description;
-
-            await _pageProfileRepository.UpdateAsync(existedProfile);
-
-            return existedProfile;
+            //existedProfile.Name = pageProfile.Name;
+            //existedProfile.Description = pageProfile.Description;
+            logger.LogInformation("Update page profile");
+            return await pageProfileRepository.UpdateAsync(pageProfile);
         }
     }
 }

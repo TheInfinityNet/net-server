@@ -1,11 +1,13 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Others;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
+using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Post.Application.DTOs.Orther;
 using InfinityNetServer.Services.Post.Application.DTOs.Requests;
 using InfinityNetServer.Services.Post.Application.DTOs.Responses;
 using InfinityNetServer.Services.Post.Domain.Entities;
 using InfinityNetServer.Services.Post.Domain.Enums;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -137,9 +139,11 @@ public class PostMappers : AutoMapper.Profile
         CreateMap<BaseFacet, BuildingBlocks.Domain.Entities.BaseFacet>()
             .AfterMap((src, dest) =>
             {
+                if (!Enum.TryParse<FacetType>(src.Type, out var type))
+                    throw new BaseException(BaseError.CAN_NOT_PARSE, StatusCodes.Status400BadRequest);
                 dest.Start = src.Index.Start;
                 dest.End = src.Index.End;
-                dest.Type = Enum.Parse<FacetType>(src.Type);
+                dest.Type = type;
             });
 
         CreateMap<HashTagFacet, BuildingBlocks.Domain.Entities.HashtagFacet>();
@@ -149,50 +153,61 @@ public class PostMappers : AutoMapper.Profile
         CreateMap<BasePostAudience, PostAudience>()
             .AfterMap((src, dest) =>
             {
-                dest.Type = Enum.Parse<PostAudienceType>(src.Type);
+                if (Enum.TryParse<PostAudienceType>(src.Type, out var type))
+                {
+                    switch (type)
+                    {
+                        case PostAudienceType.Include:
+                            dest.Includes = src.Include.Select(i =>
+                            new PostAudienceInclude { ProfileId = i.Id }).ToList();
+                            break;
 
-                switch (dest.Type) {
-                    case PostAudienceType.Include:
-                        dest.Includes = src.Include.Select(i =>
-                        new PostAudienceInclude { ProfileId = i.Id }).ToList();
-                        break;
+                        case PostAudienceType.Exclude:
+                            dest.Excludes = src.Exclude.Select(i =>
+                            new PostAudienceExclude { ProfileId = i.Id }).ToList();
+                            break;
 
-                    case PostAudienceType.Exclude:
-                        dest.Excludes = src.Exclude.Select(i =>
-                        new PostAudienceExclude { ProfileId = i.Id }).ToList();
-                        break;
+                        case PostAudienceType.Custom:
+                            dest.Includes = src.Include.Select(i =>
+                            new PostAudienceInclude { ProfileId = i.Id }).ToList();
 
-                    case PostAudienceType.Custom:
-                        dest.Includes = src.Include.Select(i =>
-                        new PostAudienceInclude { ProfileId = i.Id }).ToList();
-
-                        dest.Excludes = src.Exclude.Select(i =>
-                        new PostAudienceExclude { ProfileId = i.Id }).ToList();
-                        break;
+                            dest.Excludes = src.Exclude.Select(i =>
+                            new PostAudienceExclude { ProfileId = i.Id }).ToList();
+                            break;
+                    }
+                }
+                else
+                {
+                    throw new BaseException(BaseError.CAN_NOT_PARSE, StatusCodes.Status400BadRequest);
                 }
             });
 
-        CreateMap<CreatePostBaseRequest, Domain.Entities.Post>();
-
-        CreateMap<CreateMediaPostRequest, Domain.Entities.Post>()
+        CreateMap<CreatePostBaseRequest, Domain.Entities.Post>()
             .AfterMap((src, dest) =>
             {
-                PostType type = Enum.Parse<PostType>(src.Type);
+
+                if (!Enum.TryParse<PostType>(src.Type, out var type))
+                    throw new BaseException(BaseError.CAN_NOT_PARSE, StatusCodes.Status400BadRequest);
                 switch (type)
                 {
                     case PostType.Photo:
-                        dest.FileMetadataId = Guid.Parse(src.PhotoId);
+                        if (!Guid.TryParse(src.PhotoId, out var photoId))
+                            throw new BaseException(BaseError.CAN_NOT_PARSE, StatusCodes.Status400BadRequest);
+                        dest.FileMetadataId = photoId;
                         break;
+
                     case PostType.Video:
-                        dest.FileMetadataId = Guid.Parse(src.VideoId);
+                        if (!Guid.TryParse(src.VideoId, out var videoId))
+                            throw new BaseException(BaseError.CAN_NOT_PARSE, StatusCodes.Status400BadRequest);
+                        dest.FileMetadataId = videoId;
+                        break;
+
+                    case PostType.Share:
+                        if (!Guid.TryParse(src.ShareId, out var shareId))
+                            throw new BaseException(BaseError.CAN_NOT_PARSE, StatusCodes.Status400BadRequest);
+                        dest.ParentId = shareId;
                         break;
                 }
-            });
-
-        CreateMap<CreateSharePostRequest, Domain.Entities.Post>()
-            .AfterMap((src, dest) =>
-            {
-                dest.ParentId = Guid.Parse(src.ShareId);
             });
 
         CreateMap<UpdatePostRequest, Domain.Entities.Post>();

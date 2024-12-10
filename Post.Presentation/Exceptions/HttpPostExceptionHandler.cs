@@ -50,6 +50,18 @@ namespace InfinityNetServer.Services.Post.Presentation.Exceptions
                         errors
                     });
 
+                case BaseException ex:
+                    type = ex.Error.Type.ToString();
+                    message = localizer[ex.Error.Code].ToString();
+
+                    logger.LogError("Base Exception: {Exception}", ex);
+                    context.Response.StatusCode = ex.HttpStatus;
+                    return context.Response.WriteAsJsonAsync(new
+                    {
+                        type,
+                        message
+                    });
+
                 default:
                     logger.LogError("Unexpected Exception: {Exception}", exception);
                     context.Response.StatusCode = StatusCodes.Status500InternalServerError;

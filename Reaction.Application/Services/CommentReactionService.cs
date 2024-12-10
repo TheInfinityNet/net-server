@@ -18,6 +18,8 @@ namespace InfinityNetServer.Services.Reaction.Application.Services
 {
     public class CommentReactionService(
         ILogger<CommentReactionService> logger,
+        CommonCommentClient commentClient, 
+        IMessageBus messageBus,
         ICommentReactionRepository repository) : ICommentReactionService
     {
 
@@ -30,15 +32,18 @@ namespace InfinityNetServer.Services.Reaction.Application.Services
             return reactionCounts.Select(q => (q.commentId.ToString(), q.countDetails)).ToList();
         }
 
-        public async Task<IList<CommentReaction>> GetAllByCommentIdsAndProfileIds(IList<(string commentId, string profileId)> commentIdsAndProfileIds)
-            => await repository.GetAllByCommentIdsAndProfileIdsAsync(commentIdsAndProfileIds.Select(q => (Guid.Parse(q.commentId), Guid.Parse(q.profileId))).ToList());
+        public async Task<IList<CommentReaction>> GetAllByCommentIdsAndProfileIds
+            (IList<(string commentId, string profileId)> commentIdsAndProfileIds)
+            => await repository.GetAllByCommentIdsAndProfileIdsAsync(
+                commentIdsAndProfileIds.Select(q => (Guid.Parse(q.commentId), Guid.Parse(q.profileId))).ToList());
 
         public async Task<CursorPagedResult<CommentReaction>> GetByCommentId
             (string commentId, string cursor, int pageSize, ReactionType type)
         {
             var specification = new SpecificationWithCursor<CommentReaction>
             {
-                Criteria = reaction => reaction.CommentId == Guid.Parse(commentId) && reaction.Type.Equals(type) && !reaction.IsDeleted,
+                Criteria = reaction => reaction.CommentId == 
+                Guid.Parse(commentId) && reaction.Type.Equals(type) && !reaction.IsDeleted,
                 Cursor = cursor,
                 Limit = pageSize
             };
@@ -46,7 +51,7 @@ namespace InfinityNetServer.Services.Reaction.Application.Services
             return await repository.GetPagedAsync(specification);
         }
 
-        public async Task<CommentReaction> Save(CommentReaction entity, CommonCommentClient commentClient, IMessageBus messageBus)
+        public async Task<CommentReaction> Save(CommentReaction entity)
         {
             var existedReaction = await GetByCommentIdAndProfileId(entity.CommentId.ToString(), entity.ProfileId.ToString());
 
@@ -57,16 +62,16 @@ namespace InfinityNetServer.Services.Reaction.Application.Services
 
                 logger.LogInformation("Update reaction");
                 existedReaction.Type = entity.Type;
-                var rs = await repository.UpdateAsync(existedReaction);
-                await PublicCommentReactionCommands(rs, commentClient, messageBus);
-                return rs;
+                var reactions = await repository.UpdateAsync(existedReaction);
+                await PublishCommentReactionCommands(reactions);
+                return reactions;
             }
             else
             {
                 logger.LogInformation("Creating reaction");
-                var rs = await repository.CreateAsync(entity);
-                await PublicCommentReactionCommands(rs, commentClient, messageBus);
-                return rs;
+                var reactions = await repository.CreateAsync(entity);
+                await PublishCommentReactionCommands(reactions);
+                return reactions;
             }
         }
 
@@ -82,7 +87,7 @@ namespace InfinityNetServer.Services.Reaction.Application.Services
             return await repository.DeleteAsync(existedReaction.Id);
         }
 
-        private async Task PublicCommentReactionCommands(CommentReaction entity, CommonCommentClient commentClient, IMessageBus messageBus)
+        private async Task PublishCommentReactionCommands(CommentReaction entity)
         {
             //Comment Reaction
             var previewComment = await commentClient.GetPreviewComment(entity.CommentId.ToString());

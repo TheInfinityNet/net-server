@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
-using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Relationship;
 using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Application.IServices;
@@ -12,7 +10,6 @@ using InfinityNetServer.Services.Profile.Application;
 using InfinityNetServer.Services.Profile.Application.DTOs.Requests;
 using InfinityNetServer.Services.Profile.Application.Exceptions;
 using InfinityNetServer.Services.Profile.Application.IServices;
-using InfinityNetServer.Services.Profile.Application.Services;
 using InfinityNetServer.Services.Profile.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -33,27 +30,21 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         IStringLocalizer<ProfileSharedResource> localizer,
         ILogger<ProfileController> logger,
         IMapper mapper,
-        IMessageBus messageBus,
         CommonFileClient fileClient,
         IProfileService profileService) : BaseApiController(authenticatedUserService)
     {
 
 
         [Authorize]
-        [EndpointDescription("Retrieve page profile")]
-        [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
+        [EndpointDescription("Get profile actions")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [Authorize]
         [HttpGet("{id}/actions")]
         public IActionResult GetProfileActions(string id)
         {
             logger.LogInformation("Retrieve user profile");
 
-            Guid currentUserId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
-
-            Guid.TryParse(id, out Guid profileId);
-
-            bool isMe = currentUserId == profileId;
+            bool isMe = IsOwner(id);
 
             IDictionary<string, bool> actions = new Dictionary<string, bool>
             {
@@ -81,18 +72,14 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         [HttpPost("avatar")]
         public async Task<IActionResult> UploadAvatar([FromBody] UplodaPhotoRequest avatar)
         {
-
-            Guid profileId = GetCurrentProfileId()
-                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
-
-            Domain.Entities.Profile profile = await profileService.GetById(profileId.ToString())
+            Domain.Entities.Profile profile = await profileService.GetById(GetCurrentProfileId().ToString())
                 ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
             try
             {
                 profile.AvatarId = Guid.Parse(avatar.PhotoId);
                 profile = await profileService.Update(profile);
-                await profileService.ConfirmSave(profile.Id.ToString(), profile.AvatarId.ToString(), false, messageBus);
+                await profileService.ConfirmSave(profile.Id.ToString(), profile.AvatarId.ToString(), true);
             }
             catch (Exception ex)
             {
@@ -113,18 +100,14 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         [HttpPost("cover")]
         public async Task<IActionResult> UploadCover([FromBody] UplodaPhotoRequest request)
         {
-
-            Guid profileId = GetCurrentProfileId()
-                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
-
-            Domain.Entities.Profile profile = await profileService.GetById(profileId.ToString())
+            Domain.Entities.Profile profile = await profileService.GetById(GetCurrentProfileId().ToString())
                 ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
             try
             {
                 profile.CoverId = Guid.Parse(request.PhotoId);
                 profile = await profileService.Update(profile);
-                await profileService.ConfirmSave(profile.Id.ToString(), profile.CoverId.ToString(), false, messageBus);
+                await profileService.ConfirmSave(profile.Id.ToString(), profile.CoverId.ToString(), false);
             }
             catch (Exception ex)
             {
@@ -145,10 +128,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         [HttpGet("search")]
         public async Task<IActionResult> SearchFriends([FromQuery] string keywords, [FromQuery] string nextCursor, [FromQuery] int limit = 10)
         {
-            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
-
-            var suggestions = await profileService.Search(currentProfileId, keywords, nextCursor, limit);
+            var suggestions = await profileService.Search(GetCurrentProfileId().ToString(), keywords, nextCursor, limit);
 
             var photoMetadataIds = suggestions.Items
                 .Where(profile => profile.AvatarId != null)

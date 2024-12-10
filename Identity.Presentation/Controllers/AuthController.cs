@@ -97,7 +97,7 @@ namespace InfinityNetServer.Services.Identity.Presentation.Controllers
             var AccessToken = authService.GenerateToken(account, account.DefaultUserProfileId, false);
             var RefreshToken = authService.GenerateToken(account, account.DefaultUserProfileId, true);
 
-            var userProfile = await profileClient.GetUserProfile(account.DefaultUserProfileId.ToString());
+            var userProfile = await profileClient.GetProfile(account.DefaultUserProfileId.ToString());
             userProfile.AccountId = account.Id;
 
             if (userProfile.Status == "Locked")

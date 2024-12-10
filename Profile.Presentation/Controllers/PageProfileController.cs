@@ -16,6 +16,7 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Controllers
@@ -29,6 +30,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         IStringLocalizer<ProfileSharedResource> localizer,
         ILogger<PageProfileController> logger,
         IMapper mapper,
+        CommonRelationshipClient relationshipClient,
         IPageProfileService pageProfileService) : BaseApiController(authenticatedUserService)
     {
 
@@ -42,8 +44,12 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         {
             logger.LogInformation("Retrieve user profile");
 
-            string currentUserId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
+
+            var blockerIds = await relationshipClient.GetAllBlockerIds(currentProfileId.ToString());
+            var blockeeIds = await relationshipClient.GetAllBlockeeIds(currentProfileId.ToString());
+            if (blockerIds.Concat(blockeeIds).Distinct().Contains(id))
+                throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
 
             PageProfile currentProfile = await pageProfileService.GetById(id);
 
@@ -61,7 +67,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 response.Cover = cover;
             }
 
-            List<string> actions = [];
+            //List<string> actions = [];
 
             //if (currentUserId != userId)
             //{
@@ -93,17 +99,14 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdatePageProfileRequest request)
         {
-            PageProfile pageProfile = mapper.Map<PageProfile>(request);
-            try
-            {
-                pageProfile = await pageProfileService.Update(pageProfile);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Caused by: {Message}", ex.Message);
-                throw new ProfileException(ProfileError.UPDATE_PROFILE_FAILED, StatusCodes.Status422UnprocessableEntity);
-            }
+            PageProfile existedProfile = await pageProfileService.GetById(GetCurrentProfileId().ToString())
+                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
+            PageProfile pageProfile = mapper.Map<PageProfile>(request);
+            pageProfile.Id = existedProfile.Id;
+
+            pageProfile = await pageProfileService.Update(pageProfile);
+          
             return Ok(new
             {
                 Message = localizer["Message.ProfileUpdatedSuccess", request.Name].ToString(),

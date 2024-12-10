@@ -29,7 +29,6 @@ namespace InfinityNetServer.Services.File.Application.Usecases
                 await photoMetadataService.Create(new PhotoMetadata
                 {
                     Id = request.FileMetadataId,
-                    Type = FileMetadataType.Photo,
                     Name = photoMetadata.Name,
                     Width = photoMetadata.Width,
                     Height = photoMetadata.Height,

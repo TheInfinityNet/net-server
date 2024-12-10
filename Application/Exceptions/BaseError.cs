@@ -36,4 +36,7 @@ public record BaseError
     public static readonly BaseError FILE_NOT_FOUND = new(ErrorType.ResourceNotFound, $"{ErrorType.ResourceNotFound}.File");
     public static readonly BaseError NOTIFICATION_NOT_FOUND = new(ErrorType.ResourceNotFound, $"{ErrorType.ResourceNotFound}.Notification");
 
+    // Validation Errors
+    public static readonly BaseError CAN_NOT_PARSE = new(ErrorType.ValidationError, $"{ErrorType.ValidationError}.CanNotParse");
+
 }

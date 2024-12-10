@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using InfinityNetServer.BuildingBlocks.Application.Contracts;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Comment;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
@@ -32,10 +31,8 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
         ILogger<CommentController> logger,
         IStringLocalizer<CommentSharedResource> localizer,
         IMapper mapper,
-        IMessageBus messageBus,
         ICommentService commentService,
         CommonProfileClient profileClient,
-        CommonPostClient postClient,
         CommonFileClient fileClient,
         CommonReactionClient reactionClient) : BaseApiController(authenticatedUserService)
     {
@@ -50,8 +47,7 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
             [FromQuery] int limit = 10, 
             [FromQuery] bool newest = true)
         {
-            Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
 
             var result = await commentService.GetByPostId
                 (postId, cursor, limit, newest ? SortDirection.Descending : SortDirection.Ascending);
@@ -128,8 +124,11 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
                     // Process Owner
                     if (profileDict.TryGetValue(commentItem.ProfileId, out var ownerProfile))
                     {
-                        var avatar = photoMetadataDict.GetValueOrDefault(ownerProfile.Avatar.Id);
-                        ownerProfile.Avatar = avatar;
+                        if (ownerProfile.Avatar != null)
+                        {
+                            var avatar = photoMetadataDict.GetValueOrDefault(ownerProfile.Avatar.Id);
+                            ownerProfile.Avatar = avatar;
+                        }
                         commentResponse.Owner = ownerProfile;
                     }
 
@@ -154,8 +153,7 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
         [HttpGet("{parentId}/replies")]
         public async Task<IActionResult> GetReplies(string parentId, [FromQuery] string cursor = null, [FromQuery] int limit = 10)
         {
-            Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
 
             var result = await commentService.GetReplies(parentId, cursor, limit);
 
@@ -257,21 +255,14 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
         [HttpPost("/")]
         public async Task<ActionResult> Create([FromBody] CommentBaseRequest request)
         {
-            Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
 
             Domain.Entities.Comment comment = mapper.Map<Domain.Entities.Comment>(request);
             comment.ProfileId = currentProfileId;
 
             commentService.ValidateType(comment);
 
-            var response = await commentService.Create(comment, postClient, messageBus);
-
-            if (request.FileMetadataId != null)
-                await commentService.ConfirmSave(
-                    response.Id.ToString(),
-                    currentProfileId.ToString(),
-                    comment.FileMetadataId.ToString(), messageBus);
+            var response = await commentService.Create(comment);
 
             return Created(string.Empty, new
             {
@@ -283,13 +274,13 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Authorize]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteComment(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
-
             var comment = await commentService.GetById(id) 
                 ?? throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            if(!IsOwner(comment.ProfileId.ToString()))
+                throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
 
             var response = await commentService.SoftDelete(id);
 
@@ -305,21 +296,12 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateComment(string id, [FromBody] CommentBaseRequest request)
         {
-            Guid currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().Value
-                            : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
-
             Domain.Entities.Comment comment = mapper.Map<Domain.Entities.Comment>(request);
             comment.Id = Guid.Parse(id);
-            comment.ProfileId = currentProfileId;
 
             commentService.ValidateType(comment);
 
-            var response = await commentService.Update(comment, postClient, messageBus);
-            if (request.FileMetadataId != null)
-                await commentService.ConfirmSave(
-                    response.Id.ToString(),
-                    currentProfileId.ToString(),
-                    comment.FileMetadataId.ToString(), messageBus);
+            var response = await commentService.Update(comment);
 
             return Ok(new
             {

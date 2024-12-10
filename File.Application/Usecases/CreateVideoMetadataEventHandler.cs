@@ -29,8 +29,7 @@ namespace InfinityNetServer.Services.File.Application.Usecases
             {
                 await videoMetadataService.Create(new VideoMetadata
                 {
-                    Id = request.Id,
-                    Type = FileMetadataType.Photo,
+                    Id = request.FileMetadataId,
                     Name = videoMetadata.Name,
                     Width = videoMetadata.Width,
                     Height = videoMetadata.Height,
@@ -60,6 +59,7 @@ namespace InfinityNetServer.Services.File.Application.Usecases
                 existedVideoMetadata.UpdatedAt = request.UpdatedAt;
                 existedVideoMetadata.UpdatedBy = request.UpdatedBy;
                 existedVideoMetadata.Thumbnail = videoMetadata.Thumbnail;
+                existedVideoMetadata.Thumbnail.OwnerId = existedVideoMetadata.OwnerId;
 
                 await videoMetadataService.Update(existedVideoMetadata);
             }

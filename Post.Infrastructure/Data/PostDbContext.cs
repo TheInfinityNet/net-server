@@ -178,7 +178,7 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
                     whoCanSee = friendIds.Concat(includeIds).Except(excludeIds).Select(Guid.Parse).ToList();
                     break;
 
-                case PostAudienceType.Friends:
+                case PostAudienceType.Friend:
                     whoCanSee = friendIds.Select(Guid.Parse).ToList();
                     break;
 

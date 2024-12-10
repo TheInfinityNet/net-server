@@ -6,7 +6,6 @@ using InfinityNetServer.BuildingBlocks.Application.IServices;
 using InfinityNetServer.BuildingBlocks.Presentation.Controllers;
 using InfinityNetServer.Services.Profile.Application;
 using InfinityNetServer.Services.Profile.Application.DTOs.Requests;
-using InfinityNetServer.Services.Profile.Application.Exceptions;
 using InfinityNetServer.Services.Profile.Application.IServices;
 using InfinityNetServer.Services.Profile.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -15,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Controllers
@@ -29,6 +28,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         IStringLocalizer<ProfileSharedResource> localizer,
         ILogger<UserProfileController> logger,
         IMapper mapper,
+        CommonRelationshipClient relationshipClient,
         IUserProfileService userProfileService) : BaseApiController(authenticatedUserService)
     {
 
@@ -42,8 +42,12 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         {
             logger.LogInformation("Retrieve user profile");
 
-            string currentUserId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
+
+            var blockerIds = await relationshipClient.GetAllBlockerIds(currentProfileId.ToString());
+            var blockeeIds = await relationshipClient.GetAllBlockeeIds(currentProfileId.ToString());
+            if (blockerIds.Concat(blockeeIds).Distinct().Contains(id))
+                throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
 
             UserProfile currentProfile = await userProfileService.GetById(id);
 
@@ -61,7 +65,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 response.Cover = cover;
             }
 
-            List<string> actions = [];
+            //List<string> actions = [];
 
             //if (currentUserId != userId)
             //{
@@ -93,21 +97,18 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileRequest request)
         {
-            UserProfile userProfile = mapper.Map<UserProfile>(request);
-            try
-            {
-                userProfile = await userProfileService.Update(userProfile);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Caused by: {Message}", ex.Message);
-                throw new ProfileException(ProfileError.UPDATE_PROFILE_FAILED, StatusCodes.Status422UnprocessableEntity);
-            }
+            UserProfile existedProfile = await userProfileService.GetById(GetCurrentProfileId().ToString())
+                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            UserProfile profile = mapper.Map<UserProfile>(request);
+            profile.Id = existedProfile.Id;
+
+            profile = await userProfileService.Update(profile);
 
             return Ok(new
             {
                 Message = localizer["Message.ProfileUpdatedSuccess", request.Username].ToString(),
-                User = mapper.Map<UserProfileResponse>(userProfile)
+                User = mapper.Map<UserProfileResponse>(profile)
             });
         }
 

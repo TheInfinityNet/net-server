@@ -15,6 +15,7 @@ using InfinityNetServer.Services.Post.Application.Exceptions;
 using InfinityNetServer.Services.Post.Application.IServices;
 using InfinityNetServer.Services.Post.Domain.Enums;
 using InfinityNetServer.Services.Post.Domain.Repositories;
+using MassTransit;
 using MassTransit.Initializers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -29,28 +30,64 @@ namespace InfinityNetServer.Services.Post.Application.Services
             IPostRepository postRepository,
             CommonProfileClient profileClient,
             CommonRelationshipClient relationshipClient,
+            CommonFileClient fileClient,
+            CommonCommentClient commentClient,
+            CommonReactionClient reactionClient,
+            IMessageBus messageBus,
             ILogger<PostService> logger) : IPostService
     {
 
-        public async Task<Domain.Entities.Post> Create(Domain.Entities.Post entity, IMessageBus messageBus)
+        public async Task<Domain.Entities.Post> Create(Domain.Entities.Post entity)
         {
-            logger.LogInformation("Creating post");
-            var post = await postRepository.CreateAsync(entity);
-            await PublishPostNotificationCommands(post, messageBus);
+            Domain.Entities.Post post;
+            switch (entity.Type)
+            {
+                case PostType.Share:
+                    logger.LogInformation("Create share post");
+                    var parentPost = await GetById(entity.ParentId.ToString())
+                        ?? throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status404NotFound);
+
+                    if (parentPost.Type == PostType.Share)
+                    { 
+                        entity.Parent = parentPost.Parent;
+                    }
+
+                    post = await postRepository.CreateAsync(entity);
+                    break;
+
+                case PostType.Photo or PostType.Video:
+                    post = await postRepository.CreateAsync(entity);
+                    await ConfirmSave(
+                        entity.Id.ToString(),
+                        entity.OwnerId.ToString(),
+                        entity.FileMetadataId.ToString());
+                    break;
+
+                case PostType.MultiMedia:
+                    post = await postRepository.CreateAsync(entity);
+                    foreach (var subPost in post.SubPosts)
+                    {
+                        await ConfirmSave(
+                            subPost.Id.ToString(),
+                            entity.OwnerId.ToString(),
+                            subPost.FileMetadataId.ToString());
+                    }
+                    break;
+
+                default:
+                    throw new PostException(PostError.INVALID_POST_TYPE, StatusCodes.Status400BadRequest);
+            }
+            await PublishPostNotificationCommands(entity, messageBus);
             return post;
         }
 
-        public async Task<Domain.Entities.Post> Update(Domain.Entities.Post entity, IMessageBus messageBus)
+        public async Task<Domain.Entities.Post> Update(Domain.Entities.Post entity)
         {
-            var existingPost = await GetById(entity.Id.ToString())
-                ?? throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status404NotFound);
+            logger.LogInformation("Updating post");
 
-            existingPost.Content = entity.Content;
-            existingPost.Audience = entity.Audience;
-            logger.LogInformation("Updating post");
-            var post = await postRepository.UpdateAsync(existingPost);
-            logger.LogInformation("Updating post");
+            var post = await postRepository.UpdateAsync(entity);
             await PublishPostNotificationCommands(post, messageBus);
+
             return post;
         }
 
@@ -96,7 +133,8 @@ namespace InfinityNetServer.Services.Post.Application.Services
             return excludeIds.Concat(blockerIds).Concat(blockeeIds).Distinct().ToList();
         }
 
-        public async Task<CursorPagedResult<Domain.Entities.Post>> GetTimeline(string profileId, string cursor, int pageSize)
+        public async Task<CursorPagedResult<Domain.Entities.Post>> GetTimeline
+            (string profileId, string cursor, int pageSize)
         {
             IList<string> followeeIds = await relationshipClient.GetAllFolloweeIds(profileId);
             IList<string> friendIds = await relationshipClient.GetAllFriendIds(profileId);
@@ -116,7 +154,7 @@ namespace InfinityNetServer.Services.Post.Application.Services
 
                             || followeeIds.Contains(post.OwnerId.ToString()) && friendIds.Contains(post.OwnerId.ToString())
 
-                            || post.Audience.Type == PostAudienceType.Friends && friendIds.Contains(post.OwnerId.ToString())
+                            || post.Audience.Type == PostAudienceType.Friend && friendIds.Contains(post.OwnerId.ToString())
 
                             || post.Audience.Type == PostAudienceType.Include
                                 && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))
@@ -142,7 +180,8 @@ namespace InfinityNetServer.Services.Post.Application.Services
             return await postRepository.GetPagedAsync(specification);
         }
 
-        public async Task<CursorPagedResult<Domain.Entities.Post>> Search(string profileId, string keywords, string cursor, int pageSize)
+        public async Task<CursorPagedResult<Domain.Entities.Post>> Search
+            (string profileId, string keywords, string cursor, int pageSize)
         {
             IList<string> followeeIds = await relationshipClient.GetAllFolloweeIds(profileId);
             IList<string> friendIds = await relationshipClient.GetAllFriendIds(profileId);
@@ -164,7 +203,7 @@ namespace InfinityNetServer.Services.Post.Application.Services
 
                             || followeeIds.Contains(post.OwnerId.ToString()) && friendIds.Contains(post.OwnerId.ToString())
 
-                            || post.Audience.Type == PostAudienceType.Friends && friendIds.Contains(post.OwnerId.ToString())
+                            || post.Audience.Type == PostAudienceType.Friend && friendIds.Contains(post.OwnerId.ToString())
 
                             || post.Audience.Type == PostAudienceType.Include
                                 && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))
@@ -190,7 +229,8 @@ namespace InfinityNetServer.Services.Post.Application.Services
             return await postRepository.GetPagedAsync(specification);
         }
 
-        public async Task<CursorPagedResult<Domain.Entities.Post>> GetProfilePost(string currentProfileId, string profileId, string cursor, int pageSize)
+        public async Task<CursorPagedResult<Domain.Entities.Post>> GetProfilePost
+            (string currentProfileId, string profileId, string cursor, int pageSize)
         {
             bool isMyProfile = currentProfileId.Equals(profileId);
             IList<string> followeeIds = await relationshipClient.GetAllFolloweeIds(profileId);
@@ -198,61 +238,78 @@ namespace InfinityNetServer.Services.Post.Application.Services
             IList<string> blockerIds = await relationshipClient.GetAllBlockerIds(profileId);
             IList<string> blockeeIds = await relationshipClient.GetAllBlockeeIds(profileId);
 
-            Guid profileUuid = Guid.Parse(profileId);
-            var specification = new SpecificationWithCursor<Domain.Entities.Post>
+            if (Guid.TryParse(currentProfileId, out Guid profileUuid))
             {
+                var specification = new SpecificationWithCursor<Domain.Entities.Post>
+                {
 
-                Criteria = post =>
-                        post.Presentation == null && post.GroupId == null && !post.IsDeleted
-                        && isMyProfile ? post.OwnerId.Equals(profileUuid)
+                    Criteria = post =>
+                            post.Presentation == null && post.GroupId == null && !post.IsDeleted
+                            && isMyProfile ? post.OwnerId.Equals(profileUuid)
 
-                        : post.OwnerId.Equals(profileUuid)
-                            && (post.Audience.Type.Equals(PostAudienceType.Public)
+                            : post.OwnerId.Equals(profileUuid)
+                                && (post.Audience.Type.Equals(PostAudienceType.Public)
 
-                                && followeeIds.Contains(post.OwnerId.ToString()) && friendIds.Contains(post.OwnerId.ToString())
+                                    && followeeIds.Contains(post.OwnerId.ToString()) && friendIds.Contains(post.OwnerId.ToString())
 
-                                || post.Audience.Type.Equals(PostAudienceType.Friends) && friendIds.Contains(post.OwnerId.ToString())
+                                    || post.Audience.Type.Equals(PostAudienceType.Friend) && friendIds.Contains(post.OwnerId.ToString())
 
-                                || post.Audience.Type.Equals(PostAudienceType.Include)
-                                    && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))
-                                    && friendIds.Contains(post.OwnerId.ToString())
+                                    || post.Audience.Type.Equals(PostAudienceType.Include)
+                                        && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))
+                                        && friendIds.Contains(post.OwnerId.ToString())
 
-                                || post.Audience.Type.Equals(PostAudienceType.Exclude)
-                                    && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))
-                                    && friendIds.Contains(post.OwnerId.ToString())
+                                    || post.Audience.Type.Equals(PostAudienceType.Exclude)
+                                        && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))
+                                        && friendIds.Contains(post.OwnerId.ToString())
 
-                                || post.Audience.Type.Equals(PostAudienceType.Custom)
-                                    && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))
-                                    && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))
-                                    && friendIds.Contains(post.OwnerId.ToString())
-                                )
-                            && !blockerIds.Concat(blockeeIds).Contains(post.OwnerId.ToString()),
-                Cursor = cursor,
-                Limit = pageSize
-            };
+                                    || post.Audience.Type.Equals(PostAudienceType.Custom)
+                                        && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))
+                                        && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))
+                                        && friendIds.Contains(post.OwnerId.ToString())
+                                    )
+                                && !blockerIds.Concat(blockeeIds).Contains(post.OwnerId.ToString()),
+                    Cursor = cursor,
+                    Limit = pageSize
+                };
 
-            return await postRepository.GetPagedAsync(specification);
+                return await postRepository.GetPagedAsync(specification);
+            }
+            return new CursorPagedResult<Domain.Entities.Post>();
         }
 
         public async Task<IList<Domain.Entities.Post>> GetAllByParentId(string id)
         {
-            return await postRepository.GetAllByParentIdAsync(Guid.Parse(id));
+            if (Guid.TryParse(id, out Guid parentId))
+                return await postRepository.GetAllByParentIdAsync(parentId);
+            return [];
         }
 
         public async Task<IList<Domain.Entities.Post>> GetAllByGroupId(string id)
         {
-            return await postRepository.GetAllByGroupIdAsync(Guid.Parse(id));
-        }
-        public async Task<IList<Domain.Entities.Post>> GetAllByOwnerId(string id)
-        {
-            return await postRepository.GetAllByOwnerIdAsync(Guid.Parse(id));
+            if (Guid.TryParse(id, out Guid groupId)) {
+                return await postRepository.GetAllByGroupIdAsync(groupId);
+            }
+            return [];
         }
 
-        public void ValidateMediaPostType(CreateMediaPostRequest dto)
+        public async Task<IList<Domain.Entities.Post>> GetAllByOwnerId(string id)
         {
-            PostType type = Enum.Parse<PostType>(dto.Type);
+            if (Guid.TryParse(id, out Guid ownerId))
+                return await postRepository.GetAllByOwnerIdAsync(ownerId);
+            return [];
+        }
+
+        public void ValidateMediaPostType(CreatePostBaseRequest dto)
+        {
+            if (!Enum.TryParse<PostType>(dto.Type, out var type))
+                throw new PostException(PostError.INVALID_POST_TYPE, StatusCodes.Status400BadRequest);
             switch (type)
             {
+                case PostType.Text:
+                    if (string.IsNullOrEmpty(dto.Content.Text))
+                        throw new PostException(PostError.REQUIRED_TEXT, StatusCodes.Status400BadRequest);
+                    break;
+
                 case PostType.Photo:
                     if (string.IsNullOrEmpty(dto.PhotoId))
                         throw new PostException(PostError.REQUIRED_PHOTO_ID, StatusCodes.Status400BadRequest);
@@ -263,6 +320,11 @@ namespace InfinityNetServer.Services.Post.Application.Services
                         throw new PostException(PostError.REQUIRED_VIDEO_ID, StatusCodes.Status400BadRequest);
                     break;
 
+                case PostType.MultiMedia:
+                    if (dto.Aggregates == null || dto.Aggregates.Count == 0)
+                        throw new PostException(PostError.REQUIRED_AGGREGATES, StatusCodes.Status400BadRequest);
+                    break;
+
                 default:
                     throw new PostException(PostError.INVALID_POST_TYPE, StatusCodes.Status400BadRequest);
             }
@@ -270,28 +332,28 @@ namespace InfinityNetServer.Services.Post.Application.Services
 
         public void ValidateAudienceType(BasePostAudience dto)
         {
-            switch (dto.Type)
+            if (!Enum.TryParse<PostAudienceType>(dto.Type, out var type))
+                throw new PostException(PostError.INVALID_AUDIENCE_TYPE, StatusCodes.Status400BadRequest);
+
+            switch (type)
             {
-                case nameof(PostAudienceType.Public)
-                        or nameof(PostAudienceType.OnlyMe)
-                        or nameof(PostAudienceType.Friends):
+                case PostAudienceType.Public or PostAudienceType.OnlyMe or PostAudienceType.Friend:
                     if (dto.Include != null || dto.Exclude != null)
                         throw new PostException(PostError.REQUIRED_INCLUDE, StatusCodes.Status400BadRequest);
                     break;
 
-                case nameof(PostAudienceType.Include):
+                case PostAudienceType.Include:
                     if (dto.Include == null || dto.Include.Count == 0)
                         throw new PostException(PostError.REQUIRED_INCLUDE, StatusCodes.Status400BadRequest);
                     break;
 
-                case nameof(PostAudienceType.Exclude):
+                case PostAudienceType.Exclude:
                     if (dto.Exclude == null || dto.Exclude.Count == 0)
                         throw new PostException(PostError.REQUIRED_EXCLUDE, StatusCodes.Status400BadRequest);
                     break;
 
-                case nameof(PostAudienceType.Custom):
-                    if (dto.Include == null && dto.Exclude == null
-                            || dto.Include.Count == 0 && dto.Exclude.Count == 0)
+                case PostAudienceType.Custom:
+                    if (dto.Include == null && dto.Exclude == null || dto.Include.Count == 0 && dto.Exclude.Count == 0)
                         throw new PostException(PostError.REQUIRED_INCLUDE_OR_EXCLUDE, StatusCodes.Status400BadRequest);
                     break;
 
@@ -300,7 +362,7 @@ namespace InfinityNetServer.Services.Post.Application.Services
             }
         }
 
-        public async Task ConfirmSave(string id, string profileId, string fileMetadataId, IMessageBus messageBus)
+        public async Task ConfirmSave(string id, string profileId, string fileMetadataId)
         {
             Domain.Entities.Post post = await GetById(id)
                 ?? throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status404NotFound);
@@ -308,17 +370,22 @@ namespace InfinityNetServer.Services.Post.Application.Services
             Guid fileMetadataGuid = post.FileMetadataId
                 ?? throw new BaseException(BaseError.FILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
+            if (!Guid.TryParse(fileMetadataId, out Guid tempId) 
+                || !Guid.TryParse(id, out Guid ownerId) 
+                || !Guid.TryParse(profileId, out Guid profileUuid))
+                throw new BaseException(BaseError.CAN_NOT_PARSE, StatusCodes.Status400BadRequest);
+
             switch (post.Type)
             {
                 case PostType.Photo:
                     await messageBus.Publish(new DomainEvent.CreatePhotoMetadataEvent
                     {
                         FileMetadataId = fileMetadataGuid,
-                        TempId = Guid.Parse(fileMetadataId),
-                        OwnerId = Guid.Parse(id),
+                        TempId = tempId,
+                        OwnerId = ownerId,
                         OwnerType = FileOwnerType.Post,
                         UpdatedAt = DateTime.Now,
-                        UpdatedBy = Guid.Parse(profileId)
+                        UpdatedBy = profileUuid
                     });
                     break;
 
@@ -326,11 +393,11 @@ namespace InfinityNetServer.Services.Post.Application.Services
                     await messageBus.Publish(new DomainEvent.CreateVideoMetadataEvent
                     {
                         FileMetadataId = fileMetadataGuid,
-                        TempId = Guid.Parse(fileMetadataId),
-                        OwnerId = Guid.Parse(id),
+                        TempId = tempId,
+                        OwnerId = ownerId,
                         OwnerType = FileOwnerType.Post,
                         UpdatedAt = DateTime.Now,
-                        UpdatedBy = Guid.Parse(profileId)
+                        UpdatedBy = profileUuid
                     });
                     break;
 
@@ -342,9 +409,7 @@ namespace InfinityNetServer.Services.Post.Application.Services
         public async Task<IList<BasePostResponse>> ToResponse(
             IList<Domain.Entities.Post> posts, 
             Guid currentProfileId, 
-            CommonCommentClient commentClient, 
-            CommonReactionClient reactionClient, 
-            CommonFileClient fileClient, IMapper mapper)
+            IMapper mapper)
         {
             IList<string> postIds = posts.Select(item => item.Id.ToString()).Distinct().ToList();
 
@@ -664,9 +729,7 @@ namespace InfinityNetServer.Services.Post.Application.Services
         public async Task<BasePostResponse> ToResponse(
             Domain.Entities.Post post,
             Guid currentProfileId,
-            CommonCommentClient commentClient,
-            CommonReactionClient reactionClient,
-            CommonFileClient fileClient, IMapper mapper)
+            IMapper mapper)
         {
             string postId = post.Id.ToString();
 

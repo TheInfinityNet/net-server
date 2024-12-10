@@ -1,6 +1,4 @@
 using AutoMapper;
-using InfinityNetServer.BuildingBlocks.Application.Contracts;
-using InfinityNetServer.BuildingBlocks.Application.GrpcClients;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.Services.Post.Application.DTOs.Orther;
 using InfinityNetServer.Services.Post.Application.DTOs.Requests;
@@ -14,17 +12,17 @@ namespace InfinityNetServer.Services.Post.Application.IServices
     public interface IPostService
     {
 
-        public void ValidateMediaPostType(CreateMediaPostRequest dto);
+        public void ValidateMediaPostType(CreatePostBaseRequest dto);
 
         public void ValidateAudienceType(BasePostAudience dto);
 
-        public Task ConfirmSave(string id, string profileId, string fileMetadataId, IMessageBus messageBus);
+        public Task ConfirmSave(string id, string profileId, string fileMetadataId);
 
         public Task<Domain.Entities.Post> GetById(string id);
 
-        public Task<Domain.Entities.Post> Create(Domain.Entities.Post entity, IMessageBus messageBus);
+        public Task<Domain.Entities.Post> Create(Domain.Entities.Post entity);
 
-        public Task<Domain.Entities.Post> Update(Domain.Entities.Post entity, IMessageBus messageBus);
+        public Task<Domain.Entities.Post> Update(Domain.Entities.Post entity);
 
         public Task<Domain.Entities.Post> SoftDelete(string id);
 
@@ -52,19 +50,9 @@ namespace InfinityNetServer.Services.Post.Application.IServices
 
         public Task<CursorPagedResult<Domain.Entities.Post>> Search(string profileId, string keywords, string cursor, int pageSize);
 
-        public Task<IList<BasePostResponse>> ToResponse(
-            IList<Domain.Entities.Post> posts,
-            Guid currentProfileId,
-            CommonCommentClient commentClient,
-            CommonReactionClient reactionClient,
-            CommonFileClient fileClient, IMapper mapper);
+        public Task<IList<BasePostResponse>> ToResponse(IList<Domain.Entities.Post> posts, Guid currentProfileId, IMapper mapper);
 
-        public Task<BasePostResponse> ToResponse(
-            Domain.Entities.Post post,
-            Guid currentProfileId,
-            CommonCommentClient commentClient,
-            CommonReactionClient reactionClient,
-            CommonFileClient fileClient, IMapper mapper);
+        public Task<BasePostResponse> ToResponse(Domain.Entities.Post post, Guid currentProfileId, IMapper mapper);
 
     }
 }

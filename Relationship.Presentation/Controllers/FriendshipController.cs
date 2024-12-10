@@ -33,7 +33,6 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         IAuthenticatedUserService authenticatedUserService,
         ILogger<FriendshipController> logger,
         IStringLocalizer<RelationshipSharedResource> Localizer,
-        IMessageBus messageBus,
         IMapper mapper,
         IFriendshipService friendshipService,
         IProfileBlockService profileBlockService,
@@ -73,10 +72,9 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         [HttpGet("requests")]
         public async Task<IActionResult> GetFriendRequests([FromQuery] string cursor, [FromQuery] int limit = 10)
         {
-            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
 
-            var friendRequests = await friendshipService.GetFriendRequests(currentProfileId, cursor, limit);
+            var friendRequests = await friendshipService.GetFriendRequests(currentProfileId.ToString(), cursor, limit);
 
             // Tập hợp toàn bộ các ID cần nạp trước
             var profileIds = friendRequests.Items.Select(item => item.SenderId.ToString()).Distinct();
@@ -97,7 +95,8 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
             });
             var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
 
-            var resultHasCount = await friendshipService.CountMutualFriends(currentProfileId, friendRequests.Items.Select(f => f.SenderId.ToString()).ToList());
+            var resultHasCount = await friendshipService.CountMutualFriends(
+                currentProfileId.ToString(), friendRequests.Items.Select(f => f.SenderId.ToString()).ToList());
 
             var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
 
@@ -135,14 +134,13 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         [HttpGet("sent-requests")]
         public async Task<IActionResult> GetFriendSentRequests([FromQuery] string cursor, [FromQuery] int limit = 10)
         {
-            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
 
-            var friendSentRequests = await friendshipService.GetFriendSentRequests(currentProfileId, cursor, limit);
+            var friendSentRequests = await friendshipService.GetFriendSentRequests(currentProfileId.ToString(), cursor, limit);
 
             // Tập hợp toàn bộ các ID cần nạp trước
             var profileIds = friendSentRequests.Items.Select(item => item.ReceiverId.ToString()).Distinct();
-            profileIds.ToList().Add(currentProfileId);
+            profileIds.ToList().Add(currentProfileId.ToString());
 
             // Nạp toàn bộ profiles cần thiết
             var profiles = await commonProfileClient.GetProfiles(profileIds.ToList());
@@ -160,7 +158,8 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
             });
             var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
 
-            var resultHasCount = await friendshipService.CountMutualFriends(currentProfileId, friendSentRequests.Items.Select(f => f.ReceiverId.ToString()).ToList());
+            var resultHasCount = await friendshipService.CountMutualFriends(
+                currentProfileId.ToString(), friendSentRequests.Items.Select(f => f.ReceiverId.ToString()).ToList());
 
             var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
 
@@ -197,13 +196,13 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetFriends([FromQuery] string cursor, [FromQuery] int limit = 10)
         {
-            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
 
-            var friends = await friendshipService.GetFriends(currentProfileId, cursor, limit);
+            var friends = await friendshipService.GetFriends(currentProfileId.ToString(), cursor, limit);
 
             // Tập hợp toàn bộ các ID cần nạp trước
-            var profileIds = friends.Items.Select(item => currentProfileId.Equals(item.SenderId.ToString()) ? item.ReceiverId.ToString() : item.SenderId.ToString()).Distinct();
+            var profileIds = friends.Items.Select(item => currentProfileId.Equals(item.SenderId) 
+            ? item.ReceiverId.ToString() : item.SenderId.ToString()).Distinct();
             //profileIds.ToList().Add(currentProfileId);
 
             // Nạp toàn bộ profiles cần thiết
@@ -222,7 +221,8 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
             });
             var photoMetadataDict = (await Task.WhenAll(photoMetadataTasks)).ToDictionary(x => x.Id, x => x.Metadata);
 
-            var resultHasCount = await friendshipService.CountMutualFriends(currentProfileId, friends.Items.Select(f => currentProfileId.Equals(f.SenderId.ToString()) ? f.ReceiverId.ToString() : f.SenderId.ToString()).ToList());
+            var resultHasCount = await friendshipService.CountMutualFriends(currentProfileId.ToString(), 
+                friends.Items.Select(f => currentProfileId.Equals(f.SenderId) ? f.ReceiverId.ToString() : f.SenderId.ToString()).ToList());
 
             var resultHasCountDict = resultHasCount.ToDictionary(p => p.ProfileId);
 
@@ -260,18 +260,18 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         [HttpPost("requests")]
         public async Task<IActionResult> SendRequest([FromBody] RelationshipRequest request)
         {
-            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
 
-            var requestResponse = await friendshipService.SendRequest(currentProfileId, request.UserId);
+            var requestResponse = await friendshipService.SendRequest(currentProfileId.ToString(), request.UserId);
 
             try
             {
-                await profileFollowService.Follow(currentProfileId, request.UserId);
+                await profileFollowService.Follow(currentProfileId.ToString(), request.UserId);
             }
             catch (Exception e)
             {
                 logger.LogError(e.Message);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status500InternalServerError);
             }
 
             return Ok(requestResponse);
@@ -283,16 +283,13 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         [HttpDelete("requests/{profileId}")]
         public async Task<IActionResult> CancelRequest(string profileId)
         {
-            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
 
             var friendship = await friendshipService.GetByStatus(FriendshipStatus.Pending, currentProfileId.ToString(), profileId) 
                 ?? throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            if (friendship.SenderId != Guid.Parse(currentProfileId))
-            {
+            if (!IsOwner(friendship.SenderId.ToString()))
                 throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
-            }
 
             var result = await friendshipService.CancelRequest(friendship.Id);
             return Ok(
@@ -306,26 +303,24 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         [HttpPut("requests/accept")]
         public async Task<IActionResult> AcceptRequest([FromBody] RelationshipRequest request)
         {
-            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
 
             var friendship = await friendshipService.GetByStatus(FriendshipStatus.Pending, request.UserId, currentProfileId.ToString()) 
                 ?? throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            if (friendship.ReceiverId != Guid.Parse(currentProfileId))
-            {
+            if (!IsOwner(friendship.ReceiverId.ToString()))
                 throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
-            }
 
             var requestResponse = await friendshipService.AcceptRequest(friendship);
 
             try
             {
-                await profileFollowService.Follow(currentProfileId, request.UserId);
+                await profileFollowService.Follow(currentProfileId.ToString(), request.UserId);
             }
             catch (Exception e)
             {
                 logger.LogError(e.Message);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status500InternalServerError);
             }
             return Ok(requestResponse);
         }
@@ -336,16 +331,14 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         [HttpPut("requests/decline")]
         public async Task<IActionResult> DeclineRequest([FromBody] RelationshipRequest request)
         {
-            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
 
             var friendship = await friendshipService.GetByStatus(FriendshipStatus.Pending, request.UserId, currentProfileId.ToString())
                 ?? throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            if (friendship.ReceiverId != Guid.Parse(currentProfileId))
-            {
+            if (!IsOwner(friendship.ReceiverId.ToString()))
                 throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
-            }
+
             var requestResponse = await friendshipService.DeclineRequest(friendship.Id);
             return Ok(requestResponse);
         }
@@ -356,17 +349,15 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         [HttpDelete("{userId}")]
         public async Task<IActionResult> UnFriend(string userId)
         {
-            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
 
             var friendship = await friendshipService.GetByStatus(FriendshipStatus.Connected, userId, currentProfileId.ToString())
                 ?? await friendshipService.GetByStatus(FriendshipStatus.Connected, currentProfileId.ToString(), userId) 
                 ?? throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            if (friendship.ReceiverId != Guid.Parse(currentProfileId) && friendship.SenderId != Guid.Parse(currentProfileId))
-            {
+            if (!IsOwner(friendship.ReceiverId.ToString()) && !IsOwner(friendship.SenderId.ToString()))
                 throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
-            }
+
             var result = await friendshipService.Unfriend(friendship.Id);
             return Ok(
                 result
@@ -379,8 +370,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         [HttpPost("follow")]
         public async Task<IActionResult> Follow([FromBody] string followeeId)
         {
-            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
 
             var followResponse = await profileFollowService.Follow(currentProfileId.ToString(), followeeId);
             return Ok(followResponse);
@@ -392,18 +382,15 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         [HttpDelete("follow/{profileId}")]
         public async Task<IActionResult> UnFollow(string profileId)
         {
-            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
 
-            var followee = await profileFollowService.GetByFollowerIdAndFolloweeIdAsync(currentProfileId.ToString(), profileId) 
+            var profileFollow = await profileFollowService.GetByFollowerIdAndFolloweeIdAsync(currentProfileId.ToString(), profileId) 
                 ?? throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            if (followee.FollowerId != Guid.Parse(currentProfileId) && followee.FolloweeId != Guid.Parse(currentProfileId))
-            {
+            if (!IsOwner(profileFollow.FollowerId.ToString()))
                 throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
-            }
 
-            var result = await profileFollowService.UnFollow(followee.Id.ToString());
+            var result = await profileFollowService.UnFollow(profileFollow.Id.ToString());
             return Ok(
                 result
             );
@@ -415,8 +402,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         [HttpPost("block")]
         public async Task<IActionResult> Block([FromBody] string followeeId)
         {
-            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
 
             var followee = await profileFollowService.GetByFollowerIdAndFolloweeIdAsync(currentProfileId.ToString(), followeeId);
             if (followee != null)
@@ -446,8 +432,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
         [HttpDelete("block/{profileId}")]
         public async Task<IActionResult> UnBlock(string profileId)
         {
-            string currentProfileId = GetCurrentProfileId != null ? GetCurrentProfileId().ToString()
-                : throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Guid currentProfileId = GetCurrentProfileId();
 
             var blockee = await profileBlockService.GetByBlockerIdAndBlockeeIdAsync(currentProfileId.ToString(), profileId) 
                 ?? throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);

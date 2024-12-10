@@ -18,7 +18,6 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
 {
     public class FriendshipService(
         IFriendshipRepository friendshipRepository,
-        IProfileFollowService followService,
         IProfileBlockService blockService,
         ILogger<FriendshipService> logger,
         IMessageBus messageBus,
@@ -184,14 +183,14 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
             };
         }
 
-        public async Task<AcceptRequestResponse> AcceptRequest(Friendship friendship)
+        public async Task<AcceptRequestResponse> AcceptRequest(Friendship entity)
         {
-            friendship.Status = FriendshipStatus.Connected;
-            var rs = await friendshipRepository.UpdateAsync(friendship);
+            entity.Status = FriendshipStatus.Connected;
+            var friendship = await friendshipRepository.UpdateAsync(entity);
             await PublishFriendshipNotificationCommands(friendship);
             return new AcceptRequestResponse
             {
-                UserId = friendship.Id.ToString(),
+                UserId = entity.Id.ToString(),
                 Message = "Friend request accepted",
                 Status = "Connected"
             };
