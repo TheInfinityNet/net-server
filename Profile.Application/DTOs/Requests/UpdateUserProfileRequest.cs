@@ -1,5 +1,4 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
-using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -22,9 +21,9 @@ namespace InfinityNetServer.Services.Profile.Application.DTOs.Requests
         [StringLength(100, MinimumLength = 1, ErrorMessage = "StringLength.LastName")]
         public string LastName { get; set; }
 
-        public DateTime Birthdate { get; set; }
+        public DateOnly Birthdate { get; set; }
 
-        public Gender Gender { get; set; }
+        public string Gender { get; set; }
 
         public string Bio { get; set; }
 

@@ -13,6 +13,7 @@ using InfinityNetServer.Services.Post.Application.DTOs.Requests;
 using InfinityNetServer.Services.Post.Application.DTOs.Responses;
 using InfinityNetServer.Services.Post.Application.Exceptions;
 using InfinityNetServer.Services.Post.Application.IServices;
+using InfinityNetServer.Services.Post.Domain.Entities;
 using InfinityNetServer.Services.Post.Domain.Enums;
 using InfinityNetServer.Services.Post.Domain.Repositories;
 using MassTransit;
@@ -75,7 +76,8 @@ namespace InfinityNetServer.Services.Post.Application.Services
                     break;
 
                 default:
-                    throw new PostException(PostError.INVALID_POST_TYPE, StatusCodes.Status400BadRequest);
+                    post = await postRepository.CreateAsync(entity);
+                    break;
             }
             await PublishPostNotificationCommands(entity, messageBus);
             return post;
@@ -148,28 +150,26 @@ namespace InfinityNetServer.Services.Post.Application.Services
                 Criteria = post =>
                         post.Presentation == null && post.GroupId == null && !post.IsDeleted
 
-                        && (post.Audience.Type == PostAudienceType.Public
+                        && (post.OwnerId.Equals(profileId) || post.Audience.Type == PostAudienceType.Public
 
-                            || post.OwnerId.Equals(profileId)
+                            || (followeeIds.Contains(post.OwnerId.ToString()) && friendIds.Contains(post.OwnerId.ToString()))
 
-                            || followeeIds.Contains(post.OwnerId.ToString()) && friendIds.Contains(post.OwnerId.ToString())
+                            || (post.Audience.Type == PostAudienceType.Friend && friendIds.Contains(post.OwnerId.ToString()))
 
-                            || post.Audience.Type == PostAudienceType.Friend && friendIds.Contains(post.OwnerId.ToString())
-
-                            || post.Audience.Type == PostAudienceType.Include
+                            || (post.Audience.Type == PostAudienceType.Include
                                 && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))
-                                && friendIds.Contains(post.OwnerId.ToString())
+                                && friendIds.Contains(post.OwnerId.ToString()))
 
-                            || post.Audience.Type == PostAudienceType.Exclude
+                            || (post.Audience.Type == PostAudienceType.Exclude
                                 && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))
-                                && friendIds.Contains(post.OwnerId.ToString())
+                                && friendIds.Contains(post.OwnerId.ToString()))
 
-                            || post.Audience.Type == PostAudienceType.Custom
+                            || (post.Audience.Type == PostAudienceType.Custom
                                 && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))
                                 && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))
-                                && friendIds.Contains(post.OwnerId.ToString())
+                                && friendIds.Contains(post.OwnerId.ToString()))
 
-                            || post.Audience.Type == PostAudienceType.OnlyMe && post.OwnerId.Equals(profileUuid)
+                            || (post.Audience.Type == PostAudienceType.OnlyMe && post.OwnerId.Equals(profileUuid))
                             )
 
                         && !blockerIds.Concat(blockeeIds).Contains(post.OwnerId.ToString()),
@@ -844,8 +844,11 @@ namespace InfinityNetServer.Services.Post.Application.Services
             // Process Owner
             if (profileDict.TryGetValue(post.OwnerId, out var ownerProfile))
             {
-                var avatar = photoMetadataDict.GetValueOrDefault(ownerProfile.Avatar.Id);
-                ownerProfile.Avatar = avatar;
+                if (ownerProfile.Avatar != null)
+                {
+                    var avatar = photoMetadataDict.GetValueOrDefault(ownerProfile.Avatar.Id);
+                    ownerProfile.Avatar = avatar;
+                }
                 postResponse.Owner = ownerProfile;
             }
 
@@ -860,8 +863,11 @@ namespace InfinityNetServer.Services.Post.Application.Services
             {
                 if (profileDict.TryGetValue(comment.Owner.Id, out var profile))
                 {
-                    var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
-                    profile.Avatar = avatar;
+                    if (profile.Avatar != null)
+                    {
+                        var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
+                        profile.Avatar = avatar;
+                    }
                     comment.Owner = profile;
                 }
 
@@ -907,8 +913,11 @@ namespace InfinityNetServer.Services.Post.Application.Services
                         // Process SubPost Owner
                         if (profileDict.TryGetValue(subPost.OwnerId, out var subOwnerProfile))
                         {
-                            var avatar = photoMetadataDict.GetValueOrDefault(subOwnerProfile.Avatar.Id);
-                            subOwnerProfile.Avatar = avatar;
+                            if (subOwnerProfile.Avatar != null)
+                            {
+                                var avatar = photoMetadataDict.GetValueOrDefault(subOwnerProfile.Avatar.Id);
+                                subOwnerProfile.Avatar = avatar;
+                            }
                             subPostResponse.Owner = subOwnerProfile;
                         }
 
@@ -949,8 +958,11 @@ namespace InfinityNetServer.Services.Post.Application.Services
                         // Process Parent's Owner
                         if (profileDict.TryGetValue(post.Parent.OwnerId, out var parentOwnerProfile))
                         {
-                            var avatar = photoMetadataDict.GetValueOrDefault(parentOwnerProfile.Avatar.Id);
-                            parentOwnerProfile.Avatar = avatar;
+                            if (parentOwnerProfile.Avatar != null)
+                            {
+                                var avatar = photoMetadataDict.GetValueOrDefault(parentOwnerProfile.Avatar.Id);
+                                parentOwnerProfile.Avatar = avatar;
+                            }
                             parentResponse.Owner = parentOwnerProfile;
                         }
 

@@ -69,7 +69,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         [Authorize]
         [EndpointDescription("Upload profile avatar")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("avatar")]
+        [HttpPut("avatar")]
         public async Task<IActionResult> UploadAvatar([FromBody] UplodaPhotoRequest avatar)
         {
             Domain.Entities.Profile profile = await profileService.GetById(GetCurrentProfileId().ToString())
@@ -97,7 +97,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         [Authorize]
         [EndpointDescription("Upload profile cover")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("cover")]
+        [HttpPut("cover")]
         public async Task<IActionResult> UploadCover([FromBody] UplodaPhotoRequest request)
         {
             Domain.Entities.Profile profile = await profileService.GetById(GetCurrentProfileId().ToString())

@@ -189,7 +189,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            await postService.SoftDelete(id);
+            await postService.Delete(id);
             return Ok(new CommonMessageResponse(
                 localizer["Message.DeletedPostSuccess", id].ToString()
             ));
@@ -219,7 +219,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             return Ok(actions);
         }
 
-        [EndpointDescription("Get profile post")]
+        [EndpointDescription("Get post details")]
         [Authorize]
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -241,7 +241,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
 
         [EndpointDescription("Get profile post")]
         [Authorize]
-        [HttpGet("profiles/{profileId}")]
+        [HttpGet("{profileId}/profiles")]
         [ProducesResponseType(typeof(CursorPagedResult<>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTimeline(string profileId, [FromQuery] string cursor = null, [FromQuery] int limit = 10)
         {
@@ -277,7 +277,7 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             return Ok(response);
         }
 
-        [EndpointDescription("Get news feed")]
+        [EndpointDescription("Search post")]
         [Authorize]
         [HttpGet("search")]
         [ProducesResponseType(typeof(CursorPagedResult<>), StatusCodes.Status200OK)]

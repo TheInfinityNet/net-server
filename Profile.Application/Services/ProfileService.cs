@@ -39,15 +39,15 @@ namespace InfinityNetServer.Services.Profile.Application.Services
 
         public async Task<Domain.Entities.Profile> Update(Domain.Entities.Profile profile)
         {
-            //Domain.Entities.Profile existedProfile = await GetById(profile.Id.ToString())
-            //    ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            Domain.Entities.Profile existedProfile = await GetById(profile.Id.ToString())
+                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-            //existedProfile.AvatarId = profile.AvatarId;
-            //existedProfile.CoverId = profile.CoverId;
-            //existedProfile.Location = profile.Location;
-            //existedProfile.MobileNumber = profile.MobileNumber;
-            //existedProfile.Status = profile.Status;
-            return await profileRepository.UpdateAsync(profile);
+            existedProfile.AvatarId = profile.AvatarId;
+            existedProfile.CoverId = profile.CoverId;
+            existedProfile.Location = profile.Location;
+            existedProfile.MobileNumber = profile.MobileNumber;
+            existedProfile.Status = profile.Status;
+            return await profileRepository.UpdateAsync(existedProfile);
         }
 
         public async Task ConfirmSave(string id, string fileMetadataId, bool isAvatar)

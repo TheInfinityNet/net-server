@@ -229,7 +229,7 @@ namespace InfinityNetServer.Services.Relationship.Presentation.Controllers
             IList<FriendshipResponse> result = [];
             foreach (var item in friends.Items)
             {
-                var profileId = currentProfileId.Equals(item.SenderId.ToString()) ? item.ReceiverId : item.SenderId;
+                var profileId = currentProfileId.Equals(item.SenderId) ? item.ReceiverId : item.SenderId;
                 if (profileDict.TryGetValue(profileId, out var profile))
                 {
                     if (profile.Avatar != null)

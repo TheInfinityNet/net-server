@@ -97,11 +97,9 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileRequest request)
         {
-            UserProfile existedProfile = await userProfileService.GetById(GetCurrentProfileId().ToString())
-                ?? throw new BaseException(BaseError.PROFILE_NOT_FOUND, StatusCodes.Status404NotFound);
 
             UserProfile profile = mapper.Map<UserProfile>(request);
-            profile.Id = existedProfile.Id;
+            profile.Id = GetCurrentProfileId();
 
             profile = await userProfileService.Update(profile);
 

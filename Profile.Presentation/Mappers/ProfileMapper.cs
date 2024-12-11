@@ -1,8 +1,12 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.DTOs.Requests;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.File;
 using InfinityNetServer.BuildingBlocks.Application.DTOs.Responses.Profile;
+using InfinityNetServer.BuildingBlocks.Application.Exceptions;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.Services.Profile.Application.DTOs.Requests;
 using InfinityNetServer.Services.Profile.Domain.Entities;
+using Microsoft.AspNetCore.Http;
+using System;
 
 namespace InfinityNetServer.Services.Profile.Presentation.Mappers;
 
@@ -105,7 +109,13 @@ public class ProfileMapper : AutoMapper.Profile
 
         CreateMap<UpdatePageProfileRequest, Domain.Entities.Profile>();
 
-        CreateMap<UpdateUserProfileRequest, UserProfile>();
+        CreateMap<UpdateUserProfileRequest, UserProfile>()
+            .AfterMap((src, dest) =>
+            {
+                if (!Enum.TryParse<Gender>(src.Gender, out var gender))
+                    throw new BaseException(BaseError.CAN_NOT_PARSE, StatusCodes.Status400BadRequest);
+                dest.Gender = gender;
+            });
 
         CreateMap<UpdatePageProfileRequest, PageProfile>();
     }
