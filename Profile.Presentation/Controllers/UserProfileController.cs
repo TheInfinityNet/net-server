@@ -65,29 +65,6 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 response.Cover = cover;
             }
 
-            //List<string> actions = [];
-
-            //if (currentUserId != userId)
-            //{
-            //    if (await relationshipClient.HasFriendship(currentUserId, userId))
-            //        actions.Add(ProfileActions.RemoveFriend.ToString());
-            //    else actions.Add(ProfileActions.AddFriend.ToString());
-
-            //    if (await relationshipClient.HasBlocked(currentUserId, userId))
-            //        actions.Add(ProfileActions.Unblock.ToString());
-            //    else actions.Add(ProfileActions.Block.ToString());
-
-            //    if (await relationshipClient.HasFollowed(currentUserId, userId))
-            //        actions.Add(ProfileActions.Unfollow.ToString());
-            //    else actions.Add(ProfileActions.Follow.ToString());
-
-            //    if (await relationshipClient.HasFriendRequest(currentUserId, userId))
-            //        actions.Add(ProfileActions.AcceptOrRejectFriendRequest.ToString());
-            //}
-            //else actions.AddRange(
-            //    [ProfileActions.ProfileCoverPhotoUpload.ToString(),
-            //        ProfileActions.ProfileCoverPhotoDelete.ToString()]);
-
             return Ok(response);
         }
 
