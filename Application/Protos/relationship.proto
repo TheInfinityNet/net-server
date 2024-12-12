@@ -78,4 +78,5 @@ service RelationshipService {
 
 	rpc getAllSentRequestIds(ProfileRequest) returns (ProfileIdsResponse) {}
 
+	rpc getAllMutualFriends(ProfilesRelationshipRequest) returns (ProfileIdsResponse) {}
 }

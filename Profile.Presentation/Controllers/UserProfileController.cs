@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -50,7 +52,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
 
             UserProfile currentProfile = await userProfileService.GetById(id);
-
+            
             var response = mapper.Map<UserProfileResponse>(currentProfile);
 
             if (currentProfile.AvatarId != null)
@@ -64,17 +66,57 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 var cover = await fileClient.GetPhotoMetadata(currentProfile.CoverId.Value.ToString());
                 response.Cover = cover;
             }
+<<<<<<< HEAD
+=======
+            //List<string> actions = [];
+
+            //if (currentUserId != userId)
+            //{
+            //    if (await relationshipClient.HasFriendship(currentUserId, userId))
+            //        actions.Add(ProfileActions.RemoveFriend.ToString());
+            //    else actions.Add(ProfileActions.AddFriend.ToString());
+
+            //    if (await relationshipClient.HasBlocked(currentUserId, userId))
+            //        actions.Add(ProfileActions.Unblock.ToString());
+            //    else actions.Add(ProfileActions.Block.ToString());
+
+            //    if (await relationshipClient.HasFollowed(currentUserId, userId))
+            //        actions.Add(ProfileActions.Unfollow.ToString());
+            //    else actions.Add(ProfileActions.Follow.ToString());
+
+            //    if (await relationshipClient.HasFriendRequest(currentUserId, userId))
+            //        actions.Add(ProfileActions.AcceptOrRejectFriendRequest.ToString());
+            //}
+            //else actions.AddRange(
+            //    [ProfileActions.ProfileCoverPhotoUpload.ToString(),
+            //        ProfileActions.ProfileCoverPhotoDelete.ToString()]);
+>>>>>>> 1f59eb57ffe1bb910a9bf9252e89d6db21b5c7db
 
             return Ok(response);
         }
-
+        [Authorize]
+        [EndpointDescription("Retrieve user profile")]
+        [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
+        [Authorize]
+        [HttpGet("{id}/mutual-friend")]
+        public async Task<IActionResult> GetMutualFriend(string id)
+        {
+            Guid currentUserId = GetCurrentProfileId();
+            IList<UserProfileResponse> response = [];
+            if (!IsOwner(id))
+            {
+                var mutualFriends = await relationshipClient.GetAllMutualFriends(currentUserId.ToString(), id);
+                var userProfiles = await userProfileService.GetAllByIds(mutualFriends);
+                response = userProfiles.Select(mapper.Map<UserProfileResponse>).ToList();
+            }
+            return Ok(response);
+        }
         [EndpointDescription("Update user profile")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Authorize]
         [HttpPut]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileRequest request)
         {
-
             UserProfile profile = mapper.Map<UserProfile>(request);
             profile.Id = GetCurrentProfileId();
 

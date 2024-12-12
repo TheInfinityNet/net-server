@@ -70,7 +70,25 @@ namespace InfinityNetServer.BuildingBlocks.Application.GrpcClients
                 throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
             }
         }
-
+        public async Task<IList<string>> GetAllMutualFriends(string currentProfileId, string targetProfileId)
+        {
+            try
+            {
+                logger.LogInformation("Starting has followed");
+                var response = await client.getAllMutualFriendsAsync(new ProfilesRelationshipRequest
+                {
+                    CurrentProfileId = currentProfileId,
+                    TargetProfileId = targetProfileId
+                });
+                // Call the gRPC server to introspect the token
+                return response.Ids;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new BaseException(BaseError.RELATIONSHIP_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+        }
         public async Task<bool> HasFriendRequest(string currentProfileId, string targetProfileId)
         {
             try

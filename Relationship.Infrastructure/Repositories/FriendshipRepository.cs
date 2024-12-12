@@ -103,7 +103,12 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Repositories
             }
             return friendsOfMutualFriendAndCount;
         }
-
+        public async Task<IList<Guid>> GetMutualFriends(Guid currentUserId, Guid friendId)
+        {
+            var friendsOfUser = await GetAllFriendIdsAsync(currentUserId);
+            var friendsOfFriendUser = await GetAllFriendIdsAsync(friendId);
+            return friendsOfUser.Intersect(friendsOfFriendUser).ToList();
+        }
         public async Task<IList<Guid>> GetAllPendingRequestIdsAsync(Guid currentUserId)
         {
             return await context.Friendships

@@ -22,7 +22,7 @@ namespace InfinityNetServer.Services.Relationship.Application.IServices
 
         public Task<IList<string>> GetAllPendingRequestIds(string profile);
 
-        public Task<IList<string>> GetAllMutualFriendIds(string profile);
+        public Task<IList<string>> GetAllMutualFriendIds(string profile, string friendId);
 
         public Task<IList<ProfileIdWithMutualCount>> GetAllMutualFriendsWithCount(string profile);
 
