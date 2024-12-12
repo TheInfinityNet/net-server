@@ -283,9 +283,10 @@ namespace InfinityNetServer.Services.Relationship.Application.Services
             }).ToList();
         }
 
-        public Task<IList<string>> GetAllMutualFriendIds(string profile)
+        public async Task<IList<string>> GetAllMutualFriendIds(string profile, string friendId)
         {
-            throw new NotImplementedException();
+            var list = await friendshipRepository.GetMutualFriends(Guid.Parse(profile), Guid.Parse(friendId));
+            return list.Select(x => x.ToString()).ToList();
         }
     }
 }

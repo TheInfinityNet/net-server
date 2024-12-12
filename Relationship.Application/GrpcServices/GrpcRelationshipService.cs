@@ -49,7 +49,14 @@ namespace InfinityNetServer.Services.Relationship.Application.GrpcServices
             };
             return response;
         }
-
+        public override async Task<ProfileIdsResponse> getAllMutualFriends(ProfilesRelationshipRequest request, ServerCallContext context)
+        {
+            logger.LogInformation("ProfileId: {ProfileId} has friendship with ProfileId: {ProfileId}", request.CurrentProfileId, request.TargetProfileId);
+            var source = await friendshipService.GetAllMutualFriendIds(request.CurrentProfileId, request.TargetProfileId);
+            var response = new ProfileIdsResponse();
+            response.Ids.AddRange(source);
+            return response;
+        }
         public override async Task<ProfileRelationshipResponse> hasFriendRequest(ProfilesRelationshipRequest request, ServerCallContext context)
         {
             logger.LogInformation("ProfileId: {ProfileId} has friend request from ProfileId: {ProfileId}", request.CurrentProfileId, request.TargetProfileId);
