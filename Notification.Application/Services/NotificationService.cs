@@ -35,11 +35,6 @@ namespace InfinityNetServer.Services.Notification.Application.Services
                             Field = x => x.IsRead,
                             Direction = SortDirection.Ascending
                         },
-                    new OrderField<Domain.Entities.Notification>
-                    {
-                        Field = x => x.CreatedAt,
-                        Direction = SortDirection.Descending
-                    }
                     ],
                 Cursor = cursor,
                 Limit = pageSize
@@ -80,13 +75,6 @@ namespace InfinityNetServer.Services.Notification.Application.Services
                         {
 
                             Criteria = x => x.AccountId == Guid.Parse(accountId) && x.IsRead == false, // where account id = {id}
-                            OrderFields = [
-                                new OrderField<Domain.Entities.Notification>
-                                {
-                                    Field = x => x.IsRead,
-                                    Direction = SortDirection.Ascending
-                                }
-                            ],
                             Cursor = cursor,
                             Limit = pageSize
                         };

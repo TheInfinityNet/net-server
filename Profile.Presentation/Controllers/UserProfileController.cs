@@ -66,31 +66,6 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
                 var cover = await fileClient.GetPhotoMetadata(currentProfile.CoverId.Value.ToString());
                 response.Cover = cover;
             }
-<<<<<<< HEAD
-=======
-            //List<string> actions = [];
-
-            //if (currentUserId != userId)
-            //{
-            //    if (await relationshipClient.HasFriendship(currentUserId, userId))
-            //        actions.Add(ProfileActions.RemoveFriend.ToString());
-            //    else actions.Add(ProfileActions.AddFriend.ToString());
-
-            //    if (await relationshipClient.HasBlocked(currentUserId, userId))
-            //        actions.Add(ProfileActions.Unblock.ToString());
-            //    else actions.Add(ProfileActions.Block.ToString());
-
-            //    if (await relationshipClient.HasFollowed(currentUserId, userId))
-            //        actions.Add(ProfileActions.Unfollow.ToString());
-            //    else actions.Add(ProfileActions.Follow.ToString());
-
-            //    if (await relationshipClient.HasFriendRequest(currentUserId, userId))
-            //        actions.Add(ProfileActions.AcceptOrRejectFriendRequest.ToString());
-            //}
-            //else actions.AddRange(
-            //    [ProfileActions.ProfileCoverPhotoUpload.ToString(),
-            //        ProfileActions.ProfileCoverPhotoDelete.ToString()]);
->>>>>>> 1f59eb57ffe1bb910a9bf9252e89d6db21b5c7db
 
             return Ok(response);
         }
@@ -98,7 +73,7 @@ namespace InfinityNetServer.Services.Profile.Presentation.Controllers
         [EndpointDescription("Retrieve user profile")]
         [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
         [Authorize]
-        [HttpGet("{id}/mutual-friend")]
+        [HttpGet("{id}/mutual-friends")]
         public async Task<IActionResult> GetMutualFriend(string id)
         {
             Guid currentUserId = GetCurrentProfileId();

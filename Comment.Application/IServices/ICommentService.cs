@@ -34,5 +34,7 @@ namespace InfinityNetServer.Services.Comment.Application.IServices
 
         public Task<Domain.Entities.Comment> SoftDelete(string commentId);
 
+        public Task<Domain.Entities.Comment> Delete(string commentId);
+
     }
 }

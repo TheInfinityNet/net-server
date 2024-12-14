@@ -49,70 +49,70 @@ namespace InfinityNetServer.Services.Comment.Infrastructure.Data
             comment.HasIndex(c => c.CreatedAt);
         }
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            var entries = ChangeTracker.Entries<Domain.Entities.Comment>();
+        //public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        //{
+        //    var entries = ChangeTracker.Entries<Domain.Entities.Comment>();
 
-            int result = await base.SaveChangesAsync(cancellationToken);
+        //    int result = await base.SaveChangesAsync(cancellationToken);
 
-            if (result > 0)
-            {
-                foreach (var entry in entries)
-                {
-                    Guid id = entry.Entity.Id;
-                    Guid profileId = entry.Entity.ProfileId;
-                    DateTime createdAt = entry.Entity.CreatedAt;
+        //    if (result > 0)
+        //    {
+        //        foreach (var entry in entries)
+        //        {
+        //            Guid id = entry.Entity.Id;
+        //            Guid profileId = entry.Entity.ProfileId;
+        //            DateTime createdAt = entry.Entity.CreatedAt;
 
-                    // tagged in comment
-                    CommentContent content = entry.Entity.Content;
-                    if (content.TagFacets.Count > 0)
-                    {
-                        foreach (var tag in content.TagFacets)
-                        {
-                            Guid taggedProfileId = tag.ProfileId;
-                            await messageBus.Publish(new DomainCommand.CreateCommentNotificationCommand
-                            {
-                                TriggeredBy = profileId.ToString(),
-                                TargetProfileId = taggedProfileId,
-                                CommentId = id,
-                                Type = BuildingBlocks.Domain.Enums.NotificationType.TaggedInComment,
-                                CreatedAt = createdAt
-                            });
-                        }
-                    }
+        //            // tagged in comment
+        //            CommentContent content = entry.Entity.Content;
+        //            if (content.TagFacets.Count > 0)
+        //            {
+        //                foreach (var tag in content.TagFacets)
+        //                {
+        //                    Guid taggedProfileId = tag.ProfileId;
+        //                    await messageBus.Publish(new DomainCommand.CreateCommentNotificationCommand
+        //                    {
+        //                        TriggeredBy = profileId.ToString(),
+        //                        TargetProfileId = taggedProfileId,
+        //                        CommentId = id,
+        //                        Type = BuildingBlocks.Domain.Enums.NotificationType.TaggedInComment,
+        //                        CreatedAt = createdAt
+        //                    });
+        //                }
+        //            }
 
-                    // reply to comment
-                    if (entry.Entity.ParentId != null)
-                    {
-                        Guid parentCommentId = entry.Entity.ParentId.Value;
-                        Domain.Entities.Comment parentComment = await Comments.FindAsync(parentCommentId);
-                        await messageBus.Publish(new DomainCommand.CreateCommentNotificationCommand
-                        {
-                            TriggeredBy = profileId.ToString(),
-                            TargetProfileId = parentComment.ProfileId,
-                            CommentId = id,
-                            Type = BuildingBlocks.Domain.Enums.NotificationType.ReplyToComment,
-                            CreatedAt = createdAt
-                        });
-                    }
+        //            // reply to comment
+        //            if (entry.Entity.ParentId != null)
+        //            {
+        //                Guid parentCommentId = entry.Entity.ParentId.Value;
+        //                Domain.Entities.Comment parentComment = await Comments.FindAsync(parentCommentId);
+        //                await messageBus.Publish(new DomainCommand.CreateCommentNotificationCommand
+        //                {
+        //                    TriggeredBy = profileId.ToString(),
+        //                    TargetProfileId = parentComment.ProfileId,
+        //                    CommentId = id,
+        //                    Type = BuildingBlocks.Domain.Enums.NotificationType.ReplyToComment,
+        //                    CreatedAt = createdAt
+        //                });
+        //            }
 
-                    //Comment to Post
-                    if (entry.State == EntityState.Added)
-                    {
-                        var post = await postClient.GetPreviewPost(entry.Entity.PostId.ToString());
-                        await messageBus.Publish(new DomainCommand.CreateCommentNotificationCommand
-                        {
-                            TriggeredBy = profileId.ToString(),
-                            TargetProfileId = post.OwnerId,
-                            CommentId = id,
-                            Type = BuildingBlocks.Domain.Enums.NotificationType.CommentToPost,
-                            CreatedAt = createdAt,
-                        });
-                    }
-                }
-            }
-            return result;
-        }
+        //            //Comment to Post
+        //            if (entry.State == EntityState.Added)
+        //            {
+        //                var post = await postClient.GetPreviewPost(entry.Entity.PostId.ToString());
+        //                await messageBus.Publish(new DomainCommand.CreateCommentNotificationCommand
+        //                {
+        //                    TriggeredBy = profileId.ToString(),
+        //                    TargetProfileId = post.OwnerId,
+        //                    CommentId = id,
+        //                    Type = BuildingBlocks.Domain.Enums.NotificationType.CommentToPost,
+        //                    CreatedAt = createdAt,
+        //                });
+        //            }
+        //        }
+        //    }
+        //    return result;
+        //}
 
     }
 

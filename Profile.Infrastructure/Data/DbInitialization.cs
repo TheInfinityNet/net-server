@@ -47,14 +47,14 @@ public static class DbInitialization
         var existingPageProfileCount = await pageRepository.GetAllAsync();
         if (existingPageProfileCount.Count == 0)
         {
-            IList<string> accountIds = await identityClient.GetAccountIds();
+            //IList<string> accountIds = await identityClient.GetAccountIds();
             IList<AccountWithDefaultProfile> accountWithDefaultProfiles = await identityClient.GetAccountsWithDefaultProfiles();
 
             var userProfiles = GenerateUserProfiles(accountWithDefaultProfiles);
             await userProfileRepository.CreateAsync(userProfiles);
 
-            var pageProfiles = GeneratePageProfiles(numberOfPageProfiles, accountIds);
-            await pageRepository.CreateAsync(pageProfiles);
+            //var pageProfiles = GeneratePageProfiles(numberOfPageProfiles, accountIds);
+            //await pageRepository.CreateAsync(pageProfiles);
         }
     }
 

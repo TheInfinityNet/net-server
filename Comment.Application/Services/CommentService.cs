@@ -70,6 +70,11 @@ namespace InfinityNetServer.Services.Comment.Application.Services
 
         public void ValidateType(Domain.Entities.Comment entity)
         {
+            if (entity.ParentId != null)
+            {
+                _ = GetById(entity.ParentId.ToString())
+                    ?? throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
             switch (entity.Type)
             {
                 case CommentType.Text:
@@ -130,6 +135,29 @@ namespace InfinityNetServer.Services.Comment.Application.Services
             }
         }
 
+        public async Task ConfirmDeleteFile(string fileMetadataId, FileMetadataType fileMetadataType)
+        {
+            switch (fileMetadataType)
+            {
+                case FileMetadataType.Photo:
+                    await messageBus.Publish(new DomainEvent.DeletePhotoMetadataEvent
+                    {
+                        FileMetadataId = Guid.Parse(fileMetadataId),
+                    });
+                    break;
+
+                case FileMetadataType.Video:
+                    await messageBus.Publish(new DomainEvent.DeleteVideoMetadataEvent
+                    {
+                        FileMetadataId = Guid.Parse(fileMetadataId),
+                    });
+                    break;
+
+                default:
+                    throw new CommentException(CommentError.INVALID_COMMENT_TYPE, StatusCodes.Status400BadRequest);
+            }
+        }
+
         public async Task<Domain.Entities.Comment> Create(Domain.Entities.Comment entity)
         {
             logger.LogInformation("Create comment");
@@ -147,6 +175,12 @@ namespace InfinityNetServer.Services.Comment.Application.Services
         {
             logger.LogInformation("Soft delete comment");
             return await commentRepository.SoftDeleteAsync(Guid.Parse(commentId));
+        }
+
+        public async Task<Domain.Entities.Comment> Delete(string commentId)
+        {
+            logger.LogInformation("Delete comment");
+            return await commentRepository.DeleteAsync(Guid.Parse(commentId));
         }
 
         public async Task<Domain.Entities.Comment> Update(Domain.Entities.Comment entity)

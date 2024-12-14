@@ -1,4 +1,5 @@
 using AutoMapper;
+using InfinityNetServer.BuildingBlocks.Domain.Enums;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using InfinityNetServer.Services.Post.Application.DTOs.Orther;
 using InfinityNetServer.Services.Post.Application.DTOs.Requests;
@@ -17,6 +18,8 @@ namespace InfinityNetServer.Services.Post.Application.IServices
         public void ValidateAudienceType(BasePostAudience dto);
 
         public Task ConfirmSave(string id, string profileId, string fileMetadataId);
+
+        public Task ConfirmDeleteFile(string fileMetadataId, FileMetadataType fileMetadataType);
 
         public Task<Domain.Entities.Post> GetById(string id);
 

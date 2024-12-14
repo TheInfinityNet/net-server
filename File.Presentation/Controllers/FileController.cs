@@ -27,7 +27,6 @@ namespace InfinityNetServer.Services.File.Presentation.Controllers
         IAuthenticatedUserService authenticatedUserService,
         ILogger<FileController> logger,
         IStringLocalizer<FileSharedResource> Localizer,
-        IMessageBus messageBus,
         IPhotoMetadataService photoMetadataService,
         IVideoMetadataService videoMetadataService,
         IBaseRedisService<string, PhotoMetadata> redisServiceForPhoto,

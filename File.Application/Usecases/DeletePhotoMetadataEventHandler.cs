@@ -1,9 +1,7 @@
 ﻿using InfinityNetServer.BuildingBlocks.Application.Contracts.Events;
-using InfinityNetServer.BuildingBlocks.Application.Exceptions;
 using InfinityNetServer.Services.File.Application.IServices;
 using InfinityNetServer.Services.File.Domain.Entities;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,11 +17,13 @@ namespace InfinityNetServer.Services.File.Application.Usecases
         public async Task Handle(DomainEvent.DeletePhotoMetadataEvent request, CancellationToken cancellationToken)
         {
             logger.LogInformation("Handling message with file name: {Id}", request.FileMetadataId);
-            PhotoMetadata photoMetadata = await photoMetadataService.GetById(request.FileMetadataId.ToString()) 
-                ?? throw new BaseException(BaseError.FILE_NOT_FOUND, StatusCodes.Status404NotFound);
+            PhotoMetadata photoMetadata = await photoMetadataService.GetById(request.FileMetadataId.ToString());
 
-            await photoMetadataService.Delete(photoMetadata.Id.ToString());
-            await minioClientService.DeleteObject("infinity-net-bucket", photoMetadata.Name);
+            if (photoMetadata != null)
+            {
+                await photoMetadataService.Delete(photoMetadata.Id.ToString());
+                await minioClientService.DeleteObject("infinity-net-bucket", photoMetadata.Name);
+            }
         }
 
     }

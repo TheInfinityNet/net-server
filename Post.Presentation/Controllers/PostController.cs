@@ -10,7 +10,6 @@ using InfinityNetServer.Services.Post.Application.DTOs.Responses;
 using InfinityNetServer.Services.Post.Application.Helpers;
 using InfinityNetServer.Services.Post.Application.IServices;
 using InfinityNetServer.Services.Post.Domain.Enums;
-using InfinityNetServer.Services.Profile.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -71,96 +70,6 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
             });
         }
 
-        //[EndpointDescription("Create a share post")]
-        //[ProducesResponseType(StatusCodes.Status201Created)]
-        //[Authorize]
-        //[HttpPost("share")]
-        //public async Task<IActionResult> CreateSharePost([FromBody] CreateSharePostRequest request)
-        //{
-        //    Guid currentProfileId = GetCurrentProfileId();
-
-        //    postService.ValidateAudienceType(request.Audience);
-        //    _ = await postService.GetById(request.ShareId)
-        //        ?? throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status404NotFound);
-
-        //    var post = mapper.Map<Domain.Entities.Post>(request);
-        //    post.OwnerId = currentProfileId;
-
-        //    var response = await postService.Create(post);
-        //    return Created(string.Empty, new
-        //    {
-        //        id = response.Id,
-        //    });
-        //}
-
-        //[EndpointDescription("Create a media post")]
-        //[ProducesResponseType(StatusCodes.Status201Created)]
-        //[Authorize]
-        //[HttpPost("media")]
-        //public async Task<IActionResult> CreateMediaPost([FromBody] CreateMediaPostRequest request)
-        //{
-        //    Guid currentProfileId = GetCurrentProfileId();
-
-        //    postService.ValidateMediaPostType(request);
-
-        //    postService.ValidateAudienceType(request.Audience);
-
-        //    var post = mapper.Map<Domain.Entities.Post>(request);
-        //    post.OwnerId = currentProfileId;
-
-        //    logger.LogInformation("Create media post: {0}", post);
-
-        //    var response = await postService.Create(post);
-
-        //    await postService.ConfirmSave(
-        //        response.Id.ToString(),
-        //        post.OwnerId.ToString(),
-        //        post.FileMetadataId.ToString());
-
-        //    return Created(string.Empty, new
-        //    {
-        //        id = response.Id,
-        //    });
-        //}
-
-        //[EndpointDescription("Create a multi-media post")]
-        //[ProducesResponseType(StatusCodes.Status201Created)]
-        //[Authorize]
-        //[HttpPost("multi-media")]
-        //public async Task<IActionResult> CreateMultiMediaPost([FromBody] CreateMultiMediaPostRequest request)
-        //{
-        //    Guid currentProfileId = GetCurrentProfileId();
-
-        //    postService.ValidateAudienceType(request.Audience);
-
-        //    var post = mapper.Map<Domain.Entities.Post>(request);
-        //    post.OwnerId = currentProfileId;
-
-        //    var subPosts = new List<Domain.Entities.Post>();
-        //    foreach (var subPostDto in request.Aggregates)
-        //    {
-        //        postService.ValidateMediaPostType(subPostDto);
-        //        var subPost = mapper.Map<Domain.Entities.Post>(subPostDto);
-        //        subPost.Audience = null;
-        //        subPost.OwnerId = currentProfileId;
-        //        subPosts.Add(subPost);
-        //    }
-        //    post.SubPosts = subPosts;
-
-        //    var response = await postService.Create(post);
-
-        //    foreach (var subPost in response.SubPosts)
-        //        await postService.ConfirmSave(
-        //            subPost.Id.ToString(),
-        //            post.OwnerId.ToString(),
-        //            subPost.FileMetadataId.ToString());
-
-        //    return Created(string.Empty, new
-        //    {
-        //        id = response.Id,
-        //    });
-        //}
-
         [EndpointDescription("Update a post")]
         [ProducesResponseType(typeof(CommonMessageResponse), StatusCodes.Status200OK)]
         [Authorize]
@@ -174,9 +83,10 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
                 throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
 
             var post = mapper.Map<Domain.Entities.Post>(request);
-            post.Id = existingPost.Id;
+            existingPost.Content = post.Content;
+            existingPost.Audience.Type = post.Audience.Type;
 
-            await postService.Update(post);
+            await postService.Update(existingPost);
 
             return Ok(new CommonMessageResponse(
                 localizer["Message.UpdatedPostSuccess", id].ToString()
@@ -189,6 +99,12 @@ namespace InfinityNetServer.Services.Post.Presentation.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
+            var existingPost = await postService.GetById(id)
+                ?? throw new BaseException(BaseError.POST_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            if (!IsOwner(existingPost.OwnerId.ToString()))
+                throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
+
             await postService.Delete(id);
             return Ok(new CommonMessageResponse(
                 localizer["Message.DeletedPostSuccess", id].ToString()

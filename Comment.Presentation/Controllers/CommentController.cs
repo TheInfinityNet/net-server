@@ -151,7 +151,10 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Authorize]
         [HttpGet("{parentId}/replies")]
-        public async Task<IActionResult> GetReplies(string parentId, [FromQuery] string cursor = null, [FromQuery] int limit = 10)
+        public async Task<IActionResult> GetReplies(
+            string parentId, 
+            [FromQuery] string cursor = null, 
+            [FromQuery] int limit = 10)
         {
             Guid currentProfileId = GetCurrentProfileId();
 
@@ -229,8 +232,11 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
                     // Process Owner
                     if (profileDict.TryGetValue(commentItem.ProfileId, out var ownerProfile))
                     {
-                        var avatar = photoMetadataDict.GetValueOrDefault(ownerProfile.Avatar.Id);
-                        ownerProfile.Avatar = avatar;
+                        if (ownerProfile.Avatar != null)
+                        {
+                            var avatar = photoMetadataDict.GetValueOrDefault(ownerProfile.Avatar.Id);
+                            ownerProfile.Avatar = avatar;
+                        }
                         commentResponse.Owner = ownerProfile;
                     }
 
@@ -282,7 +288,7 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
             if(!IsOwner(comment.ProfileId.ToString()))
                 throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
 
-            var response = await commentService.SoftDelete(id);
+            var response = await commentService.Delete(id);
 
             return Ok(new
             {
@@ -294,14 +300,20 @@ namespace InfinityNetServer.Services.Comment.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateComment(string id, [FromBody] CommentBaseRequest request)
+        public async Task<IActionResult> UpdateComment(string id, [FromBody] UpdateCommentRequest request)
         {
             Domain.Entities.Comment comment = mapper.Map<Domain.Entities.Comment>(request);
-            comment.Id = Guid.Parse(id);
-
             commentService.ValidateType(comment);
 
-            var response = await commentService.Update(comment);
+            var existingComment = await commentService.GetById(id)
+                ?? throw new BaseException(BaseError.COMMENT_NOT_FOUND, StatusCodes.Status404NotFound);
+
+            if (!IsOwner(existingComment.ProfileId.ToString()))
+                throw new BaseException(BaseError.NOT_HAVE_PERMISSION, StatusCodes.Status403Forbidden);
+
+            existingComment.Content = comment.Content;
+
+            var response = await commentService.Update(existingComment);
 
             return Ok(new
             {

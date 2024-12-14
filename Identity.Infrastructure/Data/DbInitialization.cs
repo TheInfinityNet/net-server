@@ -1,16 +1,13 @@
 ﻿using Bogus;
+using InfinityNetServer.Services.Identity.Application.Helpers;
 using InfinityNetServer.Services.Identity.Domain.Entities;
 using InfinityNetServer.Services.Identity.Domain.Enums;
+using InfinityNetServer.Services.Identity.Domain.Repositories;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using MassTransit;
-using InfinityNetServer.Services.Identity.Domain.Repositories;
-using InfinityNetServer.BuildingBlocks.Domain.Repositories;
-using InfinityNetServer.Services.Identity.Application.Helpers;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Principal;
 
 namespace InfinityNetServer.Services.Identity.Infrastructure.Data;
 

@@ -102,7 +102,24 @@ namespace InfinityNetServer.Services.Post.Application.Services
         public async Task<Domain.Entities.Post> Delete(string id)
         {
             logger.LogInformation("Deleting post");
-            return await postRepository.DeleteAsync(Guid.Parse(id));
+            var post = await postRepository.DeleteAsync(Guid.Parse(id));
+
+            switch(post.Type)
+            {
+                case PostType.Photo or PostType.Video:
+                    await ConfirmDeleteFile(post.FileMetadataId.ToString(), 
+                        post.Type == PostType.Photo ? FileMetadataType.Photo : FileMetadataType.Video);
+                    break;
+
+                case PostType.MultiMedia:
+                    foreach (var subPost in post.SubPosts)
+                    {
+                        await ConfirmDeleteFile(subPost.FileMetadataId.ToString(), 
+                            subPost.Type == PostType.Photo ? FileMetadataType.Photo : FileMetadataType.Video);
+                    }
+                    break;
+            }
+            return post;
         }
 
         public async Task<IEnumerable<Domain.Entities.Post>> GetAll()
@@ -138,45 +155,54 @@ namespace InfinityNetServer.Services.Post.Application.Services
         public async Task<CursorPagedResult<Domain.Entities.Post>> GetTimeline
             (string profileId, string cursor, int pageSize)
         {
-            IList<string> followeeIds = await relationshipClient.GetAllFolloweeIds(profileId);
-            IList<string> friendIds = await relationshipClient.GetAllFriendIds(profileId);
-            IList<string> blockerIds = await relationshipClient.GetAllBlockerIds(profileId);
-            IList<string> blockeeIds = await relationshipClient.GetAllBlockeeIds(profileId);
+            // Lấy danh sách bạn bè, người theo dõi và người chặn
+            var followeeIdsTask = relationshipClient.GetAllFolloweeIds(profileId);
+            var friendIdsTask = relationshipClient.GetAllFriendIds(profileId);
+            var blockerIdsTask = relationshipClient.GetAllBlockerIds(profileId);
+            var blockeeIdsTask = relationshipClient.GetAllBlockeeIds(profileId);
 
+            await Task.WhenAll(followeeIdsTask, friendIdsTask, blockerIdsTask, blockeeIdsTask);
+
+            var followeeIds = (await followeeIdsTask).ToHashSet();
+            var friendIds = (await friendIdsTask).ToHashSet();
+            var blockersAndBlockees = (await blockerIdsTask).Concat(await blockeeIdsTask).ToHashSet();
+
+            // Parse profileId sang UUID
             Guid profileUuid = Guid.Parse(profileId);
+
+            // Xây dựng điều kiện lọc
             var specification = new SpecificationWithCursor<Domain.Entities.Post>
             {
-
                 Criteria = post =>
-                        post.Presentation == null && post.GroupId == null && !post.IsDeleted
+                    post.Presentation == null &&
+                    post.GroupId == null &&
+                    !post.IsDeleted &&
+                    !blockersAndBlockees.Contains(post.OwnerId.ToString()) &&
 
-                        && (post.OwnerId.Equals(profileId) || post.Audience.Type == PostAudienceType.Public
+                    // Logic hiển thị bài viết dựa trên loại Audience
+                    (
+                        post.OwnerId.Equals(profileUuid) || // Bài viết của chính người dùng
 
-                            || (followeeIds.Contains(post.OwnerId.ToString()) && friendIds.Contains(post.OwnerId.ToString()))
+                        post.Audience.Type == PostAudienceType.Public || // Công khai
 
-                            || (post.Audience.Type == PostAudienceType.Friend && friendIds.Contains(post.OwnerId.ToString()))
+                        (post.Audience.Type == PostAudienceType.Friend && friendIds.Contains(post.OwnerId.ToString())) || // Bạn bè
 
-                            || (post.Audience.Type == PostAudienceType.Include
-                                && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))
-                                && friendIds.Contains(post.OwnerId.ToString()))
+                        (post.Audience.Type == PostAudienceType.Include &&
+                            post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))) || // Chỉ định cụ thể
 
-                            || (post.Audience.Type == PostAudienceType.Exclude
-                                && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))
-                                && friendIds.Contains(post.OwnerId.ToString()))
+                        (post.Audience.Type == PostAudienceType.Exclude &&
+                            !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))) || // Không loại trừ
 
-                            || (post.Audience.Type == PostAudienceType.Custom
-                                && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))
-                                && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))
-                                && friendIds.Contains(post.OwnerId.ToString()))
+                        (post.Audience.Type == PostAudienceType.Custom &&
+                            post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid)) &&
+                            !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))) // Tùy chỉnh
+                    ),
 
-                            || (post.Audience.Type == PostAudienceType.OnlyMe && post.OwnerId.Equals(profileUuid))
-                            )
-
-                        && !blockerIds.Concat(blockeeIds).Contains(post.OwnerId.ToString()),
                 Cursor = cursor,
                 Limit = pageSize
             };
 
+            // Lấy kết quả phân trang
             return await postRepository.GetPagedAsync(specification);
         }
 
@@ -232,49 +258,62 @@ namespace InfinityNetServer.Services.Post.Application.Services
         public async Task<CursorPagedResult<Domain.Entities.Post>> GetProfilePost
             (string currentProfileId, string profileId, string cursor, int pageSize)
         {
+            // Kiểm tra xem có phải profile của chính người dùng không
             bool isMyProfile = currentProfileId.Equals(profileId);
-            IList<string> followeeIds = await relationshipClient.GetAllFolloweeIds(profileId);
-            IList<string> friendIds = await relationshipClient.GetAllFriendIds(profileId);
-            IList<string> blockerIds = await relationshipClient.GetAllBlockerIds(profileId);
-            IList<string> blockeeIds = await relationshipClient.GetAllBlockeeIds(profileId);
 
-            if (Guid.TryParse(currentProfileId, out Guid profileUuid))
+            // Lấy danh sách quan hệ
+            var followeeIdsTask = relationshipClient.GetAllFolloweeIds(profileId);
+            var friendIdsTask = relationshipClient.GetAllFriendIds(profileId);
+            var blockerIdsTask = relationshipClient.GetAllBlockerIds(profileId);
+            var blockeeIdsTask = relationshipClient.GetAllBlockeeIds(profileId);
+
+            await Task.WhenAll(followeeIdsTask, friendIdsTask, blockerIdsTask, blockeeIdsTask);
+
+            var followeeIds = (await followeeIdsTask).ToHashSet();
+            var friendIds = (await friendIdsTask).ToHashSet();
+            var blockersAndBlockees = (await blockerIdsTask).Concat(await blockeeIdsTask).ToHashSet();
+
+            if (!Guid.TryParse(profileId, out Guid profileUuid))
             {
-                var specification = new SpecificationWithCursor<Domain.Entities.Post>
-                {
-
-                    Criteria = post =>
-                            post.Presentation == null && post.GroupId == null && !post.IsDeleted
-                            && isMyProfile ? post.OwnerId.Equals(profileUuid)
-
-                            : post.OwnerId.Equals(profileUuid)
-                                && (post.Audience.Type.Equals(PostAudienceType.Public)
-
-                                    && followeeIds.Contains(post.OwnerId.ToString()) && friendIds.Contains(post.OwnerId.ToString())
-
-                                    || post.Audience.Type.Equals(PostAudienceType.Friend) && friendIds.Contains(post.OwnerId.ToString())
-
-                                    || post.Audience.Type.Equals(PostAudienceType.Include)
-                                        && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))
-                                        && friendIds.Contains(post.OwnerId.ToString())
-
-                                    || post.Audience.Type.Equals(PostAudienceType.Exclude)
-                                        && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))
-                                        && friendIds.Contains(post.OwnerId.ToString())
-
-                                    || post.Audience.Type.Equals(PostAudienceType.Custom)
-                                        && post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))
-                                        && !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))
-                                        && friendIds.Contains(post.OwnerId.ToString())
-                                    )
-                                && !blockerIds.Concat(blockeeIds).Contains(post.OwnerId.ToString()),
-                    Cursor = cursor,
-                    Limit = pageSize
-                };
-
-                return await postRepository.GetPagedAsync(specification);
+                return new CursorPagedResult<Domain.Entities.Post>();
             }
-            return new CursorPagedResult<Domain.Entities.Post>();
+
+            var specification = new SpecificationWithCursor<Domain.Entities.Post>
+            {
+                Criteria = post =>
+                    post.Presentation == null &&
+                    post.GroupId == null &&
+                    !post.IsDeleted &&
+                    !blockersAndBlockees.Contains(post.OwnerId.ToString()) &&
+
+                    // Nếu là profile của chính mình, hiển thị tất cả bài viết
+                    (
+                        isMyProfile
+                        ? post.OwnerId.Equals(profileUuid)
+
+                        : post.OwnerId.Equals(profileUuid) &&
+                          (
+                              post.Audience.Type == PostAudienceType.Public || // Công khai
+
+                              (post.Audience.Type == PostAudienceType.Friend && friendIds.Contains(post.OwnerId.ToString())) || // Bạn bè
+
+                              (post.Audience.Type == PostAudienceType.Include &&
+                                  post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid))) || // Chỉ định cụ thể
+
+                              (post.Audience.Type == PostAudienceType.Exclude &&
+                                  !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))) || // Không loại trừ
+
+                              (post.Audience.Type == PostAudienceType.Custom &&
+                                  post.Audience.Includes.Any(i => i.ProfileId.Equals(profileUuid)) &&
+                                  !post.Audience.Excludes.Any(i => i.ProfileId.Equals(profileUuid))) // Tùy chỉnh
+                          )
+                    ),
+
+                Cursor = cursor,
+                Limit = pageSize
+            };
+
+            return await postRepository.GetPagedAsync(specification);
         }
 
         public async Task<IList<Domain.Entities.Post>> GetAllByParentId(string id)
@@ -308,6 +347,11 @@ namespace InfinityNetServer.Services.Post.Application.Services
                 case PostType.Text:
                     if (string.IsNullOrEmpty(dto.Content.Text))
                         throw new PostException(PostError.REQUIRED_TEXT, StatusCodes.Status400BadRequest);
+                    break;
+
+                case PostType.Share:
+                    if (string.IsNullOrEmpty(dto.ShareId))
+                        throw new PostException(PostError.REQUIRED_PARENT, StatusCodes.Status400BadRequest);
                     break;
 
                 case PostType.Photo:
@@ -406,11 +450,35 @@ namespace InfinityNetServer.Services.Post.Application.Services
             }
         }
 
+        public async Task ConfirmDeleteFile(string fileMetadataId, FileMetadataType fileMetadataType)
+        {
+            switch (fileMetadataType)
+            {
+                case FileMetadataType.Photo:
+                    await messageBus.Publish(new DomainEvent.DeletePhotoMetadataEvent
+                    {
+                        FileMetadataId = Guid.Parse(fileMetadataId),
+                    });
+                    break;
+
+                case FileMetadataType.Video:
+                    await messageBus.Publish(new DomainEvent.DeleteVideoMetadataEvent
+                    {
+                        FileMetadataId = Guid.Parse(fileMetadataId),
+                    });
+                    break;
+
+                default:
+                    throw new PostException(PostError.INVALID_POST_TYPE, StatusCodes.Status400BadRequest);
+            }
+        }
+
         public async Task<IList<BasePostResponse>> ToResponse(
             IList<Domain.Entities.Post> posts, 
             Guid currentProfileId, 
             IMapper mapper)
         {
+            // Get popular comments
             IList<string> postIds = posts.Select(item => item.Id.ToString()).Distinct().ToList();
 
             var popularCommentsTasks = postIds.Select(async id =>
@@ -422,23 +490,28 @@ namespace InfinityNetServer.Services.Post.Application.Services
             var popularCommentsDict = (await Task.WhenAll(popularCommentsTasks))
                 .Where(comments => comments.Count > 0).ToDictionary(x => x[0].PostId);
 
+            // Get post reactions of current profile
             IList<(string postId, string profileId)> postIdsAndProfileIds = postIds.Select(p => (p, currentProfileId.ToString())).ToList();
             var postReactionTypes = await reactionClient.GetPostReactionsByProfileIds(postIdsAndProfileIds);
             var postReactionTypesDict = postReactionTypes.ToDictionary(
                 previewReaction => new { previewReaction.OwnerId, previewReaction.ProfileId }, previewReaction => previewReaction.Type);
 
+            // Get post reactions count
             var postReactionCounts = await reactionClient.GetPostReactionsCount(postIds);
             var postReactionCountsDict = postReactionCounts.ToDictionary(
                 reactionCount => Guid.Parse(reactionCount.postId), reactionCount => reactionCount.countDetails);
 
+            // Get all comment ids
             IList<string> commentIds = popularCommentsDict.Values
                 .SelectMany(comment => comment.Select(c => c.Id.ToString())).Distinct().ToList();
 
+            // Get comment reactions of current profile
             IList<(string commentId, string profileId)> commentIdsAndProfileIds = commentIds.Select(p => (p, currentProfileId.ToString())).ToList();
             var commentReactionTypes = await reactionClient.GetCommentReactionByProfileId(commentIdsAndProfileIds);
             var commentReactionTypesDict = commentReactionTypes.ToDictionary(
                 previewReaction => new { previewReaction.OwnerId, previewReaction.ProfileId }, previewReaction => previewReaction.Type);
 
+            // Get comment reactions count
             var commentReactionCounts = await reactionClient.GetCommentReactionsCount(commentIds);
             var commentReactionCountsDict = commentReactionCounts.ToDictionary(
                 reactionCount => Guid.Parse(reactionCount.commentId), reactionCount => reactionCount.countDetails);
@@ -451,10 +524,10 @@ namespace InfinityNetServer.Services.Post.Application.Services
                     .Where(item => item.Type == PostType.MultiMedia)
                     .SelectMany(item => item.SubPosts.Select(p => p.OwnerId)))
             .Concat(posts
-                    .Where(item => item.Type == PostType.Share)
+                    .Where(item => item.Type == PostType.Share && item.Parent != null)
                     .Select(item => item.Parent.OwnerId))
                 .Concat(posts
-                    .Where(item => item.Type == PostType.Share && item.Parent.Type == PostType.MultiMedia)
+                    .Where(item => item.Type == PostType.Share && item.Parent != null && item.Parent.Type == PostType.MultiMedia)
                     .SelectMany(item => item.Parent.SubPosts.Select(p => p.OwnerId)))
                 .Concat(popularCommentsDict.Values.SelectMany(comment => comment.Select(c => c.Owner.Id)).Distinct().ToList())
                 .Concat([currentProfileId])
@@ -476,10 +549,10 @@ namespace InfinityNetServer.Services.Post.Application.Services
                         .Where(p => p.Type == PostType.Photo)
                         .Select(p => p.FileMetadataId.Value)))
                 .Concat(posts
-                    .Where(item => item.Type == PostType.Share && item.Parent.Type == PostType.Photo)
+                    .Where(item => item.Type == PostType.Share && item.Parent != null && item.Parent.Type == PostType.Photo)
                     .Select(item => item.Parent.FileMetadataId.Value))
                 .Concat(posts
-                    .Where(item => item.Type == PostType.Share && item.Parent.Type == PostType.MultiMedia)
+                    .Where(item => item.Type == PostType.Share && item.Parent != null && item.Parent.Type == PostType.MultiMedia)
                     .SelectMany(item => item.Parent.SubPosts
                     .Where(p => p.Type == PostType.Photo)
                         .Select(p => p.FileMetadataId.Value)))
@@ -494,10 +567,10 @@ namespace InfinityNetServer.Services.Post.Application.Services
                         .Where(p => p.Type == PostType.Video)
                         .Select(p => p.FileMetadataId.Value)))
                 .Concat(posts
-                    .Where(item => item.Type == PostType.Share && item.Parent.Type == PostType.Video)
+                    .Where(item => item.Type == PostType.Share && item.Parent != null && item.Parent.Type == PostType.Video)
                     .Select(item => item.Parent.FileMetadataId.Value))
                 .Concat(posts
-                    .Where(item => item.Type == PostType.Share && item.Parent.Type == PostType.MultiMedia)
+                    .Where(item => item.Type == PostType.Share && item.Parent != null && item.Parent.Type == PostType.MultiMedia)
                     .SelectMany(item => item.Parent.SubPosts
                         .Where(p => p.Type == PostType.Video)
                         .Select(p => p.FileMetadataId.Value)))
@@ -553,28 +626,28 @@ namespace InfinityNetServer.Services.Post.Application.Services
                         new { OwnerId = postItem.Id, ProfileId = currentProfileId }, out var reactionType))
                         postResponse.Reaction = reactionType;
 
-                    if (popularCommentsDict.TryGetValue(postItem.Id, out var comments))
-                        postResponse.PopularComments = comments.Select(comment =>
-                        {
-                            if (profileDict.TryGetValue(comment.Owner.Id, out var profile))
-                            {
-                                if (profile.Avatar != null)
-                                {
-                                    var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
-                                    profile.Avatar = avatar;
-                                }
-                                comment.Owner = profile;
-                            }
+                    //if (popularCommentsDict.TryGetValue(postItem.Id, out var comments))
+                    //    postResponse.PopularComments = comments.Select(comment =>
+                    //    {
+                    //        if (profileDict.TryGetValue(comment.Owner.Id, out var profile))
+                    //        {
+                    //            if (profile.Avatar != null)
+                    //            {
+                    //                var avatar = photoMetadataDict.GetValueOrDefault(profile.Avatar.Id);
+                    //                profile.Avatar = avatar;
+                    //            }
+                    //            comment.Owner = profile;
+                    //        }
 
-                            if (commentReactionTypesDict.TryGetValue(
-                                new { OwnerId = comment.Id, ProfileId = currentProfileId }, out var reactionType))
-                                comment.Reaction = reactionType;
+                    //        if (commentReactionTypesDict.TryGetValue(
+                    //            new { OwnerId = comment.Id, ProfileId = currentProfileId }, out var reactionType))
+                    //            comment.Reaction = reactionType;
 
-                            if (commentReactionCountsDict.TryGetValue(comment.Id, out var reactionCounts))
-                                comment.ReactionCounts = reactionCounts;
+                    //        if (commentReactionCountsDict.TryGetValue(comment.Id, out var reactionCounts))
+                    //            comment.ReactionCounts = reactionCounts;
 
-                            return comment;
-                        }).ToList();
+                    //        return comment;
+                    //    }).ToList();
 
                     // Process Post Types
                     switch (postItem.Type)
@@ -693,8 +766,11 @@ namespace InfinityNetServer.Services.Post.Application.Services
                                             // Process SubPost Owner
                                             if (profileDict.TryGetValue(subPost.OwnerId, out var subOwnerProfile))
                                             {
-                                                var avatar = photoMetadataDict.GetValueOrDefault(subOwnerProfile.Avatar.Id);
-                                                subOwnerProfile.Avatar = avatar;
+                                                if (subOwnerProfile.Avatar != null)
+                                                { 
+                                                    var avatar = photoMetadataDict.GetValueOrDefault(subOwnerProfile.Avatar.Id);
+                                                    subOwnerProfile.Avatar = avatar;
+                                                }
                                                 subPostResponse.Owner = subOwnerProfile;
                                             }
 
@@ -761,11 +837,11 @@ namespace InfinityNetServer.Services.Post.Application.Services
                 .Concat(post.Type switch
                         {
                             PostType.MultiMedia => post.SubPosts.Select(p => p.OwnerId),
-                            PostType.Share => post.Parent.Type switch
+                            PostType.Share => (post.Parent != null) ? post.Parent.Type switch
                             {
                                 PostType.MultiMedia => post.Parent.SubPosts.Select(p => p.OwnerId),
                                 _ => [post.Parent.OwnerId],
-                            },
+                            } : null,
                             _ => []
                         }
                 )
@@ -785,13 +861,13 @@ namespace InfinityNetServer.Services.Post.Application.Services
                     PostType.Photo => [post.FileMetadataId.Value],
                     PostType.MultiMedia => post.SubPosts
                         .Where(p => p.Type == PostType.Photo).Select(p => p.FileMetadataId.Value),
-                    PostType.Share => post.Parent.Type switch
+                    PostType.Share => (post.Parent != null) ? post.Parent.Type switch
                     {
                         PostType.Photo => [post.Parent.FileMetadataId.Value],
                         PostType.MultiMedia => post.Parent.SubPosts
                             .Where(p => p.Type == PostType.Photo).Select(p => p.FileMetadataId.Value),
                         _ => [],
-                    },
+                    } : null,
                     _ => []
                 }
                 )
@@ -802,13 +878,13 @@ namespace InfinityNetServer.Services.Post.Application.Services
                 PostType.Photo => [post.FileMetadataId.Value],
                 PostType.MultiMedia => post.SubPosts
                     .Where(p => p.Type == PostType.Photo).Select(p => p.FileMetadataId.Value),
-                PostType.Share => post.Parent.Type switch
+                PostType.Share => (post.Parent != null) ? post.Parent.Type switch
                 {
                     PostType.Photo => [post.Parent.FileMetadataId.Value],
                     PostType.MultiMedia => post.Parent.SubPosts
                         .Where(p => p.Type == PostType.Photo).Select(p => p.FileMetadataId.Value),
                     _ => [],
-                },
+                } : null,
                 _ => []
             }).Distinct();
 

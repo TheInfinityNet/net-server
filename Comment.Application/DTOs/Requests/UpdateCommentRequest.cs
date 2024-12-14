@@ -1,19 +1,13 @@
-﻿using System;
-using InfinityNetServer.Services.Comment.Domain.Entities;
+﻿using InfinityNetServer.Services.Comment.Domain.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace InfinityNetServer.Services.Comment.Application.DTOs.Requests
 {
     public class UpdateCommentRequest
     {
-        public Guid UpdatedBy { get; set; }
-        public CommentContent NewContent { get; set; } // Chuyển từ string thành CommentContent
 
-        public UpdateCommentRequest(Guid commentId, Guid updatedBy, CommentContent newContent)
-        {
-            UpdatedBy = updatedBy;
-            NewContent = newContent;
-        }
+        [Required(ErrorMessage = "Required.Content")]
+        public CommentContent Content { get; set; }
 
-        public UpdateCommentRequest() { }
     }
 }

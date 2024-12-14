@@ -139,7 +139,7 @@ internal static class HostingExtensions
 
         app.AutoMigration();
 
-        app.Services.SeedEssentialData(200);
+        app.Services.SeedEssentialData(300);
 
         app.MapGrpcServices();
 

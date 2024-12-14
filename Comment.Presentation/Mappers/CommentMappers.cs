@@ -38,5 +38,7 @@ public class CommentMappers : AutoMapper.Profile
 
         CreateMap<CommentBaseRequest, Domain.Entities.Comment>();
 
+        CreateMap<UpdateCommentRequest, Domain.Entities.Comment>();
+
     }
 }

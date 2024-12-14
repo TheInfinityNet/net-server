@@ -10,6 +10,8 @@ namespace InfinityNetServer.Services.Comment.Application.DTOs.Requests
         [Required(ErrorMessage = "Required.PostId")]
         public string PostId { get; set; }
 
+        public string ParentId { get; set; }
+
         public string Type { get; set; } = CommentType.Text.ToString();
 
         public string FileMetadataId { get; set; }

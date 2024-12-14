@@ -14,7 +14,7 @@ namespace InfinityNetServer.BuildingBlocks.Presentation.Configuration.Swagger
                 .Where(p => p.ParameterType == typeof(IFormFile) || p.ParameterType == typeof(IEnumerable<IFormFile>))
                 .ToList();
 
-            if (!formFileParams.Any())
+            if (formFileParams.Count == 0)
                 return;
 
             // Set request body content type to 'multipart/form-data'

@@ -94,26 +94,26 @@ namespace InfinityNetServer.Services.Post.Infrastructure.Data
 
         }
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            var postEntries = ChangeTracker.Entries<Domain.Entities.Post>();
-            var postAudienceEntries = ChangeTracker.Entries<PostAudience>();
+        //public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        //{
+        //    var postEntries = ChangeTracker.Entries<Domain.Entities.Post>();
+        //    var postAudienceEntries = ChangeTracker.Entries<PostAudience>();
 
-            int result = await base.SaveChangesAsync(cancellationToken);
+        //    int result = await base.SaveChangesAsync(cancellationToken);
 
-            if (result > 0)
-            {
-                foreach (var entry in postEntries)
-                    await PublishPostNotificationCommands(entry.Entity);
+        //    if (result > 0)
+        //    {
+        //        foreach (var entry in postEntries)
+        //            await PublishPostNotificationCommands(entry.Entity);
 
-                //foreach (var entry in postPrivacyEntries)
-                //{
-                //    var post = await Posts.FindAsync(entry.Entity.PostId);
-                //    await PublishUserTimelineCommand(post);
-                //}
-            }
-            return result;
-        }
+        //        //foreach (var entry in postPrivacyEntries)
+        //        //{
+        //        //    var post = await Posts.FindAsync(entry.Entity.PostId);
+        //        //    await PublishUserTimelineCommand(post);
+        //        //}
+        //    }
+        //    return result;
+        //}
 
         private async Task PublishPostNotificationCommands(Domain.Entities.Post entity)
         {

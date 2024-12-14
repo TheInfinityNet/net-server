@@ -53,25 +53,25 @@ namespace InfinityNetServer.Services.Relationship.Infrastructure.Data
             profileBlocks.HasIndex(i => i.CreatedAt);
         }
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            var friendshipEntries = ChangeTracker.Entries<Friendship>();
+        //public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        //{
+        //    var friendshipEntries = ChangeTracker.Entries<Friendship>();
 
-            var profileFollowEntries = ChangeTracker.Entries<ProfileFollow>();
+        //    var profileFollowEntries = ChangeTracker.Entries<ProfileFollow>();
 
-            int result = await base.SaveChangesAsync(cancellationToken);
+        //    int result = await base.SaveChangesAsync(cancellationToken);
 
-            if (result > 0)
-            {
-                foreach (var entry in friendshipEntries)
-                    await PublishFriendshipNotificationCommands(entry.Entity);
+        //    if (result > 0)
+        //    {
+        //        foreach (var entry in friendshipEntries)
+        //            await PublishFriendshipNotificationCommands(entry.Entity);
 
-                foreach (var entry in profileFollowEntries)
-                    await PublishProfileFollowNotificationCommands(entry.Entity);
-            }
+        //        foreach (var entry in profileFollowEntries)
+        //            await PublishProfileFollowNotificationCommands(entry.Entity);
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
         private async Task PublishFriendshipNotificationCommands(Friendship entity)
         {

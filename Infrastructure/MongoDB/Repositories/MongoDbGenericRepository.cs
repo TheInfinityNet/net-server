@@ -2,6 +2,7 @@
 using InfinityNetServer.BuildingBlocks.Domain.Repositories;
 using InfinityNetServer.BuildingBlocks.Domain.Specifications.CursorPaging;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -52,40 +53,33 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB.Repositories
                 filters.Add(criteriaFilter);
             }
 
-            // Apply Cursor-based filter for pagination using created_at
-            if (cursor != null)
+            // Apply Cursor-based filter for pagination using CreatedAt and Id
+            if (!string.IsNullOrEmpty(cursor))
             {
-                var cursorDate = DateTime.Parse(cursor);
-                filters.Add(filterBuilder.Gt("created_at", cursorDate)); // Replace with Lt for descending
+                var cursorParts = cursor.Split('|');
+                if (cursorParts.Length == 2 &&
+                    DateTime.TryParse(cursorParts[0], out var cursorDateTime) &&
+                    ObjectId.TryParse(cursorParts[1], out var cursorId))
+                {
+                    var cursorFilter = filterBuilder.Or(
+                        filterBuilder.Lt("created_at", cursorDateTime),
+                        filterBuilder.And(
+                            filterBuilder.Eq("created_at", cursorDateTime),
+                            filterBuilder.Lt("_id", cursorId) // Assume MongoDB uses ObjectId as default Id
+                        )
+                    );
+                    filters.Add(cursorFilter);
+                }
             }
 
             var filter = filters.Count > 0 ? filterBuilder.And(filters) : filterBuilder.Empty;
 
-            // Define Sorting based on OrderFields
+            // Define default sorting: CreatedAt DESC, then Id DESC
             var sortBuilder = Builders<TEntity>.Sort;
-            SortDefinition<TEntity> sortDefinition;
-
-            if (specification.OrderFields != null && specification.OrderFields.Any())
-            {
-                var sortDefinitions = new List<SortDefinition<TEntity>>();
-
-                foreach (var orderField in specification.OrderFields)
-                {
-                    var sort = orderField.Direction.Equals(SortDirection.Ascending)
-                        ? sortBuilder.Ascending(orderField.Field)
-                        : sortBuilder.Descending(orderField.Field);
-                    sortDefinitions.Add(sort);
-                }
-
-                sortDefinition = sortBuilder.Combine(sortDefinitions);
-            }
-            else
-            {
-                // Default sort: prioritize `is_read` true first, then `created_at` descending
-                sortDefinition = sortBuilder.Combine(
-                    sortBuilder.Descending("created_at")
-                );
-            }
+            var sortDefinition = sortBuilder.Combine(
+                sortBuilder.Descending("created_at"),
+                sortBuilder.Descending("_id")
+            );
 
             // Execute query with filter and sorting, apply pagination
             var query = _collection.Find(filter)
@@ -99,17 +93,21 @@ namespace InfinityNetServer.BuildingBlocks.Infrastructure.MongoDB.Repositories
             if (hasNext) items = items.Take(specification.Limit).ToList(); // Remove extra item if there is a next page
 
             // Determine the next and previous cursors
-            var nextCursor = hasNext ? items.Last().CreatedAt.ToString("o") : null;
-            var prevCursor = items.Count > 1 ? items.First().CreatedAt.ToString("o") : null; // The first item in the current page is the prevCursor
+            var nextCursor = hasNext
+                ? $"{items.Last().CreatedAt:O}|{items.Last().Id}"
+                : null;
+
+            var prevCursor = !string.IsNullOrEmpty(cursor) && items.Any()
+                ? $"{items.First().CreatedAt:O}|{items.First().Id}"
+                : null;
 
             return new CursorPagedResult<TEntity>
             {
                 Items = items,
                 NextCursor = nextCursor,
-                PrevCursor = prevCursor, // Include prevCursor in the result
+                PrevCursor = prevCursor,
             };
         }
-
 
     }
 }
